@@ -1,11 +1,50 @@
 package com.example.kanbun.data.repository
 
-import com.example.kanbun.common.FirestoreEnvironment
+import android.util.Log
+import com.example.kanbun.common.FirestoreCollection
+import com.example.kanbun.common.Result
+import com.example.kanbun.data.model.FirestoreUser
+import com.example.kanbun.data.toFirestoreUser
+import com.example.kanbun.data.toUser
+import com.example.kanbun.domain.model.User
 import com.example.kanbun.domain.repository.FirestoreRepository
-import javax.inject.Inject
+import com.google.firebase.firestore.FirebaseFirestore
+import kotlinx.coroutines.tasks.await
 
-class FirestoreRepositoryImpl @Inject constructor(
-    private val environment: FirestoreEnvironment
-) : FirestoreRepository {
+private const val TAG = "FirestoreRepository"
 
+class FirestoreRepositoryImpl(private val firestore: FirebaseFirestore) : FirestoreRepository {
+
+    override suspend fun addUser(user: User): Result<Unit> {
+        return try {
+            firestore.collection(FirestoreCollection.USERS.collectionName)
+                .document(user.uid)
+                .set(user.toFirestoreUser())
+            Result.Success(Unit)
+        } catch (e: Exception) {
+            Result.Error(e.message, e)
+        }
+    }
+
+    override suspend fun getUser(userId: String): Result<User> {
+        return try {
+            val task = firestore.collection(FirestoreCollection.USERS.collectionName)
+                .document(userId)
+                .get()
+                .await()
+
+            Log.d(TAG, "task: $task")
+
+            val firestoreUser = task.toObject(FirestoreUser::class.java)
+            Log.d(TAG, "firestoreUser: $firestoreUser")
+
+            if (firestoreUser != null) {
+                Result.Success(firestoreUser.toUser(userId))
+            } else {
+                Result.Error("Requested document does not exist")
+            }
+        } catch (e: Exception) {
+            Result.Error(e.message, e)
+        }
+    }
 }

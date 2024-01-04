@@ -17,7 +17,9 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
-
+    buildFeatures {
+        viewBinding = true
+    }
     buildTypes {
         release {
             isMinifyEnabled = false
@@ -25,6 +27,11 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            manifestPlaceholders["usesCleartextTraffic"] = "false"
+        }
+
+        debug {
+            manifestPlaceholders["usesCleartextTraffic"] = "true"
         }
     }
     compileOptions {
@@ -50,7 +57,11 @@ dependencies {
 
     testImplementation(libs.junit)
     testImplementation(libs.kotlinx.coroutines.test)
+    testImplementation(libs.truth)
 
+    androidTestImplementation(platform("com.google.firebase:firebase-bom:32.7.0"))
+    androidTestImplementation("com.google.firebase:firebase-firestore")
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
+    androidTestImplementation(libs.truth)
 }

@@ -9,6 +9,7 @@ kotlin = "1.9.0"
 kotlinxCoroutinesAndroid = "1.7.1"
 kotlinxCoroutinesTest = "1.8.0-RC2"
 material = "1.11.0"
+truth = "1.2.0"
 
 [libraries]
 androidx-appcompat = { module = "androidx.appcompat:appcompat", version.ref = "appcompat" }
@@ -21,5 +22,6 @@ hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hiltA
 junit = { module = "junit:junit", version.ref = "junit" }
 kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "kotlinxCoroutinesTest" }
 material = { module = "com.google.android.material:material", version.ref = "material" }
+truth = { module = "com.google.truth:truth", version.ref = "truth" }
 
 [plugins]
