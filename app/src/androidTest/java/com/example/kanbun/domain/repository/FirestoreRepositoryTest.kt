@@ -2,6 +2,7 @@ package com.example.kanbun.domain.repository
 
 import com.example.kanbun.common.Result
 import com.example.kanbun.data.repository.FirestoreRepositoryImpl
+import com.example.kanbun.domain.FirestoreTestUtil
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.runBlocking
 import org.junit.After

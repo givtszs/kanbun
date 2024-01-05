@@ -10,10 +10,13 @@ import com.example.kanbun.domain.model.User
 import com.example.kanbun.domain.repository.FirestoreRepository
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.tasks.await
+import javax.inject.Inject
 
 private const val TAG = "FirestoreRepository"
 
-class FirestoreRepositoryImpl(private val firestore: FirebaseFirestore) : FirestoreRepository {
+class FirestoreRepositoryImpl @Inject constructor(
+    private val firestore: FirebaseFirestore
+) : FirestoreRepository {
 
     override suspend fun addUser(user: User): Result<Unit> {
         return try {

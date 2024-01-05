@@ -1,8 +1,9 @@
-package com.example.kanbun.domain.repository
+package com.example.kanbun.domain
 
 import com.example.kanbun.common.AuthType
 import com.example.kanbun.domain.model.User
 import com.example.kanbun.domain.model.UserWorkspace
+import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.firestoreSettings
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
@@ -22,10 +23,14 @@ class FirestoreTestUtil {
             }
         }
 
+        val auth = Firebase.auth.apply {
+            useEmulator("10.0.2.2", 9099)
+        }
+
         suspend fun deleteData() = withContext(Dispatchers.IO) {
             val projectName = "kanbun-aa2d6"
             val url =
-                URL("http://${firestoreHost}:${firestorePort}/emulator/v1/projects/${projectName}/databases/(default)/documents")
+                URL("http://$firestoreHost:$firestorePort/emulator/v1/projects/${projectName}/databases/(default)/documents")
             val con = (url.openConnection() as HttpURLConnection).apply {
                 requestMethod = "DELETE"
                 instanceFollowRedirects = false
