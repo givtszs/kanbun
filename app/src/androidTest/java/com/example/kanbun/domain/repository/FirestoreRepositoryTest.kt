@@ -20,7 +20,7 @@ class FirestoreRepositoryTest {
 
     @After
     fun tearDown() = runBlocking {
-        FirestoreTestUtil.deleteData()
+        FirestoreTestUtil.deleteFirestoreData()
     }
 
     @Test
