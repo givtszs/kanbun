@@ -36,5 +36,26 @@ class FirestoreRepositoryTest {
         assertThat(savedUser).isEqualTo(user)
     }
 
+    @Test
+    fun getUser_getsSignedInUserData() = runBlocking {
+        val user = FirestoreTestUtil.generateUser()
+        repository.addUser(user)
 
+        val result = repository.getUser(user.uid)
+        assertThat(result).isInstanceOf(Result.Success::class.java)
+
+        val resultUser = (result as Result.Success).data
+        assertThat(resultUser).isEqualTo(user)
+    }
+
+    @Test
+    fun getUser_toGetNonexistentUser_returnsResultError() = runBlocking {
+        val userId = "nonexistent_id"
+
+        val result = repository.getUser(userId)
+        assertThat(result).isInstanceOf(Result.Error::class.java)
+
+        val resultMessage = (result as Result.Error).message
+        assertThat(resultMessage).isNotNull()
+    }
 }
