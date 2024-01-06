@@ -2,8 +2,7 @@ package com.example.kanbun.domain.usecase
 
 import com.example.kanbun.common.Result
 import com.example.kanbun.domain.FirestoreTestUtil
-import com.google.common.truth.Subject
-import com.google.common.truth.Truth.*
+import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Before
@@ -90,6 +89,34 @@ class RegisterUserUseCaseTest {
         assertThatResultErrorWithPresentMessage(result)
 
         password = "123"
+        result = useCase.registerWithEmail(email, password)
+        assertThatResultErrorWithPresentMessage(result)
+
+        password = "111111"
+        result = useCase.registerWithEmail(email, password)
+        assertThatResultErrorWithPresentMessage(result)
+
+        password = "qw1Erty y"
+        result = useCase.registerWithEmail(email, password)
+        assertThatResultErrorWithPresentMessage(result)
+
+        password = "qwerty123"
+        result = useCase.registerWithEmail(email, password)
+        assertThatResultErrorWithPresentMessage(result)
+
+        password = "QWERTY123"
+        result = useCase.registerWithEmail(email, password)
+        assertThatResultErrorWithPresentMessage(result)
+
+        password = "qqqqqq"
+        result = useCase.registerWithEmail(email, password)
+        assertThatResultErrorWithPresentMessage(result)
+
+        password = "TestPassword123!ThisIsALongPasswordForTesting1234567890123456789012345678901"
+        result = useCase.registerWithEmail(email, password)
+        assertThatResultErrorWithPresentMessage(result)
+
+        password = "Qwerty123"
         result = useCase.registerWithEmail(email, password)
         assertThatResultErrorWithPresentMessage(result)
     }

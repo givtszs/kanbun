@@ -67,6 +67,6 @@ class FirestoreTestUtil {
         )
 
         const val testEmail = "qatesteverything@gmail.com"
-        val testPassword = "qwerty123_"
+        const val testPassword = "Qwerty123_"
     }
 }
