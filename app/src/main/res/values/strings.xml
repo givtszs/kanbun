@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">Kanbun</string>
+    <string name="new_user">New User?</string>
+    <string name="sign_up">Sign up</string>
 </resources>

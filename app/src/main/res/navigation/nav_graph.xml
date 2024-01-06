@@ -1,6 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/nav_graph">
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/registrationPromptFragment">
 
+    <fragment
+        android:id="@+id/registrationPromptFragment"
+        android:name="com.example.kanbun.presentation.registration.RegistrationPromptFragment"
+        android:label="fragment_registration_prompt"
+        tools:layout="@layout/fragment_registration_prompt" />
 </navigation>
