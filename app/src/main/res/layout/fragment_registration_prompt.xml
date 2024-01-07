@@ -8,22 +8,21 @@
 
     <ImageView
         android:id="@+id/ivLogo"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="160dp"
+        android:layout_height="160dp"
         android:layout_marginTop="100dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/ic_launcher_background" />
+        app:srcCompat="@drawable/app_logo_text" />
 
     <TextView
         android:id="@+id/tvIntro"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="20dp"
-        android:layout_marginTop="32dp"
         android:gravity="center"
-        android:text="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam sed tortor velit."
+        android:text="Experience a visual representation of your project tasks through our intuitive Kanban boards"
         app:layout_constraintTop_toBottomOf="@id/ivLogo" />
 
     <com.google.android.material.button.MaterialButton
@@ -42,6 +41,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="4dp"
+        android:clickable="true"
         app:layout_constraintEnd_toEndOf="@id/btnLogin"
         app:layout_constraintStart_toStartOf="@id/btnLogin"
         app:layout_constraintTop_toBottomOf="@id/btnLogin">
@@ -62,7 +62,10 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="4dp"
+            android:clickable="true"
             android:text="@string/sign_up"
+            android:textStyle="bold"
+            android:textColor="@color/md_theme_light_primary"
             app:layout_constraintBaseline_toBaselineOf="@id/tvNewUser"
             app:layout_constraintStart_toEndOf="@id/tvNewUser" />
     </androidx.constraintlayout.widget.ConstraintLayout>
