@@ -2,6 +2,6 @@
     <string name="app_name">Kanbun</string>
     <string name="new_user">New User?</string>
     <string name="sign_up">Sign up</string>
-    <string name="login">Login</string>
+    <string name="log_in">Log in</string>
     <string name="text_app_intro">Visualize project tasks and track work progress\nwith intuitive Kanban boards</string>
 </resources>

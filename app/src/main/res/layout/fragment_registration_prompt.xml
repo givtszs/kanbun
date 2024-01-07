@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/logo_bg"
-    tools:context=".presentation.registration.RegistrationPromptFragment">
+    tools:context=".presentation.registration.promt.RegistrationPromptFragment">
 
     <ImageView
         android:id="@+id/ivLogo"
@@ -31,10 +31,10 @@
         app:layout_constraintTop_toBottomOf="@id/ivLogo" />
 
     <com.google.android.material.button.MaterialButton
-        android:id="@+id/btnLogin"
+        android:id="@+id/btnLogIn"
         android:layout_width="160dp"
         android:layout_height="50dp"
-        android:text="@string/login"
+        android:text="@string/log_in"
         android:textAllCaps="false"
         android:textSize="16sp"
         app:backgroundTint="@color/md_theme_light_tertiary"
@@ -48,9 +48,9 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
         android:clickable="true"
-        app:layout_constraintEnd_toEndOf="@id/btnLogin"
-        app:layout_constraintStart_toStartOf="@id/btnLogin"
-        app:layout_constraintTop_toBottomOf="@id/btnLogin">
+        app:layout_constraintEnd_toEndOf="@id/btnLogIn"
+        app:layout_constraintStart_toStartOf="@id/btnLogIn"
+        app:layout_constraintTop_toBottomOf="@id/btnLogIn">
 
         <TextView
             android:id="@+id/tvNewUser"
