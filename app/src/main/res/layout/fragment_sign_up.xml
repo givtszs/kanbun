@@ -4,12 +4,179 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/topAppBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/md_theme_light_background"
+            android:minHeight="?attr/actionBarSize"
+            app:navigationIcon="@drawable/ic_round_arrow_back_24"
+            app:title="@string/sign_up" />
+    </com.google.android.material.appbar.AppBarLayout>
+
     <TextView
+        android:id="@+id/tvGreeting"
+        style="?attr/textAppearanceHeadline2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/sign_up"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_marginStart="@dimen/main_horizontal_margin"
+        android:layout_marginTop="16dp"
+        android:text="@string/sign_up_greeting"
+        android:textSize="40sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/topAppBar" />
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/tfName"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="@dimen/main_horizontal_margin"
+        android:layout_marginTop="40dp"
+        android:hint="@string/hint_name"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@id/tvGreeting">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/etName"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:inputType="textPersonName" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/tfEmail"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="@dimen/main_horizontal_margin"
+        android:layout_marginTop="16dp"
+        android:hint="@string/hint_email"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tfName">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/etEmail"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:inputType="textEmailAddress" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/tfPassword"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="@dimen/main_horizontal_margin"
+        android:layout_marginTop="16dp"
+        android:hint="@string/hint_password"
+        app:endIconCheckable="true"
+        app:endIconDrawable="@drawable/ic_outline_visibility_24"
+        app:endIconMode="password_toggle"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tfEmail">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/etPassword"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:inputType="textPassword" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/tfConfirmPassword"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="@dimen/main_horizontal_margin"
+        android:layout_marginTop="16dp"
+        android:hint="@string/hint_confirm_password"
+        app:endIconCheckable="true"
+        app:endIconDrawable="@drawable/ic_outline_visibility_24"
+        app:endIconMode="password_toggle"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tfPassword">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/etConfirmPassword"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:inputType="textPassword" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <Button
+        android:id="@+id/btnSignUp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="@dimen/main_horizontal_margin"
+        android:layout_marginTop="26dp"
+        android:text="@string/sign_up"
+        app:layout_constraintTop_toBottomOf="@id/tfConfirmPassword" />
+
+    <TextView
+        android:id="@+id/tvOr"
+        style="?attr/textAppearanceSubtitle1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="@string/or"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/btnSignUp" />
+
+    <Button
+        android:id="@+id/btnSignUpGitHub"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="@dimen/main_horizontal_margin"
+        android:layout_marginTop="16dp"
+        android:backgroundTint="@color/black"
+        android:text="@string/sign_up_github"
+        app:icon="@drawable/ic_github_mark_white"
+        app:layout_constraintTop_toBottomOf="@id/tvOr" />
+
+    <Button
+        android:id="@+id/btnSignUpGoogle"
+        style="?attr/materialButtonOutlinedStyle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="@dimen/main_horizontal_margin"
+        android:layout_marginTop="8dp"
+        android:text="@string/sign_up_google"
+        android:textColor="@color/black"
+        app:icon="@drawable/ic_google_logo_24"
+        app:iconTint="@null"
+        app:layout_constraintTop_toBottomOf="@id/btnSignUpGitHub" />
+
+    <TextView
+        android:id="@+id/tvSuggestLogIn"
+        style="?attr/textAppearanceSubtitle1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="12dp"
+        android:layout_marginTop="22dp"
+        android:text="@string/suggest_log_in"
+        android:textColor="@color/md_theme_light_tertiary"
+        app:layout_constraintStart_toStartOf="@id/btnSignUpGoogle"
+        app:layout_constraintTop_toBottomOf="@id/btnSignUpGoogle" />
+
+    <TextView
+        android:id="@+id/tvLogIn"
+        style="?attr/textAppearanceSubtitle1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/text_link_margin_start"
+        android:text="@string/log_in"
+        android:textColor="@color/md_theme_light_tertiary"
+        android:textStyle="bold"
+        app:layout_constraintBaseline_toBaselineOf="@id/tvSuggestLogIn"
+        app:layout_constraintStart_toEndOf="@id/tvSuggestLogIn" />
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -68,7 +68,7 @@
             style="?textAppearanceSubtitle1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="4dp"
+            android:layout_marginStart="@dimen/text_link_margin_start"
             android:clickable="true"
             android:text="@string/sign_up"
             android:textStyle="bold"
