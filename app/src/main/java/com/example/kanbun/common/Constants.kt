@@ -6,5 +6,7 @@ enum class FirestoreCollection(val collectionName: String) {
 }
 
 enum class AuthType(val typeName: String) {
-    GOOGLE("Google")
+    EMAIL("Email"),
+    GOOGLE("Google"),
+    GITHUB("GitHub")
 }

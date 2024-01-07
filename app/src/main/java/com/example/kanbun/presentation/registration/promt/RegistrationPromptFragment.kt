@@ -5,8 +5,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
-import androidx.fragment.app.Fragment
-import androidx.navigation.fragment.findNavController
 import com.example.kanbun.R
 import com.example.kanbun.databinding.FragmentRegistrationPromptBinding
 import com.example.kanbun.presentation.BaseFragment
@@ -36,9 +34,8 @@ class RegistrationPromptFragment : BaseFragment() {
         }
     }
 
-    private fun setStatusBarColor(color: Int) {
-        requireActivity().window.apply {
-            statusBarColor = color
-        }
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 }

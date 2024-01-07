@@ -9,7 +9,7 @@
         android:id="@+id/registrationPromptFragment"
         android:name="com.example.kanbun.presentation.registration.promt.RegistrationPromptFragment"
         android:label="fragment_registration_prompt"
-        tools:layout="@layout/fragment_registration_prompt" >
+        tools:layout="@layout/fragment_registration_prompt">
         <action
             android:id="@+id/action_registrationPromptFragment_to_logInFragment"
             app:destination="@id/logInFragment" />
@@ -20,7 +20,7 @@
     <fragment
         android:id="@+id/logInFragment"
         android:name="com.example.kanbun.presentation.registration.log_in.LogInFragment"
-        android:label="LogInFragment" >
+        android:label="LogInFragment">
         <action
             android:id="@+id/action_logInFragment_to_signUpFragment"
             app:destination="@id/signUpFragment" />
@@ -28,7 +28,8 @@
     <fragment
         android:id="@+id/signUpFragment"
         android:name="com.example.kanbun.presentation.registration.sign_up.SignUpFragment"
-        android:label="SignUpFragment" >
+        android:label="SignUpFragment"
+        tools:layout="@layout/fragment_sign_up">
         <action
             android:id="@+id/action_signUpFragment_to_logInFragment"
             app:destination="@id/logInFragment" />
