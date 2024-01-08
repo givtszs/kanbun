@@ -51,7 +51,7 @@ class SignUpViewModel @Inject constructor(
 
         when (provider) {
             AuthType.EMAIL -> {
-                when (val result = registerUserUseCase.registerWithEmail(email, password)) {
+                when (val result = registerUserUseCase.signUpWithEmail(email, password)) {
                     is Result.Success -> {
                         _signUpState.update { it.copy(message = "Signed up successfully!") }
                         successCallback()
