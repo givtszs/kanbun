@@ -1,9 +1,12 @@
 package com.example.kanbun.presentation.registration.sign_up
 
+import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.core.widget.doOnTextChanged
@@ -15,7 +18,9 @@ import com.example.kanbun.R
 import com.example.kanbun.common.AuthType
 import com.example.kanbun.databinding.FragmentSignUpBinding
 import com.example.kanbun.presentation.BaseFragment
+import com.google.android.material.textfield.TextInputLayout
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
@@ -38,7 +43,6 @@ class SignUpFragment : BaseFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         collectState()
-        restoreState()
         setUpListeners()
     }
 
@@ -52,22 +56,47 @@ class SignUpFragment : BaseFragment() {
         }
     }
 
-    private fun restoreState() {
-        binding.etEmail.setText(viewModel.userEmail)
-    }
-
     private fun setUpListeners() {
         binding.etEmail.doOnTextChanged { text, _, _, _ ->
-            viewModel.userEmail = text.toString()
+            Log.d("SignUpFragment", "${binding.tfEmail.isErrorEnabled}")
+            if (!text.isNullOrEmpty()) {
+                binding.tfEmail.isErrorEnabled = false.also {
+                    viewModel.emailError = null
+                }
+            }
         }
 
+        binding.etPassword.doOnTextChanged { text, _, _, _ ->
+            if (!text.isNullOrEmpty()) {
+                binding.tfPassword.isErrorEnabled = false.also {
+                    viewModel.passwordError = null
+                }
+            }
+        }
+
+        binding.etConfirmPassword.doOnTextChanged { text, _, _, _ ->
+            if (!text.isNullOrEmpty()) {
+                binding.tfConfirmPassword.isErrorEnabled = false.also {
+                    viewModel.confirmationPasswordError = null
+                }
+            }
+        }
+
+        var job: Job? = null
         binding.btnSignUp.setOnClickListener {
-            viewModel.registerUser(
+            clearFocus(it)
+            job?.cancel()
+            job = viewModel.registerUser(
                 email = binding.tfEmail.editText?.text.toString(),
                 password = binding.tfPassword.editText?.text.toString(),
                 confirmationPassword = binding.tfConfirmPassword.editText?.text.toString(),
                 provider = AuthType.EMAIL,
-                successCallback = { showToast("Navigate to email verification screen", Toast.LENGTH_SHORT) }
+                successCallback = {
+                    showToast(
+                        "Navigate to email verification screen",
+                        Toast.LENGTH_SHORT
+                    )
+                }
             )
         }
 
@@ -76,32 +105,43 @@ class SignUpFragment : BaseFragment() {
         }
     }
 
+    private fun clearFocus(view: View) {
+        binding.tfEmail.clearFocus()
+        binding.tfPassword.clearFocus()
+        binding.tfConfirmPassword.clearFocus()
+        // hide keyboard
+        (requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager).apply {
+            hideSoftInputFromWindow(view.applicationWindowToken, 0)
+        }
+    }
+
     private fun processViewState(viewState: SignUpViewState) {
-        with (viewState) {
+        Log.d("SignUpFragment", "viewState: $viewState")
+
+        with(viewState) {
             emailError?.let {
-                binding.tfEmail.apply {
-                    error = it
-                    isErrorEnabled = true
-                }
+                showError(binding.tfEmail, it)
             }
 
             passwordError?.let {
-                binding.tfPassword.apply {
-                    error = it
-                    isErrorEnabled = true
-                }
+                showError(binding.tfPassword, it)
             }
 
             confirmationPasswordError?.let {
-                binding.tfConfirmPassword.apply {
-                    error = it
-                    isErrorEnabled = true
-                }
+                showError(binding.tfConfirmPassword, it)
             }
 
             message?.let {
                 showToast(it, Toast.LENGTH_LONG)
+                viewModel.messageShown()
             }
+        }
+    }
+
+    private fun showError(input: TextInputLayout, message: String) {
+        input.apply {
+            error = message
+            isErrorEnabled = true
         }
     }
 

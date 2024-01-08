@@ -19,10 +19,22 @@ class SignUpViewModel @Inject constructor(
     private var _signUpState = MutableStateFlow(SignUpViewState())
     val signUpState: StateFlow<SignUpViewState> = _signUpState
 
-    var userEmail: String = signUpState.value.userEmail
+    var emailError: String? = null
         set(value) {
             field = value
-            _signUpState.update { it.copy(userEmail = field) }
+            _signUpState.update { it.copy(emailError = field) }
+        }
+
+    var passwordError: String? = null
+        set(value) {
+            field = value
+            _signUpState.update { it.copy(passwordError = field) }
+        }
+
+    var confirmationPasswordError: String? = null
+        set(value) {
+            field = value
+            _signUpState.update { it.copy(confirmationPasswordError = field) }
         }
 
     fun registerUser(
@@ -32,7 +44,7 @@ class SignUpViewModel @Inject constructor(
         provider: AuthType,
         successCallback: () -> Unit
     ) = viewModelScope.launch {
-        if (confirmationPassword != password) {
+        if (confirmationPassword.isNotEmpty() && confirmationPassword != password) {
             _signUpState.update { it.copy(confirmationPasswordError = "Passwords don't match. Please try again") }
             return@launch
         }
@@ -45,9 +57,8 @@ class SignUpViewModel @Inject constructor(
                         successCallback()
                     }
 
-                    is Result.Error -> {
-                        processError(result.message)
-                    }
+                    is Result.Error -> processError(result.message)
+                    is Result.Exception -> _signUpState.update { it.copy(message = result.message) }
                 }
             }
 
@@ -63,10 +74,14 @@ class SignUpViewModel @Inject constructor(
 
         if (message.lowercase().contains("email")) {
             _signUpState.update { it.copy(emailError = message) }
-        } else if (message.lowercase().contains("password")) {
-            _signUpState.update { it.copy(passwordError = message) }
-        } else {
-            _signUpState.update { it.copy(message = "Unknown error") }
         }
+
+        if (message.lowercase().contains("password")) {
+            _signUpState.update { it.copy(passwordError = message) }
+        }
+    }
+
+    fun messageShown() {
+        _signUpState.update { it.copy(message = null) }
     }
 }

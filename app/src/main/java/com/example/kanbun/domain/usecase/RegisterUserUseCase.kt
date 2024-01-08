@@ -32,7 +32,7 @@ class RegisterUserUseCase @Inject constructor(
             }
         } catch (e: Exception) {
             Log.e(TAG, e.message, e)
-            Result.Error(e.message, e)
+            Result.Exception(e.message, e)
         }
     }
 
@@ -53,7 +53,7 @@ class RegisterUserUseCase @Inject constructor(
             password.none { it.isLetter() } -> Pair(false, "Password must contain at least 1 letter")
             password.none { it.isUpperCase() } -> Pair(false, "Password must contain at least 1 uppercase letter")
             password.none { it.isLowerCase() } -> Pair(false, "Password must contain at least 1 lowercase letter")
-            !regPatter.containsMatchIn(password) -> Pair(false, "Password must contain at least 1 special character: ~`! @#\$%^&*()_-+={}[]|\\:;\"'<,>.?/")
+            !regPatter.containsMatchIn(password) -> Pair(false, "Password must contain at least 1 special character: ~`!@#\$%^&*()_-+={}[]|\\:;\"'<,>.?/")
             else -> Pair(true, "Email and password are valid") // Validation successful
         }
     }

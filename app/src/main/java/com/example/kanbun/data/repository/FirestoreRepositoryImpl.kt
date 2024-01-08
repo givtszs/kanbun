@@ -25,7 +25,7 @@ class FirestoreRepositoryImpl @Inject constructor(
                 .set(user.toFirestoreUser())
             Result.Success(Unit)
         } catch (e: Exception) {
-            Result.Error(e.message, e)
+            Result.Exception(e.message, e)
         }
     }
 
@@ -47,7 +47,7 @@ class FirestoreRepositoryImpl @Inject constructor(
                 Result.Error("Requested document does not exist")
             }
         } catch (e: Exception) {
-            Result.Error(e.message, e)
+            Result.Exception(e.message, e)
         }
     }
 }
