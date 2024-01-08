@@ -18,8 +18,7 @@
             android:layout_height="match_parent"
             android:background="@color/md_theme_light_background"
             android:minHeight="?attr/actionBarSize"
-            app:navigationIcon="@drawable/ic_round_arrow_back_24"
-            app:title="@string/sign_up" />
+            app:navigationIcon="@drawable/ic_round_arrow_back_24" />
     </com.google.android.material.appbar.AppBarLayout>
 
     <TextView

@@ -19,18 +19,19 @@ class RegistrationPromptFragment : BaseFragment() {
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentRegistrationPromptBinding.inflate(inflater, container, false)
-        setStatusBarColor(ContextCompat.getColor(requireContext(), R.color.md_theme_light_primary_variant))
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        setStatusBarColor(ContextCompat.getColor(requireContext(), R.color.md_theme_light_primary_variant))
+
         binding.btnLogIn.setOnClickListener {
-            navigate(R.id.logInFragment)
+            navController.navigate(R.id.logInFragment)
         }
 
         binding.tvSignUp.setOnClickListener {
-            navigate(R.id.signUpFragment)
+            navController.navigate(R.id.signUpFragment)
         }
     }
 

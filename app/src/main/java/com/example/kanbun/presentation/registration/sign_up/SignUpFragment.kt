@@ -2,12 +2,12 @@ package com.example.kanbun.presentation.registration.sign_up
 
 import android.content.Context
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.core.content.ContextCompat
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.viewModels
@@ -18,6 +18,7 @@ import com.example.kanbun.R
 import com.example.kanbun.common.AuthType
 import com.example.kanbun.databinding.FragmentSignUpBinding
 import com.example.kanbun.presentation.BaseFragment
+import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.textfield.TextInputLayout
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Job
@@ -30,18 +31,28 @@ class SignUpFragment : BaseFragment() {
     private val binding: FragmentSignUpBinding get() = _binding!!
     private val viewModel: SignUpViewModel by viewModels()
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        requireActivity().onBackPressedDispatcher.addCallback(owner = this@SignUpFragment, onBackPressedCallback = object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                navController.navigateUp()
+            }
+        })
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentSignUpBinding.inflate(inflater, container, false)
-        setStatusBarColor(ContextCompat.getColor(requireContext(), R.color.white))
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        setUpActionBar(binding.toolbar)
+        setStatusBarColor(ContextCompat.getColor(requireContext(), R.color.white))
         collectState()
         setUpListeners()
     }
@@ -58,7 +69,6 @@ class SignUpFragment : BaseFragment() {
 
     private fun setUpListeners() {
         binding.etEmail.doOnTextChanged { text, _, _, _ ->
-            Log.d("SignUpFragment", "${binding.tfEmail.isErrorEnabled}")
             if (!text.isNullOrEmpty()) {
                 binding.tfEmail.isErrorEnabled = false.also {
                     viewModel.emailError = null
@@ -101,7 +111,7 @@ class SignUpFragment : BaseFragment() {
         }
 
         binding.tvLogIn.setOnClickListener {
-            navigate(R.id.logInFragment)
+            navController.navigate(R.id.logInFragment)
         }
     }
 
@@ -116,8 +126,6 @@ class SignUpFragment : BaseFragment() {
     }
 
     private fun processViewState(viewState: SignUpViewState) {
-        Log.d("SignUpFragment", "viewState: $viewState")
-
         with(viewState) {
             emailError?.let {
                 showError(binding.tfEmail, it)
