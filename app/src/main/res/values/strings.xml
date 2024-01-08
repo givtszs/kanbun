@@ -2,15 +2,19 @@
     <string name="app_name">Kanbun</string>
     <string name="new_user">New User?</string>
     <string name="sign_up">Sign up</string>
-    <string name="log_in">Log in</string>
+    <string name="sign_in">Sign in</string>
     <string name="text_app_intro">Visualize project tasks and track work progress\nwith intuitive Kanban boards</string>
     <string name="sign_up_greeting">Let\'s get you in</string>
+    <string name="sign_in_greeting">Welcome back</string>
     <string name="hint_name">Name</string>
     <string name="hint_email">Email</string>
     <string name="hint_password">Password</string>
     <string name="hint_confirm_password">Confirm password</string>
     <string name="or">or</string>
     <string name="sign_up_github">Sign up with GitHub</string>
+    <string name="sign_in_github">Sign in with GitHub</string>
     <string name="sign_up_google">Sign up with Google</string>
-    <string name="suggest_log_in">Already have an account?</string>
+    <string name="sign_in_google">Sign in with Google</string>
+    <string name="suggest_sign_in">Already have an account?</string>
+    <string name="suggest_sign_up">Don\'t have an account?</string>
 </resources>

@@ -26,8 +26,8 @@ class RegistrationPromptFragment : BaseFragment() {
         super.onViewCreated(view, savedInstanceState)
         setStatusBarColor(ContextCompat.getColor(requireContext(), R.color.md_theme_light_primary_variant))
 
-        binding.btnLogIn.setOnClickListener {
-            navController.navigate(R.id.logInFragment)
+        binding.btnSignIn.setOnClickListener {
+            navController.navigate(R.id.signInFragment)
         }
 
         binding.tvSignUp.setOnClickListener {

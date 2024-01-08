@@ -110,8 +110,8 @@ class SignUpFragment : BaseFragment() {
             )
         }
 
-        binding.tvLogIn.setOnClickListener {
-            navController.navigate(R.id.logInFragment)
+        binding.tvSignIn.setOnClickListener {
+            navController.navigate(R.id.signInFragment)
         }
     }
 

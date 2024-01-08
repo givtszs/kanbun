@@ -31,10 +31,10 @@
         app:layout_constraintTop_toBottomOf="@id/ivLogo" />
 
     <com.google.android.material.button.MaterialButton
-        android:id="@+id/btnLogIn"
+        android:id="@+id/btnSignIn"
         android:layout_width="160dp"
         android:layout_height="50dp"
-        android:text="@string/log_in"
+        android:text="@string/sign_in"
         android:textAllCaps="false"
         android:textSize="16sp"
         app:backgroundTint="@color/md_theme_light_tertiary"
@@ -48,9 +48,9 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
         android:clickable="true"
-        app:layout_constraintEnd_toEndOf="@id/btnLogIn"
-        app:layout_constraintStart_toStartOf="@id/btnLogIn"
-        app:layout_constraintTop_toBottomOf="@id/btnLogIn">
+        app:layout_constraintEnd_toEndOf="@id/btnSignIn"
+        app:layout_constraintStart_toStartOf="@id/btnSignIn"
+        app:layout_constraintTop_toBottomOf="@id/btnSignIn">
 
         <TextView
             android:id="@+id/tvNewUser"
