@@ -3,11 +3,11 @@ package com.example.kanbun.presentation
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.Fragment
 import androidx.navigation.NavController
-import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.fragment.findNavController
-import androidx.navigation.ui.NavigationUI
+import androidx.navigation.ui.setupActionBarWithNavController
 import com.google.android.material.appbar.MaterialToolbar
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -24,8 +24,22 @@ abstract class BaseFragment : Fragment() {
     protected abstract fun setUpListeners()
 
     protected fun setUpActionBar(toolbar: MaterialToolbar) {
-        val navHostFragment = NavHostFragment.findNavController(this)
-        NavigationUI.setupWithNavController(toolbar, navHostFragment)
+        (requireActivity() as MainActivity).apply {
+            setSupportActionBar(toolbar)
+            setupActionBarWithNavController(navController)
+        }
+    }
+
+    protected fun setUpActionBar(toolbar: MaterialToolbar, navigate: () -> Unit) {
+        setUpActionBar(toolbar)
+        toolbar.setNavigationOnClickListener {
+            navigate()
+        }
+        requireActivity().onBackPressedDispatcher.addCallback(this, onBackPressedCallback = object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                navigate()
+            }
+        })
     }
 
     protected fun showToast(message: String, duration: Int = Toast.LENGTH_SHORT) {

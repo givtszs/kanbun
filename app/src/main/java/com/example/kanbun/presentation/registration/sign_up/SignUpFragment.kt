@@ -1,14 +1,10 @@
 package com.example.kanbun.presentation.registration.sign_up
 
-import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
-import androidx.activity.OnBackPressedCallback
-import androidx.core.content.ContextCompat
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
@@ -20,7 +16,6 @@ import com.example.kanbun.databinding.FragmentSignUpBinding
 import com.example.kanbun.presentation.StateHandler
 import com.example.kanbun.presentation.ViewState
 import com.example.kanbun.presentation.registration.AuthFragment
-import com.google.android.material.textfield.TextInputLayout
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collectLatest
@@ -31,15 +26,6 @@ class SignUpFragment : AuthFragment(), StateHandler {
     private var _binding: FragmentSignUpBinding? = null
     private val binding: FragmentSignUpBinding get() = _binding!!
     private val viewModel: SignUpViewModel by viewModels()
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        requireActivity().onBackPressedDispatcher.addCallback(owner = this@SignUpFragment, onBackPressedCallback = object : OnBackPressedCallback(true) {
-            override fun handleOnBackPressed() {
-                navController.popBackStack()
-            }
-        })
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -52,8 +38,7 @@ class SignUpFragment : AuthFragment(), StateHandler {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        setUpActionBar(binding.toolbar)
-        setStatusBarColor(ContextCompat.getColor(requireContext(), R.color.white))
+        setUpActionBar(binding.toolbar) { navController.popBackStack(R.id.registrationPromptFragment, false) }
         collectState()
     }
 
@@ -141,17 +126,7 @@ class SignUpFragment : AuthFragment(), StateHandler {
         binding.tfEmail.clearFocus()
         binding.tfPassword.clearFocus()
         binding.tfConfirmPassword.clearFocus()
-        // hide keyboard
-        (requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager).apply {
-            hideSoftInputFromWindow(view.applicationWindowToken, 0)
-        }
-    }
-
-    override fun showTextFieldError(input: TextInputLayout, message: String) {
-        input.apply {
-            error = message
-            isErrorEnabled = true
-        }
+        hideKeyboard(view)
     }
 
     override fun onDestroyView() {

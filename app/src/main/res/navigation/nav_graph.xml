@@ -12,8 +12,7 @@
         tools:layout="@layout/fragment_registration_prompt">
         <action
             android:id="@+id/action_registrationPromptFragment_to_signUpFragment"
-            app:destination="@id/signUpFragment"
-            app:popUpTo="@id/registrationPromptFragment" />
+            app:destination="@id/signUpFragment" />
         <action
             android:id="@+id/action_registrationPromptFragment_to_signInFragment"
             app:destination="@id/signInFragment" />
@@ -30,7 +29,8 @@
     <fragment
         android:id="@+id/signInFragment"
         android:name="com.example.kanbun.presentation.registration.sign_in.SignInFragment"
-        android:label="SignInFragment" >
+        android:label="Sign in"
+        tools:layout="@layout/fragment_sign_in">
         <action
             android:id="@+id/action_signInFragment_to_signUpFragment"
             app:destination="@id/signUpFragment" />
