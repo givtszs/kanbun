@@ -6,7 +6,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
 
 open class AuthViewModel : ViewModel() {
-    protected val _authState = MutableStateFlow(ViewState.AuthViewState())
+    protected val _authState = MutableStateFlow(ViewState.AuthState())
     
     fun resetEmailError() {
         _authState.update { it.copy(emailError = "") }

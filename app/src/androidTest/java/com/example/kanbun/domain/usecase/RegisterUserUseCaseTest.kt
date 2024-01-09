@@ -3,6 +3,9 @@ package com.example.kanbun.domain.usecase
 import com.example.kanbun.common.Result
 import com.example.kanbun.domain.FirestoreTestUtil
 import com.google.common.truth.Truth.assertThat
+import com.google.firebase.auth.auth
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Before
@@ -225,5 +228,15 @@ class RegisterUserUseCaseTest {
         password = "Qwerty123"
         result = useCase.signInWithEmail(email, password)
         assertThatResultErrorWithPresentMessage(result)
+    }
+
+    @Test
+    fun sendVerificationEmail_successfullySendsVerificationEmail() = runBlocking {
+        val email = FirestoreTestUtil.testEmail
+        val password = FirestoreTestUtil.testPassword
+
+        useCase.signUpWithEmail(email, password)
+        val result = useCase.sendVerificationEmail(Firebase.auth.currentUser)
+        assertThat(result).isInstanceOf(Result.Success::class.java)
     }
 }

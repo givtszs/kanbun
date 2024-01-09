@@ -16,7 +16,7 @@ import javax.inject.Inject
 class SignInViewModel @Inject constructor(
     private val registerUserUseCase: RegisterUserUseCase
 ): AuthViewModel() {
-    val signInState: StateFlow<ViewState.AuthViewState> = _authState
+    val signInState: StateFlow<ViewState.AuthState> = _authState
     
     fun signInUser(
         email: String,

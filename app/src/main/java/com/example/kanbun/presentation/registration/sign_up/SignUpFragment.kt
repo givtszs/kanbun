@@ -53,7 +53,7 @@ class SignUpFragment : AuthFragment(), StateHandler {
     }
 
     override fun processState(state: ViewState) {
-        with(state as ViewState.AuthViewState) {
+        with(state as ViewState.AuthState) {
             if (emailError.isNotEmpty()) {
                 showTextFieldError(binding.tfEmail, emailError)
             }
@@ -109,10 +109,11 @@ class SignUpFragment : AuthFragment(), StateHandler {
                 confirmationPassword = binding.tfConfirmPassword.editText?.text.toString(),
                 provider = AuthType.EMAIL,
                 successCallback = {
-                    showToast(
-                        "Navigate to email verification screen",
-                        Toast.LENGTH_SHORT
-                    )
+//                    showToast(
+//                        "Navigate to email verification screen",
+//                        Toast.LENGTH_SHORT
+//                    )
+                    navController.navigate(R.id.emailVerificationFragment)
                 }
             )
         }

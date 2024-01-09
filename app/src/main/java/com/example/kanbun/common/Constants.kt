@@ -10,3 +10,5 @@ enum class AuthType(val typeName: String) {
     GOOGLE("Google"),
     GITHUB("GitHub")
 }
+
+const val EMAIL_RESEND_TIME_LIMIT = 60

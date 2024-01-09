@@ -95,7 +95,7 @@ class SignInFragment : AuthFragment(), StateHandler {
     }
 
     override fun processState(state: ViewState) {
-        with(state as ViewState.AuthViewState) {
+        with(state as ViewState.AuthState) {
             if (emailError.isNotEmpty()) {
                 showTextFieldError(binding.tfEmail, emailError)
             }

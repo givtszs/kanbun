@@ -6,6 +6,7 @@ import com.example.kanbun.common.Result
 import com.google.android.gms.tasks.Task
 import com.google.firebase.auth.AuthResult
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseUser
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
@@ -88,6 +89,19 @@ class RegisterUserUseCase @Inject constructor(
             )
 
             else -> Pair(true, "Email and password are valid") // Validation successful
+        }
+    }
+
+    suspend fun sendVerificationEmail(user: FirebaseUser?): Result<Unit> {
+        if (user == null) {
+            return Result.Error("User is not registered")
+        }
+
+        return try {
+            user.sendEmailVerification().await()
+            Result.Success(Unit)
+        } catch (e: Exception) {
+            Result.Exception(e.message, e)
         }
     }
 }
