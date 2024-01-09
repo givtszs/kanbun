@@ -1,6 +1,7 @@
 package com.example.kanbun.presentation.registration.sign_in
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -10,6 +11,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.navigation.fragment.navArgs
 import com.example.kanbun.R
 import com.example.kanbun.common.AuthType
 import com.example.kanbun.databinding.FragmentSignInBinding
@@ -26,6 +28,7 @@ class SignInFragment : AuthFragment(), StateHandler {
     private var _binding: FragmentSignInBinding? = null
     private val binding: FragmentSignInBinding get() = _binding!!
     private val viewModel: SignInViewModel by viewModels()
+    private val args: SignInFragmentArgs by navArgs()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -45,6 +48,9 @@ class SignInFragment : AuthFragment(), StateHandler {
     }
 
     override fun setUpListeners() {
+        binding.etEmail.setText(args.email)
+        binding.etPassword.setText(args.password)
+
         binding.etEmail.doOnTextChanged { text, _, _, _ ->
             if (!text.isNullOrEmpty()) {
                 binding.tfEmail.isErrorEnabled = false.also {
@@ -82,7 +88,12 @@ class SignInFragment : AuthFragment(), StateHandler {
         }
 
         binding.tvSignUp.setOnClickListener {
-            navController.navigate(R.id.signUpFragment)
+            navController.navigate(
+                SignInFragmentDirections.actionSignInFragmentToSignUpFragment(
+                    email = binding.tfEmail.editText?.text.toString(),
+                    password = binding.tfPassword.editText?.text.toString()
+                )
+            )
         }
     }
 

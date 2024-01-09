@@ -28,6 +28,13 @@
         <action
             android:id="@+id/action_signUpFragment_to_emailVerificationFragment"
             app:destination="@id/emailVerificationFragment" />
+        <argument android:name="email"
+            android:defaultValue=""
+            app:argType="string" />
+        <argument
+            android:name="password"
+            android:defaultValue=""
+            app:argType="string" />
     </fragment>
     <fragment
         android:id="@+id/signInFragment"
@@ -40,6 +47,14 @@
         <action
             android:id="@+id/action_signInFragment_to_emailVerificationFragment"
             app:destination="@id/emailVerificationFragment" />
+        <argument
+            android:name="email"
+            android:defaultValue=""
+            app:argType="string" />
+        <argument
+            android:name="password"
+            android:defaultValue=""
+            app:argType="string" />
     </fragment>
     <fragment
         android:id="@+id/emailVerificationFragment"

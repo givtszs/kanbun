@@ -10,6 +10,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.navigation.fragment.navArgs
 import com.example.kanbun.R
 import com.example.kanbun.common.AuthType
 import com.example.kanbun.databinding.FragmentSignUpBinding
@@ -26,6 +27,7 @@ class SignUpFragment : AuthFragment(), StateHandler {
     private var _binding: FragmentSignUpBinding? = null
     private val binding: FragmentSignUpBinding get() = _binding!!
     private val viewModel: SignUpViewModel by viewModels()
+    private val args: SignUpFragmentArgs by navArgs()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -38,7 +40,12 @@ class SignUpFragment : AuthFragment(), StateHandler {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        setUpActionBar(binding.toolbar) { navController.popBackStack(R.id.registrationPromptFragment, false) }
+        setUpActionBar(binding.toolbar) {
+            navController.popBackStack(
+                R.id.registrationPromptFragment,
+                false
+            )
+        }
         collectState()
     }
 
@@ -74,6 +81,9 @@ class SignUpFragment : AuthFragment(), StateHandler {
     }
 
     override fun setUpListeners() {
+        binding.etEmail.setText(args.email)
+        binding.etPassword.setText(args.password)
+
         binding.etEmail.doOnTextChanged { text, _, _, _ ->
             if (!text.isNullOrEmpty()) {
                 binding.tfEmail.isErrorEnabled = false.also {
@@ -115,7 +125,12 @@ class SignUpFragment : AuthFragment(), StateHandler {
         }
 
         binding.tvSignIn.setOnClickListener {
-            navController.navigate(R.id.signInFragment)
+            navController.navigate(
+                SignUpFragmentDirections.actionSignUpFragmentToSignInFragment(
+                    email = binding.tfEmail.editText?.text.toString(),
+                    password = binding.tfPassword.editText?.text.toString()
+                )
+            )
         }
     }
 
