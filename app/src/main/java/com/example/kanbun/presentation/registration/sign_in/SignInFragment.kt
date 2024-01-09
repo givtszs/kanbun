@@ -19,4 +19,8 @@ class SignInFragment : BaseFragment() {
         _binding = FragmentSignInBinding.inflate(inflater, container, false)
         return binding.root
     }
+
+    override fun setUpListeners() {
+//        TODO("Not yet implemented")
+    }
 }

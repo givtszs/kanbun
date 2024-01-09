@@ -12,13 +12,16 @@ import com.google.android.material.appbar.MaterialToolbar
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
-open class BaseFragment : Fragment() {
+abstract class BaseFragment : Fragment() {
     lateinit var navController: NavController
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         navController = findNavController()
+        setUpListeners()
     }
+
+    protected abstract fun setUpListeners()
 
     protected fun setUpActionBar(toolbar: MaterialToolbar) {
         val navHostFragment = NavHostFragment.findNavController(this)

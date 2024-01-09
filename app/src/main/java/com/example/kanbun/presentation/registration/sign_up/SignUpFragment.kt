@@ -2,6 +2,7 @@ package com.example.kanbun.presentation.registration.sign_up
 
 import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -9,6 +10,7 @@ import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.core.content.ContextCompat
+import androidx.core.widget.doAfterTextChanged
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
@@ -18,7 +20,9 @@ import com.example.kanbun.R
 import com.example.kanbun.common.AuthType
 import com.example.kanbun.databinding.FragmentSignUpBinding
 import com.example.kanbun.presentation.BaseFragment
-import com.google.android.material.appbar.MaterialToolbar
+import com.example.kanbun.presentation.StateHandler
+import com.example.kanbun.presentation.ViewState
+import com.example.kanbun.presentation.registration.AuthFragment
 import com.google.android.material.textfield.TextInputLayout
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Job
@@ -26,7 +30,7 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
-class SignUpFragment : BaseFragment() {
+class SignUpFragment : AuthFragment(), StateHandler {
     private var _binding: FragmentSignUpBinding? = null
     private val binding: FragmentSignUpBinding get() = _binding!!
     private val viewModel: SignUpViewModel by viewModels()
@@ -35,7 +39,7 @@ class SignUpFragment : BaseFragment() {
         super.onCreate(savedInstanceState)
         requireActivity().onBackPressedDispatcher.addCallback(owner = this@SignUpFragment, onBackPressedCallback = object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
-                navController.navigateUp()
+                navController.popBackStack()
             }
         })
     }
@@ -54,32 +58,53 @@ class SignUpFragment : BaseFragment() {
         setUpActionBar(binding.toolbar)
         setStatusBarColor(ContextCompat.getColor(requireContext(), R.color.white))
         collectState()
-        setUpListeners()
     }
 
-    private fun collectState() {
+    override fun collectState() {
         lifecycleScope.launch {
             lifecycle.repeatOnLifecycle(Lifecycle.State.RESUMED) {
                 viewModel.signUpState.collectLatest {
-                    processViewState(it)
+                    processState(it)
                 }
             }
         }
     }
 
-    private fun setUpListeners() {
+    override fun processState(state: ViewState) {
+        with(state as ViewState.SignUpViewState) {
+            if (emailError.isNotEmpty()) {
+                showTextFieldError(binding.tfEmail, emailError)
+            }
+
+            if (passwordError.isNotEmpty()) {
+                showTextFieldError(binding.tfPassword, passwordError)
+            }
+
+            if (!confirmationPasswordError.isNullOrEmpty()) {
+                showTextFieldError(binding.tfConfirmPassword, confirmationPasswordError)
+            }
+
+            message?.let {
+                showToast(it, Toast.LENGTH_LONG)
+                viewModel.messageShown()
+            }
+        }
+    }
+
+    override fun setUpListeners() {
         binding.etEmail.doOnTextChanged { text, _, _, _ ->
             if (!text.isNullOrEmpty()) {
                 binding.tfEmail.isErrorEnabled = false.also {
-                    viewModel.emailError = null
+                    viewModel.emailError = ""
                 }
             }
+
         }
 
         binding.etPassword.doOnTextChanged { text, _, _, _ ->
             if (!text.isNullOrEmpty()) {
                 binding.tfPassword.isErrorEnabled = false.also {
-                    viewModel.passwordError = null
+                    viewModel.passwordError = ""
                 }
             }
         }
@@ -94,7 +119,7 @@ class SignUpFragment : BaseFragment() {
 
         var job: Job? = null
         binding.btnSignUp.setOnClickListener {
-            clearFocus(it)
+            clearTextFieldFocus(it)
             job?.cancel()
             job = viewModel.registerUser(
                 email = binding.tfEmail.editText?.text.toString(),
@@ -115,7 +140,7 @@ class SignUpFragment : BaseFragment() {
         }
     }
 
-    private fun clearFocus(view: View) {
+    override fun clearTextFieldFocus(view: View) {
         binding.tfEmail.clearFocus()
         binding.tfPassword.clearFocus()
         binding.tfConfirmPassword.clearFocus()
@@ -125,28 +150,7 @@ class SignUpFragment : BaseFragment() {
         }
     }
 
-    private fun processViewState(viewState: SignUpViewState) {
-        with(viewState) {
-            emailError?.let {
-                showError(binding.tfEmail, it)
-            }
-
-            passwordError?.let {
-                showError(binding.tfPassword, it)
-            }
-
-            confirmationPasswordError?.let {
-                showError(binding.tfConfirmPassword, it)
-            }
-
-            message?.let {
-                showToast(it, Toast.LENGTH_LONG)
-                viewModel.messageShown()
-            }
-        }
-    }
-
-    private fun showError(input: TextInputLayout, message: String) {
+    override fun showTextFieldError(input: TextInputLayout, message: String) {
         input.apply {
             error = message
             isErrorEnabled = true

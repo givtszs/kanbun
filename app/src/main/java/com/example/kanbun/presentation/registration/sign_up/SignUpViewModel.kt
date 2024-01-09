@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.kanbun.common.AuthType
 import com.example.kanbun.common.Result
 import com.example.kanbun.domain.usecase.RegisterUserUseCase
+import com.example.kanbun.presentation.ViewState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -16,16 +17,16 @@ import javax.inject.Inject
 class SignUpViewModel @Inject constructor(
     private val registerUserUseCase: RegisterUserUseCase
 ) : ViewModel() {
-    private var _signUpState = MutableStateFlow(SignUpViewState())
-    val signUpState: StateFlow<SignUpViewState> = _signUpState
+    private var _signUpState = MutableStateFlow(ViewState.SignUpViewState())
+    val signUpState: StateFlow<ViewState.SignUpViewState> = _signUpState
 
-    var emailError: String? = null
+    var emailError: String = ""
         set(value) {
             field = value
             _signUpState.update { it.copy(emailError = field) }
         }
 
-    var passwordError: String? = null
+    var passwordError: String = ""
         set(value) {
             field = value
             _signUpState.update { it.copy(passwordError = field) }
@@ -44,7 +45,7 @@ class SignUpViewModel @Inject constructor(
         provider: AuthType,
         successCallback: () -> Unit
     ) = viewModelScope.launch {
-        if (confirmationPassword.isNotEmpty() && confirmationPassword != password) {
+        if (confirmationPassword != password) {
             _signUpState.update { it.copy(confirmationPasswordError = "Passwords don't match. Please try again") }
             return@launch
         }

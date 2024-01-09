@@ -25,7 +25,9 @@ class RegistrationPromptFragment : BaseFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setStatusBarColor(ContextCompat.getColor(requireContext(), R.color.md_theme_light_primary_variant))
+    }
 
+    override fun setUpListeners() {
         binding.btnSignIn.setOnClickListener {
             navController.navigate(R.id.signInFragment)
         }
