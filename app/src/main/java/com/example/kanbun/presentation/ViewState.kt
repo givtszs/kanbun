@@ -1,7 +1,7 @@
 package com.example.kanbun.presentation
 
 sealed class ViewState {
-    data class SignUpViewState(
+    data class AuthViewState(
         val emailError: String = "",
         val passwordError: String = "",
         val confirmationPasswordError: String? = null,

@@ -6,8 +6,12 @@ import android.view.View
 import android.view.ViewGroup
 import com.example.kanbun.databinding.FragmentSignInBinding
 import com.example.kanbun.presentation.BaseFragment
+import com.example.kanbun.presentation.registration.AuthFragment
+import com.google.android.material.textfield.TextInputLayout
+import dagger.hilt.android.AndroidEntryPoint
 
-class SignInFragment : BaseFragment() {
+@AndroidEntryPoint
+class SignInFragment : AuthFragment() {
     private var _binding: FragmentSignInBinding? = null
     private val binding: FragmentSignInBinding get() = _binding!!
 
@@ -22,5 +26,13 @@ class SignInFragment : BaseFragment() {
 
     override fun setUpListeners() {
 //        TODO("Not yet implemented")
+    }
+
+    override fun clearTextFieldFocus(view: View) {
+        TODO("Not yet implemented")
+    }
+
+    override fun showTextFieldError(input: TextInputLayout, message: String) {
+        TODO("Not yet implemented")
     }
 }

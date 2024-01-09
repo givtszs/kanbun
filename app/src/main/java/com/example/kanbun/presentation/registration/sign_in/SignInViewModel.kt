@@ -1,4 +1,4 @@
-package com.example.kanbun.presentation.registration.sign_up
+package com.example.kanbun.presentation.registration.sign_in
 
 import androidx.lifecycle.viewModelScope
 import com.example.kanbun.common.AuthType
@@ -13,26 +13,20 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class SignUpViewModel @Inject constructor(
+class SignInViewModel @Inject constructor(
     private val registerUserUseCase: RegisterUserUseCase
-) : AuthViewModel() {
-    val signUpState: StateFlow<ViewState.AuthViewState> = _authState
-
-    fun signUpUser(
+): AuthViewModel() {
+    val signInState: StateFlow<ViewState.AuthViewState> = _authState
+    
+    fun signInUser(
         email: String,
         password: String,
-        confirmationPassword: String,
         provider: AuthType,
         successCallback: () -> Unit
     ) = viewModelScope.launch {
-        if (confirmationPassword != password) {
-            _authState.update { it.copy(confirmationPasswordError = "Passwords don't match. Please try again") }
-            return@launch
-        }
-
         when (provider) {
             AuthType.EMAIL -> {
-                when (val result = registerUserUseCase.signUpWithEmail(email, password)) {
+                when (val result = registerUserUseCase.signInWithEmail(email, password)) {
                     is Result.Success -> {
                         _authState.update { it.copy(message = "Signed up successfully!") }
                         successCallback()

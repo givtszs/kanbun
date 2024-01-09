@@ -2,7 +2,6 @@ package com.example.kanbun.presentation.registration.sign_up
 
 import android.content.Context
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -10,7 +9,6 @@ import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.core.content.ContextCompat
-import androidx.core.widget.doAfterTextChanged
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
@@ -19,7 +17,6 @@ import androidx.lifecycle.repeatOnLifecycle
 import com.example.kanbun.R
 import com.example.kanbun.common.AuthType
 import com.example.kanbun.databinding.FragmentSignUpBinding
-import com.example.kanbun.presentation.BaseFragment
 import com.example.kanbun.presentation.StateHandler
 import com.example.kanbun.presentation.ViewState
 import com.example.kanbun.presentation.registration.AuthFragment
@@ -71,7 +68,7 @@ class SignUpFragment : AuthFragment(), StateHandler {
     }
 
     override fun processState(state: ViewState) {
-        with(state as ViewState.SignUpViewState) {
+        with(state as ViewState.AuthViewState) {
             if (emailError.isNotEmpty()) {
                 showTextFieldError(binding.tfEmail, emailError)
             }
@@ -95,7 +92,7 @@ class SignUpFragment : AuthFragment(), StateHandler {
         binding.etEmail.doOnTextChanged { text, _, _, _ ->
             if (!text.isNullOrEmpty()) {
                 binding.tfEmail.isErrorEnabled = false.also {
-                    viewModel.emailError = ""
+                    viewModel.resetEmailError()
                 }
             }
 
@@ -104,7 +101,7 @@ class SignUpFragment : AuthFragment(), StateHandler {
         binding.etPassword.doOnTextChanged { text, _, _, _ ->
             if (!text.isNullOrEmpty()) {
                 binding.tfPassword.isErrorEnabled = false.also {
-                    viewModel.passwordError = ""
+                    viewModel.resetPasswordError()
                 }
             }
         }
@@ -112,7 +109,7 @@ class SignUpFragment : AuthFragment(), StateHandler {
         binding.etConfirmPassword.doOnTextChanged { text, _, _, _ ->
             if (!text.isNullOrEmpty()) {
                 binding.tfConfirmPassword.isErrorEnabled = false.also {
-                    viewModel.confirmationPasswordError = null
+                    viewModel.resetConfirmationPasswordError()
                 }
             }
         }
@@ -121,7 +118,7 @@ class SignUpFragment : AuthFragment(), StateHandler {
         binding.btnSignUp.setOnClickListener {
             clearTextFieldFocus(it)
             job?.cancel()
-            job = viewModel.registerUser(
+            job = viewModel.signUpUser(
                 email = binding.tfEmail.editText?.text.toString(),
                 password = binding.tfPassword.editText?.text.toString(),
                 confirmationPassword = binding.tfConfirmPassword.editText?.text.toString(),
