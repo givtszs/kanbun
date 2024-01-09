@@ -109,10 +109,6 @@ class SignUpFragment : AuthFragment(), StateHandler {
                 confirmationPassword = binding.tfConfirmPassword.editText?.text.toString(),
                 provider = AuthType.EMAIL,
                 successCallback = {
-//                    showToast(
-//                        "Navigate to email verification screen",
-//                        Toast.LENGTH_SHORT
-//                    )
                     navController.navigate(R.id.emailVerificationFragment)
                 }
             )

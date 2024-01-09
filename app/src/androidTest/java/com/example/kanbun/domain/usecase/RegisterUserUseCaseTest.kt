@@ -32,9 +32,9 @@ class RegisterUserUseCaseTest {
 
         val result = useCase.signUpWithEmail(email, password)
         assertThat(result).isInstanceOf(Result.Success::class.java)
-//
-//        val user = (result as Result.Success).data
-//        assertThat(user.email).isEqualTo(email)
+
+        val user = (result as Result.Success).data
+        assertThat(user.email).isEqualTo(email)
     }
 
     private fun assertThatResultErrorWithPresentMessage(result: Result<Any>) {
@@ -142,6 +142,9 @@ class RegisterUserUseCaseTest {
 
         val result = useCase.signInWithEmail(email, password)
         assertThat(result).isInstanceOf(Result.Success::class.java)
+
+        val user = (result as Result.Success).data
+        assertThat(user.email).isEqualTo(email)
     }
 
     @Test

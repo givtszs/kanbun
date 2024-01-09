@@ -70,11 +70,13 @@ class SignInFragment : AuthFragment(), StateHandler {
                 email = binding.tfEmail.editText?.text.toString(),
                 password = binding.tfPassword.editText?.text.toString(),
                 provider = AuthType.EMAIL,
-                successCallback = {
-                    showToast(
-                        "Navigate to home screen",
-                        Toast.LENGTH_SHORT
-                    )
+                successCallback = { user ->
+                    if (!user.isEmailVerified) {
+                        navController.navigate(R.id.emailVerificationFragment)
+                    } else {
+                        // navigate to home screen
+                        showToast("User is already verified")
+                    }
                 }
             )
         }

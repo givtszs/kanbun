@@ -6,6 +6,7 @@ import com.example.kanbun.common.Result
 import com.example.kanbun.domain.usecase.RegisterUserUseCase
 import com.example.kanbun.presentation.ViewState
 import com.example.kanbun.presentation.registration.AuthViewModel
+import com.google.firebase.auth.FirebaseUser
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
@@ -22,14 +23,14 @@ class SignInViewModel @Inject constructor(
         email: String,
         password: String,
         provider: AuthType,
-        successCallback: () -> Unit
+        successCallback: (FirebaseUser) -> Unit
     ) = viewModelScope.launch {
         when (provider) {
             AuthType.EMAIL -> {
                 when (val result = registerUserUseCase.signInWithEmail(email, password)) {
                     is Result.Success -> {
                         _authState.update { it.copy(message = "Signed up successfully!") }
-                        successCallback()
+                        successCallback(result.data)
                     }
 
                     is Result.Error -> processError(result.message)

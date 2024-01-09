@@ -15,11 +15,11 @@ private val TAG = "RegisterUserUseCase"
 class RegisterUserUseCase @Inject constructor(
     private val auth: FirebaseAuth
 ) {
-    suspend fun signUpWithEmail(email: String, password: String): Result<Unit> {
+    suspend fun signUpWithEmail(email: String, password: String): Result<FirebaseUser> {
         return performFirebaseAuth(email, password, {auth.createUserWithEmailAndPassword(email, password)})
     }
 
-    suspend fun signInWithEmail(email: String, password: String): Result<Unit> {
+    suspend fun signInWithEmail(email: String, password: String): Result<FirebaseUser> {
         return performFirebaseAuth(email, password, { auth.signInWithEmailAndPassword(email, password) })
     }
 
@@ -27,7 +27,7 @@ class RegisterUserUseCase @Inject constructor(
         email: String,
         password: String,
         authFunction: suspend () -> Task<AuthResult>
-    ): Result<Unit> {
+    ): Result<FirebaseUser> {
         val isEmailAndPasswordValid = validateEmailAndPassword(email, password)
         if (!isEmailAndPasswordValid.first) {
             Log.d(TAG, "Email or password is invalid: ${isEmailAndPasswordValid.second}")
@@ -39,7 +39,7 @@ class RegisterUserUseCase @Inject constructor(
             val user = task.user
             if (user != null) {
                 Log.d(TAG, "User operation successful: ${user.email}")
-                Result.Success(Unit)
+                Result.Success(user)
             } else {
                 Log.d(TAG, "Operation failed: Couldn't retrieve user information")
                 Result.Error("Operation failed: Couldn't retrieve user information")
