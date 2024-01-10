@@ -1,5 +1,6 @@
 package com.example.kanbun.presentation.registration
 
+import android.app.Activity
 import android.content.Context
 import android.util.Log
 import androidx.lifecycle.ViewModel
@@ -67,6 +68,16 @@ open class AuthViewModel @Inject constructor(
 
     fun authWithGoogle(accountId: String?, successCallback: (FirebaseUser) -> Unit) = viewModelScope.launch {
         when (val result = registerUserUseCase.authWithGoogle(accountId)) {
+            is Result.Success -> successCallback(result.data)
+
+            is Result.Error -> _authState.update { it.copy(message = result.message) }
+
+            is Result.Exception -> _authState.update { it.copy(message = result.message) }
+        }
+    }
+
+    fun authWithGitHub(activity: Activity, successCallback: (FirebaseUser) -> Unit) = viewModelScope.launch {
+        when (val result = registerUserUseCase.authWithGitHub(activity)) {
             is Result.Success -> successCallback(result.data)
 
             is Result.Error -> _authState.update { it.copy(message = result.message) }

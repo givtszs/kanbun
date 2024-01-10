@@ -1,5 +1,6 @@
 package com.example.kanbun.domain.usecase
 
+import android.app.Activity
 import android.util.Log
 import android.util.Patterns
 import com.example.kanbun.common.Result
@@ -8,6 +9,9 @@ import com.google.firebase.auth.AuthResult
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.GoogleAuthProvider
+import com.google.firebase.auth.OAuthProvider
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
@@ -17,11 +21,17 @@ class RegisterUserUseCase @Inject constructor(
     private val auth: FirebaseAuth
 ) {
     suspend fun signUpWithEmail(email: String, password: String): Result<FirebaseUser> {
-        return performFirebaseAuth(email, password, {auth.createUserWithEmailAndPassword(email, password)})
+        return performFirebaseAuth(
+            email,
+            password,
+            { auth.createUserWithEmailAndPassword(email, password) })
     }
 
     suspend fun signInWithEmail(email: String, password: String): Result<FirebaseUser> {
-        return performFirebaseAuth(email, password, { auth.signInWithEmailAndPassword(email, password) })
+        return performFirebaseAuth(
+            email,
+            password,
+            { auth.signInWithEmailAndPassword(email, password) })
     }
 
     private suspend fun performFirebaseAuth(
@@ -114,6 +124,21 @@ class RegisterUserUseCase @Inject constructor(
                 Result.Success(user)
             } else {
                 Log.d(TAG, "Operation failed: Couldn't retrieve user information")
+                Result.Error("Operation failed: Couldn't retrieve user information")
+            }
+        } catch (e: Exception) {
+            Result.Exception(e.message, e)
+        }
+    }
+
+    suspend fun authWithGitHub(activity: Activity): Result<FirebaseUser> {
+        val provider = OAuthProvider.newBuilder("github.com").build()
+        return try {
+            val user =
+                Firebase.auth.startActivityForSignInWithProvider(activity, provider).await().user
+            if (user != null) {
+                Result.Success(user)
+            } else {
                 Result.Error("Operation failed: Couldn't retrieve user information")
             }
         } catch (e: Exception) {

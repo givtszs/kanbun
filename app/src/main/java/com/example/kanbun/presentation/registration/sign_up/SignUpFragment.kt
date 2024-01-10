@@ -130,6 +130,10 @@ class SignUpFragment : AuthFragment(), StateHandler {
             activityResultLauncher.launch(signInIntent)
         }
 
+        binding.btnSignUpGitHub.setOnClickListener {
+            viewModel.authWithGitHub(requireActivity()) { user -> authSuccessCallback(user) }
+        }
+
         binding.tvSignIn.setOnClickListener {
             navController.navigate(
                 SignUpFragmentDirections.actionSignUpFragmentToSignInFragment(

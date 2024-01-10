@@ -76,20 +76,17 @@ class SignInFragment : AuthFragment(), StateHandler {
                 email = binding.tfEmail.editText?.text.toString(),
                 password = binding.tfPassword.editText?.text.toString(),
                 provider = AuthType.EMAIL,
-                successCallback = { user ->
-                    if (!user.isEmailVerified) {
-                        navController.navigate(R.id.emailVerificationFragment)
-                    } else {
-                        // navigate to home screen
-                        showToast("User is already verified")
-                    }
-                }
+                successCallback = { user -> authSuccessCallback(user) }
             )
         }
 
         binding.btnSignInGoogle.setOnClickListener {
             val signInIntent = viewModel.getGoogleSignInClient(requireContext()).signInIntent
             activityResultLauncher.launch(signInIntent)
+        }
+
+        binding.btnSignInGitHub.setOnClickListener {
+            viewModel.authWithGitHub(requireActivity()) { user ->authSuccessCallback(user) }
         }
 
         binding.tvSignUp.setOnClickListener {
