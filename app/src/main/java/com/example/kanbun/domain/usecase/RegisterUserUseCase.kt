@@ -7,6 +7,7 @@ import com.google.android.gms.tasks.Task
 import com.google.firebase.auth.AuthResult
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
+import com.google.firebase.auth.GoogleAuthProvider
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
@@ -35,8 +36,7 @@ class RegisterUserUseCase @Inject constructor(
         }
 
         return try {
-            val task = authFunction().await()
-            val user = task.user
+            val user = authFunction().await().user
             if (user != null) {
                 Log.d(TAG, "User operation successful: ${user.email}")
                 Result.Success(user)
@@ -100,6 +100,22 @@ class RegisterUserUseCase @Inject constructor(
         return try {
             user.sendEmailVerification().await()
             Result.Success(Unit)
+        } catch (e: Exception) {
+            Result.Exception(e.message, e)
+        }
+    }
+
+    suspend fun authWithGoogle(accountId: String?): Result<FirebaseUser> {
+        return try {
+            val credentials = GoogleAuthProvider.getCredential(accountId, null)
+            val user = auth.signInWithCredential(credentials).await().user
+            if (user != null) {
+                Log.d(TAG, "Signed in with Google successfully")
+                Result.Success(user)
+            } else {
+                Log.d(TAG, "Operation failed: Couldn't retrieve user information")
+                Result.Error("Operation failed: Couldn't retrieve user information")
+            }
         } catch (e: Exception) {
             Result.Exception(e.message, e)
         }

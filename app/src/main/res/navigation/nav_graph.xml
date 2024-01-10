@@ -8,7 +8,6 @@
     <fragment
         android:id="@+id/registrationPromptFragment"
         android:name="com.example.kanbun.presentation.registration.promt.RegistrationPromptFragment"
-        android:label="fragment_registration_prompt"
         tools:layout="@layout/fragment_registration_prompt">
         <action
             android:id="@+id/action_registrationPromptFragment_to_signUpFragment"

@@ -1,6 +1,7 @@
 package com.example.kanbun.presentation.registration.sign_up
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -124,6 +125,11 @@ class SignUpFragment : AuthFragment(), StateHandler {
             )
         }
 
+        binding.btnSignUpGoogle.setOnClickListener {
+            val signInIntent = viewModel.getGoogleSignInClient(requireContext()).signInIntent
+            activityResultLauncher.launch(signInIntent)
+        }
+
         binding.tvSignIn.setOnClickListener {
             navController.navigate(
                 SignUpFragmentDirections.actionSignUpFragmentToSignInFragment(
@@ -131,6 +137,13 @@ class SignUpFragment : AuthFragment(), StateHandler {
                     password = binding.tfPassword.editText?.text.toString()
                 )
             )
+        }
+    }
+
+    override fun googleAuthCallback(idToken: String?) {
+        viewModel.authWithGoogle(idToken) {
+            Log.d("SignUpFragment", "isUserVerified: ${it.isEmailVerified}")
+            showToast("SUCCESSFULLY SIGNED UP!")
         }
     }
 

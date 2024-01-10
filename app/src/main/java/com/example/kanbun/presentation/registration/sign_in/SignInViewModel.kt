@@ -16,7 +16,7 @@ import javax.inject.Inject
 @HiltViewModel
 class SignInViewModel @Inject constructor(
     private val registerUserUseCase: RegisterUserUseCase
-): AuthViewModel() {
+): AuthViewModel(registerUserUseCase) {
     val signInState: StateFlow<ViewState.AuthState> = _authState
     
     fun signInUser(

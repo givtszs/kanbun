@@ -87,6 +87,11 @@ class SignInFragment : AuthFragment(), StateHandler {
             )
         }
 
+        binding.btnSignInGoogle.setOnClickListener {
+            val signInIntent = viewModel.getGoogleSignInClient(requireContext()).signInIntent
+            activityResultLauncher.launch(signInIntent)
+        }
+
         binding.tvSignUp.setOnClickListener {
             navController.navigate(
                 SignInFragmentDirections.actionSignInFragmentToSignUpFragment(
@@ -94,6 +99,13 @@ class SignInFragment : AuthFragment(), StateHandler {
                     password = binding.tfPassword.editText?.text.toString()
                 )
             )
+        }
+    }
+
+    override fun googleAuthCallback(idToken: String?) {
+        viewModel.authWithGoogle(idToken) {
+            Log.d("SignInFragment", "isUserVerified: ${it.isEmailVerified}")
+            showToast("SUCCESSFULLY SIGNED IN!")
         }
     }
 
