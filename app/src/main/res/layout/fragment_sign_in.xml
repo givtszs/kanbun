@@ -117,7 +117,7 @@
         android:layout_marginHorizontal="@dimen/main_horizontal_margin"
         android:layout_marginTop="16dp"
         android:backgroundTint="@color/black"
-        android:text="@string/sign_up_github"
+        android:text="@string/sign_in_github"
         app:icon="@drawable/ic_github_mark_white"
         app:layout_constraintTop_toBottomOf="@id/tvOr" />
 
@@ -128,7 +128,7 @@
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="@dimen/main_horizontal_margin"
         android:layout_marginTop="8dp"
-        android:text="@string/sign_up_google"
+        android:text="@string/sign_in_google"
         android:textColor="@color/black"
         app:icon="@drawable/ic_google_logo_24"
         app:iconTint="@null"
