@@ -1,6 +1,5 @@
 package com.example.kanbun.presentation.registration.email_verification
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.kanbun.common.EMAIL_RESEND_TIME_LIMIT
@@ -14,6 +13,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
 @HiltViewModel
@@ -22,7 +22,7 @@ class EmailVerificationViewModel @Inject constructor(
 ) : ViewModel() {
     private val _emailVerificationState = MutableStateFlow(ViewState.EmailVerificationState())
     val emailVerificationState: StateFlow<ViewState.EmailVerificationState> = _emailVerificationState
-    val user = Firebase.auth.currentUser
+    var user = Firebase.auth.currentUser
 
     init {
         if (user == null) {
@@ -51,5 +51,9 @@ class EmailVerificationViewModel @Inject constructor(
             }
             _emailVerificationState.update { it.copy(isResendAvailable = true) }
         }
+    }
+
+    suspend fun updateUser() {
+        user?.reload()?.await()
     }
 }

@@ -131,7 +131,7 @@ class SignUpFragment : AuthFragment(), StateHandler {
         }
 
         binding.btnSignUpGitHub.setOnClickListener {
-            viewModel.authWithGitHub(requireActivity()) { user -> authSuccessCallback(user) }
+            viewModel.authWithGitHub(requireActivity()) { user -> checkEmailVerificationCallback(user) }
         }
 
         binding.tvSignIn.setOnClickListener {

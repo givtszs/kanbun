@@ -76,7 +76,7 @@ class SignInFragment : AuthFragment(), StateHandler {
                 email = binding.tfEmail.editText?.text.toString(),
                 password = binding.tfPassword.editText?.text.toString(),
                 provider = AuthType.EMAIL,
-                successCallback = { user -> authSuccessCallback(user) }
+                successCallback = { user -> checkEmailVerificationCallback(user) }
             )
         }
 
@@ -86,7 +86,7 @@ class SignInFragment : AuthFragment(), StateHandler {
         }
 
         binding.btnSignInGitHub.setOnClickListener {
-            viewModel.authWithGitHub(requireActivity()) { user ->authSuccessCallback(user) }
+            viewModel.authWithGitHub(requireActivity()) { user -> checkEmailVerificationCallback(user) }
         }
 
         binding.tvSignUp.setOnClickListener {

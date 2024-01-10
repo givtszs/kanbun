@@ -8,6 +8,8 @@ import androidx.core.content.ContextCompat
 import com.example.kanbun.R
 import com.example.kanbun.databinding.FragmentRegistrationPromptBinding
 import com.example.kanbun.presentation.BaseFragment
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
 
 class RegistrationPromptFragment : BaseFragment() {
     private var _binding: FragmentRegistrationPromptBinding? = null
@@ -45,5 +47,6 @@ class RegistrationPromptFragment : BaseFragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+        Firebase.auth.signOut()
     }
 }

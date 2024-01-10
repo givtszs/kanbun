@@ -78,12 +78,14 @@ class EmailVerificationFragment : BaseFragment(), StateHandler {
 
     private fun waitForEmailVerification() {
         lifecycleScope.launch {
-            while (true) {
-                viewModel.user?.reload()
-                delay(1000L)
-                if (viewModel.user?.isEmailVerified == true) {
-                    showToast("EMAIL IS VERIFIED", Toast.LENGTH_LONG)
-                    break
+            lifecycle.repeatOnLifecycle(Lifecycle.State.RESUMED) {
+                while (true) {
+                    viewModel.updateUser()
+                    delay(1000L)
+                    if (viewModel.user?.isEmailVerified == true) {
+                        showToast("EMAIL IS VERIFIED", Toast.LENGTH_LONG)
+                        break
+                    }
                 }
             }
         }
