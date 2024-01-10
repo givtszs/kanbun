@@ -2,6 +2,7 @@ package com.example.kanbun.presentation
 
 sealed class ViewState {
     data class AuthState(
+        val nameError: String? = null,
         val emailError: String = "",
         val passwordError: String = "",
         val confirmationPasswordError: String? = null,

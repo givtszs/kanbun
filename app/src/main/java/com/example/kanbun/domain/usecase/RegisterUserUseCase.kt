@@ -10,6 +10,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.OAuthProvider
+import com.google.firebase.auth.UserProfileChangeRequest
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.tasks.await
@@ -20,33 +21,40 @@ private val TAG = "RegisterUserUseCase"
 class RegisterUserUseCase @Inject constructor(
     private val auth: FirebaseAuth
 ) {
-    suspend fun signUpWithEmail(email: String, password: String): Result<FirebaseUser> {
-        return performFirebaseAuth(
-            email,
-            password,
-            { auth.createUserWithEmailAndPassword(email, password) })
+    suspend fun signUpWithEmail(name: String, email: String, password: String): Result<FirebaseUser> {
+        val areCredentialsValid = validateUserCredentials(name, email, password)
+        if (!areCredentialsValid.first) {
+            return Result.Error(areCredentialsValid.second)
+        }
+
+        return try {
+            val user = auth.createUserWithEmailAndPassword(email, password).await().user
+            if (user != null) {
+                user.updateProfile(
+                    UserProfileChangeRequest.Builder()
+                        .setDisplayName(name)
+                        .build()
+                ).await()
+                Log.d(TAG, "User operation successful: ${user.email}")
+                Result.Success(user)
+            } else {
+                Log.d(TAG, "Operation failed: Couldn't retrieve user information")
+                Result.Error("Operation failed: Couldn't retrieve user information")
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, e.message, e)
+            Result.Exception(e.message, e)
+        }
     }
 
     suspend fun signInWithEmail(email: String, password: String): Result<FirebaseUser> {
-        return performFirebaseAuth(
-            email,
-            password,
-            { auth.signInWithEmailAndPassword(email, password) })
-    }
-
-    private suspend fun performFirebaseAuth(
-        email: String,
-        password: String,
-        authFunction: suspend () -> Task<AuthResult>
-    ): Result<FirebaseUser> {
         val isEmailAndPasswordValid = validateEmailAndPassword(email, password)
         if (!isEmailAndPasswordValid.first) {
-            Log.d(TAG, "Email or password is invalid: ${isEmailAndPasswordValid.second}")
             return Result.Error(isEmailAndPasswordValid.second)
         }
 
         return try {
-            val user = authFunction().await().user
+            val user = auth.signInWithEmailAndPassword(email, password).await().user
             if (user != null) {
                 Log.d(TAG, "User operation successful: ${user.email}")
                 Result.Success(user)
@@ -60,8 +68,28 @@ class RegisterUserUseCase @Inject constructor(
         }
     }
 
+    private fun validateUserCredentials(name: String, email: String, password: String): Pair<Boolean, String> {
+        val nameValidationResult = validateName(name)
+        return if (!nameValidationResult.first) {
+            nameValidationResult
+        } else {
+            validateEmailAndPassword(email, password)
+        }
+    }
+
+    private fun validateName(name: String): Pair<Boolean, String> {
+        val nameRegex = Regex("[a-zA-Z ]+")
+        return when {
+            name.isEmpty() -> Pair(false, "Name is required")
+            name.length < 2 -> Pair(false, "Name should be at least 2 characters long")
+            name.length > 124 -> Pair(false, "Name should be 124 characters or less")
+            !name.matches(nameRegex) -> Pair(false, "Name should contain only letters")
+            else -> Pair(true, "Name is valid")
+        }
+    }
+
     private fun validateEmailAndPassword(email: String, password: String): Pair<Boolean, String> {
-        val regPatter = Regex("[~`!@#\$%^&*()_\\-+={}\\[\\]|\\\\:;\"'<,>.?/]")
+        val passwordRegex = Regex("[~`!@#\$%^&*()_\\-+={}\\[\\]|\\\\:;\"'<,>.?/]")
         return when {
             email.isEmpty() -> Pair(false, "Email cannot be empty")
             !Patterns.EMAIL_ADDRESS.matcher(email).matches() -> Pair(false, "Invalid email format")
@@ -93,7 +121,7 @@ class RegisterUserUseCase @Inject constructor(
                 "Password must contain at least 1 lowercase letter"
             )
 
-            !regPatter.containsMatchIn(password) -> Pair(
+            !passwordRegex.containsMatchIn(password) -> Pair(
                 false,
                 "Password must contain at least 1 special character: ~`!@#\$%^&*()_-+={}[]|\\:;\"'<,>.?/"
             )

@@ -66,6 +66,7 @@ class FirestoreTestUtil {
             cards = listOf("workspaces/work1/boards/board1/columns/col1/card1")
         )
 
+        const val testName = "IAmTest"
         const val testEmail = "qatesteverything@gmail.com"
         const val testPassword = "Qwerty123_"
     }

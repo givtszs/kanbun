@@ -62,6 +62,10 @@ class SignUpFragment : AuthFragment(), StateHandler {
 
     override fun processState(state: ViewState) {
         with(state as ViewState.AuthState) {
+            if (!nameError.isNullOrEmpty()) {
+                showTextFieldError(binding.tfName, nameError)
+            }
+
             if (emailError.isNotEmpty()) {
                 showTextFieldError(binding.tfEmail, emailError)
             }
@@ -84,6 +88,15 @@ class SignUpFragment : AuthFragment(), StateHandler {
     override fun setUpListeners() {
         binding.etEmail.setText(args.email)
         binding.etPassword.setText(args.password)
+
+        binding.etName.doOnTextChanged { text, _, _, _ ->
+            if (!text.isNullOrEmpty()) {
+                binding.tfName.isErrorEnabled = false.also {
+                    viewModel.resetNameError()
+                }
+            }
+
+        }
 
         binding.etEmail.doOnTextChanged { text, _, _, _ ->
             if (!text.isNullOrEmpty()) {
@@ -115,6 +128,7 @@ class SignUpFragment : AuthFragment(), StateHandler {
             clearTextFieldFocus(it)
             job?.cancel()
             job = viewModel.signUpUser(
+                name = binding.tfName.editText?.text.toString(),
                 email = binding.tfEmail.editText?.text.toString(),
                 password = binding.tfPassword.editText?.text.toString(),
                 confirmationPassword = binding.tfConfirmPassword.editText?.text.toString(),

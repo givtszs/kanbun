@@ -23,7 +23,12 @@ open class AuthViewModel @Inject constructor(
     private val registerUserUseCase: RegisterUserUseCase
 ) : ViewModel() {
     protected val _authState = MutableStateFlow(ViewState.AuthState())
-    
+
+    // TODO("Refactor `reset*Error` into a single function with a when statement base on the passed view id")
+    fun resetNameError() {
+        _authState.update { it.copy(nameError = null) }
+    }
+
     fun resetEmailError() {
         _authState.update { it.copy(emailError = "") }
     }
@@ -39,6 +44,10 @@ open class AuthViewModel @Inject constructor(
     protected fun processError(message: String?) {
         if (message == null) {
             return
+        }
+
+        if (message.lowercase().contains("name")) {
+            _authState.update { it.copy(nameError = message) }
         }
 
         if (message.lowercase().contains("email")) {

@@ -19,6 +19,7 @@ class SignUpViewModel @Inject constructor(
     val signUpState: StateFlow<ViewState.AuthState> = _authState
 
     fun signUpUser(
+        name: String,
         email: String,
         password: String,
         confirmationPassword: String,
@@ -32,7 +33,7 @@ class SignUpViewModel @Inject constructor(
 
         when (provider) {
             AuthType.EMAIL -> {
-                when (val result = registerUserUseCase.signUpWithEmail(email, password)) {
+                when (val result = registerUserUseCase.signUpWithEmail(name, email, password)) {
                     is Result.Success -> {
                         _authState.update { it.copy(message = "Signed up successfully!") }
                         successCallback()
