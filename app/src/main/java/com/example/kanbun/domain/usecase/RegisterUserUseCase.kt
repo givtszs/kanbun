@@ -4,6 +4,7 @@ import android.app.Activity
 import android.util.Log
 import android.util.Patterns
 import com.example.kanbun.common.Result
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.tasks.Task
 import com.google.firebase.auth.AuthResult
 import com.google.firebase.auth.FirebaseAuth
@@ -18,9 +19,20 @@ import javax.inject.Inject
 
 private val TAG = "RegisterUserUseCase"
 
+/**
+ * Use case responsible for handling user registration and authentication operations.
+ * @property auth [FirebaseAuth] instance for authentication.
+ */
 class RegisterUserUseCase @Inject constructor(
     private val auth: FirebaseAuth
 ) {
+    /**
+     * Signs up a user with the provided credentials.
+     * @param name user's name.
+     * @param email user's email.
+     * @param password user's password.
+     * @return [Result] of the operation containing the [FirebaseUser] on success, or an error message on failure.
+     */
     suspend fun signUpWithEmail(name: String, email: String, password: String): Result<FirebaseUser> {
         val areCredentialsValid = validateUserCredentials(name, email, password)
         if (!areCredentialsValid.first) {
@@ -47,6 +59,12 @@ class RegisterUserUseCase @Inject constructor(
         }
     }
 
+    /**
+     * Signs in a user with the provided [email] and [password].
+     * @param email user's email.
+     * @param password user's password.
+     * @return [Result] of the operation containing the [FirebaseUser] on success, or an error message on failure.
+     */
     suspend fun signInWithEmail(email: String, password: String): Result<FirebaseUser> {
         val isEmailAndPasswordValid = validateEmailAndPassword(email, password)
         if (!isEmailAndPasswordValid.first) {
@@ -130,6 +148,11 @@ class RegisterUserUseCase @Inject constructor(
         }
     }
 
+    /**
+     * Sends a verification email to the [user].
+     * @param user registered unverified [FirebaseUser].
+     * @return [Result] of the operation containing [Unit] on success, an error message on failure.
+     */
     suspend fun sendVerificationEmail(user: FirebaseUser?): Result<Unit> {
         if (user == null) {
             return Result.Error("User is not registered")
@@ -143,6 +166,11 @@ class RegisterUserUseCase @Inject constructor(
         }
     }
 
+    /**
+     * Performs Google authentication.
+     * @param accountId see [GoogleSignInAccount.getIdToken]
+     * @return [Result] of the operation containing the [FirebaseUser] on success, or an error message on failure.
+     */
     suspend fun authWithGoogle(accountId: String?): Result<FirebaseUser> {
         return try {
             val credentials = GoogleAuthProvider.getCredential(accountId, null)
@@ -159,6 +187,11 @@ class RegisterUserUseCase @Inject constructor(
         }
     }
 
+    /**
+     * Performs GitHub authentication.
+     * @param activity host activity.
+     * @return [Result] of the operation containing the [FirebaseUser] on success, or an error message on failure.
+     */
     suspend fun authWithGitHub(activity: Activity): Result<FirebaseUser> {
         val provider = OAuthProvider.newBuilder("github.com").build()
         return try {

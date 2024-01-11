@@ -10,6 +10,9 @@ sealed class ViewState {
         val confirmationPasswordError: String? = null,
         val message: String? = null
     ) : ViewState() {
+        /**
+         * Handles the text field error state
+          */
         fun processError(error: String?, textField: TextInputLayout) {
             if (!error.isNullOrEmpty()) {
                 textField.apply {

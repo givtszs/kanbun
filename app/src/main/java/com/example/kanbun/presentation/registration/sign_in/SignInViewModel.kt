@@ -15,9 +15,15 @@ import javax.inject.Inject
 @HiltViewModel
 class SignInViewModel @Inject constructor(
     private val registerUserUseCase: RegisterUserUseCase
-): AuthViewModel(registerUserUseCase) {
+) : AuthViewModel(registerUserUseCase) {
     val signInState: StateFlow<ViewState.AuthState> = _authState
-    
+
+    /**
+     * Initiates the sign in process with the provided [email] and [password], and handles the result.
+     * @param email user's email address
+     * @param password user's password
+     * @param successCallback callback executed upon successful sign in
+     */
     fun signInWithEmail(
         email: String,
         password: String,

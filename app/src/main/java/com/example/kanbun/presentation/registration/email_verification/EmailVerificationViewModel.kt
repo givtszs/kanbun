@@ -6,6 +6,7 @@ import com.example.kanbun.common.EMAIL_RESEND_TIME_LIMIT
 import com.example.kanbun.domain.usecase.ManageFirestoreUserUseCase
 import com.example.kanbun.domain.usecase.RegisterUserUseCase
 import com.example.kanbun.presentation.ViewState
+import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -35,6 +36,12 @@ class EmailVerificationViewModel @Inject constructor(
         sendVerificationEmail(resend = false)
     }
 
+    /**
+     * Sends a verification email to the user.
+     *
+     * If the [resend] is `true`, starts countdown for the next resend availability.
+     * @param resend flag indicating whether to resend the verification email.
+     */
     fun sendVerificationEmail(resend: Boolean) = viewModelScope.launch {
         registerUserUseCase.sendVerificationEmail(user)
 
@@ -56,10 +63,16 @@ class EmailVerificationViewModel @Inject constructor(
         }
     }
 
+    /**
+     * Updates cached [FirebaseUser] state.
+     */
     suspend fun updateUser() {
         user?.reload()?.await()
     }
 
+    /**
+     * Saves user data into the Firestore collection.
+     */
     fun saveUserData() = viewModelScope.launch {
         if (user == null) {
             throw NullPointerException("Expected non-null user to perform this operation")

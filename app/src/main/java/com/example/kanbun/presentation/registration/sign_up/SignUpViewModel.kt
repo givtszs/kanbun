@@ -17,6 +17,14 @@ class SignUpViewModel @Inject constructor(
 ) : AuthViewModel(registerUserUseCase) {
     val signUpState: StateFlow<ViewState.AuthState> = _authState
 
+    /**
+     * Initiates the sign up process with the provided user credentials and handles the result.
+     * @param name user's name
+     * @param email user's email address
+     * @param password user's password
+     * @param confirmationPassword
+     * @param successCallback callback executed upon successful sign in
+     */
     fun signUpWithEmail(
         name: String,
         email: String,

@@ -12,27 +12,33 @@ import androidx.core.widget.doOnTextChanged
 import com.example.kanbun.R
 import com.example.kanbun.presentation.BaseFragment
 import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import com.google.firebase.auth.FirebaseUser
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
+/**
+ * Parent class for authentication-related fragments such as `Sign in` and `Sign up` fragments
+ */
 abstract class AuthFragment : BaseFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setStatusBarColor(ContextCompat.getColor(requireContext(), R.color.white))
     }
 
+    /**
+     * Clears the focus of the text fields, e.g. when the virtual keyboard is hidden.
+     */
     protected abstract fun clearTextFieldFocus(view: View)
 
-    protected fun showTextFieldError(input: TextInputLayout, message: String) {
-        input.apply {
-            error = message
-            isErrorEnabled = true
-        }
-    }
-
+    /**
+     * Sets up a [textField]'s `on text changed` callback with the provided [editText] and [viewModel].
+     * @param textField text field to be set up
+     * @param editText the inner [TextInputEditText] layout of the text field
+     * @param viewModel [AuthViewModel] instance
+     */
     protected fun setUpTextField(textField: TextInputLayout, editText: TextInputEditText, viewModel: AuthViewModel) {
         editText.doOnTextChanged { text, _, _, _ ->
             if (!text.isNullOrEmpty()) {
@@ -44,6 +50,9 @@ abstract class AuthFragment : BaseFragment() {
         }
     }
 
+    /**
+     * Callback to check email verification status for a [FirebaseUser].
+     */
     protected val checkEmailVerificationCallback: (FirebaseUser) -> Unit = { user ->
         Log.d("AuthResult", "email: ${user.email}, name: ${user.displayName}, photo: ${user.photoUrl}")
         if (!user.isEmailVerified) {
@@ -60,8 +69,15 @@ abstract class AuthFragment : BaseFragment() {
         }
     }
 
+    /**
+     * Callback to handle the Google authentication process.
+     * @param idToken see [GoogleSignInAccount.getIdToken]
+     */
     abstract fun googleAuthCallback(idToken: String?)
 
+    /**
+     * Activity result launcher to handler the result of Google Sign-In flow.
+     */
     protected val activityResultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == Activity.RESULT_OK) {
                 val data = result.data

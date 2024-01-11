@@ -12,6 +12,7 @@ import com.example.kanbun.domain.usecase.ManageFirestoreUserUseCase
 import com.example.kanbun.domain.usecase.RegisterUserUseCase
 import com.example.kanbun.presentation.ViewState
 import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.firebase.auth.FirebaseUser
@@ -30,6 +31,10 @@ open class AuthViewModel @Inject constructor(
     @Inject
     lateinit var manageFirestoreUserUseCase: ManageFirestoreUserUseCase
 
+    /**
+     * Resets the error state for a text field identified by the provided [layoutId]
+     * @param layoutId the id of the text field.
+     */
     fun resetTextFieldError(@IdRes layoutId: Int) {
         Log.d("AuthViewModel", "resetError: layoutId: ${layoutId}")
         when (layoutId) {
@@ -39,7 +44,11 @@ open class AuthViewModel @Inject constructor(
             R.id.tfConfirmPassword -> _authState.update { it.copy(confirmationPasswordError = null) }
         }
     }
-    
+
+    /**
+     * Processes authentication errors and updates the view state accordingly.
+     * @param message the error message received from the authentication process.
+     */
     protected fun processAuthenticationError(message: String?) {
         if (message == null) {
             return
@@ -61,10 +70,18 @@ open class AuthViewModel @Inject constructor(
         }
     }
 
+    /**
+     * Resets the UI message state, indicating that the message has been displayed.
+     */
     fun messageShown() {
         _authState.update { it.copy(message = null) }
     }
 
+    /**
+     * Retrieves the configured GoogleSignInClient for authentication with Google.
+     * @param context application context.
+     * @return configured [GoogleSignInClient].
+     */
     fun getGoogleSignInClient(context: Context): GoogleSignInClient {
         val signInOptions = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
             .requestIdToken("723106455668-7apee9lsea93gpi66cjkoiom258i30e2.apps.googleusercontent.com")
@@ -77,6 +94,11 @@ open class AuthViewModel @Inject constructor(
         return GoogleSignIn.getClient(context, signInOptions)
     }
 
+    /**
+     * Initiates Google sign in authentication and handles the result.
+     * @param accountId see [GoogleSignInAccount.getIdToken].
+     * @param successCallback callback executed upon successful authentication.
+     */
     fun authWithGoogle(accountId: String?, successCallback: (FirebaseUser) -> Unit) = viewModelScope.launch {
         when (val result = registerUserUseCase.authWithGoogle(accountId)) {
             is Result.Success -> {
@@ -90,6 +112,11 @@ open class AuthViewModel @Inject constructor(
         }
     }
 
+    /**
+     * Initiates GitHub authentication and handles the result.
+     * @param activity host activity.
+     * @param successCallback callback executed upon successful authentication.
+     */
     fun authWithGitHub(activity: Activity, successCallback: (FirebaseUser) -> Unit) = viewModelScope.launch {
         when (val result = registerUserUseCase.authWithGitHub(activity)) {
             is Result.Success -> successCallback(result.data)

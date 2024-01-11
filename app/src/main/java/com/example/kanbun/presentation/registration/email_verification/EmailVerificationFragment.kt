@@ -79,8 +79,10 @@ class EmailVerificationFragment : BaseFragment(), StateHandler {
         lifecycleScope.launch {
             lifecycle.repeatOnLifecycle(Lifecycle.State.RESUMED) {
                 while (true) {
+                    // get the recent changes in the user account
                     viewModel.updateUser()
                     delay(1000L)
+
                     if (viewModel.user?.isEmailVerified == true) {
                         showToast("Email has been verified")
                         viewModel.saveUserData().join()
