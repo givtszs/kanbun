@@ -1,7 +1,6 @@
 package com.example.kanbun.presentation.registration.sign_in
 
 import androidx.lifecycle.viewModelScope
-import com.example.kanbun.common.AuthType
 import com.example.kanbun.common.Result
 import com.example.kanbun.domain.usecase.RegisterUserUseCase
 import com.example.kanbun.presentation.ViewState
@@ -19,27 +18,19 @@ class SignInViewModel @Inject constructor(
 ): AuthViewModel(registerUserUseCase) {
     val signInState: StateFlow<ViewState.AuthState> = _authState
     
-    fun signInUser(
+    fun signInWithEmail(
         email: String,
         password: String,
-        provider: AuthType,
         successCallback: (FirebaseUser) -> Unit
     ) = viewModelScope.launch {
-        when (provider) {
-            AuthType.EMAIL -> {
-                when (val result = registerUserUseCase.signInWithEmail(email, password)) {
-                    is Result.Success -> {
-                        _authState.update { it.copy(message = "Signed up successfully!") }
-                        successCallback(result.data)
-                    }
-
-                    is Result.Error -> processError(result.message)
-                    is Result.Exception -> _authState.update { it.copy(message = result.message) }
-                }
+        when (val result = registerUserUseCase.signInWithEmail(email, password)) {
+            is Result.Success -> {
+                _authState.update { it.copy(message = "Signed up successfully!") }
+                successCallback(result.data)
             }
 
-            AuthType.GOOGLE -> {}
-            AuthType.GITHUB -> {}
+            is Result.Error -> processAuthenticationError(result.message)
+            is Result.Exception -> _authState.update { it.copy(message = result.message) }
         }
     }
 }

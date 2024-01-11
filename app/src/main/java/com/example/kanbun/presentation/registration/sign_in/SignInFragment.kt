@@ -18,6 +18,8 @@ import com.example.kanbun.databinding.FragmentSignInBinding
 import com.example.kanbun.presentation.StateHandler
 import com.example.kanbun.presentation.ViewState
 import com.example.kanbun.presentation.registration.AuthFragment
+import com.google.android.material.textfield.TextInputEditText
+import com.google.android.material.textfield.TextInputLayout
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collectLatest
@@ -47,35 +49,26 @@ class SignInFragment : AuthFragment(), StateHandler {
         collectState()
     }
 
+    override fun clearTextFieldFocus(view: View) {
+        binding.tfEmail.clearFocus()
+        binding.tfPassword.clearFocus()
+        hideKeyboard(view)
+    }
+
     override fun setUpListeners() {
         binding.etEmail.setText(args.email)
         binding.etPassword.setText(args.password)
 
-        binding.etEmail.doOnTextChanged { text, _, _, _ ->
-            if (!text.isNullOrEmpty()) {
-                binding.tfEmail.isErrorEnabled = false.also {
-                    viewModel.resetEmailError()
-                }
-            }
-
-        }
-
-        binding.etPassword.doOnTextChanged { text, _, _, _ ->
-            if (!text.isNullOrEmpty()) {
-                binding.tfPassword.isErrorEnabled = false.also {
-                    viewModel.resetPasswordError()
-                }
-            }
-        }
+        setUpTextField(binding.tfEmail, binding.etEmail, viewModel)
+        setUpTextField(binding.tfPassword, binding.etPassword, viewModel)
 
         var job: Job? = null
         binding.btnSignIn.setOnClickListener {
             clearTextFieldFocus(it)
             job?.cancel()
-            job = viewModel.signInUser(
+            job = viewModel.signInWithEmail(
                 email = binding.tfEmail.editText?.text.toString(),
                 password = binding.tfPassword.editText?.text.toString(),
-                provider = AuthType.EMAIL,
                 successCallback = { user -> checkEmailVerificationCallback(user) }
             )
         }
@@ -92,8 +85,8 @@ class SignInFragment : AuthFragment(), StateHandler {
         binding.tvSignUp.setOnClickListener {
             navController.navigate(
                 SignInFragmentDirections.actionSignInFragmentToSignUpFragment(
-                    email = binding.tfEmail.editText?.text.toString(),
-                    password = binding.tfPassword.editText?.text.toString()
+                    email = binding.tfEmail.editText?.text?.trim().toString(),
+                    password = binding.tfPassword.editText?.text?.trim().toString()
                 )
             )
         }
@@ -118,25 +111,14 @@ class SignInFragment : AuthFragment(), StateHandler {
 
     override fun processState(state: ViewState) {
         with(state as ViewState.AuthState) {
-            if (emailError.isNotEmpty()) {
-                showTextFieldError(binding.tfEmail, emailError)
-            }
-
-            if (passwordError.isNotEmpty()) {
-                showTextFieldError(binding.tfPassword, passwordError)
-            }
+            state.processError(emailError, binding.tfEmail)
+            state.processError(passwordError, binding.tfPassword)
 
             message?.let {
                 showToast(it, Toast.LENGTH_LONG)
                 viewModel.messageShown()
             }
         }
-    }
-
-    override fun clearTextFieldFocus(view: View) {
-        binding.tfEmail.clearFocus()
-        binding.tfPassword.clearFocus()
-        hideKeyboard(view)
     }
 
     override fun onDestroyView() {

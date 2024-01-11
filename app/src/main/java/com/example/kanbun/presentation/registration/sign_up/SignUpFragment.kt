@@ -18,6 +18,8 @@ import com.example.kanbun.databinding.FragmentSignUpBinding
 import com.example.kanbun.presentation.StateHandler
 import com.example.kanbun.presentation.ViewState
 import com.example.kanbun.presentation.registration.AuthFragment
+import com.google.android.material.textfield.TextInputEditText
+import com.google.android.material.textfield.TextInputLayout
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collectLatest
@@ -62,21 +64,10 @@ class SignUpFragment : AuthFragment(), StateHandler {
 
     override fun processState(state: ViewState) {
         with(state as ViewState.AuthState) {
-            if (!nameError.isNullOrEmpty()) {
-                showTextFieldError(binding.tfName, nameError)
-            }
-
-            if (emailError.isNotEmpty()) {
-                showTextFieldError(binding.tfEmail, emailError)
-            }
-
-            if (passwordError.isNotEmpty()) {
-                showTextFieldError(binding.tfPassword, passwordError)
-            }
-
-            if (!confirmationPasswordError.isNullOrEmpty()) {
-                showTextFieldError(binding.tfConfirmPassword, confirmationPasswordError)
-            }
+            state.processError(nameError, binding.tfName)
+            state.processError(emailError, binding.tfEmail)
+            state.processError(passwordError, binding.tfPassword)
+            state.processError(confirmationPasswordError, binding.tfConfirmPassword)
 
             message?.let {
                 showToast(it, Toast.LENGTH_LONG)
@@ -85,54 +76,31 @@ class SignUpFragment : AuthFragment(), StateHandler {
         }
     }
 
+    override fun clearTextFieldFocus(view: View) {
+        binding.tfEmail.clearFocus()
+        binding.tfPassword.clearFocus()
+        binding.tfConfirmPassword.clearFocus()
+        hideKeyboard(view)
+    }
+
     override fun setUpListeners() {
         binding.etEmail.setText(args.email)
         binding.etPassword.setText(args.password)
 
-        binding.etName.doOnTextChanged { text, _, _, _ ->
-            if (!text.isNullOrEmpty()) {
-                binding.tfName.isErrorEnabled = false.also {
-                    viewModel.resetNameError()
-                }
-            }
-
-        }
-
-        binding.etEmail.doOnTextChanged { text, _, _, _ ->
-            if (!text.isNullOrEmpty()) {
-                binding.tfEmail.isErrorEnabled = false.also {
-                    viewModel.resetEmailError()
-                }
-            }
-
-        }
-
-        binding.etPassword.doOnTextChanged { text, _, _, _ ->
-            if (!text.isNullOrEmpty()) {
-                binding.tfPassword.isErrorEnabled = false.also {
-                    viewModel.resetPasswordError()
-                }
-            }
-        }
-
-        binding.etConfirmPassword.doOnTextChanged { text, _, _, _ ->
-            if (!text.isNullOrEmpty()) {
-                binding.tfConfirmPassword.isErrorEnabled = false.also {
-                    viewModel.resetConfirmationPasswordError()
-                }
-            }
-        }
+        setUpTextField(binding.tfName, binding.etName, viewModel)
+        setUpTextField(binding.tfEmail, binding.etEmail, viewModel)
+        setUpTextField(binding.tfPassword, binding.etPassword, viewModel)
+        setUpTextField(binding.tfConfirmPassword, binding.etConfirmPassword, viewModel)
 
         var job: Job? = null
         binding.btnSignUp.setOnClickListener {
             clearTextFieldFocus(it)
             job?.cancel()
-            job = viewModel.signUpUser(
-                name = binding.tfName.editText?.text.toString(),
-                email = binding.tfEmail.editText?.text.toString(),
-                password = binding.tfPassword.editText?.text.toString(),
-                confirmationPassword = binding.tfConfirmPassword.editText?.text.toString(),
-                provider = AuthType.EMAIL,
+            job = viewModel.signUpWithEmail(
+                name = binding.tfName.editText?.text?.trim().toString(),
+                email = binding.tfEmail.editText?.text?.trim().toString(),
+                password = binding.tfPassword.editText?.text?.trim().toString(),
+                confirmationPassword = binding.tfConfirmPassword.editText?.text?.trim().toString(),
                 successCallback = {
                     navController.navigate(R.id.emailVerificationFragment)
                 }
@@ -163,13 +131,6 @@ class SignUpFragment : AuthFragment(), StateHandler {
             Log.d("SignUpFragment", "isUserVerified: ${it.isEmailVerified}")
             showToast("SUCCESSFULLY SIGNED UP!")
         }
-    }
-
-    override fun clearTextFieldFocus(view: View) {
-        binding.tfEmail.clearFocus()
-        binding.tfPassword.clearFocus()
-        binding.tfConfirmPassword.clearFocus()
-        hideKeyboard(view)
     }
 
     override fun onDestroyView() {

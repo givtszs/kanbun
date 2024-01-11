@@ -1,5 +1,7 @@
 package com.example.kanbun.presentation
 
+import com.google.android.material.textfield.TextInputLayout
+
 sealed class ViewState {
     data class AuthState(
         val nameError: String? = null,
@@ -7,7 +9,16 @@ sealed class ViewState {
         val passwordError: String = "",
         val confirmationPasswordError: String? = null,
         val message: String? = null
-    ) : ViewState()
+    ) : ViewState() {
+        fun processError(error: String?, textField: TextInputLayout) {
+            if (!error.isNullOrEmpty()) {
+                textField.apply {
+                    setError(error)
+                    isErrorEnabled = true
+                }
+            }
+        }
+    }
 
     data class EmailVerificationState(
         val isResendAvailable: Boolean = true,

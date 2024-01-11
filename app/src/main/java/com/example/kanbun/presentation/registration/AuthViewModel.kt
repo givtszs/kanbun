@@ -3,8 +3,10 @@ package com.example.kanbun.presentation.registration
 import android.app.Activity
 import android.content.Context
 import android.util.Log
+import androidx.annotation.IdRes
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.kanbun.R
 import com.example.kanbun.common.Result
 import com.example.kanbun.domain.usecase.RegisterUserUseCase
 import com.example.kanbun.presentation.ViewState
@@ -24,38 +26,34 @@ open class AuthViewModel @Inject constructor(
 ) : ViewModel() {
     protected val _authState = MutableStateFlow(ViewState.AuthState())
 
-    // TODO("Refactor `reset*Error` into a single function with a when statement base on the passed view id")
-    fun resetNameError() {
-        _authState.update { it.copy(nameError = null) }
-    }
-
-    fun resetEmailError() {
-        _authState.update { it.copy(emailError = "") }
-    }
-    
-    fun resetPasswordError() {
-        _authState.update { it.copy(passwordError = "") }
-    }
-
-    fun resetConfirmationPasswordError() {
-        _authState.update { it.copy(confirmationPasswordError = null) }
+    fun resetTextFieldError(@IdRes layoutId: Int) {
+        Log.d("AuthViewModel", "resetError: layoutId: ${layoutId}")
+        when (layoutId) {
+            R.id.tfName -> _authState.update { it.copy(nameError = null) }
+            R.id.tfEmail -> _authState.update { it.copy(emailError = "") }
+            R.id.tfPassword -> _authState.update { it.copy(emailError = "") }
+            R.id.tfConfirmPassword -> _authState.update { it.copy(confirmationPasswordError = null) }
+        }
     }
     
-    protected fun processError(message: String?) {
+    protected fun processAuthenticationError(message: String?) {
         if (message == null) {
             return
         }
 
         if (message.lowercase().contains("name")) {
             _authState.update { it.copy(nameError = message) }
+            return
         }
 
         if (message.lowercase().contains("email")) {
             _authState.update { it.copy(emailError = message) }
+            return
         }
 
         if (message.lowercase().contains("password")) {
             _authState.update { it.copy(passwordError = message) }
+            return
         }
     }
 

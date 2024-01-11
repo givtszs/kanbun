@@ -8,9 +8,11 @@ import android.view.View
 import android.view.inputmethod.InputMethodManager
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
+import androidx.core.widget.doOnTextChanged
 import com.example.kanbun.R
 import com.example.kanbun.presentation.BaseFragment
 import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import com.google.firebase.auth.FirebaseUser
 import dagger.hilt.android.AndroidEntryPoint
@@ -28,6 +30,17 @@ abstract class AuthFragment : BaseFragment() {
         input.apply {
             error = message
             isErrorEnabled = true
+        }
+    }
+
+    protected fun setUpTextField(textField: TextInputLayout, editText: TextInputEditText, viewModel: AuthViewModel) {
+        editText.doOnTextChanged { text, _, _, _ ->
+            if (!text.isNullOrEmpty()) {
+                textField.apply {
+                    isErrorEnabled = false
+                    viewModel.resetTextFieldError(id)
+                }
+            }
         }
     }
 
