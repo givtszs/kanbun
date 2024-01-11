@@ -23,6 +23,7 @@ class FirestoreRepositoryImpl @Inject constructor(
             firestore.collection(FirestoreCollection.USERS.collectionName)
                 .document(user.uid)
                 .set(user.toFirestoreUser())
+                .await()
             Result.Success(Unit)
         } catch (e: Exception) {
             Result.Exception(e.message, e)

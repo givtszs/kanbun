@@ -3,6 +3,7 @@ package com.example.kanbun.presentation.registration.email_verification
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.kanbun.common.EMAIL_RESEND_TIME_LIMIT
+import com.example.kanbun.domain.usecase.ManageFirestoreUserUseCase
 import com.example.kanbun.domain.usecase.RegisterUserUseCase
 import com.example.kanbun.presentation.ViewState
 import com.google.firebase.auth.ktx.auth
@@ -18,10 +19,12 @@ import javax.inject.Inject
 
 @HiltViewModel
 class EmailVerificationViewModel @Inject constructor(
-    private val registerUserUseCase: RegisterUserUseCase
+    private val registerUserUseCase: RegisterUserUseCase,
+    private val manageFirestoreUserUseCase: ManageFirestoreUserUseCase
 ) : ViewModel() {
     private val _emailVerificationState = MutableStateFlow(ViewState.EmailVerificationState())
-    val emailVerificationState: StateFlow<ViewState.EmailVerificationState> = _emailVerificationState
+    val emailVerificationState: StateFlow<ViewState.EmailVerificationState> =
+        _emailVerificationState
     var user = Firebase.auth.currentUser
 
     init {
@@ -55,5 +58,13 @@ class EmailVerificationViewModel @Inject constructor(
 
     suspend fun updateUser() {
         user?.reload()?.await()
+    }
+
+    fun saveUserData() = viewModelScope.launch {
+        if (user == null) {
+            throw NullPointerException("Expected non-null user to perform this operation")
+        }
+
+        manageFirestoreUserUseCase.saveUser(user!!)
     }
 }

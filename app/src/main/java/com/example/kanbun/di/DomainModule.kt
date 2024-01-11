@@ -5,12 +5,14 @@ import com.google.firebase.auth.FirebaseAuth
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
-import dagger.hilt.components.SingletonComponent
+import dagger.hilt.android.components.ViewModelComponent
+import dagger.hilt.android.scopes.ViewModelScoped
 
 @Module
-@InstallIn(SingletonComponent::class)
+@InstallIn(ViewModelComponent::class)
 class DomainModule {
 
     @Provides
+    @ViewModelScoped
     fun provideRegisterUserUseCase(firebaseAuth: FirebaseAuth) = RegisterUserUseCase(firebaseAuth)
 }

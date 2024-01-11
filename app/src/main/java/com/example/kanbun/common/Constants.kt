@@ -5,10 +5,10 @@ enum class FirestoreCollection(val collectionName: String) {
     WORKSPACES("workspaces")
 }
 
-enum class AuthType(val typeName: String) {
-    EMAIL("Email"),
-    GOOGLE("Google"),
-    GITHUB("GitHub")
+enum class AuthProvider(val providerId: String) {
+    EMAIL("password"),
+    GOOGLE("google.com"),
+    GITHUB("github.com")
 }
 
 const val EMAIL_RESEND_TIME_LIMIT = 60

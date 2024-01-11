@@ -1,25 +1,20 @@
 package com.example.kanbun.presentation.registration.sign_in
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.navArgs
 import com.example.kanbun.R
-import com.example.kanbun.common.AuthType
 import com.example.kanbun.databinding.FragmentSignInBinding
 import com.example.kanbun.presentation.StateHandler
 import com.example.kanbun.presentation.ViewState
 import com.example.kanbun.presentation.registration.AuthFragment
-import com.google.android.material.textfield.TextInputEditText
-import com.google.android.material.textfield.TextInputLayout
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collectLatest
@@ -92,8 +87,8 @@ class SignInFragment : AuthFragment(), StateHandler {
 
     override fun googleAuthCallback(idToken: String?) {
         viewModel.authWithGoogle(idToken) {
-            Log.d("SignInFragment", "isUserVerified: ${it.isEmailVerified}")
-            showToast("SUCCESSFULLY SIGNED IN!")
+            showToast("Signed in successfully")
+            navController.navigate(R.id.userBoardsFragment)
         }
     }
 

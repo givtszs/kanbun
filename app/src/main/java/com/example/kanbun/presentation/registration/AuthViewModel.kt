@@ -8,6 +8,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.kanbun.R
 import com.example.kanbun.common.Result
+import com.example.kanbun.domain.usecase.ManageFirestoreUserUseCase
 import com.example.kanbun.domain.usecase.RegisterUserUseCase
 import com.example.kanbun.presentation.ViewState
 import com.google.android.gms.auth.api.signin.GoogleSignIn
@@ -25,6 +26,9 @@ open class AuthViewModel @Inject constructor(
     private val registerUserUseCase: RegisterUserUseCase
 ) : ViewModel() {
     protected val _authState = MutableStateFlow(ViewState.AuthState())
+
+    @Inject
+    lateinit var manageFirestoreUserUseCase: ManageFirestoreUserUseCase
 
     fun resetTextFieldError(@IdRes layoutId: Int) {
         Log.d("AuthViewModel", "resetError: layoutId: ${layoutId}")
@@ -75,7 +79,10 @@ open class AuthViewModel @Inject constructor(
 
     fun authWithGoogle(accountId: String?, successCallback: (FirebaseUser) -> Unit) = viewModelScope.launch {
         when (val result = registerUserUseCase.authWithGoogle(accountId)) {
-            is Result.Success -> successCallback(result.data)
+            is Result.Success -> {
+                manageFirestoreUserUseCase.saveUser(result.data)
+                successCallback(result.data)
+            }
 
             is Result.Error -> _authState.update { it.copy(message = result.message) }
 

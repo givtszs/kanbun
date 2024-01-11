@@ -1,6 +1,5 @@
 package com.example.kanbun.domain
 
-import com.example.kanbun.common.AuthType
 import com.example.kanbun.domain.model.User
 import com.example.kanbun.domain.model.UserWorkspace
 import com.google.firebase.auth.ktx.auth
@@ -19,7 +18,7 @@ class FirestoreTestUtil {
         private const val authPort = 9099
         private const val projectName = "kanbun-aa2d6"
 
-        val db = Firebase.firestore.apply {
+        val firestore = Firebase.firestore.apply {
             useEmulator(host, firestorePort)
             firestoreSettings = firestoreSettings {
                 isPersistenceEnabled = false
@@ -60,8 +59,8 @@ class FirestoreTestUtil {
             uid = "test1",
             email = "test@gmail.com",
             name = "Test",
-            profilePicture = "pathToPic",
-            authType = AuthType.GOOGLE,
+            profilePicture = null,
+            authProviders = listOf("google.com"),
             workspaces = listOf(UserWorkspace("workspaces/work1", "Test Workspace 1")),
             cards = listOf("workspaces/work1/boards/board1/columns/col1/card1")
         )

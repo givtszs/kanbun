@@ -14,7 +14,7 @@ class FirestoreRepositoryTest {
 
     @Before
     fun setUp() {
-        val firestore = FirestoreTestUtil.db
+        val firestore = FirestoreTestUtil.firestore
         repository = FirestoreRepositoryImpl(firestore)
     }
 

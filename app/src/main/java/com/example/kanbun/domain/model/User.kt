@@ -1,13 +1,11 @@
 package com.example.kanbun.domain.model
 
-import com.example.kanbun.common.AuthType
-
 data class User(
     val uid: String,
     val email: String,
-    val name: String,
-    val profilePicture: String,
-    val authType: AuthType,
+    val name: String?,
+    val profilePicture: String?,
+    val authProviders: List<String>,
     val workspaces: List<UserWorkspace>,
     val cards: List<String>
 )

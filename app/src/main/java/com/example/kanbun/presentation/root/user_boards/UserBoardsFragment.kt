@@ -1,21 +1,26 @@
 package com.example.kanbun.presentation.root.user_boards
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.example.kanbun.R
 import com.example.kanbun.databinding.FragmentRootUserBoardsBinding
+import com.example.kanbun.domain.repository.FirestoreRepository
 import com.example.kanbun.presentation.BaseFragment
-import com.google.firebase.auth.auth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
+import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class UserBoardsFragment : BaseFragment() {
     private var _binding: FragmentRootUserBoardsBinding? = null
     private val binding: FragmentRootUserBoardsBinding get() = _binding!!
     private var user = Firebase.auth.currentUser
+
+    @Inject
+    lateinit var firestoreRepository: FirestoreRepository
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -38,11 +43,7 @@ class UserBoardsFragment : BaseFragment() {
     }
 
     override fun setUpListeners() {
-        binding.tvUserInfo.text = "${user?.email}, ${user?.isEmailVerified}, ${user?.displayName}, ${user?.photoUrl}"
-        binding.btnSignOut.setOnClickListener {
-            Firebase.auth.signOut()
-            navController.navigate(R.id.registrationPromptFragment)
-        }
+//        TODO("Not yet implemented")
     }
 
     override fun onDestroyView() {
