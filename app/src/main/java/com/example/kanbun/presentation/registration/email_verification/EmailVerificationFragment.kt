@@ -83,8 +83,8 @@ class EmailVerificationFragment : BaseFragment(), StateHandler {
                     viewModel.updateUser()
                     delay(1000L)
                     if (viewModel.user?.isEmailVerified == true) {
-                        showToast("EMAIL IS VERIFIED", Toast.LENGTH_LONG)
-                        break
+                        showToast("Email has been verified")
+                        navController.navigate(R.id.action_emailVerificationFragment_to_userBoardsFragment)
                     }
                 }
             }

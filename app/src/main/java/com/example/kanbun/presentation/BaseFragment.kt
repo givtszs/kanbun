@@ -23,6 +23,14 @@ abstract class BaseFragment : Fragment() {
 
     protected abstract fun setUpListeners()
 
+    protected fun addOnBackPressedAction(navigate: () -> Unit) {
+        requireActivity().onBackPressedDispatcher.addCallback(this, onBackPressedCallback = object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                navigate()
+            }
+        })
+    }
+
     protected fun setUpActionBar(toolbar: MaterialToolbar) {
         (requireActivity() as MainActivity).apply {
             setSupportActionBar(toolbar)
@@ -35,11 +43,7 @@ abstract class BaseFragment : Fragment() {
         toolbar.setNavigationOnClickListener {
             navigate()
         }
-        requireActivity().onBackPressedDispatcher.addCallback(this, onBackPressedCallback = object : OnBackPressedCallback(true) {
-            override fun handleOnBackPressed() {
-                navigate()
-            }
-        })
+        addOnBackPressedAction(navigate)
     }
 
     protected fun showToast(message: String, duration: Int = Toast.LENGTH_SHORT) {

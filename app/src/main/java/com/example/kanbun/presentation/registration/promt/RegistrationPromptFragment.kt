@@ -32,6 +32,7 @@ class RegistrationPromptFragment : BaseFragment() {
                 R.color.md_theme_light_primary_variant
             )
         )
+        addOnBackPressedAction { requireActivity().finish() }
     }
 
     override fun setUpListeners() {
@@ -47,6 +48,5 @@ class RegistrationPromptFragment : BaseFragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
-        Firebase.auth.signOut()
     }
 }

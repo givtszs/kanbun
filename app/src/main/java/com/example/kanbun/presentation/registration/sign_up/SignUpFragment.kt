@@ -43,12 +43,7 @@ class SignUpFragment : AuthFragment(), StateHandler {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        setUpActionBar(binding.toolbar) {
-            navController.popBackStack(
-                R.id.registrationPromptFragment,
-                false
-            )
-        }
+        setUpActionBar(binding.toolbar)
         collectState()
     }
 

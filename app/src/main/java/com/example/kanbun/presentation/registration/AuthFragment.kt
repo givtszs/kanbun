@@ -49,8 +49,8 @@ abstract class AuthFragment : BaseFragment() {
         if (!user.isEmailVerified) {
             navController.navigate(R.id.emailVerificationFragment)
         } else {
-            // navigate to home screen
-            showToast("User is already verified")
+            showToast("Email is already verified")
+            navController.navigate(R.id.userBoardsFragment)
         }
     }
 
