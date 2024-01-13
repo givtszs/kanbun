@@ -38,7 +38,8 @@ class UserBoardsFragment : BaseFragment() {
         if (user == null) {
             navController.navigate(R.id.action_userBoardsFragment_to_registrationPromptFragment)
         } else if (user?.isEmailVerified == false) {
-            navController.navigate(UserBoardsFragmentDirections.actionUserBoardsFragmentToEmailVerificationFragment())
+            showToast(message = "Complete registration by signing in and verifying your email", context = requireActivity())
+            navController.navigate(UserBoardsFragmentDirections.actionUserBoardsFragmentToRegistrationPromptFragment())
         }
     }
 

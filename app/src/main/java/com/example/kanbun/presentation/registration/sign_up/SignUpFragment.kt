@@ -60,7 +60,7 @@ class SignUpFragment : AuthFragment(), StateHandler {
             state.processError(confirmationPasswordError, binding.tfConfirmPassword)
 
             message?.let {
-                showToast(it, Toast.LENGTH_LONG)
+                showToast(it, duration = Toast.LENGTH_LONG)
                 viewModel.messageShown()
             }
         }

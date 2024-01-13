@@ -108,7 +108,7 @@ class SignInFragment : AuthFragment(), StateHandler {
             state.processError(passwordError, binding.tfPassword)
 
             message?.let {
-                showToast(it, Toast.LENGTH_LONG)
+                showToast(it, duration = Toast.LENGTH_LONG)
                 viewModel.messageShown()
             }
         }

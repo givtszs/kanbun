@@ -31,7 +31,7 @@ class SignInViewModel @Inject constructor(
     ) = viewModelScope.launch {
         when (val result = registerUserUseCase.signInWithEmail(email, password)) {
             is Result.Success -> {
-                _authState.update { it.copy(message = "Signed up successfully!") }
+                _authState.update { it.copy(message = "Signed in successfully!") }
                 successCallback(result.data)
             }
 

@@ -1,5 +1,6 @@
 package com.example.kanbun.presentation
 
+import android.content.Context
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
@@ -68,8 +69,8 @@ abstract class BaseFragment : Fragment() {
         addOnBackPressedAction(navigate)
     }
 
-    protected fun showToast(message: String, duration: Int = Toast.LENGTH_SHORT) {
-        Toast.makeText(requireContext(), message, duration).show()
+    protected fun showToast(message: String, context: Context = requireContext(), duration: Int = Toast.LENGTH_SHORT) {
+        Toast.makeText(context, message, duration).show()
     }
 
     protected fun setStatusBarColor(color: Int) {
