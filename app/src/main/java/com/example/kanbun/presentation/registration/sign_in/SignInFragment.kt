@@ -11,6 +11,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.navArgs
 import com.example.kanbun.R
+import com.example.kanbun.common.AuthProvider
 import com.example.kanbun.common.ToastMessage
 import com.example.kanbun.databinding.FragmentSignInBinding
 import com.example.kanbun.presentation.StateHandler
@@ -57,13 +58,20 @@ class SignInFragment : AuthFragment(), StateHandler {
         setUpTextField(binding.tfPassword, binding.etPassword, viewModel)
 
         var job: Job? = null
-        binding.btnSignIn.setOnClickListener {
-            clearTextFieldFocus(it)
+        binding.btnSignIn.setOnClickListener { view ->
+            clearTextFieldFocus(view)
             job?.cancel()
             job = viewModel.signInWithEmail(
                 email = binding.tfEmail.editText?.text.toString(),
                 password = binding.tfPassword.editText?.text.toString(),
-                successCallback = { user -> checkEmailVerificationCallback(user) }
+                successCallback = { firebaseUser ->
+                    showToast(ToastMessage.SIGN_IN_SUCCESS, context = requireActivity())
+                    if (!firebaseUser.isEmailVerified) {
+                        navController.navigate(R.id.emailVerificationFragment)
+                    } else {
+                        navController.navigate(R.id.userBoardsFragment)
+                    }
+                }
             )
         }
 
@@ -73,7 +81,11 @@ class SignInFragment : AuthFragment(), StateHandler {
         }
 
         binding.btnSignInGitHub.setOnClickListener {
-            viewModel.authWithGitHub(requireActivity()) { user -> checkEmailVerificationCallback(user) }
+            viewModel.authWithGitHub(requireActivity()) { firebaseUser ->
+                showToast(ToastMessage.SIGN_IN_SUCCESS, context = requireActivity())
+                viewModel.saveUserData(firebaseUser, AuthProvider.GITHUB)
+                navController.navigate(R.id.userBoardsFragment)
+            }
         }
 
         binding.tvSignUp.setOnClickListener {
@@ -87,8 +99,9 @@ class SignInFragment : AuthFragment(), StateHandler {
     }
 
     override fun googleAuthCallback(idToken: String?) {
-        viewModel.authWithGoogle(idToken) {
-            showToast(ToastMessage.SIGN_IN_SUCCESS)
+        viewModel.authWithGoogle(idToken) { firebaseUser ->
+            showToast(ToastMessage.SIGN_IN_SUCCESS, context = requireActivity())
+            viewModel.saveUserData(firebaseUser, AuthProvider.GOOGLE)
             navController.navigate(R.id.userBoardsFragment)
         }
     }

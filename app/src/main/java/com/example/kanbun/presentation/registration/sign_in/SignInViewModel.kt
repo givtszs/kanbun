@@ -10,7 +10,6 @@ import com.example.kanbun.presentation.registration.AuthViewModel
 import com.google.firebase.auth.FirebaseUser
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -39,13 +38,9 @@ class SignInViewModel @Inject constructor(
         }
 
         when (val result = registerUserUseCase.signInWithEmail(email, password)) {
-            is Result.Success -> {
-                _authState.update { it.copy(message = "Signed in successfully!") }
-                successCallback(result.data)
-            }
-
+            is Result.Success -> successCallback(result.data)
             is Result.Error -> processAuthenticationError(result.message)
-            is Result.Exception -> _authState.update { it.copy(message = result.message) }
+            is Result.Exception -> showMessage(result.message)
         }
     }
 }

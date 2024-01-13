@@ -3,7 +3,6 @@ package com.example.kanbun.presentation.registration
 import android.app.Activity
 import android.content.Context
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import androidx.activity.result.contract.ActivityResultContracts
@@ -15,7 +14,6 @@ import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
-import com.google.firebase.auth.FirebaseUser
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -47,19 +45,6 @@ abstract class AuthFragment : BaseFragment() {
                     viewModel.resetTextFieldError(id)
                 }
             }
-        }
-    }
-
-    /**
-     * Callback to check email verification status for a [FirebaseUser].
-     */
-    protected val checkEmailVerificationCallback: (FirebaseUser) -> Unit = { user ->
-        Log.d("AuthResult", "email: ${user.email}, name: ${user.displayName}, photo: ${user.photoUrl}")
-        if (!user.isEmailVerified) {
-            navController.navigate(R.id.emailVerificationFragment)
-        } else {
-            showToast("Email is already verified")
-            navController.navigate(R.id.userBoardsFragment)
         }
     }
 

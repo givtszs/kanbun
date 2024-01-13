@@ -2,13 +2,15 @@ package com.example.kanbun.presentation.registration.email_verification
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.kanbun.common.AuthProvider
 import com.example.kanbun.common.EMAIL_RESEND_TIME_LIMIT
+import com.example.kanbun.common.Result
 import com.example.kanbun.common.ToastMessage
-import com.example.kanbun.domain.usecase.ManageFirestoreUserUseCase
 import com.example.kanbun.domain.usecase.RegisterUserUseCase
 import com.example.kanbun.domain.utils.ConnectivityChecker
 import com.example.kanbun.presentation.ViewState
 import com.google.firebase.auth.FirebaseUser
+import com.google.firebase.auth.UserInfo
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -23,7 +25,6 @@ import javax.inject.Inject
 @HiltViewModel
 class EmailVerificationViewModel @Inject constructor(
     private val registerUserUseCase: RegisterUserUseCase,
-    private val manageFirestoreUserUseCase: ManageFirestoreUserUseCase,
     private val connectivityChecker: ConnectivityChecker
 ) : ViewModel() {
     private val _emailVerificationState = MutableStateFlow(ViewState.EmailVerificationState())
@@ -39,8 +40,16 @@ class EmailVerificationViewModel @Inject constructor(
         sendVerificationEmail(resend = false)
     }
 
+    fun getUserInfo(): UserInfo? {
+        return user?.providerData?.first { it.providerId == AuthProvider.EMAIL.providerId}
+    }
+
     fun messageShown() {
         _emailVerificationState.update { it.copy(message = null) }
+    }
+
+    private fun showMessage(message: String?) {
+        _emailVerificationState.update { it.copy(message = message) }
     }
 
     /**
@@ -55,7 +64,11 @@ class EmailVerificationViewModel @Inject constructor(
             return@launch
         }
 
-        registerUserUseCase.sendVerificationEmail(user)
+        when (val result = registerUserUseCase.sendVerificationEmail(user)) {
+            is Result.Success -> showMessage("Verification email has been sent successfully")
+            is Result.Error -> showMessage(result.message)
+            is Result.Exception -> showMessage(result.message)
+        }
 
         if (resend) {
             startCountdown()
@@ -80,16 +93,5 @@ class EmailVerificationViewModel @Inject constructor(
      */
     suspend fun updateUser() {
         user?.reload()?.await()
-    }
-
-    /**
-     * Saves user data into the Firestore collection.
-     */
-    fun saveUserData() = viewModelScope.launch {
-        if (user == null) {
-            throw NullPointerException("Expected non-null user to perform this operation")
-        }
-
-        manageFirestoreUserUseCase.saveUser(user!!)
     }
 }

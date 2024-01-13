@@ -11,11 +11,13 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.navArgs
 import com.example.kanbun.R
+import com.example.kanbun.common.AuthProvider
 import com.example.kanbun.common.ToastMessage
 import com.example.kanbun.databinding.FragmentSignUpBinding
 import com.example.kanbun.presentation.StateHandler
 import com.example.kanbun.presentation.ViewState
 import com.example.kanbun.presentation.registration.AuthFragment
+import com.example.kanbun.presentation.registration.sign_in.SignInFragmentDirections
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collectLatest
@@ -93,6 +95,7 @@ class SignUpFragment : AuthFragment(), StateHandler {
                 password = binding.tfPassword.editText?.text?.trim().toString(),
                 confirmationPassword = binding.tfConfirmPassword.editText?.text?.trim().toString(),
                 successCallback = {
+                    showToast(ToastMessage.SIGN_UP_SUCCESS, context = requireActivity())
                     navController.navigate(R.id.emailVerificationFragment)
                 }
             )
@@ -104,7 +107,11 @@ class SignUpFragment : AuthFragment(), StateHandler {
         }
 
         binding.btnSignUpGitHub.setOnClickListener {
-            viewModel.authWithGitHub(requireActivity()) { user -> checkEmailVerificationCallback(user) }
+            viewModel.authWithGitHub(requireActivity()) { firebaseUser ->
+                showToast(ToastMessage.SIGN_UP_SUCCESS, context = requireActivity())
+                viewModel.saveUserData(firebaseUser, AuthProvider.GITHUB)
+                navController.navigate(R.id.userBoardsFragment)
+            }
         }
 
         binding.tvSignIn.setOnClickListener {
@@ -118,8 +125,9 @@ class SignUpFragment : AuthFragment(), StateHandler {
     }
 
     override fun googleAuthCallback(idToken: String?) {
-        viewModel.authWithGoogle(idToken) {
-            showToast(ToastMessage.SIGN_UP_SUCCESS)
+        viewModel.authWithGoogle(idToken) { firebaseUser ->
+            showToast(ToastMessage.SIGN_UP_SUCCESS, context = requireActivity())
+            viewModel.saveUserData(firebaseUser, AuthProvider.GOOGLE)
             navController.navigate(R.id.userBoardsFragment)
         }
     }

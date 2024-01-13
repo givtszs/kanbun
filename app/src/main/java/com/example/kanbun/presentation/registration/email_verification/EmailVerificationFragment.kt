@@ -46,7 +46,7 @@ class EmailVerificationFragment : BaseFragment(), StateHandler {
 
     override fun setUpListeners() {
         binding.tvSubtitle.text =
-            resources.getString(R.string.subtitle_confirm_email, viewModel.user!!.email)
+            resources.getString(R.string.subtitle_confirm_email, viewModel.getUserInfo()?.email)
 
         binding.btnResendEmail.setOnClickListener {
             viewModel.sendVerificationEmail(resend = true)
@@ -89,10 +89,8 @@ class EmailVerificationFragment : BaseFragment(), StateHandler {
                     // get the recent changes in the user account
                     viewModel.updateUser()
                     delay(1000L)
-
                     if (viewModel.user?.isEmailVerified == true) {
                         showToast(ToastMessage.EMAIL_VERIFIED)
-                        viewModel.saveUserData().join()
                         navController.navigate(R.id.action_emailVerificationFragment_to_userBoardsFragment)
                     }
                 }

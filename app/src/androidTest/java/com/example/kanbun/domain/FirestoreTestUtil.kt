@@ -1,5 +1,6 @@
 package com.example.kanbun.domain
 
+import com.example.kanbun.common.AuthProvider
 import com.example.kanbun.domain.model.User
 import com.example.kanbun.domain.model.UserWorkspace
 import com.google.firebase.auth.ktx.auth
@@ -60,7 +61,7 @@ class FirestoreTestUtil {
             email = "test@gmail.com",
             name = "Test",
             profilePicture = null,
-            authProviders = listOf("google.com"),
+            authProvider = AuthProvider.GOOGLE,
             workspaces = listOf(UserWorkspace("workspaces/work1", "Test Workspace 1")),
             cards = listOf("workspaces/work1/boards/board1/columns/col1/card1")
         )

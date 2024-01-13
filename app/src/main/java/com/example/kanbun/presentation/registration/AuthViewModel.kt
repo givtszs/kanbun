@@ -2,11 +2,11 @@ package com.example.kanbun.presentation.registration
 
 import android.app.Activity
 import android.content.Context
-import android.util.Log
 import androidx.annotation.IdRes
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.kanbun.R
+import com.example.kanbun.common.AuthProvider
 import com.example.kanbun.common.Result
 import com.example.kanbun.common.ToastMessage
 import com.example.kanbun.domain.usecase.ManageFirestoreUserUseCase
@@ -46,7 +46,7 @@ open class AuthViewModel @Inject constructor(
     }
 
     protected fun notifyNoInternet() {
-        _authState.update { it.copy(message = ToastMessage.NO_NETWORK_CONNECTION) }
+        showMessage(ToastMessage.NO_NETWORK_CONNECTION)
     }
 
     /**
@@ -74,11 +74,24 @@ open class AuthViewModel @Inject constructor(
         }
     }
 
+    fun showMessage(message: String?) {
+        _authState.update { it.copy(message = message) }
+    }
+
     /**
      * Resets the UI message state, indicating that the message has been displayed.
      */
     fun messageShown() {
         _authState.update { it.copy(message = null) }
+    }
+
+    suspend fun saveUserData(user: FirebaseUser, provider: AuthProvider) {
+        val result = manageFirestoreUserUseCase.saveUser(user, provider)
+        if (result is Result.Error) {
+            showMessage(result.message)
+        } else if (result is Result.Exception) {
+            showMessage(result.message)
+        }
     }
 
     /**
@@ -105,7 +118,7 @@ open class AuthViewModel @Inject constructor(
      * @param accountId see [GoogleSignInAccount.getIdToken].
      * @param successCallback callback executed upon successful authentication.
      */
-    fun authWithGoogle(accountId: String?, successCallback: (FirebaseUser) -> Unit) = viewModelScope.launch {
+    fun authWithGoogle(accountId: String?, successCallback: suspend (FirebaseUser) -> Unit) = viewModelScope.launch {
         if (!connectivityChecker.hasInternetConnection()) {
             notifyNoInternet()
             return@launch
@@ -113,13 +126,12 @@ open class AuthViewModel @Inject constructor(
 
         when (val result = registerUserUseCase.authWithGoogle(accountId)) {
             is Result.Success -> {
-                manageFirestoreUserUseCase.saveUser(result.data)
                 successCallback(result.data)
             }
 
-            is Result.Error -> _authState.update { it.copy(message = result.message) }
+            is Result.Error -> showMessage(result.message)
 
-            is Result.Exception -> _authState.update { it.copy(message = result.message) }
+            is Result.Exception -> showMessage(result.message)
         }
     }
 
@@ -128,17 +140,19 @@ open class AuthViewModel @Inject constructor(
      * @param activity host activity.
      * @param successCallback callback executed upon successful authentication.
      */
-    fun authWithGitHub(activity: Activity, successCallback: (FirebaseUser) -> Unit) = viewModelScope.launch {
+    fun authWithGitHub(activity: Activity, successCallback: suspend (FirebaseUser) -> Unit) = viewModelScope.launch {
         if (!connectivityChecker.hasInternetConnection()) {
             notifyNoInternet()
         }
 
         when (val result = registerUserUseCase.authWithGitHub(activity)) {
-            is Result.Success -> successCallback(result.data)
+            is Result.Success -> {
+                successCallback(result.data)
+            }
 
-            is Result.Error -> _authState.update { it.copy(message = result.message) }
+            is Result.Error -> showMessage(result.message)
 
-            is Result.Exception -> _authState.update { it.copy(message = result.message) }
+            is Result.Exception -> showMessage(result.message)
         }
     }
 }

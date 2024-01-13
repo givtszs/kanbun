@@ -3,13 +3,15 @@ package com.example.kanbun.data
 import com.example.kanbun.data.model.FirestoreUser
 import com.example.kanbun.domain.model.User
 import com.example.kanbun.domain.model.UserWorkspace
+import com.google.firebase.auth.FirebaseUser
+import com.example.kanbun.common.AuthProvider
 
 fun User.toFirestoreUser(): FirestoreUser =
     FirestoreUser(
         email = email,
         name = name,
         profilePicture = profilePicture,
-        authProviders = authProviders,
+        authProvider = authProvider.providerId,
         workspaces = workspaces.map {
             mapOf("id" to it.id, "name" to it.name)
         },
@@ -22,7 +24,7 @@ fun FirestoreUser.toUser(userId: String): User =
         email = email,
         name = name,
         profilePicture = profilePicture,
-        authProviders = authProviders,
+        authProvider = AuthProvider.entries.first { it.providerId == authProvider },
         workspaces = workspaces.map {
             UserWorkspace(
                 id = it["id"] ?: throw IllegalArgumentException("Workspace `id` can't be null!"),
@@ -31,3 +33,16 @@ fun FirestoreUser.toUser(userId: String): User =
         },
         cards = cards
     )
+
+fun FirebaseUser.toUser(provider: AuthProvider): User {
+    val data = providerData.first { it.providerId == provider.providerId }
+    return User(
+        uid = uid,
+        email = data.email!!,
+        name = data.displayName,
+        profilePicture = data.photoUrl.toString(),
+        authProvider = provider,
+        workspaces = emptyList(),
+        cards = emptyList()
+    )
+}

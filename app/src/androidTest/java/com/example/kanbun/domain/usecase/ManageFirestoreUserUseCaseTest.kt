@@ -1,5 +1,6 @@
 package com.example.kanbun.domain.usecase
 
+import com.example.kanbun.common.AuthProvider
 import com.example.kanbun.common.Result
 import com.example.kanbun.data.repository.FirestoreRepositoryImpl
 import com.example.kanbun.domain.FirestoreTestUtil
@@ -45,7 +46,7 @@ class ManageFirestoreUserUseCaseTest {
 
     @Test
     fun saveUser_addsNewsUserIntoFirestore() = runBlocking {
-        val saveResult = manageFirestoreUserUseCase.saveUser(user)
+        val saveResult = manageFirestoreUserUseCase.saveUser(user, AuthProvider.EMAIL)
         assertThat(saveResult).isInstanceOf(Result.Success::class.java)
 
         val getResult = firestoreRepository.getUser(user.uid)
