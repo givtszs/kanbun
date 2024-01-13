@@ -2,7 +2,9 @@ package com.example.kanbun.presentation.registration.sign_in
 
 import androidx.lifecycle.viewModelScope
 import com.example.kanbun.common.Result
+import com.example.kanbun.domain.usecase.ManageFirestoreUserUseCase
 import com.example.kanbun.domain.usecase.RegisterUserUseCase
+import com.example.kanbun.domain.utils.ConnectivityChecker
 import com.example.kanbun.presentation.ViewState
 import com.example.kanbun.presentation.registration.AuthViewModel
 import com.google.firebase.auth.FirebaseUser
@@ -14,8 +16,10 @@ import javax.inject.Inject
 
 @HiltViewModel
 class SignInViewModel @Inject constructor(
-    private val registerUserUseCase: RegisterUserUseCase
-) : AuthViewModel(registerUserUseCase) {
+    private val registerUserUseCase: RegisterUserUseCase,
+    manageFirestoreUserUseCase: ManageFirestoreUserUseCase,
+    private val connectivityChecker: ConnectivityChecker
+) : AuthViewModel(registerUserUseCase, manageFirestoreUserUseCase, connectivityChecker) {
     val signInState: StateFlow<ViewState.AuthState> = _authState
 
     /**
@@ -29,6 +33,11 @@ class SignInViewModel @Inject constructor(
         password: String,
         successCallback: (FirebaseUser) -> Unit
     ) = viewModelScope.launch {
+        if (!connectivityChecker.hasInternetConnection()) {
+            notifyNoInternet()
+            return@launch
+        }
+
         when (val result = registerUserUseCase.signInWithEmail(email, password)) {
             is Result.Success -> {
                 _authState.update { it.copy(message = "Signed in successfully!") }

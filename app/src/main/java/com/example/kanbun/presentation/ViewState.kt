@@ -1,6 +1,10 @@
 package com.example.kanbun.presentation
 
 import com.google.android.material.textfield.TextInputLayout
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.flow
 
 sealed class ViewState {
     data class AuthState(
@@ -25,6 +29,7 @@ sealed class ViewState {
 
     data class EmailVerificationState(
         val isResendAvailable: Boolean = true,
-        val countdownMillis: Int = 0
+        val countdownMillis: Int = 0,
+        val message: String? = null
     ) : ViewState()
 }

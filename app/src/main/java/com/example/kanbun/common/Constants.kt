@@ -11,4 +11,9 @@ enum class AuthProvider(val providerId: String) {
     GITHUB("github.com")
 }
 
+object ToastMessages {
+    const val NO_NETWORK_CONNECTION = "No Internet connection"
+}
+
+
 const val EMAIL_RESEND_TIME_LIMIT = 60

@@ -2,7 +2,9 @@ package com.example.kanbun.presentation.registration.sign_up
 
 import androidx.lifecycle.viewModelScope
 import com.example.kanbun.common.Result
+import com.example.kanbun.domain.usecase.ManageFirestoreUserUseCase
 import com.example.kanbun.domain.usecase.RegisterUserUseCase
+import com.example.kanbun.domain.utils.ConnectivityChecker
 import com.example.kanbun.presentation.ViewState
 import com.example.kanbun.presentation.registration.AuthViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -13,8 +15,10 @@ import javax.inject.Inject
 
 @HiltViewModel
 class SignUpViewModel @Inject constructor(
-    private val registerUserUseCase: RegisterUserUseCase
-) : AuthViewModel(registerUserUseCase) {
+    private val registerUserUseCase: RegisterUserUseCase,
+    manageFirestoreUserUseCase: ManageFirestoreUserUseCase,
+    private val connectivityChecker: ConnectivityChecker
+) : AuthViewModel(registerUserUseCase, manageFirestoreUserUseCase, connectivityChecker) {
     val signUpState: StateFlow<ViewState.AuthState> = _authState
 
     /**
@@ -32,6 +36,11 @@ class SignUpViewModel @Inject constructor(
         confirmationPassword: String,
         successCallback: () -> Unit
     ) = viewModelScope.launch {
+        if (!connectivityChecker.hasInternetConnection()) {
+            notifyNoInternet()
+            return@launch
+        }
+
         if (confirmationPassword != password) {
             _authState.update { it.copy(confirmationPasswordError = "Passwords don't match. Please try again") }
             return@launch

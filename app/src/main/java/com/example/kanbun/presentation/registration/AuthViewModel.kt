@@ -8,8 +8,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.kanbun.R
 import com.example.kanbun.common.Result
+import com.example.kanbun.common.ToastMessages
 import com.example.kanbun.domain.usecase.ManageFirestoreUserUseCase
 import com.example.kanbun.domain.usecase.RegisterUserUseCase
+import com.example.kanbun.domain.utils.ConnectivityChecker
 import com.example.kanbun.presentation.ViewState
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
@@ -24,12 +26,11 @@ import javax.inject.Inject
 
 @HiltViewModel
 open class AuthViewModel @Inject constructor(
-    private val registerUserUseCase: RegisterUserUseCase
+    private val registerUserUseCase: RegisterUserUseCase,
+    private val  manageFirestoreUserUseCase: ManageFirestoreUserUseCase,
+    private val connectivityChecker: ConnectivityChecker
 ) : ViewModel() {
     protected val _authState = MutableStateFlow(ViewState.AuthState())
-
-    @Inject
-    lateinit var manageFirestoreUserUseCase: ManageFirestoreUserUseCase
 
     /**
      * Resets the error state for a text field identified by the provided [layoutId]
@@ -43,6 +44,10 @@ open class AuthViewModel @Inject constructor(
             R.id.tfPassword -> _authState.update { it.copy(emailError = "") }
             R.id.tfConfirmPassword -> _authState.update { it.copy(confirmationPasswordError = null) }
         }
+    }
+
+    protected fun notifyNoInternet() {
+        _authState.update { it.copy(message = ToastMessages.NO_NETWORK_CONNECTION) }
     }
 
     /**
@@ -83,6 +88,10 @@ open class AuthViewModel @Inject constructor(
      * @return configured [GoogleSignInClient].
      */
     fun getGoogleSignInClient(context: Context): GoogleSignInClient {
+        if (!connectivityChecker.hasInternetConnection()) {
+            notifyNoInternet()
+        }
+
         val signInOptions = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
             .requestIdToken("723106455668-7apee9lsea93gpi66cjkoiom258i30e2.apps.googleusercontent.com")
             .requestEmail()
@@ -100,6 +109,11 @@ open class AuthViewModel @Inject constructor(
      * @param successCallback callback executed upon successful authentication.
      */
     fun authWithGoogle(accountId: String?, successCallback: (FirebaseUser) -> Unit) = viewModelScope.launch {
+        if (!connectivityChecker.hasInternetConnection()) {
+            notifyNoInternet()
+            return@launch
+        }
+
         when (val result = registerUserUseCase.authWithGoogle(accountId)) {
             is Result.Success -> {
                 manageFirestoreUserUseCase.saveUser(result.data)
@@ -118,6 +132,10 @@ open class AuthViewModel @Inject constructor(
      * @param successCallback callback executed upon successful authentication.
      */
     fun authWithGitHub(activity: Activity, successCallback: (FirebaseUser) -> Unit) = viewModelScope.launch {
+        if (!connectivityChecker.hasInternetConnection()) {
+            notifyNoInternet()
+        }
+
         when (val result = registerUserUseCase.authWithGitHub(activity)) {
             is Result.Success -> successCallback(result.data)
 

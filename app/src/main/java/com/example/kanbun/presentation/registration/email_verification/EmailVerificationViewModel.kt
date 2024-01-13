@@ -3,8 +3,10 @@ package com.example.kanbun.presentation.registration.email_verification
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.kanbun.common.EMAIL_RESEND_TIME_LIMIT
+import com.example.kanbun.common.ToastMessages
 import com.example.kanbun.domain.usecase.ManageFirestoreUserUseCase
 import com.example.kanbun.domain.usecase.RegisterUserUseCase
+import com.example.kanbun.domain.utils.ConnectivityChecker
 import com.example.kanbun.presentation.ViewState
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.ktx.auth
@@ -21,7 +23,8 @@ import javax.inject.Inject
 @HiltViewModel
 class EmailVerificationViewModel @Inject constructor(
     private val registerUserUseCase: RegisterUserUseCase,
-    private val manageFirestoreUserUseCase: ManageFirestoreUserUseCase
+    private val manageFirestoreUserUseCase: ManageFirestoreUserUseCase,
+    private val connectivityChecker: ConnectivityChecker
 ) : ViewModel() {
     private val _emailVerificationState = MutableStateFlow(ViewState.EmailVerificationState())
     val emailVerificationState: StateFlow<ViewState.EmailVerificationState> =
@@ -36,6 +39,10 @@ class EmailVerificationViewModel @Inject constructor(
         sendVerificationEmail(resend = false)
     }
 
+    fun messageShown() {
+        _emailVerificationState.update { it.copy(message = null) }
+    }
+
     /**
      * Sends a verification email to the user.
      *
@@ -43,6 +50,11 @@ class EmailVerificationViewModel @Inject constructor(
      * @param resend flag indicating whether to resend the verification email.
      */
     fun sendVerificationEmail(resend: Boolean) = viewModelScope.launch {
+        if (!connectivityChecker.hasInternetConnection()) {
+            _emailVerificationState.update { it.copy(message = ToastMessages.NO_NETWORK_CONNECTION) }
+            return@launch
+        }
+
         registerUserUseCase.sendVerificationEmail(user)
 
         if (resend) {
