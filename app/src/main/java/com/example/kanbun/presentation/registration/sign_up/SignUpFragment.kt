@@ -11,6 +11,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.navArgs
 import com.example.kanbun.R
+import com.example.kanbun.common.ToastMessage
 import com.example.kanbun.databinding.FragmentSignUpBinding
 import com.example.kanbun.presentation.StateHandler
 import com.example.kanbun.presentation.ViewState
@@ -118,7 +119,7 @@ class SignUpFragment : AuthFragment(), StateHandler {
 
     override fun googleAuthCallback(idToken: String?) {
         viewModel.authWithGoogle(idToken) {
-            showToast("Signed up successfully")
+            showToast(ToastMessage.SIGN_UP_SUCCESS)
             navController.navigate(R.id.userBoardsFragment)
         }
     }

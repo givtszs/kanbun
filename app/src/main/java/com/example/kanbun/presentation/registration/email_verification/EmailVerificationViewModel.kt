@@ -3,7 +3,7 @@ package com.example.kanbun.presentation.registration.email_verification
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.kanbun.common.EMAIL_RESEND_TIME_LIMIT
-import com.example.kanbun.common.ToastMessages
+import com.example.kanbun.common.ToastMessage
 import com.example.kanbun.domain.usecase.ManageFirestoreUserUseCase
 import com.example.kanbun.domain.usecase.RegisterUserUseCase
 import com.example.kanbun.domain.utils.ConnectivityChecker
@@ -51,7 +51,7 @@ class EmailVerificationViewModel @Inject constructor(
      */
     fun sendVerificationEmail(resend: Boolean) = viewModelScope.launch {
         if (!connectivityChecker.hasInternetConnection()) {
-            _emailVerificationState.update { it.copy(message = ToastMessages.NO_NETWORK_CONNECTION) }
+            _emailVerificationState.update { it.copy(message = ToastMessage.NO_NETWORK_CONNECTION) }
             return@launch
         }
 

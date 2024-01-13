@@ -12,6 +12,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.example.kanbun.R
+import com.example.kanbun.common.ToastMessage
 import com.example.kanbun.databinding.FragmentEmailVerificationBinding
 import com.example.kanbun.presentation.BaseFragment
 import com.example.kanbun.presentation.StateHandler
@@ -90,7 +91,7 @@ class EmailVerificationFragment : BaseFragment(), StateHandler {
                     delay(1000L)
 
                     if (viewModel.user?.isEmailVerified == true) {
-                        showToast("Email has been verified")
+                        showToast(ToastMessage.EMAIL_VERIFIED)
                         viewModel.saveUserData().join()
                         navController.navigate(R.id.action_emailVerificationFragment_to_userBoardsFragment)
                     }

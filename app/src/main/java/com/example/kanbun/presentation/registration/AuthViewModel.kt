@@ -8,7 +8,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.kanbun.R
 import com.example.kanbun.common.Result
-import com.example.kanbun.common.ToastMessages
+import com.example.kanbun.common.ToastMessage
 import com.example.kanbun.domain.usecase.ManageFirestoreUserUseCase
 import com.example.kanbun.domain.usecase.RegisterUserUseCase
 import com.example.kanbun.domain.utils.ConnectivityChecker
@@ -37,7 +37,6 @@ open class AuthViewModel @Inject constructor(
      * @param layoutId the id of the text field.
      */
     fun resetTextFieldError(@IdRes layoutId: Int) {
-        Log.d("AuthViewModel", "resetError: layoutId: ${layoutId}")
         when (layoutId) {
             R.id.tfName -> _authState.update { it.copy(nameError = null) }
             R.id.tfEmail -> _authState.update { it.copy(emailError = "") }
@@ -47,7 +46,7 @@ open class AuthViewModel @Inject constructor(
     }
 
     protected fun notifyNoInternet() {
-        _authState.update { it.copy(message = ToastMessages.NO_NETWORK_CONNECTION) }
+        _authState.update { it.copy(message = ToastMessage.NO_NETWORK_CONNECTION) }
     }
 
     /**
@@ -97,8 +96,6 @@ open class AuthViewModel @Inject constructor(
             .requestEmail()
             .requestProfile()
             .build()
-
-        Log.d("SignUpFragment", "signInOptions: ${signInOptions.account}")
 
         return GoogleSignIn.getClient(context, signInOptions)
     }

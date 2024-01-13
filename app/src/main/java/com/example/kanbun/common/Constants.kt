@@ -11,8 +11,11 @@ enum class AuthProvider(val providerId: String) {
     GITHUB("github.com")
 }
 
-object ToastMessages {
+object ToastMessage {
     const val NO_NETWORK_CONNECTION = "No Internet connection"
+    const val SIGN_IN_SUCCESS = "Signed in successfully"
+    const val SIGN_UP_SUCCESS = "Signed up successfully"
+    const val EMAIL_VERIFIED = "Email has been verified"
 }
 
 

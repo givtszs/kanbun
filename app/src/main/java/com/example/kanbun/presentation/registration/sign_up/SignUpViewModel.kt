@@ -2,6 +2,7 @@ package com.example.kanbun.presentation.registration.sign_up
 
 import androidx.lifecycle.viewModelScope
 import com.example.kanbun.common.Result
+import com.example.kanbun.common.ToastMessage
 import com.example.kanbun.domain.usecase.ManageFirestoreUserUseCase
 import com.example.kanbun.domain.usecase.RegisterUserUseCase
 import com.example.kanbun.domain.utils.ConnectivityChecker
@@ -48,7 +49,7 @@ class SignUpViewModel @Inject constructor(
 
         when (val result = registerUserUseCase.signUpWithEmail(name, email, password)) {
             is Result.Success -> {
-                _authState.update { it.copy(message = "Signed up successfully!") }
+                _authState.update { it.copy(message = ToastMessage.SIGN_UP_SUCCESS) }
                 successCallback()
             }
 
