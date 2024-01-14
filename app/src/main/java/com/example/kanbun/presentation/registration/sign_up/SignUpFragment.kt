@@ -17,7 +17,6 @@ import com.example.kanbun.databinding.FragmentSignUpBinding
 import com.example.kanbun.presentation.StateHandler
 import com.example.kanbun.presentation.ViewState
 import com.example.kanbun.presentation.registration.AuthFragment
-import com.example.kanbun.presentation.registration.sign_in.SignInFragmentDirections
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collectLatest
@@ -91,9 +90,9 @@ class SignUpFragment : AuthFragment(), StateHandler {
             job?.cancel()
             job = viewModel.signUpWithEmail(
                 name = binding.tfName.editText?.text?.trim().toString(),
-                email = binding.tfEmail.editText?.text?.trim().toString(),
-                password = binding.tfPassword.editText?.text?.trim().toString(),
-                confirmationPassword = binding.tfConfirmPassword.editText?.text?.trim().toString(),
+                email = binding.tfEmail.editText?.text.toString(),
+                password = binding.tfPassword.editText?.text.toString(),
+                confirmationPassword = binding.tfConfirmPassword.editText?.text.toString(),
                 successCallback = {
                     showToast(ToastMessage.SIGN_UP_SUCCESS, context = requireActivity())
                     navController.navigate(R.id.emailVerificationFragment)

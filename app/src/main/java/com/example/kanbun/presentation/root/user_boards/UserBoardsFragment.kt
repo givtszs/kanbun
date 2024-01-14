@@ -5,6 +5,9 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.example.kanbun.R
 import com.example.kanbun.common.AuthProvider
 import com.example.kanbun.databinding.FragmentRootUserBoardsBinding
@@ -16,6 +19,8 @@ import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import com.google.rpc.context.AttributeContext.AuthOrBuilder
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -40,17 +45,25 @@ class UserBoardsFragment : BaseFragment() {
         super.onViewCreated(view, savedInstanceState)
         addOnBackPressedAction { requireActivity().finish() }
 
-        val userInfo = user?.providerData?.first { it.providerId != "firebase" }
-        Log.d("UserBoardsFragm", "provider: ${userInfo?.providerId}, isEmailVerified: ${userInfo?.isEmailVerified}")
-            if (user == null) {
-                navController.navigate(R.id.action_userBoardsFragment_to_registrationPromptFragment)
-            } else if (userInfo?.providerId == AuthProvider.EMAIL.providerId && user?.isEmailVerified == false) {
-                showToast(
-                    message = "Complete registration by signing in with ${userInfo.providerId} and verifying your email",
-                    context = requireActivity()
+        lifecycleScope.launch {
+            viewLifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                user?.reload()?.await()
+                val userInfo = user?.providerData?.first { it.providerId != "firebase" }
+                Log.d(
+                    "UserBoardsFragm",
+                    "provider: ${userInfo?.providerId}, isEmailVerified: ${userInfo?.isEmailVerified}"
                 )
-                navController.navigate(UserBoardsFragmentDirections.actionUserBoardsFragmentToRegistrationPromptFragment())
+                if (user == null) {
+                    navController.navigate(R.id.action_userBoardsFragment_to_registrationPromptFragment)
+                } else if (userInfo?.providerId == AuthProvider.EMAIL.providerId && user?.isEmailVerified == false) {
+                    showToast(
+                        message = "Complete registration by signing in with ${userInfo.providerId} and verifying your email",
+                        context = requireActivity()
+                    )
+                    navController.navigate(UserBoardsFragmentDirections.actionUserBoardsFragmentToRegistrationPromptFragment())
+                }
             }
+        }
     }
 
     override fun setUpListeners() {

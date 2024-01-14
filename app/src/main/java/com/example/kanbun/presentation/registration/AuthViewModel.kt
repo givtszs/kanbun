@@ -40,7 +40,7 @@ open class AuthViewModel @Inject constructor(
         when (layoutId) {
             R.id.tfName -> _authState.update { it.copy(nameError = null) }
             R.id.tfEmail -> _authState.update { it.copy(emailError = "") }
-            R.id.tfPassword -> _authState.update { it.copy(emailError = "") }
+            R.id.tfPassword -> _authState.update { it.copy(passwordError = "") }
             R.id.tfConfirmPassword -> _authState.update { it.copy(confirmationPasswordError = null) }
         }
     }

@@ -84,7 +84,7 @@ class EmailVerificationFragment : BaseFragment(), StateHandler {
 
     private fun waitForEmailVerification() {
         lifecycleScope.launch {
-            lifecycle.repeatOnLifecycle(Lifecycle.State.RESUMED) {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.RESUMED) {
                 while (true) {
                     // get the recent changes in the user account
                     viewModel.updateUser()
