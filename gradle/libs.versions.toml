@@ -9,7 +9,9 @@ kotlin = "1.9.0"
 kotlinxCoroutinesAndroid = "1.7.1"
 kotlinxCoroutinesTest = "1.8.0-RC2"
 material = "1.11.0"
+mockitoCore = "5.8.0"
 navigation = "2.7.6"
+playServicesAuth = "20.7.0"
 secretsGradlePlugin = "2.0.1"
 truth = "1.2.0"
 
@@ -28,6 +30,8 @@ hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hiltA
 junit = { module = "junit:junit", version.ref = "junit" }
 kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "kotlinxCoroutinesTest" }
 material = { module = "com.google.android.material:material", version.ref = "material" }
+mockito-core = { module = "org.mockito:mockito-core", version.ref = "mockitoCore" }
+play-services-auth = { module = "com.google.android.gms:play-services-auth", version.ref = "playServicesAuth" }
 secrets-gradle-plugin = { module = "com.google.android.libraries.mapsplatform.secrets-gradle-plugin:secrets-gradle-plugin", version.ref = "secretsGradlePlugin" }
 truth = { module = "com.google.truth:truth", version.ref = "truth" }
 

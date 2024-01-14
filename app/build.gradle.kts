@@ -59,7 +59,7 @@ dependencies {
     implementation("com.google.firebase:firebase-analytics")
     implementation("com.google.firebase:firebase-firestore")
     implementation("com.google.firebase:firebase-auth")
-    implementation("com.google.android.gms:play-services-auth:20.7.0")
+    implementation(libs.play.services.auth)
     implementation(libs.androidx.navigation.fragment.ktx)
     implementation(libs.androidx.navigation.ui.ktx)
 
@@ -67,6 +67,7 @@ dependencies {
     testImplementation(libs.junit)
     testImplementation(libs.kotlinx.coroutines.test)
     testImplementation(libs.truth)
+    testImplementation(libs.mockito.core)
 
     androidTestImplementation(platform("com.google.firebase:firebase-bom:32.7.0"))
     androidTestImplementation("com.google.firebase:firebase-firestore")
