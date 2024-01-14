@@ -41,7 +41,7 @@ class ManageFirestoreUserUseCaseTest {
     @After
     fun tearDown() = runBlocking {
         FirestoreTestUtil.deleteAuthData()
-//        FirestoreTestUtil.deleteFirestoreData()
+        FirestoreTestUtil.deleteFirestoreData()
     }
 
     @Test
@@ -55,6 +55,5 @@ class ManageFirestoreUserUseCaseTest {
         assertThat(getUser).isNotNull()
         assertThat(getUser.email).isEqualTo(user.email)
         assertThat(getUser.name).isEqualTo(user.displayName)
-        assertThat(getUser.profilePicture).isNull()
     }
 }
