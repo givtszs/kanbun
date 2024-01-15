@@ -3,9 +3,7 @@ package com.example.kanbun.presentation
 import android.os.Bundle
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.isVisible
 import androidx.navigation.NavController
-import androidx.navigation.NavDestination
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.setupWithNavController
 import com.example.kanbun.R
@@ -25,8 +23,7 @@ class MainActivity : AppCompatActivity() {
 
         setContentView(binding.root)
         setUpNavController()
-
-        binding.navBar.setupWithNavController(navController)
+        setUpNavBar()
     }
 
     private fun setUpNavController() {
@@ -46,6 +43,10 @@ class MainActivity : AppCompatActivity() {
                 binding.navBar.visibility = View.VISIBLE
             }
         }
+    }
+
+    private fun setUpNavBar() {
+        binding.navBar.setupWithNavController(navController)
     }
 
     override fun onSupportNavigateUp(): Boolean {

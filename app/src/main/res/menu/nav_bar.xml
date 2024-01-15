@@ -3,15 +3,15 @@
     <item android:id="@+id/userBoardsFragment"
         android:enabled="true"
         android:title="@string/boards"
-        android:icon="@drawable/ic_board_outlined_24" />
+        android:icon="@drawable/ic_boards_selector" />
 
     <item android:id="@+id/userCardsFragment"
         android:enabled="true"
         android:title="@string/cards"
-        android:icon="@drawable/ic_cards_outlined_24" />
+        android:icon="@drawable/ic_cards_selector" />
 
     <item android:id="@+id/inboxFragment"
         android:enabled="true"
         android:title="@string/inbox"
-        android:icon="@drawable/ic_mail_outlined_24" />
+        android:icon="@drawable/ic_mail_selector" />
 </menu>
