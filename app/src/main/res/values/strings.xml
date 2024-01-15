@@ -21,4 +21,7 @@
     <string name="subtitle_confirm_email">We sent a confirmation email to:\n\n<b>%s</b>\n\nCheck your email and click on the\nconfirmation link to continue.</string>
     <string name="resend_email">Resend email</string>
     <string name="try_again_countdown">Try again in %d sec</string>
+    <string name="boards">Boards</string>
+    <string name="cards">Cards</string>
+    <string name="inbox">Inbox</string>
 </resources>

@@ -10,14 +10,13 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.example.kanbun.R
 import com.example.kanbun.common.AuthProvider
-import com.example.kanbun.databinding.FragmentRootUserBoardsBinding
+import com.example.kanbun.databinding.FragmentUserBoardsBinding
 import com.example.kanbun.domain.repository.FirestoreRepository
 import com.example.kanbun.presentation.BaseFragment
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
-import com.google.rpc.context.AttributeContext.AuthOrBuilder
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
@@ -25,8 +24,8 @@ import javax.inject.Inject
 
 @AndroidEntryPoint
 class UserBoardsFragment : BaseFragment() {
-    private var _binding: FragmentRootUserBoardsBinding? = null
-    private val binding: FragmentRootUserBoardsBinding get() = _binding!!
+    private var _binding: FragmentUserBoardsBinding? = null
+    private val binding: FragmentUserBoardsBinding get() = _binding!!
     private var user = Firebase.auth.currentUser
 
     @Inject
@@ -37,7 +36,7 @@ class UserBoardsFragment : BaseFragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        _binding = FragmentRootUserBoardsBinding.inflate(inflater, container, false)
+        _binding = FragmentUserBoardsBinding.inflate(inflater, container, false)
         return binding.root
     }
 

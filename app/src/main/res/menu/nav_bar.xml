@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@+id/userBoardsFragment"
+        android:enabled="true"
+        android:title="@string/boards"
+        android:icon="@drawable/ic_board_outlined_24" />
+
+    <item android:id="@+id/userCardsFragment"
+        android:enabled="true"
+        android:title="@string/cards"
+        android:icon="@drawable/ic_cards_outlined_24" />
+
+    <item android:id="@+id/inboxFragment"
+        android:enabled="true"
+        android:title="@string/inbox"
+        android:icon="@drawable/ic_mail_outlined_24" />
+</menu>

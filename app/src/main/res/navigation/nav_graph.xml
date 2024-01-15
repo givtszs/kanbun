@@ -71,9 +71,19 @@
         android:id="@+id/userBoardsFragment"
         android:name="com.example.kanbun.presentation.root.user_boards.UserBoardsFragment"
         android:label="UserBoardsFragment"
-        tools:layout="@layout/fragment_root_user_boards">
+        tools:layout="@layout/fragment_user_boards">
         <action
             android:id="@+id/action_userBoardsFragment_to_registrationPromptFragment"
             app:destination="@id/registrationPromptFragment" />
     </fragment>
+    <fragment
+        android:id="@+id/userCardsFragment"
+        android:name="com.example.kanbun.presentation.root.user_cards.UserCardsFragment"
+        android:label="UserCardsFragment"
+        tools:layout="@layout/fragment_user_cards" />
+    <fragment
+        android:id="@+id/inboxFragment"
+        android:name="com.example.kanbun.presentation.root.inbox.InboxFragment"
+        android:label="InboxFragment"
+        tools:layout="@layout/fragment_inbox" />
 </navigation>
