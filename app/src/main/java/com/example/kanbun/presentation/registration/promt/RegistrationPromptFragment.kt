@@ -37,11 +37,11 @@ class RegistrationPromptFragment : BaseFragment() {
 
     override fun setUpListeners() {
         binding.btnSignIn.setOnClickListener {
-            navController.navigate(RegistrationPromptFragmentDirections.actionRegistrationPromptFragmentToSignInFragment())
+            navController.navigate(RegistrationPromptFragmentDirections.actionToSignInFragment())
         }
 
         binding.tvSignUp.setOnClickListener {
-            navController.navigate(RegistrationPromptFragmentDirections.actionRegistrationPromptFragmentToSignUpFragment())
+            navController.navigate(RegistrationPromptFragmentDirections.actionToSignUpFragment())
         }
     }
 

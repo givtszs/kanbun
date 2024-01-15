@@ -5,26 +5,29 @@
     android:id="@+id/nav_graph"
     app:startDestination="@id/userBoardsFragment">
 
+    <action
+        android:id="@+id/action_to_signInFragment"
+        app:destination="@id/signInFragment"
+        app:popUpTo="@id/registrationPromptFragment" />
+
+    <action
+        android:id="@+id/action_to_signUpFragment"
+        app:destination="@id/signUpFragment"
+        app:popUpTo="@id/registrationPromptFragment" />
+
+    <action
+        android:id="@+id/action_to_userBoardsFragment"
+        app:destination="@id/userBoardsFragment" />
+
     <fragment
         android:id="@+id/registrationPromptFragment"
         android:name="com.example.kanbun.presentation.registration.promt.RegistrationPromptFragment"
-        tools:layout="@layout/fragment_registration_prompt">
-        <action
-            android:id="@+id/action_registrationPromptFragment_to_signUpFragment"
-            app:destination="@id/signUpFragment" />
-        <action
-            android:id="@+id/action_registrationPromptFragment_to_signInFragment"
-            app:destination="@id/signInFragment" />
-    </fragment>
+        tools:layout="@layout/fragment_registration_prompt"/>
     <fragment
         android:id="@+id/signUpFragment"
         android:name="com.example.kanbun.presentation.registration.sign_up.SignUpFragment"
         android:label="Sign up"
         tools:layout="@layout/fragment_sign_up">
-        <action
-            android:id="@+id/action_signUpFragment_to_signInFragment"
-            app:destination="@id/signInFragment"
-            app:popUpTo="@id/registrationPromptFragment" />
         <argument
             android:name="email"
             android:defaultValue=""
@@ -33,19 +36,12 @@
             android:name="password"
             android:defaultValue=""
             app:argType="string" />
-        <action
-            android:id="@+id/action_signUpFragment_to_userBoardsFragment"
-            app:destination="@id/userBoardsFragment" />
     </fragment>
     <fragment
         android:id="@+id/signInFragment"
         android:name="com.example.kanbun.presentation.registration.sign_in.SignInFragment"
         android:label="Sign in"
         tools:layout="@layout/fragment_sign_in">
-        <action
-            android:id="@+id/action_signInFragment_to_signUpFragment"
-            app:destination="@id/signUpFragment"
-            app:popUpTo="@id/registrationPromptFragment" />
         <argument
             android:name="email"
             android:defaultValue=""
@@ -54,19 +50,12 @@
             android:name="password"
             android:defaultValue=""
             app:argType="string" />
-        <action
-            android:id="@+id/action_signInFragment_to_userBoardsFragment"
-            app:destination="@id/userBoardsFragment" />
     </fragment>
     <fragment
         android:id="@+id/emailVerificationFragment"
         android:name="com.example.kanbun.presentation.registration.email_verification.EmailVerificationFragment"
         android:label="Email verification"
-        tools:layout="@layout/fragment_email_verification">
-        <action
-            android:id="@+id/action_emailVerificationFragment_to_userBoardsFragment"
-            app:destination="@id/userBoardsFragment" />
-    </fragment>
+        tools:layout="@layout/fragment_email_verification"/>
     <fragment
         android:id="@+id/userBoardsFragment"
         android:name="com.example.kanbun.presentation.root.user_boards.UserBoardsFragment"

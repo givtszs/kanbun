@@ -109,13 +109,13 @@ class SignUpFragment : AuthFragment(), StateHandler {
             viewModel.authWithGitHub(requireActivity()) { firebaseUser ->
                 showToast(ToastMessage.SIGN_UP_SUCCESS, context = requireActivity())
                 viewModel.saveUserData(firebaseUser, AuthProvider.GITHUB)
-                navController.navigate(R.id.userBoardsFragment)
+                navController.navigate(R.id.action_to_userBoardsFragment)
             }
         }
 
         binding.tvSignIn.setOnClickListener {
             navController.navigate(
-                SignUpFragmentDirections.actionSignUpFragmentToSignInFragment(
+                SignUpFragmentDirections.actionToSignInFragment(
                     email = binding.tfEmail.editText?.text.toString(),
                     password = binding.tfPassword.editText?.text.toString()
                 )
@@ -127,7 +127,7 @@ class SignUpFragment : AuthFragment(), StateHandler {
         viewModel.authWithGoogle(idToken) { firebaseUser ->
             showToast(ToastMessage.SIGN_UP_SUCCESS, context = requireActivity())
             viewModel.saveUserData(firebaseUser, AuthProvider.GOOGLE)
-            navController.navigate(R.id.userBoardsFragment)
+            navController.navigate(R.id.action_to_userBoardsFragment)
         }
     }
 

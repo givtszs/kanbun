@@ -91,7 +91,7 @@ class EmailVerificationFragment : BaseFragment(), StateHandler {
                     delay(1000L)
                     if (viewModel.user?.isEmailVerified == true) {
                         showToast(ToastMessage.EMAIL_VERIFIED)
-                        navController.navigate(R.id.action_emailVerificationFragment_to_userBoardsFragment)
+                        navController.navigate(R.id.action_to_userBoardsFragment)
                     }
                 }
             }

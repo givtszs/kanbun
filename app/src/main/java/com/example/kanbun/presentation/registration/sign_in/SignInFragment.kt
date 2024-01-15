@@ -69,7 +69,7 @@ class SignInFragment : AuthFragment(), StateHandler {
                     if (!firebaseUser.isEmailVerified) {
                         navController.navigate(R.id.emailVerificationFragment)
                     } else {
-                        navController.navigate(R.id.userBoardsFragment)
+                        navController.navigate(R.id.action_to_userBoardsFragment)
                     }
                 }
             )
@@ -84,13 +84,13 @@ class SignInFragment : AuthFragment(), StateHandler {
             viewModel.authWithGitHub(requireActivity()) { firebaseUser ->
                 showToast(ToastMessage.SIGN_IN_SUCCESS, context = requireActivity())
                 viewModel.saveUserData(firebaseUser, AuthProvider.GITHUB)
-                navController.navigate(R.id.userBoardsFragment)
+                navController.navigate(R.id.action_to_userBoardsFragment)
             }
         }
 
         binding.tvSignUp.setOnClickListener {
             navController.navigate(
-                SignInFragmentDirections.actionSignInFragmentToSignUpFragment(
+                SignInFragmentDirections.actionToSignUpFragment(
                     email = binding.tfEmail.editText?.text?.trim().toString(),
                     password = binding.tfPassword.editText?.text?.trim().toString()
                 )
@@ -102,7 +102,7 @@ class SignInFragment : AuthFragment(), StateHandler {
         viewModel.authWithGoogle(idToken) { firebaseUser ->
             showToast(ToastMessage.SIGN_IN_SUCCESS, context = requireActivity())
             viewModel.saveUserData(firebaseUser, AuthProvider.GOOGLE)
-            navController.navigate(R.id.userBoardsFragment)
+            navController.navigate(R.id.action_to_userBoardsFragment)
         }
     }
 
