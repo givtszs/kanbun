@@ -49,7 +49,7 @@ abstract class BaseFragment : Fragment() {
         })
     }
 
-    protected fun setUpActionBar(toolbar: MaterialToolbar) {
+    protected open fun setUpActionBar(toolbar: MaterialToolbar) {
         (requireActivity() as MainActivity).apply {
             setSupportActionBar(toolbar)
             setupActionBarWithNavController(navController)
@@ -61,7 +61,7 @@ abstract class BaseFragment : Fragment() {
      * @param toolbar custom toolbar to be set up as the action bar.
      * @param navigate callback function executed when either the `Navigate up` or `Back` button is pressed.
      */
-    protected fun setUpActionBar(toolbar: MaterialToolbar, navigate: () -> Unit) {
+    protected open fun setUpActionBar(toolbar: MaterialToolbar, navigate: () -> Unit) {
         setUpActionBar(toolbar)
         toolbar.setNavigationOnClickListener {
             navigate()
