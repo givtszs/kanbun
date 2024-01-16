@@ -2,4 +2,5 @@
 <resources>
     <dimen name="main_horizontal_margin">20dp</dimen>
     <dimen name="text_link_margin_start">4dp</dimen>
+    <dimen name="nav_bar_height">80dp</dimen>
 </resources>

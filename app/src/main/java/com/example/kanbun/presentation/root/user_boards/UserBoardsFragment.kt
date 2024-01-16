@@ -8,11 +8,10 @@ import android.view.ViewGroup
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupActionBarWithNavController
-import androidx.navigation.ui.setupWithNavController
 import com.example.kanbun.R
 import com.example.kanbun.common.AuthProvider
+import com.example.kanbun.common.getColor
 import com.example.kanbun.databinding.FragmentUserBoardsBinding
 import com.example.kanbun.domain.repository.FirestoreRepository
 import com.example.kanbun.presentation.BaseFragment
@@ -48,6 +47,7 @@ class UserBoardsFragment : BaseFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setUpActionBar(binding.toolbar)
+        setStatusBarColor(getColor(requireContext(), R.color.md_theme_light_surface))
         addOnBackPressedAction { requireActivity().finish() }
 
         lifecycleScope.launch {
@@ -72,8 +72,6 @@ class UserBoardsFragment : BaseFragment() {
     }
 
     override fun setUpListeners() {
-        binding.navView.setupWithNavController(navController)
-
         binding.btnSignOut.setOnClickListener {
             Firebase.auth.signOut()
             val signInOptions = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
@@ -89,9 +87,7 @@ class UserBoardsFragment : BaseFragment() {
     }
 
     override fun setUpActionBar(toolbar: MaterialToolbar) {
-        val config = AppBarConfiguration(navController.graph, binding.root)
         (requireActivity() as MainActivity).apply {
-            appBarConfiguration = config
             setSupportActionBar(binding.toolbar)
             setupActionBarWithNavController(navController, appBarConfiguration)
         }
