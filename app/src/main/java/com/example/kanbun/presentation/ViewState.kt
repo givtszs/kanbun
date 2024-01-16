@@ -1,12 +1,11 @@
 package com.example.kanbun.presentation
 
+import com.example.kanbun.domain.model.User
+import com.example.kanbun.domain.model.Workspace
 import com.google.android.material.textfield.TextInputLayout
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.emptyFlow
-import kotlinx.coroutines.flow.flow
 
 sealed class ViewState {
+
     data class AuthState(
         val nameError: String? = null,
         val emailError: String = "",
@@ -31,5 +30,13 @@ sealed class ViewState {
         val isResendAvailable: Boolean = true,
         val countdownMillis: Int = 0,
         val message: String? = null
+    ) : ViewState()
+
+    data class UserBoardsViewState(
+        val user: User? = null,
+        val workspaces: List<Workspace> = emptyList(),
+        val currentWorkspace: String? = null,
+        val isLoading: Boolean = true,
+        val messanger: Messanger = Messanger()
     ) : ViewState()
 }

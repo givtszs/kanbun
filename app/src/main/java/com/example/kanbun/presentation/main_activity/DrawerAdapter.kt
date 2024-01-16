@@ -1,7 +1,6 @@
-package com.example.kanbun.presentation.root.user_boards
+package com.example.kanbun.presentation.main_activity
 
 import android.content.Context
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat.getColor

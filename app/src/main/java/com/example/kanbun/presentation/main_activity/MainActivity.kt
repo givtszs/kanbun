@@ -1,4 +1,4 @@
-package com.example.kanbun.presentation
+package com.example.kanbun.presentation.main_activity
 
 import android.os.Bundle
 import android.view.View
@@ -12,7 +12,6 @@ import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupWithNavController
 import com.example.kanbun.R
 import com.example.kanbun.databinding.ActivityMainBinding
-import com.example.kanbun.presentation.root.user_boards.DrawerAdapter
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
