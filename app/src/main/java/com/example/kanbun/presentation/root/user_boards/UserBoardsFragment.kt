@@ -10,6 +10,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.ui.setupActionBarWithNavController
+import com.bumptech.glide.Glide
 import com.example.kanbun.R
 import com.example.kanbun.common.AuthProvider
 import com.example.kanbun.common.getColor
@@ -115,7 +116,11 @@ class UserBoardsFragment : BaseFragment(), StateHandler {
 
                 tvName.text = name
                 tvEmail.text = email
-                // TODO("Load profile picture with Glide")
+                Glide.with(requireContext())
+                    .load(profilePic)
+                    .placeholder(R.drawable.ic_launcher_background)
+                    .into(ivProfilePicture)
+
             }
         }
     }
