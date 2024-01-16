@@ -17,7 +17,7 @@ import dagger.hilt.android.AndroidEntryPoint
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
     private var _binding: ActivityMainBinding? = null
-    private val binding: ActivityMainBinding get() = _binding!!
+    val activityMainBinding: ActivityMainBinding get() = _binding!!
     private lateinit var navController: NavController
     lateinit var appBarConfiguration: AppBarConfiguration
 
@@ -26,7 +26,7 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         _binding = ActivityMainBinding.inflate(layoutInflater)
-        setContentView(binding.root)
+        setContentView(activityMainBinding.root)
         setUpNavigation()
         setUpNavView()
     }
@@ -38,7 +38,7 @@ class MainActivity : AppCompatActivity() {
 
         // set up nav controller
         navController = navHostFragment.navController
-        appBarConfiguration = AppBarConfiguration(navController.graph, binding.root)
+        appBarConfiguration = AppBarConfiguration(navController.graph, activityMainBinding.root)
 
         val topLevelDestinations = setOf(
             R.id.registrationPromptFragment,
@@ -51,41 +51,41 @@ class MainActivity : AppCompatActivity() {
             val hideNavBar = topLevelDestinations.contains(destination.id)
 
             if (hideNavBar) {
-                binding.navBar.visibility = View.GONE
+                activityMainBinding.navBar.visibility = View.GONE
             } else {
-                binding.navBar.visibility = View.VISIBLE
+                activityMainBinding.navBar.visibility = View.VISIBLE
             }
 
             val hideNavDrawer = destination.id != R.id.userBoardsFragment
             if (hideNavDrawer) {
-                binding.drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
+                activityMainBinding.drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
             } else {
-                binding.drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
+                activityMainBinding.drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
             }
         }
 
         // set up nav bar
-        binding.navBar.setupWithNavController(navController)
+        activityMainBinding.navBar.setupWithNavController(navController)
 
         // set up nav view
-        binding.navView.setupWithNavController(navController)
+        activityMainBinding.navView.setupWithNavController(navController)
     }
 
     private fun setUpNavView() {
         // set up header layout
-        binding.headerLayout.apply {
+        activityMainBinding.headerLayout.apply {
             ivProfilePicture.setImageResource(R.drawable.ic_launcher_background)
             tvName.text = "Awesome Name"
             tvEmail.text = "awesome@email.com"
         }
 
         drawerAdapter = DrawerAdapter(this) {
-            binding.drawerLayout.closeDrawer(GravityCompat.START)
+            activityMainBinding.drawerLayout.closeDrawer(GravityCompat.START)
         }
 
-        binding.navRecyclerView.adapter = drawerAdapter
+        activityMainBinding.navRecyclerView.adapter = drawerAdapter
 
-        binding.createWorkspace.setOnClickListener {
+        activityMainBinding.createWorkspace.setOnClickListener {
             val lastNum = drawerAdapter?.workspaces?.last()?.name?.substringAfter("Workspace ")?.toInt() ?: -1000
             drawerAdapter?.addData(DrawerAdapter.WorkspaceModel(name = "Workspace ${(lastNum + 1)}"))
         }

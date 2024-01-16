@@ -59,4 +59,11 @@ class FirestoreRepositoryTest {
         val resultMessage = (result as Result.Error).message
         assertThat(resultMessage).isNotNull()
     }
+
+    @Test
+    fun getUser_withNullUserId_returnsResultError() = runBlocking {
+        val userId = null
+        val result = repository.getUser(userId)
+        assertThat(result).isInstanceOf(Result.Error::class.java)
+    }
 }

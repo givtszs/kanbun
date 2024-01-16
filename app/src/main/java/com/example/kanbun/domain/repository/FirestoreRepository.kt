@@ -20,5 +20,5 @@ interface FirestoreRepository {
      * @param userId id of the user to retrieve.
      * @return [Result] containing the retrieved [User] on success, or an error message on failure.
      */
-    suspend fun getUser(userId: String): Result<User>
+    suspend fun getUser(userId: String?): Result<User>
 }

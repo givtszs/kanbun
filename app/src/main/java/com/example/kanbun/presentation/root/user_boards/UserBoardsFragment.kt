@@ -49,16 +49,12 @@ class UserBoardsFragment : BaseFragment(), StateHandler {
     }
 
     override fun setUpListeners() {
-        binding.btnSignOut.setOnClickListener {
-            viewModel.signOutUser(requireContext())
-            showToast("You've been signed out")
-            navController.navigate(R.id.action_userBoardsFragment_to_registrationPromptFragment)
-        }
+
     }
 
     override fun setUpActionBar(toolbar: MaterialToolbar) {
         (requireActivity() as MainActivity).apply {
-            setSupportActionBar(binding.toolbar)
+            setSupportActionBar(toolbar)
             setupActionBarWithNavController(navController, appBarConfiguration)
         }
     }
@@ -79,6 +75,10 @@ class UserBoardsFragment : BaseFragment(), StateHandler {
                 showToast(message)
                 messanger.messageShown()
             }
+
+            user?.let {
+                setUpDrawerHeader(it.name, it.email, it.profilePicture)
+            }
         }
     }
 
@@ -86,7 +86,8 @@ class UserBoardsFragment : BaseFragment(), StateHandler {
         lifecycleScope.launch {
             viewLifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.updateUser()
-                val userInfo = viewModel.firebaseUser?.providerData?.first { it.providerId != "firebase" }
+                val userInfo =
+                    viewModel.firebaseUser?.providerData?.first { it.providerId != "firebase" }
                 Log.d(
                     "UserBoardsFragm",
                     "provider: ${userInfo?.providerId}, isEmailVerified: ${userInfo?.isEmailVerified}"
@@ -100,6 +101,21 @@ class UserBoardsFragment : BaseFragment(), StateHandler {
                     )
                     navController.navigate(UserBoardsFragmentDirections.actionUserBoardsFragmentToRegistrationPromptFragment())
                 }
+            }
+        }
+    }
+
+    private fun setUpDrawerHeader(name: String?, email: String?, profilePic: String?) {
+        with(requireActivity() as MainActivity) {
+            activityMainBinding.headerLayout.apply {
+                btnSignOut.setOnClickListener {
+                    viewModel.signOutUser(requireContext())
+                    navController.navigate(R.id.registrationPromptFragment)
+                }
+
+                tvName.text = name
+                tvEmail.text = email
+                // TODO("Load profile picture with Glide")
             }
         }
     }

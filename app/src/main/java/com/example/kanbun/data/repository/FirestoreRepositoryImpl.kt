@@ -30,8 +30,13 @@ class FirestoreRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun getUser(userId: String): Result<User> {
+    override suspend fun getUser(userId: String?): Result<User> {
         return try {
+            if (userId == null) {
+                return Result.Error("User ID is null")
+            }
+
+
             val task = firestore.collection(FirestoreCollection.USERS.collectionName)
                 .document(userId)
                 .get()

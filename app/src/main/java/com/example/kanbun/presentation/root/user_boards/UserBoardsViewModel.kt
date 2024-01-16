@@ -1,6 +1,9 @@
 package com.example.kanbun.presentation.root.user_boards
 
 import android.content.Context
+import android.util.Log
+import androidx.lifecycle.viewModelScope
+import com.example.kanbun.common.Result
 import com.example.kanbun.common.ToastMessage
 import com.example.kanbun.domain.repository.FirestoreRepository
 import com.example.kanbun.domain.utils.ConnectivityChecker
@@ -14,8 +17,11 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
+
+private const val TAG = "UserBoardsViewModel"
 
 @HiltViewModel
 class UserBoardsViewModel @Inject constructor(
@@ -25,9 +31,43 @@ class UserBoardsViewModel @Inject constructor(
     private var _userBoardsState = MutableStateFlow(ViewState.UserBoardsViewState())
     val userBoardsState: StateFlow<ViewState.UserBoardsViewState> = _userBoardsState
 
-    suspend fun updateUser(){
+    init {
+        getUser()
+    }
+
+    private fun getUser() = viewModelScope.launch {
         if (!connectivityChecker.hasInternetConnection()) {
-            _userBoardsState.update { it.copy(messanger = it.messanger.copy(message = ToastMessage.NO_NETWORK_CONNECTION)) }
+            Log.d(TAG, ToastMessage.NO_NETWORK_CONNECTION)
+            _userBoardsState.update { it.copy(messanger = it.messanger.copy(ToastMessage.NO_NETWORK_CONNECTION)) }
+        }
+
+        when (val result = firestoreRepository.getUser(firebaseUser?.uid)) {
+            is Result.Success -> {
+                Log.d(TAG, "${result.data}")
+                _userBoardsState.update { it.copy(user = result.data) }
+            }
+
+            is Result.Error -> _userBoardsState.update {
+                it.copy(
+                    messanger = it.messanger.showMessage(
+                        result.message
+                    )
+                )
+            }
+
+            is Result.Exception -> _userBoardsState.update {
+                it.copy(
+                    messanger = it.messanger.showMessage(
+                        result.message
+                    )
+                )
+            }
+        }
+    }
+
+    suspend fun updateUser() {
+        if (!connectivityChecker.hasInternetConnection()) {
+            _userBoardsState.update { it.copy(messanger = it.messanger.showMessage(ToastMessage.NO_NETWORK_CONNECTION)) }
             return
         }
         firebaseUser?.reload()?.await()
