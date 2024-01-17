@@ -5,7 +5,7 @@ enum class FirestoreCollection(val collectionName: String) {
     WORKSPACES("workspaces");
 
     companion object {
-        fun getReference(collection: FirestoreCollection, id: String) =
+        fun getReference(collection: FirestoreCollection, id: String?) =
             "${collection.collectionName}/$id"
     }
 }
@@ -26,6 +26,7 @@ object ToastMessage {
     const val SIGN_IN_SUCCESS = "Signed in successfully"
     const val SIGN_UP_SUCCESS = "Signed up successfully"
     const val EMAIL_VERIFIED = "Email has been verified"
+    const val WORKSPACE_CREATED = "Workspace has been created"
 }
 
 const val EMAIL_RESEND_TIME_LIMIT = 60

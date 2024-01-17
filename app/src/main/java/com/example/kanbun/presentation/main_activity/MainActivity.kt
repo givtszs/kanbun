@@ -3,7 +3,6 @@ package com.example.kanbun.presentation.main_activity
 import android.os.Bundle
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
@@ -21,7 +20,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var navController: NavController
     lateinit var appBarConfiguration: AppBarConfiguration
 
-    private var drawerAdapter: DrawerAdapter? = null
+    var drawerAdapter: DrawerAdapter? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -79,16 +78,9 @@ class MainActivity : AppCompatActivity() {
             tvEmail.text = "awesome@email.com"
         }
 
-        drawerAdapter = DrawerAdapter(this) {
-            activityMainBinding.drawerLayout.closeDrawer(GravityCompat.START)
-        }
+        drawerAdapter = DrawerAdapter(this)
 
         activityMainBinding.navRecyclerView.adapter = drawerAdapter
-
-        activityMainBinding.createWorkspace.setOnClickListener {
-            val lastNum = drawerAdapter?.workspaces?.last()?.name?.substringAfter("Workspace ")?.toInt() ?: -1000
-            drawerAdapter?.addData(DrawerAdapter.WorkspaceModel(name = "Workspace ${(lastNum + 1)}"))
-        }
     }
 
     override fun onSupportNavigateUp(): Boolean {

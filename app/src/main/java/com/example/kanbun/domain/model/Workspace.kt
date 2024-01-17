@@ -4,10 +4,10 @@ import com.example.kanbun.common.WorkspaceRole
 
 data class Workspace(
     val uid: String = "",
-    val name: String,
-    val owner: String,
-    val members: List<WorkspaceMember>, // userId to workspace role
-    val boards: List<String>
+    val name: String = "",
+    val owner: String = "",
+    val members: List<WorkspaceMember> = emptyList(), // userId to workspace role
+    val boards: List<String> = emptyList()
 )
 
 data class WorkspaceMember(

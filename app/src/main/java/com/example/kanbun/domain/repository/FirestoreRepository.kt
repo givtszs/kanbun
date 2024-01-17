@@ -24,7 +24,7 @@ interface FirestoreRepository {
      */
     suspend fun getUser(userId: String?): Result<User>
 
-    suspend fun getUserStream(userId: String?): Flow<User>
+    fun getUserStream(userId: String?): Flow<User>
 
     suspend fun <T> updateUser(userId: String?, field: String, value: T): Result<Unit>
 

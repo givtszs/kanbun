@@ -69,7 +69,7 @@ class FirestoreRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun getUserStream(userId: String?): Flow<User> {
+    override fun getUserStream(userId: String?): Flow<User> {
         if (userId == null) {
             return emptyFlow()
         }
