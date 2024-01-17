@@ -64,7 +64,6 @@ dependencies {
     implementation(libs.androidx.navigation.ui.ktx)
     implementation(libs.glide)
 
-
     testImplementation(libs.junit)
     testImplementation(libs.kotlinx.coroutines.test)
     testImplementation(libs.truth)

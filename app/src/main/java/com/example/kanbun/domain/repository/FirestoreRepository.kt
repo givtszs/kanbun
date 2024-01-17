@@ -2,6 +2,7 @@ package com.example.kanbun.domain.repository
 
 import com.example.kanbun.common.Result
 import com.example.kanbun.domain.model.User
+import com.example.kanbun.domain.model.Workspace
 
 /**
  * Interface  defining methods for Firestore interactions related to user data.
@@ -21,4 +22,10 @@ interface FirestoreRepository {
      * @return [Result] containing the retrieved [User] on success, or an error message on failure.
      */
     suspend fun getUser(userId: String?): Result<User>
+
+    suspend fun <T> updateUser(userId: String?, field: String, value: T): Result<Unit>
+
+    suspend fun addWorkspace(user: User, workspace: Workspace): Result<Unit>
+
+    suspend fun getWorkspace(workspaceId: String?): Result<Workspace>
 }

@@ -2,8 +2,7 @@ package com.example.kanbun.domain.usecase
 
 import com.example.kanbun.common.AuthProvider
 import com.example.kanbun.common.Result
-import com.example.kanbun.data.toUser
-import com.example.kanbun.domain.model.User
+import com.example.kanbun.common.toUser
 import com.example.kanbun.domain.repository.FirestoreRepository
 import com.google.firebase.auth.FirebaseUser
 import javax.inject.Inject

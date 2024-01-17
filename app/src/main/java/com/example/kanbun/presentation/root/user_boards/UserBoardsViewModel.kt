@@ -38,7 +38,7 @@ class UserBoardsViewModel @Inject constructor(
     private fun getUser() = viewModelScope.launch {
         if (!connectivityChecker.hasInternetConnection()) {
             Log.d(TAG, ToastMessage.NO_NETWORK_CONNECTION)
-            _userBoardsState.update { it.copy(messanger = it.messanger.copy(ToastMessage.NO_NETWORK_CONNECTION)) }
+            _userBoardsState.update { it.copy(messenger = it.messenger.copy(ToastMessage.NO_NETWORK_CONNECTION)) }
         }
 
         when (val result = firestoreRepository.getUser(firebaseUser?.uid)) {
@@ -49,7 +49,7 @@ class UserBoardsViewModel @Inject constructor(
 
             is Result.Error -> _userBoardsState.update {
                 it.copy(
-                    messanger = it.messanger.showMessage(
+                    messenger = it.messenger.showMessage(
                         result.message
                     )
                 )
@@ -57,7 +57,7 @@ class UserBoardsViewModel @Inject constructor(
 
             is Result.Exception -> _userBoardsState.update {
                 it.copy(
-                    messanger = it.messanger.showMessage(
+                    messenger = it.messenger.showMessage(
                         result.message
                     )
                 )
@@ -67,7 +67,7 @@ class UserBoardsViewModel @Inject constructor(
 
     suspend fun updateUser() {
         if (!connectivityChecker.hasInternetConnection()) {
-            _userBoardsState.update { it.copy(messanger = it.messanger.showMessage(ToastMessage.NO_NETWORK_CONNECTION)) }
+            _userBoardsState.update { it.copy(messenger = it.messenger.showMessage(ToastMessage.NO_NETWORK_CONNECTION)) }
             return
         }
         firebaseUser?.reload()?.await()

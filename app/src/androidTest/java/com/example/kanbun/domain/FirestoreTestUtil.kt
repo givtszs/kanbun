@@ -1,8 +1,12 @@
 package com.example.kanbun.domain
 
 import com.example.kanbun.common.AuthProvider
+import com.example.kanbun.common.FirestoreCollection
+import com.example.kanbun.common.WorkspaceRole
 import com.example.kanbun.domain.model.User
 import com.example.kanbun.domain.model.UserWorkspace
+import com.example.kanbun.domain.model.Workspace
+import com.example.kanbun.domain.model.WorkspaceMember
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.firestoreSettings
 import com.google.firebase.firestore.ktx.firestore
@@ -56,7 +60,7 @@ class FirestoreTestUtil {
 
         /* Test data */
 
-        fun generateUser(): User = User(
+        val user = User(
             uid = "test1",
             email = "test@gmail.com",
             name = "Test",
@@ -66,8 +70,33 @@ class FirestoreTestUtil {
             cards = listOf("workspaces/work1/boards/board1/columns/col1/card1")
         )
 
+        val userEmptyWorksAndCards = User(
+            uid = "test1",
+            email = "test@gmail.com",
+            name = "Test",
+            profilePicture = null,
+            authProvider = AuthProvider.GOOGLE,
+            workspaces = emptyList(),
+            cards = emptyList()
+        )
+
         const val testName = "IAmTest"
         const val testEmail = "qatesteverything@gmail.com"
         const val testPassword = "Qwerty123_"
+
+        val workspace = Workspace(
+            name = "Test",
+            owner = FirestoreCollection.getReference(
+                FirestoreCollection.USERS,
+                userEmptyWorksAndCards.uid
+            ),
+            members = listOf(
+                WorkspaceMember(
+                    FirestoreCollection.getReference(FirestoreCollection.USERS, userEmptyWorksAndCards.uid),
+                    WorkspaceRole.ADMIN
+                )
+            ),
+            boards = emptyList()
+        )
     }
 }

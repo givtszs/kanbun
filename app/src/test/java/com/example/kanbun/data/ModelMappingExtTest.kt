@@ -1,6 +1,8 @@
 package com.example.kanbun.data
 
 import com.example.kanbun.common.AuthProvider
+import com.example.kanbun.common.toFirestoreUser
+import com.example.kanbun.common.toUser
 import com.google.common.truth.Truth.assertThat
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.UserInfo

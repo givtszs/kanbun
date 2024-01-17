@@ -72,9 +72,9 @@ class UserBoardsFragment : BaseFragment(), StateHandler {
 
     override fun processState(state: ViewState) {
         with(state as ViewState.UserBoardsViewState) {
-            messanger.message?.let { message ->
+            messenger.message?.let { message ->
                 showToast(message)
-                messanger.messageShown()
+                messenger.messageShown()
             }
 
             user?.let {

@@ -1,6 +1,6 @@
 package com.example.kanbun.presentation
 
-data class Messanger(
+data class Messenger(
     var message: String? = null
 ) {
     fun showMessage(message: String?) = copy(message = message)

@@ -34,9 +34,8 @@ sealed class ViewState {
 
     data class UserBoardsViewState(
         val user: User? = null,
-        val workspaces: List<Workspace> = emptyList(),
-        val currentWorkspace: String? = null,
+        val currentWorkspace: Workspace? = null,
         val isLoading: Boolean = true,
-        val messanger: Messanger = Messanger()
+        val messenger: Messenger = Messenger()
     ) : ViewState()
 }
