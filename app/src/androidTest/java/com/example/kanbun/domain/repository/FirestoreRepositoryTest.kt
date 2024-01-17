@@ -5,6 +5,7 @@ import com.example.kanbun.data.repository.FirestoreRepositoryImpl
 import com.example.kanbun.domain.FirestoreTestUtil
 import com.example.kanbun.domain.model.UserWorkspace
 import com.google.common.truth.Truth.assertThat
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Before
@@ -66,6 +67,21 @@ class FirestoreRepositoryTest {
         val userId = null
         val result = repository.getUser(userId)
         assertThat(result).isInstanceOf(Result.Error::class.java)
+    }
+
+    @Test
+    fun getUserStream_withValidUserId_getsUserChangesOvertime() = runBlocking {
+        val user = FirestoreTestUtil.user
+        repository.addUser(user)
+
+        val data1 = repository.getUserStream(user.uid).first()
+        assertThat(data1).isEqualTo(user)
+
+        val nameUpd = "New name"
+        repository.updateUser(user.uid, "name", nameUpd)
+
+        val data2 = repository.getUserStream(user.uid).first()
+        assertThat(data2).isEqualTo(user.copy(name = nameUpd))
     }
 
     @Test

@@ -14,7 +14,13 @@ import com.example.kanbun.domain.model.User
 import com.example.kanbun.domain.model.UserWorkspace
 import com.example.kanbun.domain.model.Workspace
 import com.example.kanbun.domain.repository.FirestoreRepository
+import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.asFlow
+import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
@@ -60,6 +66,41 @@ class FirestoreRepositoryImpl @Inject constructor(
             }
         } catch (e: Exception) {
             Result.Exception(e.message, e)
+        }
+    }
+
+    override suspend fun getUserStream(userId: String?): Flow<User> {
+        if (userId == null) {
+            return emptyFlow()
+        }
+
+        return callbackFlow {
+            val listener = firestore.collection(FirestoreCollection.USERS.collectionName)
+                .document(userId)
+                .addSnapshotListener { snapshot, exception ->
+                    if (exception != null) {
+                        close(exception)
+                        return@addSnapshotListener
+                    }
+                    Log.d(TAG, "Data update: ${snapshot?.data}")
+                    val data = snapshot?.data
+                    data?.let { values ->
+                        trySend(
+                            FirestoreUser(
+                                email = values["email"] as String,
+                                name = values["name"] as String?,
+                                profilePicture = values["profilePicture"] as String?,
+                                authProvider = values["authProvider"] as String,
+                                workspaces = values["workspaces"] as List<Map<String, String>>,
+                                cards = values["cards"] as List<String>
+                            ).toUser(userId)
+                        )
+                    }
+                }
+
+            awaitClose {
+                listener.remove()
+            }
         }
     }
 
