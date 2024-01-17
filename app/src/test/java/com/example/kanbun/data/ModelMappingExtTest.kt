@@ -24,7 +24,7 @@ class ModelMappingExtTest {
     fun `FirestoreUser#toUser maps mapped FirestoreUser to User`() {
         val firestoreUser = TestData.firestoreUser
         val user = TestData.user
-        val result = firestoreUser.toUser(user.uid)
+        val result = firestoreUser.toUser(user.id)
         assertThat(result).isEqualTo(user)
     }
 
@@ -48,7 +48,7 @@ class ModelMappingExtTest {
 
         val firebaseUserProviderData = firebaseUser.providerData.first { it.providerId == AuthProvider.EMAIL.providerId }
         // Verify the result
-        assertThat(result.uid).isEqualTo(firebaseUser.uid)
+        assertThat(result.id).isEqualTo(firebaseUser.uid)
         assertThat(result.email).isEqualTo(firebaseUserProviderData.email)
         assertThat(result.name).isEqualTo(firebaseUserProviderData.displayName)
         assertThat(result.profilePicture).isEqualTo("null")

@@ -2,7 +2,6 @@ package com.example.kanbun.presentation.root.user_boards
 
 import android.content.Context
 import androidx.lifecycle.viewModelScope
-import com.example.kanbun.common.FirestoreCollection
 import com.example.kanbun.common.Result
 import com.example.kanbun.common.ToastMessage
 import com.example.kanbun.common.WorkspaceRole
@@ -85,8 +84,8 @@ class UserBoardsViewModel @Inject constructor(
 
         val workspace = Workspace(
             name = name,
-            owner = user.uid,
-            members = listOf(WorkspaceMember(user.uid, WorkspaceRole.ADMIN)),
+            owner = user.id,
+            members = listOf(WorkspaceMember(user.id, WorkspaceRole.ADMIN)),
         )
 
         when (val result = firestoreRepository.addWorkspace(user, workspace)) {

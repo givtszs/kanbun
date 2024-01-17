@@ -3,7 +3,7 @@ package com.example.kanbun.domain.model
 import com.example.kanbun.common.WorkspaceRole
 
 data class Workspace(
-    val uid: String = "",
+    val id: String = "",
     val name: String = "",
     val owner: String = "",
     val members: List<WorkspaceMember> = emptyList(), // userId to workspace role

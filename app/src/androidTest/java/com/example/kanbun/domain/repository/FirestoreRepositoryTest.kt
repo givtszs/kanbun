@@ -33,7 +33,7 @@ class FirestoreRepositoryTest {
         assertThat(result).isInstanceOf(Result.Success::class.java)
 
         // suppose the result is always successful
-        val savedUser = (repository.getUser(user.uid) as Result.Success).data
+        val savedUser = (repository.getUser(user.id) as Result.Success).data
 
         // test the user is saved correctly
         assertThat(savedUser).isEqualTo(user)
@@ -44,7 +44,7 @@ class FirestoreRepositoryTest {
         val user = FirestoreTestUtil.user
         repository.addUser(user)
 
-        val result = repository.getUser(user.uid)
+        val result = repository.getUser(user.id)
         assertThat(result).isInstanceOf(Result.Success::class.java)
 
         val resultUser = (result as Result.Success).data
@@ -74,13 +74,13 @@ class FirestoreRepositoryTest {
         val user = FirestoreTestUtil.user
         repository.addUser(user)
 
-        val data1 = repository.getUserStream(user.uid).first()
+        val data1 = repository.getUserStream(user.id).first()
         assertThat(data1).isEqualTo(user)
 
         val nameUpd = "New name"
-        repository.updateUser(user.uid, "name", nameUpd)
+        repository.updateUser(user.id, "name", nameUpd)
 
-        val data2 = repository.getUserStream(user.uid).first()
+        val data2 = repository.getUserStream(user.id).first()
         assertThat(data2).isEqualTo(user.copy(name = nameUpd))
     }
 
@@ -88,7 +88,7 @@ class FirestoreRepositoryTest {
     fun updateUser_toUpdateName_updatesUserName() = runBlocking {
         val user = FirestoreTestUtil.user
         repository.addUser(user)
-        val result = repository.updateUser(user.uid, "name", "New Name")
+        val result = repository.updateUser(user.id, "name", "New Name")
         assertThat(result).isInstanceOf(Result.Success::class.java)
     }
 
@@ -96,7 +96,7 @@ class FirestoreRepositoryTest {
     fun updateUser_toUpdateWorkspaces_updatesUserWorkspaces() = runBlocking {
         val user = FirestoreTestUtil.user
         repository.addUser(user)
-        val result = repository.updateUser(user.uid, "workspaces", user.workspaces + UserWorkspace("workspaces/workspace1", "Workspace 1"))
+        val result = repository.updateUser(user.id, "workspaces", user.workspaces + UserWorkspace("workspaces/workspace1", "Workspace 1"))
         assertThat(result).isInstanceOf(Result.Success::class.java)
     }
 
@@ -105,7 +105,7 @@ class FirestoreRepositoryTest {
     fun updateUser_toUpdateNonexistingField_returnsResultError() = runBlocking {
         val user = FirestoreTestUtil.user
         repository.addUser(user)
-        val result = repository.updateUser(user.uid, "book", "Book name")
+        val result = repository.updateUser(user.id, "book", "Book name")
         assertThat(result).isInstanceOf(Result.Error::class.java)
     }
 
@@ -119,7 +119,7 @@ class FirestoreRepositoryTest {
 
         assertThat(result).isInstanceOf(Result.Success::class.java)
 
-        val getUserRes = repository.getUser(user.uid)
+        val getUserRes = repository.getUser(user.id)
         assertThat(getUserRes).isInstanceOf(Result.Success::class.java)
 
         val getUserData = (getUserRes as Result.Success).data
@@ -129,11 +129,11 @@ class FirestoreRepositoryTest {
 
     @Test
     fun getWorkspace_withValidWorkspaceId_returnsWorkspace() = runBlocking {
-        val workspace = FirestoreTestUtil.workspace.copy(uid = "JTCtEGKBoS0EyL4phHdd")
+        val workspace = FirestoreTestUtil.workspace.copy(id = "JTCtEGKBoS0EyL4phHdd")
 
 //        repository.addWorkspace(workspace)
 
-        val savedWorkspace = repository.getWorkspace(workspace.uid)
+        val savedWorkspace = repository.getWorkspace(workspace.id)
         assertThat(savedWorkspace).isInstanceOf(Result.Success::class.java)
 
         val resultData = (savedWorkspace as Result.Success).data

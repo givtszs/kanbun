@@ -3,7 +3,7 @@ package com.example.kanbun.domain.model
 import com.example.kanbun.common.AuthProvider
 
 data class User(
-    val uid: String,
+    val id: String,
     val email: String,
     val name: String?,
     val profilePicture: String?,

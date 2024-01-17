@@ -7,7 +7,7 @@ import com.example.kanbun.domain.model.UserWorkspace
 
 object TestData {
     val user = User(
-        uid = "test1",
+        id = "test1",
         email = "test@gmail.com",
         name = "Test",
         profilePicture = null,

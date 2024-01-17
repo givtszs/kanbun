@@ -23,6 +23,7 @@ import com.example.kanbun.domain.model.User
 import com.example.kanbun.presentation.BaseFragment
 import com.example.kanbun.presentation.StateHandler
 import com.example.kanbun.presentation.ViewState
+import com.example.kanbun.presentation.main_activity.DrawerAdapter
 import com.example.kanbun.presentation.main_activity.MainActivity
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -80,7 +81,14 @@ class UserBoardsFragment : BaseFragment(), StateHandler {
         with(state as ViewState.UserBoardsViewState) {
             user?.let {
                 setUpDrawer(it)
-                (requireActivity() as MainActivity).drawerAdapter?.setData(it.workspaces)
+                (requireActivity() as MainActivity).drawerAdapter?.setData(
+                    it.workspaces.map { userWorkspace ->
+                        DrawerAdapter.DrawerWorkspace(
+                            userWorkspace,
+                            userWorkspace.id == state.currentWorkspace?.id
+                        )
+                    }
+                )
             }
 
             message?.let {

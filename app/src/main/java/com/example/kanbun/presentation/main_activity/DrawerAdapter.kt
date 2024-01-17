@@ -5,6 +5,8 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.example.kanbun.R
+import com.example.kanbun.common.getColor
 import com.example.kanbun.databinding.ItemWorkspaceBinding
 import com.example.kanbun.domain.model.UserWorkspace
 
@@ -12,11 +14,13 @@ class DrawerAdapter(
     private val context: Context,
 ) : RecyclerView.Adapter<DrawerAdapter.ItemWorkspaceViewHolder>() {
 
-    var workspaces: List<UserWorkspace> = emptyList()
+    var workspaces: List<DrawerWorkspace> = emptyList()
 
     var onItemClickCallback: ((String) -> Unit)? = null
 
-    fun setData(data: List<UserWorkspace>) {
+    var prevSelectedPosition: Int? = null
+
+    fun setData(data: List<DrawerWorkspace>) {
         workspaces = data
         notifyDataSetChanged()
     }
@@ -28,7 +32,7 @@ class DrawerAdapter(
     }
 
     override fun onBindViewHolder(holder: ItemWorkspaceViewHolder, position: Int) {
-        holder.bind(workspaces[position])
+        holder.bind(workspaces[position], position)
     }
 
     override fun getItemCount(): Int = workspaces.size
@@ -37,22 +41,34 @@ class DrawerAdapter(
         private val binding: ItemWorkspaceBinding
     ) : RecyclerView.ViewHolder(binding.root) {
 
-        fun bind(workspace: UserWorkspace) {
-            binding.tvName.text = workspace.name
+        fun bind(item: DrawerWorkspace, position: Int) {
+            binding.tvName.text = item.workspace.name
+
+            if (item.isSelected) {
+                binding.constraintLayout.setBackgroundColor(getColor(context, R.color.md_theme_light_secondaryContainer))
+            } else {
+                binding.constraintLayout.setBackgroundColor(getColor(context, R.color.md_theme_light_surface))
+            }
 
             binding.root.apply {
                 setOnClickListener {
-                    isSelected = true
-                    Log.d("DrawerAdapter", "Selected workspace: $workspace")
-                    // close the drawer
-                    onItemClickCallback?.invoke(workspace.id)
+                    if (position != prevSelectedPosition) {
+                        item.isSelected = true
+                        prevSelectedPosition?.let { workspaces[it].isSelected = true }
+                        Log.d("DrawerAdapter", "Selected workspace: $item")
+
+                        // close the drawer
+                        onItemClickCallback?.invoke(item.workspace.id)
+                    }
+
+                    prevSelectedPosition = position
                 }
             }
         }
     }
 
-    data class WorkspaceModel(
-        val name: String,
+    data class DrawerWorkspace(
+        val workspace: UserWorkspace,
         var isSelected: Boolean = false
     )
 }

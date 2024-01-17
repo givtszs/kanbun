@@ -31,7 +31,7 @@ class FirestoreRepositoryImpl @Inject constructor(
     override suspend fun addUser(user: User): Result<Unit> {
         return try {
             firestore.collection(FirestoreCollection.USERS.collectionName)
-                .document(user.uid)
+                .document(user.id)
                 .set(user.toFirestoreUser())
                 .await()
             Result.Success(Unit)
@@ -147,7 +147,7 @@ class FirestoreRepositoryImpl @Inject constructor(
             if (task.isSuccessful) {
                 Log.d(TAG, "task is successful: ${task.result.path}")
                 updateUser(
-                    user.uid,
+                    user.id,
                     "workspaces",
                     user.workspaces + UserWorkspace(task.result.id, workspace.name)
                 )

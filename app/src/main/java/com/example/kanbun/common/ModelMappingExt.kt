@@ -25,7 +25,7 @@ fun List<UserWorkspace>.mapToFirestoreWorkspaces(): List<Map<String, String>> =
 
 fun FirestoreUser.toUser(userId: String): User =
     User(
-        uid = userId,
+        id = userId,
         email = email,
         name = name,
         profilePicture = profilePicture,
@@ -43,7 +43,7 @@ fun FirestoreUser.toUser(userId: String): User =
 fun FirebaseUser.toUser(provider: AuthProvider): User {
     val data = providerData.first { it.providerId == provider.providerId }
     return User(
-        uid = uid,
+        id = uid,
         email = data.email!!,
         name = data.displayName,
         profilePicture = data.photoUrl.toString(),
@@ -68,7 +68,7 @@ fun Workspace.toFirestoreWorkspace(): FirestoreWorkspace =
 
 fun FirestoreWorkspace.toWorkspace(workspaceId: String): Workspace =
     Workspace(
-        uid = workspaceId,
+        id = workspaceId,
         name = name,
         owner = owner,
         members = members.map { member ->

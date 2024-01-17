@@ -61,7 +61,7 @@ class FirestoreTestUtil {
         /* Test data */
 
         val user = User(
-            uid = "test1",
+            id = "test1",
             email = "test@gmail.com",
             name = "Test",
             profilePicture = null,
@@ -71,7 +71,7 @@ class FirestoreTestUtil {
         )
 
         val userEmptyWorksAndCards = User(
-            uid = "test1",
+            id = "test1",
             email = "test@gmail.com",
             name = "Test",
             profilePicture = null,
@@ -88,11 +88,11 @@ class FirestoreTestUtil {
             name = "Test",
             owner = FirestoreCollection.getReference(
                 FirestoreCollection.USERS,
-                userEmptyWorksAndCards.uid
+                userEmptyWorksAndCards.id
             ),
             members = listOf(
                 WorkspaceMember(
-                    FirestoreCollection.getReference(FirestoreCollection.USERS, userEmptyWorksAndCards.uid),
+                    FirestoreCollection.getReference(FirestoreCollection.USERS, userEmptyWorksAndCards.id),
                     WorkspaceRole.ADMIN
                 )
             ),
