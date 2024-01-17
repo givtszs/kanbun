@@ -59,7 +59,7 @@ fun Workspace.toFirestoreWorkspace(): FirestoreWorkspace =
         owner = owner,
         members = members.map { member ->
             mapOf(
-                "id" to FirestoreCollection.getReference(FirestoreCollection.USERS, member.id),
+                "id" to member.id,
                 "role" to member.role.roleName
             )
         },

@@ -1,6 +1,7 @@
 package com.example.kanbun.presentation.main_activity
 
 import android.content.Context
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
@@ -42,6 +43,7 @@ class DrawerAdapter(
             binding.root.apply {
                 setOnClickListener {
                     isSelected = true
+                    Log.d("DrawerAdapter", "Selected workspace: $workspace")
                     // close the drawer
                     onItemClickCallback?.invoke(workspace.id)
                 }

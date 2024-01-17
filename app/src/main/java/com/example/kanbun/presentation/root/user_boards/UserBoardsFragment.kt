@@ -88,7 +88,7 @@ class UserBoardsFragment : BaseFragment(), StateHandler {
                 viewModel.messageShown()
             }
 
-            binding.text.text = "Current workspace's boards: ${state.currentWorkspace?.boards}"
+            binding.text.text = "Current workspace's boards: ${state.currentWorkspace?.name}"
         }
     }
 
@@ -168,7 +168,6 @@ class UserBoardsFragment : BaseFragment(), StateHandler {
             }
         }
         dialog.show()
-
     }
 
     override fun onDestroyView() {

@@ -14,11 +14,9 @@ import com.example.kanbun.domain.model.User
 import com.example.kanbun.domain.model.UserWorkspace
 import com.example.kanbun.domain.model.Workspace
 import com.example.kanbun.domain.repository.FirestoreRepository
-import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.tasks.await
@@ -151,7 +149,7 @@ class FirestoreRepositoryImpl @Inject constructor(
                 updateUser(
                     user.uid,
                     "workspaces",
-                    user.workspaces + UserWorkspace(task.result.path, workspace.name)
+                    user.workspaces + UserWorkspace(task.result.id, workspace.name)
                 )
             } else {
                 Result.Error("Couldn't add a workspace: ${task.exception?.message}")
