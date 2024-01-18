@@ -160,7 +160,7 @@ class FirestoreRepositoryImpl @Inject constructor(
     }
 
     override suspend fun getWorkspace(workspaceId: String?): Result<Workspace> {
-        if (workspaceId == null) {
+        if (workspaceId.isNullOrEmpty()) {
             return Result.Error("Workspace ID is null")
         }
 

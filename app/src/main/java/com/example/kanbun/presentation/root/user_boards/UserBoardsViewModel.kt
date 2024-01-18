@@ -1,10 +1,13 @@
 package com.example.kanbun.presentation.root.user_boards
 
 import android.content.Context
+import android.util.Log
 import androidx.lifecycle.viewModelScope
 import com.example.kanbun.common.Result
 import com.example.kanbun.common.ToastMessage
 import com.example.kanbun.common.WorkspaceRole
+import com.example.kanbun.data.local.PreferenceDataStoreHelper
+import com.example.kanbun.data.local.PreferenceDataStoreKeys
 import com.example.kanbun.domain.model.User
 import com.example.kanbun.domain.model.Workspace
 import com.example.kanbun.domain.model.WorkspaceMember
@@ -20,6 +23,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.stateIn
@@ -32,7 +36,8 @@ private const val TAG = "UserBoardsViewModel"
 @HiltViewModel
 class UserBoardsViewModel @Inject constructor(
     private val connectivityChecker: ConnectivityChecker,
-    private val firestoreRepository: FirestoreRepository
+    private val firestoreRepository: FirestoreRepository,
+    private val dataStore: PreferenceDataStoreHelper
 ) : BaseViewModel() {
 
     private val _user = firestoreRepository.getUserStream(firebaseUser?.uid).distinctUntilChanged()
@@ -97,9 +102,18 @@ class UserBoardsViewModel @Inject constructor(
 
     fun selectWorkspace(workspaceId: String?) = viewModelScope.launch {
         when (val result = firestoreRepository.getWorkspace(workspaceId)) {
-            is Result.Success -> _currentWorkspace.value = result.data
+            is Result.Success -> {
+                _currentWorkspace.value = result.data
+                dataStore.setPreference(PreferenceDataStoreKeys.CURRENT_WORKSPACE_ID, result.data.id)
+            }
             is Result.Error -> _message.value = result.message
             is Result.Exception -> _message.value = result.message
         }
+    }
+
+    fun getCurrentWorkspace() = viewModelScope.launch {
+        val workspaceId = dataStore.getPreferenceFirst(PreferenceDataStoreKeys.CURRENT_WORKSPACE_ID, "")
+        Log.d("UserBoardsViewModel", "getCurrentWorkspace: $workspaceId")
+        selectWorkspace(workspaceId)
     }
 }

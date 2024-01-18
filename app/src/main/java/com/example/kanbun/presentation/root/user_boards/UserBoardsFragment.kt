@@ -44,6 +44,7 @@ class UserBoardsFragment : BaseFragment(), StateHandler {
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentUserBoardsBinding.inflate(inflater, container, false)
+        viewModel.getCurrentWorkspace()
         return binding.root
     }
 
