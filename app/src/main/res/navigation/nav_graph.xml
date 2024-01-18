@@ -17,7 +17,9 @@
 
     <action
         android:id="@+id/action_to_userBoardsFragment"
-        app:destination="@id/userBoardsFragment" />
+        app:destination="@id/userBoardsFragment"
+        app:popUpTo="@id/registrationPromptFragment"
+        app:popUpToInclusive="true" />
 
     <fragment
         android:id="@+id/registrationPromptFragment"

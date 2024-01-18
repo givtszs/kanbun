@@ -28,7 +28,9 @@ interface FirestoreRepository {
 
     suspend fun <T> updateUser(userId: String?, field: String, value: T): Result<Unit>
 
-    suspend fun addWorkspace(user: User, workspace: Workspace): Result<Unit>
+    suspend fun addWorkspace(user: User, workspace: Workspace): Result<String>
 
     suspend fun getWorkspace(workspaceId: String?): Result<Workspace>
+
+    suspend fun <T> updateWorkspace(workspaceId: String?, field: String, value: T): Result<Unit>
 }

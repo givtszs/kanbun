@@ -27,10 +27,8 @@ import com.example.kanbun.ui.StateHandler
 import com.example.kanbun.ui.ViewState
 import com.example.kanbun.ui.main_activity.DrawerAdapter
 import com.example.kanbun.ui.main_activity.MainActivity
+import com.example.kanbun.ui.root.user_boards.workspace_settings.WorkspaceSettingsFragment
 import com.google.android.material.appbar.MaterialToolbar
-import com.google.android.material.bottomsheet.BottomSheetBehavior
-import com.google.android.material.bottomsheet.BottomSheetDialog
-import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
@@ -120,11 +118,12 @@ class UserBoardsFragment : BaseFragment(), StateHandler {
                     }
                     setOnMenuItemClickListener { menuItem ->
                         if (menuItem.itemId == R.id.workspace_settings) {
-                            val workspaceSettings = WorkspaceSettingsFragment()
+                            val workspaceSettings = WorkspaceSettingsFragment.newInstance(currentWorkspace)
+                            Log.d("UserBoardsFragm", "dialog name: ${WorkspaceSettingsFragment::class.simpleName}")
                             val transaction = requireActivity().supportFragmentManager.beginTransaction()
                             transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
                             transaction.add(R.id.root, workspaceSettings)
-                                .addToBackStack(null)
+                                .addToBackStack(WorkspaceSettingsFragment::class.simpleName)
                                 .commit()
                             true
                         } else {

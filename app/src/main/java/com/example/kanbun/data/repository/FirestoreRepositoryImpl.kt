@@ -132,7 +132,7 @@ class FirestoreRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun addWorkspace(user: User, workspace: Workspace): Result<Unit> {
+    override suspend fun addWorkspace(user: User, workspace: Workspace): Result<String> {
         return try {
             val task = firestore.collection(FirestoreCollection.WORKSPACES.collectionName)
                 .add(workspace.toFirestoreWorkspace())
@@ -146,11 +146,17 @@ class FirestoreRepositoryImpl @Inject constructor(
 
             if (task.isSuccessful) {
                 Log.d(TAG, "task is successful: ${task.result.path}")
-                updateUser(
+                val updRes = updateUser(
                     user.id,
                     "workspaces",
                     user.workspaces + UserWorkspace(task.result.id, workspace.name)
                 )
+
+                if (updRes !is Result.Success) {
+                    Result.Error("Couldn't add workspace")
+                } else {
+                    Result.Success(task.result.id)
+                }
             } else {
                 Result.Error("Couldn't add a workspace: ${task.exception?.message}")
             }
@@ -178,6 +184,35 @@ class FirestoreRepositoryImpl @Inject constructor(
                 Result.Success(firestoreWorkspace.toWorkspace(workspaceId))
             } else {
                 Result.Error("Requested document does not exist")
+            }
+        } catch (e: Exception) {
+            Result.Exception(e.message, e)
+        }
+    }
+
+    override suspend fun <T> updateWorkspace(
+        workspaceId: String?,
+        field: String,
+        value: T
+    ): Result<Unit> {
+        if (workspaceId.isNullOrEmpty()) {
+            return Result.Error("Workspace ID is null or empty")
+        }
+
+        val mappedValue = when (field) {
+            "name" -> value
+            else -> Unit
+        }
+
+        return try {
+            val task = firestore.collection(FirestoreCollection.WORKSPACES.collectionName)
+                .document(workspaceId)
+                .update(field, mappedValue)
+            task.await()
+            if (task.isSuccessful) {
+                Result.Success(Unit)
+            } else {
+                Result.Error("Couldn't update a workspace $workspaceId: ${task.exception?.message}")
             }
         } catch (e: Exception) {
             Result.Exception(e.message, e)
