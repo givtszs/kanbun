@@ -24,4 +24,5 @@
     <string name="boards">Boards</string>
     <string name="cards">Cards</string>
     <string name="inbox">Inbox</string>
+    <string name="workspaces_headline">Workspaces</string>
 </resources>

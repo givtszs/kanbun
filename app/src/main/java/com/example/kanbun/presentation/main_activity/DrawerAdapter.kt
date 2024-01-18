@@ -45,9 +45,17 @@ class DrawerAdapter(
             binding.tvName.text = item.workspace.name
 
             if (item.isSelected) {
-                binding.constraintLayout.setBackgroundColor(getColor(context, R.color.md_theme_light_secondaryContainer))
+                binding.apply {
+                    constraintLayout.setBackgroundColor(getColor(context, R.color.md_theme_light_secondaryContainer))
+                    tvName.setTextColor(getColor(context, R.color.md_theme_light_onSecondaryContainer))
+                    ivLeadingIcon.isSelected = true
+                }
             } else {
-                binding.constraintLayout.setBackgroundColor(getColor(context, R.color.md_theme_light_surface))
+                binding.apply {
+                    constraintLayout.setBackgroundColor(getColor(context, R.color.md_theme_light_surface))
+                    tvName.setTextColor(getColor(context, R.color.md_theme_light_onSurfaceVariant))
+                    ivLeadingIcon.isSelected = false
+                }
             }
 
             binding.root.apply {

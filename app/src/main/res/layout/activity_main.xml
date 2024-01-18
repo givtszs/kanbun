@@ -56,13 +56,26 @@
                 android:text="Create workspace"
                 app:layout_constraintTop_toBottomOf="@id/headerLayout" />
 
+            <TextView
+                android:id="@+id/tvWorkspacesHeadline"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/workspaces_headline"
+                android:layout_marginTop="8dp"
+                style="@style/TextAppearance.Material3.TitleSmall"
+                android:textColor="@color/md_theme_light_onSurfaceVariant"
+                app:layout_constraintTop_toBottomOf="@id/btnCreateWorkspace"
+                app:layout_constraintStart_toStartOf="parent"
+                android:layout_marginStart="28dp" />
+
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/navRecyclerView"
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
                 android:orientation="vertical"
+                android:layout_marginTop="22dp"
                 android:paddingHorizontal="12dp"
-                app:layout_constraintTop_toBottomOf="@id/btnCreateWorkspace"
+                app:layout_constraintTop_toBottomOf="@id/tvWorkspacesHeadline"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
                 tools:listitem="@layout/item_workspace" />

@@ -85,10 +85,16 @@ class UserBoardsFragment : BaseFragment(), StateHandler {
                     it.workspaces.map { userWorkspace ->
                         DrawerAdapter.DrawerWorkspace(
                             userWorkspace,
-                            userWorkspace.id == state.currentWorkspace?.id
+                            userWorkspace.id == currentWorkspace?.id
                         )
                     }
                 )
+            }
+
+             if (currentWorkspace != null) {
+                binding.toolbar.title = currentWorkspace.name
+            } else {
+                binding.toolbar.title = resources.getString(R.string.boards)
             }
 
             message?.let {
@@ -96,7 +102,7 @@ class UserBoardsFragment : BaseFragment(), StateHandler {
                 viewModel.messageShown()
             }
 
-            binding.text.text = "Current workspace's boards: ${state.currentWorkspace?.name}"
+            binding.text.text = "Current workspace's boards: ${currentWorkspace?.name}"
         }
     }
 

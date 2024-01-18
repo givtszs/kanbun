@@ -59,7 +59,7 @@
     <fragment
         android:id="@+id/userBoardsFragment"
         android:name="com.example.kanbun.presentation.root.user_boards.UserBoardsFragment"
-        android:label="Boards"
+        android:label=""
         tools:layout="@layout/fragment_user_boards">
         <action
             android:id="@+id/action_userBoardsFragment_to_registrationPromptFragment"

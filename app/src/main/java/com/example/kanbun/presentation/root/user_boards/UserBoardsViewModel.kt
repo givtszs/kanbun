@@ -36,7 +36,7 @@ class UserBoardsViewModel @Inject constructor(
 ) : BaseViewModel() {
 
     private val _user = firestoreRepository.getUserStream(firebaseUser?.uid).distinctUntilChanged()
-    private val _currentWorkspace = MutableStateFlow<Workspace>(Workspace())
+    private val _currentWorkspace = MutableStateFlow<Workspace?>(null)
     private val _isLoading = MutableStateFlow(false)
     private val _message = MutableStateFlow<String?>(null)
 

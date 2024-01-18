@@ -9,32 +9,32 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/constraintLayout"
-        android:background="@color/md_theme_light_surface"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
-        
+        android:layout_height="match_parent"
+        android:background="@color/md_theme_light_surface">
+
         <ImageView
-            android:id="@+id/leadingIcon"
+            android:id="@+id/ivLeadingIcon"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
-            app:srcCompat="@drawable/ic_workspaces_outlined_24"
-            app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent" />
-
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@drawable/ic_workspaces_selector" />
 
         <TextView
             android:id="@+id/tvName"
+            style="@style/TextAppearance.Material3.LabelLarge"
             android:layout_width="0dp"
             android:layout_height="50dp"
             android:layout_marginHorizontal="12dp"
             android:gravity="center_vertical"
+            android:textColor="@color/md_theme_light_onSurfaceVariant"
             android:textSize="16sp"
-            style="@style/TextAppearance.AppCompat.Title"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@id/leadingIcon"
+            app:layout_constraintStart_toEndOf="@id/ivLeadingIcon"
             app:layout_constraintTop_toTopOf="parent"
             tools:text="Workspace" />
 
