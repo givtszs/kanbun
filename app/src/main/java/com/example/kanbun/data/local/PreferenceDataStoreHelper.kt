@@ -33,4 +33,10 @@ class PreferenceDataStoreHelper @Inject constructor(val context: Application) {
             preferences[key] = value
         }
     }
+
+    suspend fun <T> removePreference(key: Preferences.Key<T>) {
+        context.dataStore.edit { preferences ->
+            preferences.remove(key)
+        }
+    }
 }

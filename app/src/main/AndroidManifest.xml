@@ -11,13 +11,13 @@
         android:fullBackupContent="@xml/backup_rules"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
-        android:name=".presentation.KanbunApplication"
+        android:name=".ui.KanbunApplication"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Kanbun"
         tools:targetApi="31">
         <activity
-            android:name=".presentation.main_activity.MainActivity"
+            android:name=".ui.main_activity.MainActivity"
             android:exported="true"
             android:screenOrientation="locked">
             <intent-filter>

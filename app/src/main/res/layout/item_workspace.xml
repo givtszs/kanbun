@@ -32,6 +32,8 @@
             android:gravity="center_vertical"
             android:textColor="@color/md_theme_light_onSurfaceVariant"
             android:textSize="16sp"
+            android:maxLines="1"
+            android:ellipsize="end"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@id/ivLeadingIcon"

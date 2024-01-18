@@ -1,7 +1,7 @@
 package com.example.kanbun.di
 
 import com.example.kanbun.domain.utils.ConnectivityChecker
-import com.example.kanbun.presentation.ConnectivityCheckerImpl
+import com.example.kanbun.ui.ConnectivityCheckerImpl
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn

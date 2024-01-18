@@ -21,11 +21,11 @@
 
     <fragment
         android:id="@+id/registrationPromptFragment"
-        android:name="com.example.kanbun.presentation.registration.promt.RegistrationPromptFragment"
+        android:name="com.example.kanbun.ui.registration.promt.RegistrationPromptFragment"
         tools:layout="@layout/fragment_registration_prompt"/>
     <fragment
         android:id="@+id/signUpFragment"
-        android:name="com.example.kanbun.presentation.registration.sign_up.SignUpFragment"
+        android:name="com.example.kanbun.ui.registration.sign_up.SignUpFragment"
         android:label="Sign up"
         tools:layout="@layout/fragment_sign_up">
         <argument
@@ -39,7 +39,7 @@
     </fragment>
     <fragment
         android:id="@+id/signInFragment"
-        android:name="com.example.kanbun.presentation.registration.sign_in.SignInFragment"
+        android:name="com.example.kanbun.ui.registration.sign_in.SignInFragment"
         android:label="Sign in"
         tools:layout="@layout/fragment_sign_in">
         <argument
@@ -53,12 +53,12 @@
     </fragment>
     <fragment
         android:id="@+id/emailVerificationFragment"
-        android:name="com.example.kanbun.presentation.registration.email_verification.EmailVerificationFragment"
+        android:name="com.example.kanbun.ui.registration.email_verification.EmailVerificationFragment"
         android:label="Email verification"
         tools:layout="@layout/fragment_email_verification"/>
     <fragment
         android:id="@+id/userBoardsFragment"
-        android:name="com.example.kanbun.presentation.root.user_boards.UserBoardsFragment"
+        android:name="com.example.kanbun.ui.root.user_boards.UserBoardsFragment"
         android:label=""
         tools:layout="@layout/fragment_user_boards">
         <action
@@ -67,12 +67,12 @@
     </fragment>
     <fragment
         android:id="@+id/userCardsFragment"
-        android:name="com.example.kanbun.presentation.root.user_cards.UserCardsFragment"
+        android:name="com.example.kanbun.ui.root.user_cards.UserCardsFragment"
         android:label="UserCardsFragment"
         tools:layout="@layout/fragment_user_cards" />
     <fragment
         android:id="@+id/inboxFragment"
-        android:name="com.example.kanbun.presentation.root.inbox.InboxFragment"
+        android:name="com.example.kanbun.ui.root.inbox.InboxFragment"
         android:label="InboxFragment"
         tools:layout="@layout/fragment_inbox" />
 </navigation>
