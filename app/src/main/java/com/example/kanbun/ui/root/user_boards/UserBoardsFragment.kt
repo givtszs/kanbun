@@ -4,13 +4,16 @@ import android.app.AlertDialog
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
 import androidx.core.view.GravityCompat
+import androidx.core.view.MenuProvider
 import androidx.core.view.isEmpty
 import androidx.core.widget.doOnTextChanged
-import androidx.fragment.app.FragmentTransaction
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -22,12 +25,12 @@ import com.example.kanbun.common.AuthProvider
 import com.example.kanbun.common.getColor
 import com.example.kanbun.databinding.FragmentUserBoardsBinding
 import com.example.kanbun.domain.model.User
+import com.example.kanbun.domain.model.Workspace
 import com.example.kanbun.ui.BaseFragment
 import com.example.kanbun.ui.StateHandler
 import com.example.kanbun.ui.ViewState
 import com.example.kanbun.ui.main_activity.DrawerAdapter
 import com.example.kanbun.ui.main_activity.MainActivity
-import com.example.kanbun.ui.root.user_boards.workspace_settings.WorkspaceSettingsFragment
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import dagger.hilt.android.AndroidEntryPoint
@@ -40,6 +43,7 @@ class UserBoardsFragment : BaseFragment(), StateHandler {
     private val binding: FragmentUserBoardsBinding get() = _binding!!
 
     private val viewModel: UserBoardsViewModel by viewModels()
+    private lateinit var menuProvider: MenuProvider
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -56,6 +60,7 @@ class UserBoardsFragment : BaseFragment(), StateHandler {
         setUpActionBar(binding.toolbar)
         setStatusBarColor(getColor(requireContext(), R.color.md_theme_light_surface))
         addOnBackPressedAction { requireActivity().finish() }
+        createOptionsMenu()
         checkUserAuthState()
         collectState()
     }
@@ -71,7 +76,7 @@ class UserBoardsFragment : BaseFragment(), StateHandler {
                 }
             }
 
-            // drawer's recylcer view item
+            // drawer's recycler view item
             drawerAdapter?.onItemClickCallback = { workspaceId ->
                 viewModel.selectWorkspace(workspaceId)
                 activityMainBinding.drawerLayout.closeDrawer(GravityCompat.START)
@@ -98,6 +103,7 @@ class UserBoardsFragment : BaseFragment(), StateHandler {
 
     override fun processState(state: ViewState) {
         with(state as ViewState.UserBoardsViewState) {
+            Log.d("UserBoardsFragm", "State: $this")
             user?.let {
                 setUpDrawer(it)
                 (requireActivity() as MainActivity).drawerAdapter?.setData(
@@ -113,30 +119,13 @@ class UserBoardsFragment : BaseFragment(), StateHandler {
             if (currentWorkspace != null) {
                 binding.toolbar.apply {
                     title = currentWorkspace.name
-                    if (menu.isEmpty()) {
-                        inflateMenu(R.menu.workspace_menu)
+                    requireActivity().apply {
+                        addMenuProvider(menuProvider, viewLifecycleOwner)
                     }
-                    setOnMenuItemClickListener { menuItem ->
-                        if (menuItem.itemId == R.id.workspace_settings) {
-                            val workspaceSettings = WorkspaceSettingsFragment.newInstance(currentWorkspace)
-                            Log.d("UserBoardsFragm", "dialog name: ${WorkspaceSettingsFragment::class.simpleName}")
-                            val transaction = requireActivity().supportFragmentManager.beginTransaction()
-                            transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
-                            transaction.add(R.id.root, workspaceSettings)
-                                .addToBackStack(WorkspaceSettingsFragment::class.simpleName)
-                                .commit()
-                            true
-                        } else {
-                            false
-                        }
-                    }
-
                 }
             } else {
-                binding.toolbar.apply {
-                    title = resources.getString(R.string.boards)
-                    menu.clear()
-                }
+                binding.toolbar.title = resources.getString(R.string.boards)
+                requireActivity().removeMenuProvider(menuProvider)
             }
 
             message?.let {
@@ -145,6 +134,33 @@ class UserBoardsFragment : BaseFragment(), StateHandler {
             }
 
             binding.text.text = "Current workspace's boards: ${currentWorkspace?.name}"
+        }
+    }
+
+    private fun createOptionsMenu() {
+        menuProvider = object : MenuProvider {
+            override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+                if (menu.isEmpty()) {
+                    Log.d("UserBoardsFragm", "Inflate menu")
+                    menuInflater.inflate(R.menu.workspace_menu, menu)
+                }
+            }
+
+            override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+                return when (menuItem.itemId) {
+                    R.id.workspace_settings -> {
+                        Log.d("UserBoardsFragm", "onMenuItemSelected: workspace_settings: workspace: ${viewModel.userBoardsState.value.currentWorkspace}")
+                        navController.navigate(
+                            UserBoardsFragmentDirections.actionUserBoardsFragmentToWorkspaceSettingsFragment(
+                                viewModel.userBoardsState.value.currentWorkspace ?: Workspace()
+                            )
+                        )
+                        true
+                    }
+
+                    else -> false
+                }
+            }
         }
     }
 
@@ -218,6 +234,7 @@ class UserBoardsFragment : BaseFragment(), StateHandler {
 
     override fun onDestroyView() {
         super.onDestroyView()
+        requireActivity().removeMenuProvider(menuProvider)
         _binding = null
     }
 }

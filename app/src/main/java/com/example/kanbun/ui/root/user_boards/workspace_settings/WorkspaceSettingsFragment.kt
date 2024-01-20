@@ -4,35 +4,27 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
-import androidx.core.widget.doAfterTextChanged
 import androidx.core.widget.doOnTextChanged
-import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.navArgs
+import com.example.kanbun.R
+import com.example.kanbun.common.getColor
 import com.example.kanbun.databinding.FragmentWorkspaceSettingsBinding
 import com.example.kanbun.domain.model.Workspace
+import com.example.kanbun.ui.BaseFragment
 import com.example.kanbun.ui.main_activity.MainActivity
+import com.google.android.material.appbar.MaterialToolbar
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
-class WorkspaceSettingsFragment : DialogFragment() {
+class WorkspaceSettingsFragment : BaseFragment() {
     private var _binding: FragmentWorkspaceSettingsBinding? = null
     private val binding: FragmentWorkspaceSettingsBinding get() = _binding!!
     private val viewModel: WorkspaceSettingsViewModel by viewModels()
+    private val args: WorkspaceSettingsFragmentArgs by navArgs()
     private lateinit var workspace: Workspace
-
-    companion object {
-        fun newInstance(workspace: Workspace): WorkspaceSettingsFragment {
-            val fragment = WorkspaceSettingsFragment()
-            val args = Bundle().apply {
-                putParcelable("workspace", workspace)
-            }
-            fragment.arguments = args
-            return fragment
-        }
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -40,48 +32,58 @@ class WorkspaceSettingsFragment : DialogFragment() {
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentWorkspaceSettingsBinding.inflate(inflater, container, false)
-        (requireActivity() as MainActivity).activityMainBinding.navBar.visibility = View.GONE
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        workspace = args.workspace
         super.onViewCreated(view, savedInstanceState)
-        workspace = arguments?.getParcelable<Workspace>("workspace")
-            ?: throw IllegalArgumentException("Argument can't be null")
-        setUpActionBar()
+        setUpActionBar(binding.toolbar)
+        setStatusBarColor(getColor(requireContext(), R.color.md_theme_light_surface))
+    }
 
-        binding.tfName.error = "Workspace name can't be empty"
-
-        binding.etName.doOnTextChanged { text, start, before, count ->
-            binding.btnSave.isActivated = text?.trim().isNullOrEmpty() == false
-            binding.tfName.isErrorEnabled = text?.trim().isNullOrEmpty() == true
+    override fun setUpActionBar(toolbar: MaterialToolbar) {
+        (requireActivity() as MainActivity).apply {
+            setSupportActionBar(toolbar)
+            supportActionBar?.setDisplayHomeAsUpEnabled(true)
         }
     }
 
-    private fun setUpActionBar() {
-//        (requireActivity() as MainActivity).apply {
-//            setSupportActionBar(binding.toolbar)
-//        }
+    override fun setUpListeners() {
+        with(binding) {
+            tfName.apply {
+                editText?.setText(workspace.name)
+            }
 
-        binding.tfName.apply {
-            editText?.setText(workspace.name)
-            isErrorEnabled = false
-        }
+            etName.doOnTextChanged { text, _, _, _ ->
+                if (!text.isNullOrEmpty()) {
+                    tfName.isErrorEnabled = false
+                }
+            }
 
-        binding.btnClose.setOnClickListener {
-            requireActivity().supportFragmentManager.popBackStack()
-        }
+            btnSave.setOnClickListener {
+                val name = tfName.editText?.text?.trim().toString()
+                if (name.isEmpty()) {
 
-        binding.btnSave.setOnClickListener {
-            lifecycleScope.launch {
-                val updateRes = viewModel.updateWorkspace(
-                    workspace = workspace,
-                    newName = binding.tfName.editText?.text?.trim().toString()
-                )
-                if (updateRes.first) {
-                    requireActivity().supportFragmentManager.popBackStack()
-                } else {
-                    Toast.makeText(requireContext(), updateRes.second, Toast.LENGTH_SHORT).show()
+                    tfName.apply {
+                        error = "Workspace name can't be empty"
+                        isErrorEnabled = true
+                    }
+                    return@setOnClickListener
+                }
+
+                if (name != workspace.name) {
+                    lifecycleScope.launch {
+                        val updateResult = viewModel.updateWorkspace(
+                            workspace = workspace,
+                            newName = name
+                        )
+
+                        showToast(updateResult.second, context = requireActivity())
+                        if (updateResult.first) {
+                            navController.popBackStack()
+                        }
+                    }
                 }
             }
         }
@@ -90,6 +92,5 @@ class WorkspaceSettingsFragment : DialogFragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
-        (requireActivity() as MainActivity).activityMainBinding.navBar.visibility = View.VISIBLE
     }
 }

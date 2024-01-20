@@ -66,6 +66,9 @@
         <action
             android:id="@+id/action_userBoardsFragment_to_registrationPromptFragment"
             app:destination="@id/registrationPromptFragment" />
+        <action
+            android:id="@+id/action_userBoardsFragment_to_workspaceSettingsFragment"
+            app:destination="@id/workspaceSettingsFragment" />
     </fragment>
     <fragment
         android:id="@+id/userCardsFragment"
@@ -77,4 +80,13 @@
         android:name="com.example.kanbun.ui.root.inbox.InboxFragment"
         android:label="InboxFragment"
         tools:layout="@layout/fragment_inbox" />
+    <fragment
+        android:id="@+id/workspaceSettingsFragment"
+        android:name="com.example.kanbun.ui.root.user_boards.workspace_settings.WorkspaceSettingsFragment"
+        tools:layout="@layout/fragment_workspace_settings"
+        android:label="@string/workspace_settings" >
+        <argument
+            android:name="workspace"
+            app:argType="com.example.kanbun.domain.model.Workspace" />
+    </fragment>
 </navigation>

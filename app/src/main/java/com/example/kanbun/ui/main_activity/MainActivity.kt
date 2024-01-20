@@ -39,15 +39,18 @@ class MainActivity : AppCompatActivity() {
         navController = navHostFragment.navController
         appBarConfiguration = AppBarConfiguration(navController.graph, activityMainBinding.root)
 
-        val topLevelDestinations = setOf(
+
+        // destinations that should hide navigation bar
+        val navBarlessDestinations = setOf(
             R.id.registrationPromptFragment,
             R.id.signUpFragment,
             R.id.signInFragment,
-            R.id.emailVerificationFragment
+            R.id.emailVerificationFragment,
+            R.id.workspaceSettingsFragment,
         )
 
         navController.addOnDestinationChangedListener { controller, destination, arguments ->
-            val hideNavBar = topLevelDestinations.contains(destination.id)
+            val hideNavBar = navBarlessDestinations.contains(destination.id)
 
             if (hideNavBar) {
                 activityMainBinding.navBar.visibility = View.GONE
