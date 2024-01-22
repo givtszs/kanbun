@@ -5,8 +5,6 @@ import android.util.Log
 import android.util.Patterns
 import com.example.kanbun.common.Result
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
-import com.google.android.gms.tasks.Task
-import com.google.firebase.auth.AuthResult
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.GoogleAuthProvider
@@ -55,7 +53,7 @@ class RegisterUserUseCase @Inject constructor(
             }
         } catch (e: Exception) {
             Log.e(TAG, e.message, e)
-            Result.Exception(e.message, e)
+            Result.Error(e.message, e)
         }
     }
 
@@ -82,7 +80,7 @@ class RegisterUserUseCase @Inject constructor(
             }
         } catch (e: Exception) {
             Log.e(TAG, e.message, e)
-            Result.Exception(e.message, e)
+            Result.Error(e.message, e)
         }
     }
 
@@ -162,7 +160,7 @@ class RegisterUserUseCase @Inject constructor(
             user.sendEmailVerification().await()
             Result.Success(Unit)
         } catch (e: Exception) {
-            Result.Exception(e.message, e)
+            Result.Error(e.message, e)
         }
     }
 
@@ -183,7 +181,7 @@ class RegisterUserUseCase @Inject constructor(
                 Result.Error("Operation failed: Couldn't retrieve user information")
             }
         } catch (e: Exception) {
-            Result.Exception(e.message, e)
+            Result.Error(e.message, e)
         }
     }
 
@@ -203,7 +201,7 @@ class RegisterUserUseCase @Inject constructor(
                 Result.Error("Operation failed: Couldn't retrieve user information")
             }
         } catch (e: Exception) {
-            Result.Exception(e.message, e)
+            Result.Error(e.message, e)
         }
     }
 }

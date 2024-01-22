@@ -14,14 +14,13 @@ fun User.toFirestoreUser(): FirestoreUser =
         name = name,
         profilePicture = profilePicture,
         authProvider = authProvider.providerId,
-        workspaces = workspaces.mapToFirestoreWorkspaces(),
+        workspaces = workspaces.toFirestoreWorkspaces(),
         cards = cards
     )
 
-fun List<UserWorkspace>.mapToFirestoreWorkspaces(): List<Map<String, String>> =
-    map {
-        mapOf("id" to it.id, "name" to it.name)
-    }
+fun List<UserWorkspace>.toFirestoreWorkspaces(): Map<String, String> = associate { workspace ->
+    workspace.id to workspace.name
+}
 
 fun FirestoreUser.toUser(userId: String): User =
     User(
@@ -30,11 +29,10 @@ fun FirestoreUser.toUser(userId: String): User =
         name = name,
         profilePicture = profilePicture,
         authProvider = AuthProvider.entries.first { it.providerId == authProvider },
-        workspaces = workspaces.map {
+        workspaces = workspaces.map { entry ->
             UserWorkspace(
-                id = it["id"] ?: throw IllegalArgumentException("User `id` can't be null!"),
-                name = it["name"]
-                    ?: throw IllegalArgumentException("User `name` can't be null!")
+                id = entry.key,
+                name = entry.value
             )
         },
         cards = cards
@@ -57,26 +55,23 @@ fun Workspace.toFirestoreWorkspace(): FirestoreWorkspace =
     FirestoreWorkspace(
         name = name,
         owner = owner,
-        members = members.map { member ->
-            mapOf(
-                "id" to member.id,
-                "role" to member.role.roleName
-            )
-        },
+        members = members.toFirestoreMembers(),
         boards = boards
     )
+
+fun List<WorkspaceMember>.toFirestoreMembers(): Map<String, String> = associate { member ->
+    member.id to member.role.roleName
+}
 
 fun FirestoreWorkspace.toWorkspace(workspaceId: String): Workspace =
     Workspace(
         id = workspaceId,
         name = name,
         owner = owner,
-        members = members.map { member ->
+        members = members.map { entry ->
             WorkspaceMember(
-                id = member["id"] ?: throw IllegalArgumentException("Workspace `id` can't be null!"),
-                role = WorkspaceRole.entries.first {
-                    it.roleName == (member["role"] ?: throw IllegalArgumentException("Workspace `role` can't be null!"))
-                }
+                id = entry.key,
+                role = WorkspaceRole.entries.first { it.roleName == entry.value }
             )
         },
         boards = boards

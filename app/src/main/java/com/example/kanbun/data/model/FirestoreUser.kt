@@ -5,6 +5,6 @@ data class FirestoreUser(
     val name: String? = null,
     val profilePicture: String? = null,
     val authProvider: String = "",
-    val workspaces: List<Map<String, String>> = emptyList(),
+    val workspaces: Map<String, String> = emptyMap(),
     val cards: List<String> = emptyList()
 )

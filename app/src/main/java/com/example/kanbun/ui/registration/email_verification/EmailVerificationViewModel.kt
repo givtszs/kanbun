@@ -67,7 +67,6 @@ class EmailVerificationViewModel @Inject constructor(
         when (val result = registerUserUseCase.sendVerificationEmail(user)) {
             is Result.Success -> showMessage("Verification email has been sent successfully")
             is Result.Error -> showMessage(result.message)
-            is Result.Exception -> showMessage(result.message)
         }
 
         if (resend) {

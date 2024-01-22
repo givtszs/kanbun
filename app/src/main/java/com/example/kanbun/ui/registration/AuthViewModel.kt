@@ -89,8 +89,6 @@ open class AuthViewModel @Inject constructor(
         val result = manageFirestoreUserUseCase.saveUser(user, provider)
         if (result is Result.Error) {
             showMessage(result.message)
-        } else if (result is Result.Exception) {
-            showMessage(result.message)
         }
     }
 
@@ -130,8 +128,6 @@ open class AuthViewModel @Inject constructor(
             }
 
             is Result.Error -> showMessage(result.message)
-
-            is Result.Exception -> showMessage(result.message)
         }
     }
 
@@ -151,8 +147,6 @@ open class AuthViewModel @Inject constructor(
             }
 
             is Result.Error -> showMessage(result.message)
-
-            is Result.Exception -> showMessage(result.message)
         }
     }
 }

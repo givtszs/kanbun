@@ -12,12 +12,10 @@ class WorkspaceSettingsViewModel @Inject constructor(
     private val firestoreRepository: FirestoreRepository
 ) : ViewModel() {
 
-    suspend fun updateWorkspace(workspace: Workspace, newName: String): Pair<Boolean, String> {
-        return when (val result =
-            firestoreRepository.updateWorkspace(workspace.id, "name", newName)) {
+    suspend fun updateWorkspaceName(workspace: Workspace, newName: String): Pair<Boolean, String> {
+        return when (val result = firestoreRepository.updateWorkspaceName(workspace, newName)) {
             is Result.Success -> Pair(true, "Workspace data has been updated")
-            is Result.Error -> Pair(false, result.message)
-            is Result.Exception -> Pair(false, result.message ?: "Unknown exception")
+            is Result.Error -> Pair(false, result.message ?: "")
         }
     }
 }

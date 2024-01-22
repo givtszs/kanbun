@@ -39,7 +39,7 @@ class UserBoardsViewModel @Inject constructor(
     private val dataStore: PreferenceDataStoreHelper
 ) : BaseViewModel() {
 
-    private val _user = firestoreRepository.getUserStream(firebaseUser?.uid).distinctUntilChanged()
+    private val _user = firestoreRepository.getUserStream(firebaseUser?.uid ?: "").distinctUntilChanged()
     private val _currentWorkspace = MutableStateFlow<Workspace?>(null)
     private val _isLoading = MutableStateFlow(false)
     private val _message = MutableStateFlow<String?>(null)
@@ -93,21 +93,19 @@ class UserBoardsViewModel @Inject constructor(
             members = listOf(WorkspaceMember(user.id, WorkspaceRole.ADMIN)),
         )
 
-        when (val result = firestoreRepository.addWorkspace(user, workspace)) {
+        when (val result = firestoreRepository.addWorkspace(user.id, workspace)) {
             is Result.Success -> _message.value = ToastMessage.WORKSPACE_CREATED
             is Result.Error -> _message.value = result.message
-            is Result.Exception -> _message.value = result.message
         }
     }
 
-    fun selectWorkspace(workspaceId: String?) = viewModelScope.launch {
+    fun selectWorkspace(workspaceId: String) = viewModelScope.launch {
         when (val result = firestoreRepository.getWorkspace(workspaceId)) {
             is Result.Success -> {
                 _currentWorkspace.value = result.data
                 dataStore.setPreference(PreferenceDataStoreKeys.CURRENT_WORKSPACE_ID, result.data.id)
             }
             is Result.Error -> _message.value = result.message
-            is Result.Exception -> _message.value = result.message
         }
     }
 

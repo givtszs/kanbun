@@ -74,7 +74,7 @@ class WorkspaceSettingsFragment : BaseFragment() {
 
                 if (name != workspace.name) {
                     lifecycleScope.launch {
-                        val updateResult = viewModel.updateWorkspace(
+                        val updateResult = viewModel.updateWorkspaceName(
                             workspace = workspace,
                             newName = name
                         )

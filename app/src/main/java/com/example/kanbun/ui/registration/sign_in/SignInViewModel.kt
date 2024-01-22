@@ -40,7 +40,6 @@ class SignInViewModel @Inject constructor(
         when (val result = registerUserUseCase.signInWithEmail(email, password)) {
             is Result.Success -> successCallback(result.data)
             is Result.Error -> processAuthenticationError(result.message)
-            is Result.Exception -> showMessage(result.message)
         }
     }
 }

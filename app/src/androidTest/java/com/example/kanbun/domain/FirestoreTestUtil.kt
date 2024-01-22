@@ -59,44 +59,56 @@ class FirestoreTestUtil {
         }
 
         /* Test data */
+        fun createUser(id: String): User {
+            return User(
+                id = id,
+                email = "$id@mail.co",
+                name = "Test",
+                profilePicture = null,
+                authProvider = AuthProvider.GOOGLE,
+                workspaces = emptyList(),
+                cards = emptyList()
+            )
+        }
 
-        val user = User(
+        val userSample = User(
             id = "test1",
             email = "test@gmail.com",
             name = "Test",
-            profilePicture = null,
+            profilePicture = null, // TODO("Change to URL string")
             authProvider = AuthProvider.GOOGLE,
-            workspaces = listOf(UserWorkspace("workspaces/work1", "Test Workspace 1")),
-            cards = listOf("workspaces/work1/boards/board1/columns/col1/card1")
-        )
-
-        val userEmptyWorksAndCards = User(
-            id = "test1",
-            email = "test@gmail.com",
-            name = "Test",
-            profilePicture = null,
-            authProvider = AuthProvider.GOOGLE,
-            workspaces = emptyList(),
-            cards = emptyList()
+            workspaces = listOf(UserWorkspace("workspace1", "Test Workspace 1")),
+            cards = emptyList() // TODO("Change to list of cards or whatever")
         )
 
         const val testName = "IAmTest"
         const val testEmail = "qatesteverything@gmail.com"
         const val testPassword = "Qwerty123_"
 
-        val workspace = Workspace(
+        val workspaceSample = Workspace(
             name = "Test",
             owner = FirestoreCollection.getReference(
                 FirestoreCollection.USERS,
-                userEmptyWorksAndCards.id
+                userSample.id
             ),
             members = listOf(
                 WorkspaceMember(
-                    FirestoreCollection.getReference(FirestoreCollection.USERS, userEmptyWorksAndCards.id),
+                    FirestoreCollection.getReference(
+                        FirestoreCollection.USERS,
+                        userSample.id
+                    ),
                     WorkspaceRole.ADMIN
                 )
             ),
             boards = emptyList()
         )
+
+        fun createWorkspace(userId: String, name: String): Workspace =
+            Workspace(
+                name = name,
+                owner = userId,
+                members = listOf(WorkspaceMember(id = userId, WorkspaceRole.ADMIN)),
+                boards = emptyList()
+            )
     }
 }

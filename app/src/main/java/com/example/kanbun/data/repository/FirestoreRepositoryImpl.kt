@@ -3,7 +3,8 @@ package com.example.kanbun.data.repository
 import android.util.Log
 import com.example.kanbun.common.FirestoreCollection
 import com.example.kanbun.common.Result
-import com.example.kanbun.common.mapToFirestoreWorkspaces
+import com.example.kanbun.common.WorkspaceRole
+import com.example.kanbun.common.runCatching
 import com.example.kanbun.common.toFirestoreUser
 import com.example.kanbun.common.toFirestoreWorkspace
 import com.example.kanbun.common.toUser
@@ -11,9 +12,10 @@ import com.example.kanbun.common.toWorkspace
 import com.example.kanbun.data.model.FirestoreUser
 import com.example.kanbun.data.model.FirestoreWorkspace
 import com.example.kanbun.domain.model.User
-import com.example.kanbun.domain.model.UserWorkspace
 import com.example.kanbun.domain.model.Workspace
 import com.example.kanbun.domain.repository.FirestoreRepository
+import com.google.android.gms.tasks.Task
+import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
@@ -28,194 +30,195 @@ class FirestoreRepositoryImpl @Inject constructor(
     private val firestore: FirebaseFirestore
 ) : FirestoreRepository {
 
-    override suspend fun addUser(user: User): Result<Unit> {
-        return try {
-            firestore.collection(FirestoreCollection.USERS.collectionName)
-                .document(user.id)
-                .set(user.toFirestoreUser())
-                .await()
-            Result.Success(Unit)
-        } catch (e: Exception) {
-            Result.Exception(e.message, e)
+    private suspend inline fun <T, R> Task<T>.getResult(onSuccess: Task<T>.() -> R): R {
+        await()
+        if (!isSuccessful) {
+            throw exception?.cause
+                ?: IllegalStateException("Firestore operation failed with unknown error.")
         }
+        return onSuccess()
     }
 
-    override suspend fun getUser(userId: String?): Result<User> {
-        if (userId == null) {
-            return Result.Error("User ID is null")
-        }
+    override suspend fun addUser(user: User): Result<Unit> = runCatching {
+        firestore.collection(FirestoreCollection.USERS.collectionName)
+            .document(user.id)
+            .set(user.toFirestoreUser())
+            .getResult {}
+    }
 
-        return try {
+    override suspend fun getUser(userId: String): Result<User> = runCatching {
+        firestore.collection(FirestoreCollection.USERS.collectionName)
+            .document(userId)
+            .get()
+            .getResult {
+                val firestoreUser = result.toObject(FirestoreUser::class.java)
+                    ?: throw NullPointerException("Couldn't convert FirestoreUser to User since the value is null")
 
-            val task = firestore.collection(FirestoreCollection.USERS.collectionName)
-                .document(userId)
-                .get()
-                .await()
-
-            Log.d(TAG, "task: $task")
-
-            val firestoreUser = task.toObject(FirestoreUser::class.java)
-            Log.d(TAG, "firestoreUser: $firestoreUser")
-
-            if (firestoreUser != null) {
-                Result.Success(firestoreUser.toUser(userId))
-            } else {
-                Result.Error("Requested document does not exist")
+                firestoreUser.toUser(userId)
             }
-        } catch (e: Exception) {
-            Result.Exception(e.message, e)
-        }
     }
 
-    override fun getUserStream(userId: String?): Flow<User> {
-        if (userId == null) {
-            return emptyFlow()
-        }
+    override fun getUserStream(userId: String): Flow<User> {
+        return if (userId.isEmpty()) {
+            emptyFlow()
+        } else {
+            callbackFlow {
+                val listener = firestore.collection(FirestoreCollection.USERS.collectionName)
+                    .document(userId)
+                    .addSnapshotListener { documentSnapshot, exception ->
+                        if (exception != null) {
+                            close(exception)
+                            return@addSnapshotListener
+                        }
 
-        return callbackFlow {
-            val listener = firestore.collection(FirestoreCollection.USERS.collectionName)
-                .document(userId)
-                .addSnapshotListener { snapshot, exception ->
-                    if (exception != null) {
-                        close(exception)
-                        return@addSnapshotListener
+                        documentSnapshot?.let {
+                            trySend(
+                                it.toObject(FirestoreUser::class.java)?.toUser(userId)
+                                    ?: throw NullPointerException("Couldn't convert FirestoreUser to User since the value is null")
+                            )
+                        }
                     }
-                    Log.d(TAG, "Data update: ${snapshot?.data}")
-                    val data = snapshot?.data
-                    data?.let { values ->
-                        trySend(
-                            FirestoreUser(
-                                email = values["email"] as String,
-                                name = values["name"] as String?,
-                                profilePicture = values["profilePicture"] as String?,
-                                authProvider = values["authProvider"] as String,
-                                workspaces = values["workspaces"] as List<Map<String, String>>,
-                                cards = values["cards"] as List<String>
-                            ).toUser(userId)
-                        )
-                    }
+
+                awaitClose {
+                    listener.remove()
                 }
-
-            awaitClose {
-                listener.remove()
             }
         }
     }
 
-    override suspend fun <T> updateUser(userId: String?, field: String, value: T): Result<Unit> {
-        if (userId == null) {
-            return Result.Error("User ID is null")
-        }
-
-        val mappedValue = when (field) {
-            "name" -> value
-            "workspaces" -> (value as List<UserWorkspace>).mapToFirestoreWorkspaces()
-            else -> Unit
-        }
-
-        Log.d(TAG, "Mapped value: $mappedValue")
-
-        return try {
+    private suspend fun addWorkspaceToUser(
+        userId: String,
+        workspaceId: String,
+        workspaceName: String
+    ): Result<Unit> =
+        runCatching {
             firestore.collection(FirestoreCollection.USERS.collectionName)
                 .document(userId)
-                .update(field, mappedValue)
-                .addOnSuccessListener {
-                    Log.d(TAG, "User's `$field` has been updated")
-                }
-                .addOnFailureListener { e ->
-                    Log.e(TAG, "Couldn't update user's `$field` value: ${e.message}", e)
-                }
-                .await()
-            Result.Success(Unit)
-        } catch (e: Exception) {
-            Result.Exception(e.message, e)
+                .update("workspaces.$workspaceId", workspaceName)
+                .getResult {}
         }
+
+    private suspend fun deleteUserWorkspace(userId: String, workspaceId: String): Result<Unit> = runCatching {
+        firestore.collection(FirestoreCollection.USERS.collectionName)
+            .document(userId)
+            .update("workspaces.$workspaceId", FieldValue.delete())
+            .getResult {}
     }
 
-    override suspend fun addWorkspace(user: User, workspace: Workspace): Result<String> {
-        return try {
-            val task = firestore.collection(FirestoreCollection.WORKSPACES.collectionName)
+    override suspend fun addWorkspace(userId: String, workspace: Workspace): Result<String> =
+        runCatching {
+            firestore.collection(FirestoreCollection.WORKSPACES.collectionName)
                 .add(workspace.toFirestoreWorkspace())
-                .addOnSuccessListener { docRef ->
-                    Log.d(TAG, "Workspace has been added! ID: ${docRef.id}")
-                }
-                .addOnFailureListener { e ->
-                    Log.e(TAG, e.message, e)
-                }
-            task.await()
+                .getResult {
+                    // add the newly create workspace into the user's workspaces
+                    val res = addWorkspaceToUser(userId, result.id, workspace.name)
 
-            if (task.isSuccessful) {
-                Log.d(TAG, "task is successful: ${task.result.path}")
-                val updRes = updateUser(
-                    user.id,
-                    "workspaces",
-                    user.workspaces + UserWorkspace(task.result.id, workspace.name)
-                )
+                    if (res is Result.Error) {
+                        throw res.e!!
+                    }
 
-                if (updRes !is Result.Success) {
-                    Result.Error("Couldn't add workspace")
-                } else {
-                    Result.Success(task.result.id)
+                    result.id
                 }
-            } else {
-                Result.Error("Couldn't add a workspace: ${task.exception?.message}")
+        }
+
+    override suspend fun getWorkspace(workspaceId: String): Result<Workspace> = runCatching {
+        firestore.collection(FirestoreCollection.WORKSPACES.collectionName)
+            .document(workspaceId)
+            .get()
+            .getResult {
+                val firestoreWorkspace = result.toObject(FirestoreWorkspace::class.java)
+                    ?: throw NullPointerException("Couldn't convert FirestoreWorkspace to Workspace since the value is null")
+
+                Log.d(TAG, "$firestoreWorkspace")
+
+                firestoreWorkspace.toWorkspace(workspaceId)
             }
-        } catch (e: Exception) {
-            Result.Exception(e.message, e)
+    }
+
+    override suspend fun getWorkspaceStream(workspaceId: String): Flow<Workspace?> = callbackFlow {
+        val listener = firestore.collection(FirestoreCollection.WORKSPACES.collectionName)
+            .document(workspaceId)
+            .addSnapshotListener { docSnapshot, error ->
+                if (error != null) {
+                    Log.d(TAG, "getWorkspaceStream: error occured: ${error.message}")
+                    trySend(null)
+                    close(error)
+                    return@addSnapshotListener
+                }
+
+                Log.d(TAG, "getWorkspaceStream: docSnapshot: $docSnapshot")
+
+                val workspace = docSnapshot?.toObject(FirestoreWorkspace::class.java)
+                trySend(workspace?.toWorkspace(workspaceId))
+            }
+
+        awaitClose {
+            listener.remove()
         }
     }
 
-    override suspend fun getWorkspace(workspaceId: String?): Result<Workspace> {
-        if (workspaceId.isNullOrEmpty()) {
-            return Result.Error("Workspace ID is null or empty")
+    override suspend fun updateWorkspaceName(workspace: Workspace, name: String): Result<Unit> =
+        runCatching {
+            firestore.collection(FirestoreCollection.WORKSPACES.collectionName)
+                .document(workspace.id)
+                .update("name", name)
+                .getResult {
+                    // update workspace name for each user associated with current workspace
+                    workspace.members.forEach { member ->
+                        firestore.collection(FirestoreCollection.USERS.collectionName)
+                            .document(member.id)
+                            .update("workspaces.${workspace.id}", name)
+                            .getResult {}
+                    }
+                }
         }
 
-        return try {
-            val task = firestore.collection(FirestoreCollection.WORKSPACES.collectionName)
-                .document(workspaceId)
-                .get()
-                .await()
-            Log.d(TAG, "task: $task, data: ${task.data?.values}")
+    private suspend fun addMemberToWorkspace(
+        workspaceId: String,
+        memberId: String,
+        memberRole: WorkspaceRole
+    ): Result<Unit> = runCatching {
+        firestore.collection(FirestoreCollection.WORKSPACES.collectionName)
+            .document(workspaceId)
+            .update("members.$memberId", memberRole.roleName)
+            .getResult {}
+    }
 
-            val firestoreWorkspace = task.toObject(FirestoreWorkspace::class.java)
-            Log.d(TAG, "workspace: $firestoreWorkspace")
+    override suspend fun inviteToWorkspace(
+        workspace: Workspace,
+        user: User
+    ): Result<Unit> = runCatching {
+        // update workspace members
+        val workspaceUpdResult = addMemberToWorkspace(
+            workspace.id,
+            user.id,
+            WorkspaceRole.MEMBER
+        )
 
-            if (firestoreWorkspace != null) {
-                Result.Success(firestoreWorkspace.toWorkspace(workspaceId))
-            } else {
-                Result.Error("Requested document does not exist")
-            }
-        } catch (e: Exception) {
-            Result.Exception(e.message, e)
+        if (workspaceUpdResult is Result.Error) {
+            throw workspaceUpdResult.e!!
+        }
+
+        // update user's workspaces
+        val userUpdateResult = addWorkspaceToUser(
+            user.id,
+            workspace.id,
+            workspace.name
+        )
+
+        if (userUpdateResult is Result.Error) {
+            throw userUpdateResult.e!!
         }
     }
 
-    override suspend fun <T> updateWorkspace(
-        workspaceId: String?,
-        field: String,
-        value: T
-    ): Result<Unit> {
-        if (workspaceId.isNullOrEmpty()) {
-            return Result.Error("Workspace ID is null or empty")
-        }
-
-        val mappedValue = when (field) {
-            "name" -> value
-            else -> Unit
-        }
-
-        return try {
-            val task = firestore.collection(FirestoreCollection.WORKSPACES.collectionName)
-                .document(workspaceId)
-                .update(field, mappedValue)
-            task.await()
-            if (task.isSuccessful) {
-                Result.Success(Unit)
-            } else {
-                Result.Error("Couldn't update a workspace $workspaceId: ${task.exception?.message}")
+    override suspend fun deleteWorkspace(workspace: Workspace): Result<Unit> = runCatching {
+        firestore.collection(FirestoreCollection.WORKSPACES.collectionName)
+            .document(workspace.id)
+            .delete()
+            .getResult {
+                workspace.members.forEach { member ->
+                    deleteUserWorkspace(member.id, workspace.id)
+                }
             }
-        } catch (e: Exception) {
-            Result.Exception(e.message, e)
-        }
     }
 }

@@ -22,15 +22,19 @@ interface FirestoreRepository {
      * @param userId id of the user to retrieve.
      * @return [Result] containing the retrieved [User] on success, or an error message on failure.
      */
-    suspend fun getUser(userId: String?): Result<User>
+    suspend fun getUser(userId: String): Result<User>
 
-    fun getUserStream(userId: String?): Flow<User>
+    fun getUserStream(userId: String): Flow<User>
 
-    suspend fun <T> updateUser(userId: String?, field: String, value: T): Result<Unit>
+    suspend fun addWorkspace(userId: String, workspace: Workspace): Result<String>
 
-    suspend fun addWorkspace(user: User, workspace: Workspace): Result<String>
+    suspend fun getWorkspace(workspaceId: String): Result<Workspace>
 
-    suspend fun getWorkspace(workspaceId: String?): Result<Workspace>
+    suspend fun getWorkspaceStream(workspaceId: String): Flow<Workspace?>
 
-    suspend fun <T> updateWorkspace(workspaceId: String?, field: String, value: T): Result<Unit>
+    suspend fun updateWorkspaceName(workspace: Workspace, name: String): Result<Unit>
+
+    suspend fun inviteToWorkspace(workspace: Workspace, user: User): Result<Unit>
+
+    suspend fun deleteWorkspace(workspace: Workspace): Result<Unit>
 }
