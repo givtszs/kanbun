@@ -17,10 +17,10 @@ import com.example.kanbun.domain.repository.FirestoreRepository
 import com.google.android.gms.tasks.Task
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.ListenerRegistration
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
-import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
@@ -58,31 +58,32 @@ class FirestoreRepositoryImpl @Inject constructor(
             }
     }
 
-    override fun getUserStream(userId: String): Flow<User> {
-        return if (userId.isEmpty()) {
-            emptyFlow()
-        } else {
-            callbackFlow {
-                val listener = firestore.collection(FirestoreCollection.USERS.collectionName)
-                    .document(userId)
-                    .addSnapshotListener { documentSnapshot, exception ->
-                        if (exception != null) {
-                            close(exception)
-                            return@addSnapshotListener
-                        }
 
-                        documentSnapshot?.let {
-                            trySend(
-                                it.toObject(FirestoreUser::class.java)?.toUser(userId)
-                                    ?: throw NullPointerException("Couldn't convert FirestoreUser to User since the value is null")
-                            )
-                        }
+    override fun getUserStream(userId: String): Flow<User?> = callbackFlow {
+        var listener: ListenerRegistration? = null
+        if (userId.isEmpty()) {
+            trySend(null)
+        } else {
+            listener = firestore.collection(FirestoreCollection.USERS.collectionName)
+                .document(userId)
+                .addSnapshotListener { documentSnapshot, exception ->
+                    if (exception != null) {
+                        close(exception)
+                        return@addSnapshotListener
                     }
 
-                awaitClose {
-                    listener.remove()
+                    documentSnapshot?.let {
+                        val user = it.toObject(FirestoreUser::class.java)?.toUser(userId)
+                            ?: throw NullPointerException("Couldn't convert FirestoreUser to User since the value is null")
+                        Log.d(TAG, "user: firestoreUser: $user")
+
+                        trySend(user)
+                    }
                 }
-            }
+        }
+
+        awaitClose {
+            listener?.remove()
         }
     }
 
@@ -98,12 +99,13 @@ class FirestoreRepositoryImpl @Inject constructor(
                 .getResult {}
         }
 
-    private suspend fun deleteUserWorkspace(userId: String, workspaceId: String): Result<Unit> = runCatching {
-        firestore.collection(FirestoreCollection.USERS.collectionName)
-            .document(userId)
-            .update("workspaces.$workspaceId", FieldValue.delete())
-            .getResult {}
-    }
+    private suspend fun deleteUserWorkspace(userId: String, workspaceId: String): Result<Unit> =
+        runCatching {
+            firestore.collection(FirestoreCollection.USERS.collectionName)
+                .document(userId)
+                .update("workspaces.$workspaceId", FieldValue.delete())
+                .getResult {}
+        }
 
     override suspend fun addWorkspace(userId: String, workspace: Workspace): Result<String> =
         runCatching {
@@ -135,25 +137,28 @@ class FirestoreRepositoryImpl @Inject constructor(
             }
     }
 
-    override suspend fun getWorkspaceStream(workspaceId: String): Flow<Workspace?> = callbackFlow {
-        val listener = firestore.collection(FirestoreCollection.WORKSPACES.collectionName)
-            .document(workspaceId)
-            .addSnapshotListener { docSnapshot, error ->
-                if (error != null) {
-                    Log.d(TAG, "getWorkspaceStream: error occured: ${error.message}")
-                    trySend(null)
-                    close(error)
-                    return@addSnapshotListener
+    override fun getWorkspaceStream(workspaceId: String): Flow<Workspace?> = callbackFlow {
+        var listener: ListenerRegistration? = null
+        if (workspaceId.isEmpty()) {
+            trySend(null)
+        } else {
+            listener = firestore.collection(FirestoreCollection.WORKSPACES.collectionName)
+                .document(workspaceId)
+                .addSnapshotListener { docSnapshot, error ->
+                    if (error != null) {
+                        Log.d(TAG, "getWorkspaceStream: error occured: ${error.message}")
+                        trySend(null)
+                        close(error)
+                        return@addSnapshotListener
+                    }
+
+                    val workspace = docSnapshot?.toObject(FirestoreWorkspace::class.java)?.toWorkspace(workspaceId) ?:  throw NullPointerException("Couldn't convert FirestoreWorkspace to Workspace since the value is null")
+                    trySend(workspace)
                 }
-
-                Log.d(TAG, "getWorkspaceStream: docSnapshot: $docSnapshot")
-
-                val workspace = docSnapshot?.toObject(FirestoreWorkspace::class.java)
-                trySend(workspace?.toWorkspace(workspaceId))
-            }
+        }
 
         awaitClose {
-            listener.remove()
+            listener?.remove()
         }
     }
 

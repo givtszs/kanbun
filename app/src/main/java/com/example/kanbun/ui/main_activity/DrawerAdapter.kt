@@ -18,7 +18,7 @@ class DrawerAdapter(
 
     var onItemClickCallback: ((String) -> Unit)? = null
 
-    var prevSelectedPosition: Int? = null
+    var prevSelectedWorkspaceId: String? = null
 
     fun setData(data: List<DrawerWorkspace>) {
         workspaces = data
@@ -60,16 +60,13 @@ class DrawerAdapter(
 
             binding.root.apply {
                 setOnClickListener {
-                    if (position != prevSelectedPosition) {
-                        item.isSelected = true
-                        prevSelectedPosition?.let { workspaces[it].isSelected = true }
+                    if (item.workspace.id != prevSelectedWorkspaceId) {
                         Log.d("DrawerAdapter", "Selected workspace: $item")
-
                         // close the drawer
                         onItemClickCallback?.invoke(item.workspace.id)
                     }
 
-                    prevSelectedPosition = position
+                    prevSelectedWorkspaceId = item.workspace.id
                 }
             }
         }

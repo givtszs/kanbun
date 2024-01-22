@@ -3,7 +3,6 @@ package com.example.kanbun.domain.usecase
 import com.example.kanbun.common.Result
 import com.example.kanbun.domain.FirestoreTestUtil
 import com.google.common.truth.Truth.assertThat
-import com.google.firebase.auth.auth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.runBlocking
@@ -46,13 +45,6 @@ class RegisterUserUseCaseTest {
         assertThat(error.message).isNotEmpty()
     }
 
-    private fun assertThatResultExceptionWithPresentMessage(result: Result<Any>) {
-        assertThat(result).isInstanceOf(Result.Exception::class.java)
-        val exception = (result as Result.Exception)
-        assertThat(exception.message).isNotNull()
-        assertThat(exception.message).isNotEmpty()
-    }
-
     @Test
     fun signUpWithEmail_returnsResultException_ifUserIsAlreadyRegistered() = runBlocking {
         val name = FirestoreTestUtil.testName
@@ -62,7 +54,7 @@ class RegisterUserUseCaseTest {
         useCase.signUpWithEmail(name, email, password)
 
         val result = useCase.signUpWithEmail(name, email, password)
-        assertThatResultExceptionWithPresentMessage(result)
+        assertThatResultErrorWithPresentMessage(result)
     }
 
     @Test
@@ -192,7 +184,7 @@ class RegisterUserUseCaseTest {
         val password = FirestoreTestUtil.testPassword
 
         val result = useCase.signInWithEmail(email, password)
-        assertThatResultExceptionWithPresentMessage(result)
+        assertThatResultErrorWithPresentMessage(result)
     }
 
     @Test

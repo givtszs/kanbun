@@ -105,7 +105,10 @@ class UserBoardsViewModel @Inject constructor(
                 _currentWorkspace.value = result.data
                 dataStore.setPreference(PreferenceDataStoreKeys.CURRENT_WORKSPACE_ID, result.data.id)
             }
-            is Result.Error -> _message.value = result.message
+            is Result.Error -> {
+                _message.value = result.message
+                _currentWorkspace.value = null
+            }
         }
     }
 

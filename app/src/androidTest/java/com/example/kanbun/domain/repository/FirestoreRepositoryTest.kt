@@ -92,14 +92,16 @@ class FirestoreRepositoryTest {
     }
 
     @Test
-    fun getUserStream_withEmptyUserId_returnsEmptyFlow() = runBlocking {
-        val userId = ""
-        var isEmpty = true
-        repository.getUserStream(userId).collect {
-            isEmpty = false
-        }
+    fun getUserStream_withEmptyUserId_returnsFlowOfNull() = runBlocking {
+        var userFlow = repository.getUserStream("userId")
 
-        assertThat(isEmpty).isTrue()
+        assertThat(userFlow.first()).isNull()
+
+        val user = FirestoreTestUtil.createUser("user")
+        repository.addUser(user)
+        userFlow = repository.getUserStream(user.id)
+
+        assertThat(userFlow.first()).isEqualTo(user)
     }
 
     @Test
@@ -179,6 +181,24 @@ class FirestoreRepositoryTest {
         repository.deleteWorkspace(workspace)
 
         assertThat(workspaceFlow.first()).isNull()
+    }
+
+    @Test
+    fun getWorkspaceStream_withEmptyId_returnsFlowOfNull() = runBlocking {
+        var workspaceFlow = repository.getWorkspaceStream("")
+
+        assertThat(workspaceFlow.first()).isNull()
+
+        val user = FirestoreTestUtil.createUser("user")
+        repository.addUser(user)
+        val workspace = FirestoreTestUtil.createWorkspace(user.id, "Workspace").run {
+            val id = (repository.addWorkspace(user.id, this) as Result.Success).data
+            this.copy(id = id)
+        }
+
+        workspaceFlow = repository.getWorkspaceStream(workspace.id)
+
+        assertThat(workspaceFlow.first()).isEqualTo(workspace)
     }
 
     @Test

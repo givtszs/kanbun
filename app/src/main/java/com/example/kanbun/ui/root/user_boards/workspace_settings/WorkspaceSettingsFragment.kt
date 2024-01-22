@@ -15,6 +15,7 @@ import com.example.kanbun.domain.model.Workspace
 import com.example.kanbun.ui.BaseFragment
 import com.example.kanbun.ui.main_activity.MainActivity
 import com.google.android.material.appbar.MaterialToolbar
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
@@ -44,6 +45,7 @@ class WorkspaceSettingsFragment : BaseFragment() {
 
     override fun setUpActionBar(toolbar: MaterialToolbar) {
         (requireActivity() as MainActivity).apply {
+            toolbar.menu.clear()
             setSupportActionBar(toolbar)
             supportActionBar?.setDisplayHomeAsUpEnabled(true)
         }
@@ -64,7 +66,6 @@ class WorkspaceSettingsFragment : BaseFragment() {
             btnSave.setOnClickListener {
                 val name = tfName.editText?.text?.trim().toString()
                 if (name.isEmpty()) {
-
                     tfName.apply {
                         error = "Workspace name can't be empty"
                         isErrorEnabled = true
@@ -86,7 +87,27 @@ class WorkspaceSettingsFragment : BaseFragment() {
                     }
                 }
             }
+
+            btnDeleteWorkspace.setOnClickListener {
+                buildConfirmationDialog()
+            }
         }
+    }
+
+    private fun buildConfirmationDialog() {
+        MaterialAlertDialogBuilder(requireContext())
+            .setTitle("Delete ${workspace.name} workspace?")
+            .setPositiveButton("Delete") { _, _ ->
+                lifecycleScope.launch {
+                    (requireActivity() as MainActivity).drawerAdapter?.prevSelectedWorkspaceId = null
+                    viewModel.deleteWorkspace(workspace)
+                    navController.popBackStack()
+                }
+            }
+            .setNegativeButton("Cancel") { dialog, _ ->
+                dialog.cancel()
+            }
+            .show()
     }
 
     override fun onDestroyView() {

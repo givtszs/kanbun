@@ -24,13 +24,13 @@ interface FirestoreRepository {
      */
     suspend fun getUser(userId: String): Result<User>
 
-    fun getUserStream(userId: String): Flow<User>
+    fun getUserStream(userId: String): Flow<User?>
 
     suspend fun addWorkspace(userId: String, workspace: Workspace): Result<String>
 
     suspend fun getWorkspace(workspaceId: String): Result<Workspace>
 
-    suspend fun getWorkspaceStream(workspaceId: String): Flow<Workspace?>
+    fun getWorkspaceStream(workspaceId: String): Flow<Workspace?>
 
     suspend fun updateWorkspaceName(workspace: Workspace, name: String): Result<Unit>
 

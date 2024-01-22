@@ -37,6 +37,8 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
+private const val TAG = "UserBoardsFragm"
+
 @AndroidEntryPoint
 class UserBoardsFragment : BaseFragment(), StateHandler {
     private var _binding: FragmentUserBoardsBinding? = null
@@ -44,6 +46,7 @@ class UserBoardsFragment : BaseFragment(), StateHandler {
 
     private val viewModel: UserBoardsViewModel by viewModels()
     private lateinit var menuProvider: MenuProvider
+    private lateinit var activity: MainActivity
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -52,6 +55,7 @@ class UserBoardsFragment : BaseFragment(), StateHandler {
     ): View {
         _binding = FragmentUserBoardsBinding.inflate(inflater, container, false)
         viewModel.getCurrentWorkspace()
+        activity = requireActivity() as MainActivity
         return binding.root
     }
 
@@ -67,7 +71,7 @@ class UserBoardsFragment : BaseFragment(), StateHandler {
 
     override fun setUpListeners() {
         // set up header listeners
-        (requireActivity() as MainActivity).apply {
+        activity.apply {
             // sign out button
             activityMainBinding.headerLayout.btnSignOut.setOnClickListener {
                 lifecycleScope.launch {
@@ -85,7 +89,7 @@ class UserBoardsFragment : BaseFragment(), StateHandler {
     }
 
     override fun setUpActionBar(toolbar: MaterialToolbar) {
-        (requireActivity() as MainActivity).apply {
+        activity.apply {
             setSupportActionBar(toolbar)
             setupActionBarWithNavController(navController, appBarConfiguration)
         }
@@ -103,20 +107,23 @@ class UserBoardsFragment : BaseFragment(), StateHandler {
 
     override fun processState(state: ViewState) {
         with(state as ViewState.UserBoardsViewState) {
-            Log.d("UserBoardsFragm", "State: $this")
+            Log.d(TAG, "State: $this")
             user?.let {
                 setUpDrawer(it)
-                (requireActivity() as MainActivity).drawerAdapter?.setData(
+                activity.drawerAdapter?.setData(
                     it.workspaces.map { userWorkspace ->
                         DrawerAdapter.DrawerWorkspace(
                             userWorkspace,
                             userWorkspace.id == currentWorkspace?.id
                         )
+                    }.sortedBy { drawerWorkspace ->
+                        drawerWorkspace.workspace.name
                     }
                 )
             }
 
             if (currentWorkspace != null) {
+                activity.drawerAdapter?.prevSelectedWorkspaceId = currentWorkspace.id
                 binding.toolbar.apply {
                     title = currentWorkspace.name
                     requireActivity().apply {
@@ -141,7 +148,7 @@ class UserBoardsFragment : BaseFragment(), StateHandler {
         menuProvider = object : MenuProvider {
             override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
                 if (menu.isEmpty()) {
-                    Log.d("UserBoardsFragm", "Inflate menu")
+                    Log.d(TAG, "Inflate menu")
                     menuInflater.inflate(R.menu.workspace_menu, menu)
                 }
             }
@@ -149,7 +156,10 @@ class UserBoardsFragment : BaseFragment(), StateHandler {
             override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
                 return when (menuItem.itemId) {
                     R.id.workspace_settings -> {
-                        Log.d("UserBoardsFragm", "onMenuItemSelected: workspace_settings: workspace: ${viewModel.userBoardsState.value.currentWorkspace}")
+                        Log.d(
+                            TAG,
+                            "onMenuItemSelected: workspace_settings: workspace: ${viewModel.userBoardsState.value.currentWorkspace}"
+                        )
                         navController.navigate(
                             UserBoardsFragmentDirections.actionUserBoardsFragmentToWorkspaceSettingsFragment(
                                 viewModel.userBoardsState.value.currentWorkspace ?: Workspace()
@@ -171,7 +181,7 @@ class UserBoardsFragment : BaseFragment(), StateHandler {
                 val userInfo =
                     viewModel.firebaseUser?.providerData?.first { it.providerId != "firebase" }
                 Log.d(
-                    "UserBoardsFragm",
+                    TAG,
                     "provider: ${userInfo?.providerId}, isEmailVerified: ${userInfo?.isEmailVerified}"
                 )
                 if (viewModel.firebaseUser == null) {
@@ -188,10 +198,9 @@ class UserBoardsFragment : BaseFragment(), StateHandler {
     }
 
     private fun setUpDrawer(user: User) {
-        with(requireActivity() as MainActivity) {
+        with(activity) {
             // set up header layout
             activityMainBinding.headerLayout.apply {
-
                 tvName.text = user.name
                 tvEmail.text = user.email
                 Glide.with(requireContext())
@@ -214,8 +223,9 @@ class UserBoardsFragment : BaseFragment(), StateHandler {
         val dialogBuilder = MaterialAlertDialogBuilder(requireContext())
             .setTitle("Create workspace")
             .setView(editText)
-            .setPositiveButton("Create") { dialog, which ->
+            .setPositiveButton("Create") { _, _ ->
                 viewModel.createWorkspace(editText.text.toString(), user)
+                activity.activityMainBinding.drawerLayout.closeDrawer(GravityCompat.START)
             }
             .setNegativeButton("Cancel") { dialog, which ->
                 dialog.cancel()
@@ -224,7 +234,7 @@ class UserBoardsFragment : BaseFragment(), StateHandler {
         val dialog = dialogBuilder.create().apply {
             setOnShowListener {
                 val posButton = getButton(AlertDialog.BUTTON_POSITIVE).apply { isEnabled = false }
-                editText.doOnTextChanged { text, start, before, count ->
+                editText.doOnTextChanged { text, _, _, _ ->
                     posButton.isEnabled = text?.trim().isNullOrEmpty() == false
                 }
             }
