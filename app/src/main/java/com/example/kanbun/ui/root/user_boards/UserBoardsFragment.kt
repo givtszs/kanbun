@@ -13,6 +13,7 @@ import android.widget.EditText
 import androidx.core.view.GravityCompat
 import androidx.core.view.MenuProvider
 import androidx.core.view.isEmpty
+import androidx.core.view.isVisible
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
@@ -86,6 +87,11 @@ class UserBoardsFragment : BaseFragment(), StateHandler {
                 activityMainBinding.drawerLayout.closeDrawer(GravityCompat.START)
             }
         }
+
+        binding.fabCreateBoard.setOnClickListener {
+            // create a new board
+            navController.navigate(R.id.action_userBoardsFragment_to_boardFragment)
+        }
     }
 
     override fun setUpActionBar(toolbar: MaterialToolbar) {
@@ -130,17 +136,27 @@ class UserBoardsFragment : BaseFragment(), StateHandler {
                         addMenuProvider(menuProvider, viewLifecycleOwner)
                     }
                 }
+
+                binding.fabCreateBoard.visibility = View.VISIBLE
+
+                if (currentWorkspace.boards.isEmpty()) {
+                    binding.tvTip.text = resources.getString(R.string.empty_workspace_tip)
+                } else {
+                    binding.tvTip.text = "Current workspace's boards: ${currentWorkspace?.boards}"
+                }
             } else {
                 binding.toolbar.title = resources.getString(R.string.boards)
+                binding.tvTip.text = resources.getString(R.string.workspace_selection_tip)
+                binding.fabCreateBoard.visibility = View.GONE
                 requireActivity().removeMenuProvider(menuProvider)
             }
+
+            binding.loading.root.isVisible = isLoading
 
             message?.let {
                 showToast(it)
                 viewModel.messageShown()
             }
-
-            binding.text.text = "Current workspace's boards: ${currentWorkspace?.name}"
         }
     }
 

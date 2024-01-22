@@ -69,6 +69,9 @@
         <action
             android:id="@+id/action_userBoardsFragment_to_workspaceSettingsFragment"
             app:destination="@id/workspaceSettingsFragment" />
+        <action
+            android:id="@+id/action_userBoardsFragment_to_boardFragment"
+            app:destination="@id/boardFragment" />
     </fragment>
     <fragment
         android:id="@+id/userCardsFragment"
@@ -89,4 +92,9 @@
             android:name="workspace"
             app:argType="com.example.kanbun.domain.model.Workspace" />
     </fragment>
+    <fragment
+        tools:layout="@layout/fragment_board"
+        android:id="@+id/boardFragment"
+        android:name="com.example.kanbun.ui.board.BoardFragment"
+        android:label="BoardFragment" />
 </navigation>

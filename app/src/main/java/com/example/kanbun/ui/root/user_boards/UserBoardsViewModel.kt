@@ -41,7 +41,7 @@ class UserBoardsViewModel @Inject constructor(
 
     private val _user = firestoreRepository.getUserStream(firebaseUser?.uid ?: "").distinctUntilChanged()
     private val _currentWorkspace = MutableStateFlow<Workspace?>(null)
-    private val _isLoading = MutableStateFlow(false)
+    private val _isLoading = MutableStateFlow(true)
     private val _message = MutableStateFlow<String?>(null)
 
     val userBoardsState: StateFlow<ViewState.UserBoardsViewState> = combine(
@@ -100,13 +100,16 @@ class UserBoardsViewModel @Inject constructor(
     }
 
     fun selectWorkspace(workspaceId: String) = viewModelScope.launch {
+        _isLoading.value = true
         when (val result = firestoreRepository.getWorkspace(workspaceId)) {
             is Result.Success -> {
                 _currentWorkspace.value = result.data
+                _isLoading.value = false
                 dataStore.setPreference(PreferenceDataStoreKeys.CURRENT_WORKSPACE_ID, result.data.id)
             }
             is Result.Error -> {
                 _message.value = result.message
+                _isLoading.value = false
                 _currentWorkspace.value = null
             }
         }
