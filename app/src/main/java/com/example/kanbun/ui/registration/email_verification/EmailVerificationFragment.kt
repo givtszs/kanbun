@@ -38,7 +38,7 @@ class EmailVerificationFragment : BaseFragment(), StateHandler {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setStatusBarColor(ContextCompat.getColor(requireContext(), R.color.white))
-        setUpActionBar(binding.toolbar)
+        setUpActionBar(binding.topAppBar.toolbar)
         setUpListeners()
         collectState()
         waitForEmailVerification()

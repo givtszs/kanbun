@@ -6,20 +6,12 @@
     android:layout_height="match_parent"
     tools:context=".ui.registration.sign_up.SignUpFragment">
 
-    <com.google.android.material.appbar.AppBarLayout
+    <include
         android:id="@+id/topAppBar"
+        app:layout_constraintTop_toTopOf="parent"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toTopOf="parent">
-
-        <com.google.android.material.appbar.MaterialToolbar
-            android:id="@+id/toolbar"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="@color/md_theme_light_background"
-            android:minHeight="?attr/actionBarSize"
-            app:navigationIcon="@drawable/ic_round_arrow_back_24" />
-    </com.google.android.material.appbar.AppBarLayout>
+        layout="@layout/top_app_bar" />
 
     <TextView
         android:id="@+id/tvGreeting"

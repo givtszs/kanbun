@@ -40,7 +40,7 @@ class SignUpFragment : AuthFragment(), StateHandler {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        setUpActionBar(binding.toolbar)
+        setUpActionBar(binding.topAppBar.toolbar)
         collectState()
     }
 

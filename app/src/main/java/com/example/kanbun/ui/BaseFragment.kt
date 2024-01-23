@@ -57,6 +57,14 @@ abstract class BaseFragment : Fragment() {
         }
     }
 
+    protected open fun setUpActionBar(toolbar: MaterialToolbar, title: String) {
+        (requireActivity() as MainActivity).apply {
+            setSupportActionBar(toolbar)
+            setupActionBarWithNavController(navController)
+            toolbar.title = title
+        }
+    }
+
     /**
      * Sets up the action bar with the provided [toolbar] and a custom [navigation action][navigate].
      * @param toolbar custom toolbar to be set up as the action bar.

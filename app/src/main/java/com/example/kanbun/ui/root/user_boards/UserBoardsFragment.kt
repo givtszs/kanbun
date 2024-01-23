@@ -92,7 +92,7 @@ class UserBoardsFragment : BaseFragment(), StateHandler {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        setUpActionBar(binding.toolbar)
+        setUpActionBar(binding.topAppBar.toolbar)
         setStatusBarColor(getColor(requireContext(), R.color.md_theme_light_surface))
         addOnBackPressedAction { requireActivity().finish() }
         checkUserAuthState()
@@ -161,7 +161,7 @@ class UserBoardsFragment : BaseFragment(), StateHandler {
                 activity.drawerAdapter?.prevSelectedWorkspaceId = currentWorkspace.id
                 createMenu()
                 binding.apply {
-                    toolbar.title = currentWorkspace.name
+                    topAppBar.toolbar.title = currentWorkspace.name
                     fabCreateBoard.visibility = View.VISIBLE
                     rvBoards.visibility = View.VISIBLE
                 }
@@ -176,8 +176,8 @@ class UserBoardsFragment : BaseFragment(), StateHandler {
                 }
             } else {
                 binding.apply {
-                    toolbar.title = resources.getString(R.string.boards)
-                    toolbar.menu.clear()
+                    topAppBar.toolbar.title = resources.getString(R.string.boards)
+                    topAppBar.toolbar.menu.clear()
                     tvTip.text = resources.getString(R.string.workspace_selection_tip)
                     fabCreateBoard.visibility = View.GONE
                 }
