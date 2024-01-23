@@ -20,9 +20,11 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.ui.setupActionBarWithNavController
+import androidx.recyclerview.widget.GridLayoutManager
 import com.bumptech.glide.Glide
 import com.example.kanbun.R
 import com.example.kanbun.common.AuthProvider
+import com.example.kanbun.common.RECYCLERVIEW_BOARDS_COLUMNS
 import com.example.kanbun.common.getColor
 import com.example.kanbun.databinding.FragmentUserBoardsBinding
 import com.example.kanbun.domain.model.User
@@ -46,6 +48,8 @@ class UserBoardsFragment : BaseFragment(), StateHandler {
     private val binding: FragmentUserBoardsBinding get() = _binding!!
 
     private val viewModel: UserBoardsViewModel by viewModels()
+    private lateinit var activity: MainActivity
+
     private val menuProvider = object : MenuProvider {
         override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
             if (menu.isEmpty()) {
@@ -62,7 +66,7 @@ class UserBoardsFragment : BaseFragment(), StateHandler {
                     )
                     navController.navigate(
                         UserBoardsFragmentDirections.actionUserBoardsFragmentToWorkspaceSettingsFragment(
-                            _currentWorkspace
+                            viewModel.userBoardsState.value.currentWorkspace ?: Workspace()
                         )
                     )
                     true
@@ -72,8 +76,8 @@ class UserBoardsFragment : BaseFragment(), StateHandler {
             }
         }
     }
-    private lateinit var _currentWorkspace: Workspace
-    private lateinit var activity: MainActivity
+
+    private var boardsAdapter: BoardsAdapter? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -91,15 +95,14 @@ class UserBoardsFragment : BaseFragment(), StateHandler {
         setUpActionBar(binding.toolbar)
         setStatusBarColor(getColor(requireContext(), R.color.md_theme_light_surface))
         addOnBackPressedAction { requireActivity().finish() }
-        createOptionsMenu()
         checkUserAuthState()
+        setUpBoardsAdapter()
         collectState()
     }
 
     override fun setUpListeners() {
-        // set up header listeners
+        // set up drawers listeners
         activity.apply {
-            // sign out button
             activityMainBinding.headerLayout.btnSignOut.setOnClickListener {
                 lifecycleScope.launch {
                     viewModel.signOutUser(requireContext())
@@ -107,7 +110,6 @@ class UserBoardsFragment : BaseFragment(), StateHandler {
                 }
             }
 
-            // drawer's recycler view item
             drawerAdapter?.onItemClickCallback = { workspaceId ->
                 viewModel.selectWorkspace(workspaceId)
                 activityMainBinding.drawerLayout.closeDrawer(GravityCompat.START)
@@ -115,8 +117,9 @@ class UserBoardsFragment : BaseFragment(), StateHandler {
         }
 
         binding.fabCreateBoard.setOnClickListener {
-            // create a new board
-            navController.navigate(R.id.action_userBoardsFragment_to_boardFragment)
+            with(viewModel.userBoardsState.value) {
+                buildBoardCreationDialog(user?.id ?: "", currentWorkspace ?: Workspace())
+            }
         }
     }
 
@@ -156,25 +159,28 @@ class UserBoardsFragment : BaseFragment(), StateHandler {
 
             if (currentWorkspace != null) {
                 activity.drawerAdapter?.prevSelectedWorkspaceId = currentWorkspace.id
-                binding.toolbar.apply {
-                    title = currentWorkspace.name
-                    _currentWorkspace = currentWorkspace
-                    activity.removeMenuProvider(menuProvider)
-                    activity.addMenuProvider(menuProvider, viewLifecycleOwner, Lifecycle.State.RESUMED)
+                createMenu()
+                binding.apply {
+                    toolbar.title = currentWorkspace.name
+                    fabCreateBoard.visibility = View.VISIBLE
+                    rvBoards.visibility = View.VISIBLE
                 }
 
-                binding.fabCreateBoard.visibility = View.VISIBLE
+                boardsAdapter?.setData(currentWorkspace.boards)
 
                 if (currentWorkspace.boards.isEmpty()) {
+                    binding.tvTip.isVisible = true
                     binding.tvTip.text = resources.getString(R.string.empty_workspace_tip)
                 } else {
-                    binding.tvTip.text = "Current workspace's boards: ${currentWorkspace?.boards}"
+                    binding.tvTip.isVisible = false
                 }
             } else {
-                binding.toolbar.title = resources.getString(R.string.boards)
-                binding.toolbar.menu.clear()
-                binding.tvTip.text = resources.getString(R.string.workspace_selection_tip)
-                binding.fabCreateBoard.visibility = View.GONE
+                binding.apply {
+                    toolbar.title = resources.getString(R.string.boards)
+                    toolbar.menu.clear()
+                    tvTip.text = resources.getString(R.string.workspace_selection_tip)
+                    fabCreateBoard.visibility = View.GONE
+                }
             }
 
             binding.loading.root.isVisible = isLoading
@@ -186,23 +192,24 @@ class UserBoardsFragment : BaseFragment(), StateHandler {
         }
     }
 
-    private fun createOptionsMenu() {
-
-    }
-
     private fun checkUserAuthState() {
         lifecycleScope.launch {
             viewLifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                // reload FirebaseUser instance
                 viewModel.updateUser()
                 val userInfo =
                     viewModel.firebaseUser?.providerData?.first { it.providerId != "firebase" }
+
                 Log.d(
                     TAG,
                     "provider: ${userInfo?.providerId}, isEmailVerified: ${userInfo?.isEmailVerified}"
                 )
+
                 if (viewModel.firebaseUser == null) {
                     navController.navigate(R.id.action_userBoardsFragment_to_registrationPromptFragment)
-                } else if (userInfo?.providerId == AuthProvider.EMAIL.providerId && viewModel.firebaseUser?.isEmailVerified == false) {
+                }
+
+                if (userInfo?.providerId == AuthProvider.EMAIL.providerId && viewModel.firebaseUser?.isEmailVerified == false) {
                     showToast(
                         message = "Complete registration by signing in with ${userInfo.providerId} and verifying your email",
                         context = requireActivity()
@@ -226,17 +233,28 @@ class UserBoardsFragment : BaseFragment(), StateHandler {
             }
 
             activityMainBinding.btnCreateWorkspace.setOnClickListener {
-                buildDialog(user)
+                buildWorkspaceCreationDialog(user)
             }
         }
     }
 
-    private fun buildDialog(user: User) {
+    private fun createMenu() {
+        with(activity) {
+            removeMenuProvider(menuProvider)
+            addMenuProvider(
+                menuProvider,
+                viewLifecycleOwner,
+                Lifecycle.State.RESUMED
+            )
+        }
+    }
+
+    private fun buildWorkspaceCreationDialog(user: User) {
         val editText = EditText(requireContext()).apply {
             hint = "Enter a new workspace name"
         }
 
-        val dialogBuilder = MaterialAlertDialogBuilder(requireContext())
+        MaterialAlertDialogBuilder(requireContext())
             .setTitle("Create workspace")
             .setView(editText)
             .setPositiveButton("Create") { _, _ ->
@@ -246,21 +264,66 @@ class UserBoardsFragment : BaseFragment(), StateHandler {
             .setNegativeButton("Cancel") { dialog, which ->
                 dialog.cancel()
             }
+            .create().apply {
+                setOnShowListener {
+                    val posButton =
+                        getButton(AlertDialog.BUTTON_POSITIVE).apply { isEnabled = false }
 
-        val dialog = dialogBuilder.create().apply {
-            setOnShowListener {
-                val posButton = getButton(AlertDialog.BUTTON_POSITIVE).apply { isEnabled = false }
-                editText.doOnTextChanged { text, _, _, _ ->
-                    posButton.isEnabled = text?.trim().isNullOrEmpty() == false
+                    editText.doOnTextChanged { text, _, _, _ ->
+                        posButton.isEnabled = text?.trim().isNullOrEmpty() == false
+                    }
                 }
             }
+            .show()
+    }
+
+    private fun buildBoardCreationDialog(userId: String, workspace: Workspace) {
+        val editText = EditText(requireContext()).apply {
+            hint = "Enter a new board name"
         }
-        dialog.show()
+
+        MaterialAlertDialogBuilder(requireContext())
+            .setTitle("Create board")
+            .setView(editText)
+            .setPositiveButton("Create") { _, _ ->
+                viewModel.createBoard(editText.text.toString(), userId, workspace)
+            }
+            .setNegativeButton("Cancel") { dialog, _ ->
+                dialog.cancel()
+            }
+            .create()
+            .apply {
+                setOnShowListener {
+                    val posButton =
+                        getButton(AlertDialog.BUTTON_POSITIVE).apply { isEnabled = false }
+
+                    editText.doOnTextChanged { text, _, _, _ ->
+                        posButton.isEnabled = text?.trim().isNullOrEmpty() == false
+                    }
+                }
+            }
+            .show()
+    }
+
+    private fun setUpBoardsAdapter() {
+        boardsAdapter = BoardsAdapter { boardInfo ->
+            navController.navigate(
+                UserBoardsFragmentDirections.actionUserBoardsFragmentToBoardFragment(
+                    boardInfo
+                )
+            )
+        }
+
+        binding.rvBoards.apply {
+            adapter = boardsAdapter
+            layoutManager = GridLayoutManager(requireContext(), RECYCLERVIEW_BOARDS_COLUMNS)
+        }
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
         activity.removeMenuProvider(menuProvider)
+        boardsAdapter = null
         _binding = null
     }
 }

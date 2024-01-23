@@ -46,7 +46,6 @@ class WorkspaceSettingsFragment : BaseFragment() {
     override fun setUpActionBar(toolbar: MaterialToolbar) {
         (requireActivity() as MainActivity).apply {
             setSupportActionBar(toolbar)
-            supportActionBar?.setDisplayHomeAsUpEnabled(true)
         }
     }
 

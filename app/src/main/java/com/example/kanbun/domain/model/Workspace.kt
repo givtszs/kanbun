@@ -9,7 +9,7 @@ data class Workspace(
     val id: String = "",
     val name: String = "",
     val owner: String = "",
-    val members: List<WorkspaceMember> = emptyList(), // userId to workspace role
+    val members: List<WorkspaceMember> = emptyList(),
     val boards: List<BoardInfo> = emptyList()
 ) : Parcelable {
 

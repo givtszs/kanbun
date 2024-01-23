@@ -36,3 +36,4 @@ object ToastMessage {
 }
 
 const val EMAIL_RESEND_TIME_LIMIT = 60
+const val RECYCLERVIEW_BOARDS_COLUMNS = 2

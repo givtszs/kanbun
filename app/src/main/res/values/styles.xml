@@ -3,4 +3,8 @@
     <style name="ShapeAppearanceOverlay.App.CircleImageView" parent="">
         <item name="cornerSize">50%</item>
     </style>
+
+    <style name="ShapeAppearanceOverlay.App.ImageViewSlightRounding" parent="">
+        <item name="cornerSize">5%</item>
+    </style>
 </resources>

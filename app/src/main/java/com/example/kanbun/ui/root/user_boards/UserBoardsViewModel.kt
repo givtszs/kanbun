@@ -3,11 +3,13 @@ package com.example.kanbun.ui.root.user_boards
 import android.content.Context
 import android.util.Log
 import androidx.lifecycle.viewModelScope
+import com.example.kanbun.common.BoardRole
 import com.example.kanbun.common.Result
 import com.example.kanbun.common.ToastMessage
 import com.example.kanbun.common.WorkspaceRole
 import com.example.kanbun.data.local.PreferenceDataStoreHelper
 import com.example.kanbun.data.local.PreferenceDataStoreKeys
+import com.example.kanbun.domain.model.Board
 import com.example.kanbun.domain.model.User
 import com.example.kanbun.domain.model.Workspace
 import com.example.kanbun.domain.repository.FirestoreRepository
@@ -82,7 +84,7 @@ class UserBoardsViewModel @Inject constructor(
 
     fun createWorkspace(name: String, user: User) = viewModelScope.launch {
         if (user.workspaces.any { it.name == name }) {
-            _message.value = "Workspace with the similar name is already created"
+            _message.value = "Workspace with the same name already exists!"
             return@launch
         }
 
@@ -118,5 +120,25 @@ class UserBoardsViewModel @Inject constructor(
         val workspaceId = dataStore.getPreferenceFirst(PreferenceDataStoreKeys.CURRENT_WORKSPACE_ID, "")
         Log.d("UserBoardsViewModel", "getCurrentWorkspace: $workspaceId")
         selectWorkspace(workspaceId)
+    }
+
+    fun createBoard(name: String, userId: String, workspace: Workspace) = viewModelScope.launch {
+        if (_currentWorkspace.value?.boards?.any { it.name == name } == true) {
+            _message.value = "Board with the same name already exists!"
+            return@launch
+        }
+
+        firestoreRepository.createBoard(
+            Board(
+                owner = userId,
+                settings = Board.BoardSettings(
+                    name = name,
+                    workspace = User.WorkspaceInfo(workspace.id, workspace.name),
+                    members = listOf(Board.BoardMember(id = userId, role = BoardRole.ADMIN))
+                )
+            ),
+            workspace.id
+        )
+        selectWorkspace(workspace.id)
     }
 }
