@@ -8,7 +8,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.kanbun.R
 import com.example.kanbun.common.getColor
 import com.example.kanbun.databinding.ItemWorkspaceBinding
-import com.example.kanbun.domain.model.UserWorkspace
+import com.example.kanbun.domain.model.User
 
 class DrawerAdapter(
     private val context: Context,
@@ -73,7 +73,7 @@ class DrawerAdapter(
     }
 
     data class DrawerWorkspace(
-        val workspace: UserWorkspace,
+        val workspace: User.WorkspaceInfo,
         var isSelected: Boolean = false
     )
 }

@@ -23,7 +23,7 @@ class ManageFirestoreUserUseCase @Inject constructor(
     suspend fun saveUser(user: FirebaseUser, provider: AuthProvider): Result<Unit> {
         val checkResult = firestoreRepository.getUser(user.uid)
         return if (checkResult is Result.Error) {
-            firestoreRepository.addUser(user.toUser(provider))
+            firestoreRepository.createUser(user.toUser(provider))
         } else {
             Result.Error("User data is already saved")
         }

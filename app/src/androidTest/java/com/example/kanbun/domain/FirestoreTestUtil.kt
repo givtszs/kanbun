@@ -1,12 +1,12 @@
 package com.example.kanbun.domain
 
 import com.example.kanbun.common.AuthProvider
+import com.example.kanbun.common.BoardRole
 import com.example.kanbun.common.FirestoreCollection
 import com.example.kanbun.common.WorkspaceRole
+import com.example.kanbun.domain.model.Board
 import com.example.kanbun.domain.model.User
-import com.example.kanbun.domain.model.UserWorkspace
 import com.example.kanbun.domain.model.Workspace
-import com.example.kanbun.domain.model.WorkspaceMember
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.firestoreSettings
 import com.google.firebase.firestore.ktx.firestore
@@ -77,7 +77,7 @@ class FirestoreTestUtil {
             name = "Test",
             profilePicture = null, // TODO("Change to URL string")
             authProvider = AuthProvider.GOOGLE,
-            workspaces = listOf(UserWorkspace("workspace1", "Test Workspace 1")),
+            workspaces = listOf(User.WorkspaceInfo("workspace1", "Test Workspace 1")),
             cards = emptyList() // TODO("Change to list of cards or whatever")
         )
 
@@ -92,7 +92,7 @@ class FirestoreTestUtil {
                 userSample.id
             ),
             members = listOf(
-                WorkspaceMember(
+                Workspace.WorkspaceMember(
                     FirestoreCollection.getReference(
                         FirestoreCollection.USERS,
                         userSample.id
@@ -107,8 +107,20 @@ class FirestoreTestUtil {
             Workspace(
                 name = name,
                 owner = userId,
-                members = listOf(WorkspaceMember(id = userId, WorkspaceRole.ADMIN)),
+                members = listOf(Workspace.WorkspaceMember(id = userId, WorkspaceRole.ADMIN)),
                 boards = emptyList()
+            )
+
+        fun createBoard(userId: String, workspace: User.WorkspaceInfo, name: String): Board =
+            Board(
+                description = "Simple description",
+                owner = userId,
+                settings = Board.BoardSettings(
+                    name = name,
+                    workspace = workspace,
+                    cover = null,
+                    members = listOf(Board.BoardMember(userId, BoardRole.ADMIN))
+                )
             )
     }
 }

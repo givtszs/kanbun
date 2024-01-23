@@ -10,11 +10,19 @@ data class Workspace(
     val name: String = "",
     val owner: String = "",
     val members: List<WorkspaceMember> = emptyList(), // userId to workspace role
-    val boards: List<String> = emptyList()
-) : Parcelable
+    val boards: List<BoardInfo> = emptyList()
+) : Parcelable {
 
-@Parcelize
-data class WorkspaceMember(
-    val id: String,
-    val role: WorkspaceRole
-) : Parcelable
+    @Parcelize
+    data class WorkspaceMember(
+        val id: String,
+        val role: WorkspaceRole
+    ) : Parcelable
+
+    @Parcelize
+    data class BoardInfo(
+        val id: String,
+        val name: String,
+        val cover: String?
+    ) : Parcelable
+}

@@ -5,12 +5,15 @@ import com.example.kanbun.common.FirestoreCollection
 import com.example.kanbun.common.Result
 import com.example.kanbun.common.WorkspaceRole
 import com.example.kanbun.common.runCatching
+import com.example.kanbun.common.toFirestoreBoard
+import com.example.kanbun.common.toFirestoreBoardInfo
 import com.example.kanbun.common.toFirestoreUser
 import com.example.kanbun.common.toFirestoreWorkspace
 import com.example.kanbun.common.toUser
 import com.example.kanbun.common.toWorkspace
 import com.example.kanbun.data.model.FirestoreUser
 import com.example.kanbun.data.model.FirestoreWorkspace
+import com.example.kanbun.domain.model.Board
 import com.example.kanbun.domain.model.User
 import com.example.kanbun.domain.model.Workspace
 import com.example.kanbun.domain.repository.FirestoreRepository
@@ -39,7 +42,7 @@ class FirestoreRepositoryImpl @Inject constructor(
         return onSuccess()
     }
 
-    override suspend fun addUser(user: User): Result<Unit> = runCatching {
+    override suspend fun createUser(user: User): Result<Unit> = runCatching {
         firestore.collection(FirestoreCollection.USERS.collectionName)
             .document(user.id)
             .set(user.toFirestoreUser())
@@ -87,15 +90,14 @@ class FirestoreRepositoryImpl @Inject constructor(
         }
     }
 
-    private suspend fun addWorkspaceToUser(
+    private suspend fun addWorkspaceInfoToUser(
         userId: String,
-        workspaceId: String,
-        workspaceName: String
+        workspaceInfo: User.WorkspaceInfo
     ): Result<Unit> =
         runCatching {
             firestore.collection(FirestoreCollection.USERS.collectionName)
                 .document(userId)
-                .update("workspaces.$workspaceId", workspaceName)
+                .update("workspaces.${workspaceInfo.id}", workspaceInfo.name)
                 .getResult {}
         }
 
@@ -107,13 +109,16 @@ class FirestoreRepositoryImpl @Inject constructor(
                 .getResult {}
         }
 
-    override suspend fun addWorkspace(userId: String, workspace: Workspace): Result<String> =
+    override suspend fun createWorkspace(userId: String, workspace: Workspace): Result<String> =
         runCatching {
             firestore.collection(FirestoreCollection.WORKSPACES.collectionName)
                 .add(workspace.toFirestoreWorkspace())
                 .getResult {
                     // add the newly create workspace into the user's workspaces
-                    val res = addWorkspaceToUser(userId, result.id, workspace.name)
+                    val res = addWorkspaceInfoToUser(
+                        userId,
+                        User.WorkspaceInfo(result.id, workspace.name)
+                    )
 
                     if (res is Result.Error) {
                         throw res.e!!
@@ -152,7 +157,9 @@ class FirestoreRepositoryImpl @Inject constructor(
                         return@addSnapshotListener
                     }
 
-                    val workspace = docSnapshot?.toObject(FirestoreWorkspace::class.java)?.toWorkspace(workspaceId) ?:  throw NullPointerException("Couldn't convert FirestoreWorkspace to Workspace since the value is null")
+                    val workspace = docSnapshot?.toObject(FirestoreWorkspace::class.java)
+                        ?.toWorkspace(workspaceId)
+                        ?: throw NullPointerException("Couldn't convert FirestoreWorkspace to Workspace since the value is null")
                     trySend(workspace)
                 }
         }
@@ -205,10 +212,9 @@ class FirestoreRepositoryImpl @Inject constructor(
         }
 
         // update user's workspaces
-        val userUpdateResult = addWorkspaceToUser(
+        val userUpdateResult = addWorkspaceInfoToUser(
             user.id,
-            workspace.id,
-            workspace.name
+            User.WorkspaceInfo(workspace.id, workspace.name)
         )
 
         if (userUpdateResult is Result.Error) {
@@ -226,4 +232,35 @@ class FirestoreRepositoryImpl @Inject constructor(
                 }
             }
     }
+
+    private suspend fun addBoardInfoToWorkspace(
+        workspaceId: String,
+        boardInfo: Workspace.BoardInfo
+    ): Result<Unit> = runCatching {
+        firestore.collection(FirestoreCollection.WORKSPACES.collectionName)
+            .document(workspaceId)
+            .update("boards.${boardInfo.id}", boardInfo.toFirestoreBoardInfo())
+            .getResult {}
+    }
+
+    override suspend fun createBoard(board: Board, workspaceId: String): Result<String> =
+        runCatching {
+            firestore.collection("${FirestoreCollection.WORKSPACES.collectionName}/$workspaceId/${FirestoreCollection.BOARD.collectionName}")
+                .add(board.toFirestoreBoard())
+                .getResult {
+                    val workspaceUpdResult = addBoardInfoToWorkspace(
+                        workspaceId,
+                        Workspace.BoardInfo(
+                            id = result.id,
+                            name = board.settings.name,
+                            cover = board.settings.cover
+                        ))
+
+                    if (workspaceUpdResult is Result.Error) {
+                        throw workspaceUpdResult.e!!
+                    }
+
+                    result.id
+                }
+        }
 }

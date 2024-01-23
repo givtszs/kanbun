@@ -10,7 +10,6 @@ import com.example.kanbun.data.local.PreferenceDataStoreHelper
 import com.example.kanbun.data.local.PreferenceDataStoreKeys
 import com.example.kanbun.domain.model.User
 import com.example.kanbun.domain.model.Workspace
-import com.example.kanbun.domain.model.WorkspaceMember
 import com.example.kanbun.domain.repository.FirestoreRepository
 import com.example.kanbun.domain.utils.ConnectivityChecker
 import com.example.kanbun.ui.BaseViewModel
@@ -90,10 +89,10 @@ class UserBoardsViewModel @Inject constructor(
         val workspace = Workspace(
             name = name,
             owner = user.id,
-            members = listOf(WorkspaceMember(user.id, WorkspaceRole.ADMIN)),
+            members = listOf(Workspace.WorkspaceMember(user.id, WorkspaceRole.ADMIN)),
         )
 
-        when (val result = firestoreRepository.addWorkspace(user.id, workspace)) {
+        when (val result = firestoreRepository.createWorkspace(user.id, workspace)) {
             is Result.Success -> _message.value = ToastMessage.WORKSPACE_CREATED
             is Result.Error -> _message.value = result.message
         }

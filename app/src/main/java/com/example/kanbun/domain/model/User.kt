@@ -8,11 +8,12 @@ data class User(
     val name: String?,
     val profilePicture: String?,
     val authProvider: AuthProvider,
-    val workspaces: List<UserWorkspace>,
+    val workspaces: List<WorkspaceInfo>,
     val cards: List<String>
-)
+) {
+    data class WorkspaceInfo(
+        val id: String = "",
+        val name: String = ""
+    )
+}
 
-data class UserWorkspace(
-    val id: String,
-    val name: String
-)

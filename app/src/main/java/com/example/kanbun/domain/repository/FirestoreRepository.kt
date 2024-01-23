@@ -1,6 +1,7 @@
 package com.example.kanbun.domain.repository
 
 import com.example.kanbun.common.Result
+import com.example.kanbun.domain.model.Board
 import com.example.kanbun.domain.model.User
 import com.example.kanbun.domain.model.Workspace
 import kotlinx.coroutines.flow.Flow
@@ -15,7 +16,7 @@ interface FirestoreRepository {
      * @param user user instance to be added.
      * @return [Result] containing [Unit] on success, or an error message on failure.
      */
-    suspend fun addUser(user: User): Result<Unit>
+    suspend fun createUser(user: User): Result<Unit>
 
     /**
      * Retrieves a user from Firestore based on the [userId].
@@ -26,7 +27,7 @@ interface FirestoreRepository {
 
     fun getUserStream(userId: String): Flow<User?>
 
-    suspend fun addWorkspace(userId: String, workspace: Workspace): Result<String>
+    suspend fun createWorkspace(userId: String, workspace: Workspace): Result<String>
 
     suspend fun getWorkspace(workspaceId: String): Result<Workspace>
 
@@ -37,4 +38,6 @@ interface FirestoreRepository {
     suspend fun inviteToWorkspace(workspace: Workspace, user: User): Result<Unit>
 
     suspend fun deleteWorkspace(workspace: Workspace): Result<Unit>
+
+    suspend fun createBoard(board: Board, workspaceId: String): Result<String>
 }

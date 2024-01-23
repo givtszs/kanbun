@@ -1,11 +1,11 @@
 package com.example.kanbun.common
 
+import com.example.kanbun.data.model.FirestoreBoard
 import com.example.kanbun.data.model.FirestoreUser
 import com.example.kanbun.data.model.FirestoreWorkspace
+import com.example.kanbun.domain.model.Board
 import com.example.kanbun.domain.model.User
-import com.example.kanbun.domain.model.UserWorkspace
 import com.example.kanbun.domain.model.Workspace
-import com.example.kanbun.domain.model.WorkspaceMember
 import com.google.firebase.auth.FirebaseUser
 
 fun User.toFirestoreUser(): FirestoreUser =
@@ -18,7 +18,7 @@ fun User.toFirestoreUser(): FirestoreUser =
         cards = cards
     )
 
-fun List<UserWorkspace>.toFirestoreWorkspaces(): Map<String, String> = associate { workspace ->
+fun List<User.WorkspaceInfo>.toFirestoreWorkspaces(): Map<String, String> = associate { workspace ->
     workspace.id to workspace.name
 }
 
@@ -30,7 +30,7 @@ fun FirestoreUser.toUser(userId: String): User =
         profilePicture = profilePicture,
         authProvider = AuthProvider.entries.first { it.providerId == authProvider },
         workspaces = workspaces.map { entry ->
-            UserWorkspace(
+            User.WorkspaceInfo(
                 id = entry.key,
                 name = entry.value
             )
@@ -44,7 +44,7 @@ fun FirebaseUser.toUser(provider: AuthProvider): User {
         id = uid,
         email = data.email!!,
         name = data.displayName,
-        profilePicture = data.photoUrl.toString(),
+        profilePicture = data.photoUrl?.toString(),
         authProvider = provider,
         workspaces = emptyList(),
         cards = emptyList()
@@ -56,11 +56,23 @@ fun Workspace.toFirestoreWorkspace(): FirestoreWorkspace =
         name = name,
         owner = owner,
         members = members.toFirestoreMembers(),
-        boards = boards
+        boards = boards.toFirestoreBoards()
     )
 
-fun List<WorkspaceMember>.toFirestoreMembers(): Map<String, String> = associate { member ->
+fun Workspace.BoardInfo.toFirestoreBoardInfo(): Map<String, String?> = mapOf(
+    "name" to name,
+    "cover" to cover
+)
+
+fun List<Workspace.WorkspaceMember>.toFirestoreMembers(): Map<String, String> = associate { member ->
     member.id to member.role.roleName
+}
+
+fun List<Workspace.BoardInfo>.toFirestoreBoards(): Map<String, Map<String, String?>> = associate { boardInfo ->
+    boardInfo.id to mapOf (
+        "name" to boardInfo.name,
+        "cover" to boardInfo.cover
+    )
 }
 
 fun FirestoreWorkspace.toWorkspace(workspaceId: String): Workspace =
@@ -69,10 +81,34 @@ fun FirestoreWorkspace.toWorkspace(workspaceId: String): Workspace =
         name = name,
         owner = owner,
         members = members.map { entry ->
-            WorkspaceMember(
+            Workspace.WorkspaceMember(
                 id = entry.key,
                 role = WorkspaceRole.entries.first { it.roleName == entry.value }
             )
         },
-        boards = boards
+        boards = boards.map { entry ->
+            val values = entry.value
+            Workspace.BoardInfo(
+                id = entry.key,
+                name = values["name"]!!,
+                cover = values["cover"]
+            )
+        }
+    )
+
+fun Board.toFirestoreBoard(): FirestoreBoard =
+    FirestoreBoard(
+        description = description,
+        owner = owner,
+        settings = settings.toFirestoreBoardSettings()
+    )
+
+fun Board.BoardSettings.toFirestoreBoardSettings(): Map<String, Any?> =
+    mapOf(
+        "name" to name,
+        "workspace" to mapOf("id" to workspace.id, "name" to workspace.name),
+        "cover" to cover,
+        "members" to members.associate { member ->
+            member.id to member.role.roleName
+        }
     )

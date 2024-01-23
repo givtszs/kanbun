@@ -2,7 +2,8 @@ package com.example.kanbun.common
 
 enum class FirestoreCollection(val collectionName: String) {
     USERS("users"),
-    WORKSPACES("workspaces");
+    WORKSPACES("workspaces"),
+    BOARD("boards");
 
     companion object {
         fun getReference(collection: FirestoreCollection, id: String?) =
@@ -17,6 +18,11 @@ enum class AuthProvider(val providerId: String) {
 }
 
 enum class WorkspaceRole(val roleName: String) {
+    ADMIN("Admin"),
+    MEMBER("Member")
+}
+
+enum class BoardRole(val roleName: String) {
     ADMIN("Admin"),
     MEMBER("Member")
 }
