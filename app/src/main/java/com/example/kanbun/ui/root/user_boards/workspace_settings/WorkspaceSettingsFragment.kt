@@ -45,7 +45,6 @@ class WorkspaceSettingsFragment : BaseFragment() {
 
     override fun setUpActionBar(toolbar: MaterialToolbar) {
         (requireActivity() as MainActivity).apply {
-            toolbar.menu.clear()
             setSupportActionBar(toolbar)
             supportActionBar?.setDisplayHomeAsUpEnabled(true)
         }
@@ -73,17 +72,19 @@ class WorkspaceSettingsFragment : BaseFragment() {
                     return@setOnClickListener
                 }
 
-                if (name != workspace.name) {
-                    lifecycleScope.launch {
-                        val updateResult = viewModel.updateWorkspaceName(
-                            workspace = workspace,
-                            newName = name
-                        )
+                if (name == workspace.name) {
+                    navController.popBackStack()
+                }
 
-                        showToast(updateResult.second, context = requireActivity())
-                        if (updateResult.first) {
-                            navController.popBackStack()
-                        }
+                lifecycleScope.launch {
+                    val updateResult = viewModel.updateWorkspaceName(
+                        workspace = workspace,
+                        newName = name
+                    )
+
+                    showToast(updateResult.second, context = requireActivity())
+                    if (updateResult.first) {
+                        navController.popBackStack()
                     }
                 }
             }
@@ -99,7 +100,8 @@ class WorkspaceSettingsFragment : BaseFragment() {
             .setTitle("Delete ${workspace.name} workspace?")
             .setPositiveButton("Delete") { _, _ ->
                 lifecycleScope.launch {
-                    (requireActivity() as MainActivity).drawerAdapter?.prevSelectedWorkspaceId = null
+                    (requireActivity() as MainActivity).drawerAdapter?.prevSelectedWorkspaceId =
+                        null
                     viewModel.deleteWorkspace(workspace)
                     navController.popBackStack()
                 }

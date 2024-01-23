@@ -46,7 +46,33 @@ class UserBoardsFragment : BaseFragment(), StateHandler {
     private val binding: FragmentUserBoardsBinding get() = _binding!!
 
     private val viewModel: UserBoardsViewModel by viewModels()
-    private lateinit var menuProvider: MenuProvider
+    private val menuProvider = object : MenuProvider {
+        override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+            if (menu.isEmpty()) {
+                menuInflater.inflate(R.menu.workspace_menu, menu)
+            }
+        }
+
+        override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+            return when (menuItem.itemId) {
+                R.id.workspace_settings -> {
+                    Log.d(
+                        TAG,
+                        "onMenuItemSelected: workspace_settings: workspace: ${viewModel.userBoardsState.value.currentWorkspace}"
+                    )
+                    navController.navigate(
+                        UserBoardsFragmentDirections.actionUserBoardsFragmentToWorkspaceSettingsFragment(
+                            _currentWorkspace
+                        )
+                    )
+                    true
+                }
+
+                else -> false
+            }
+        }
+    }
+    private lateinit var _currentWorkspace: Workspace
     private lateinit var activity: MainActivity
 
     override fun onCreateView(
@@ -132,9 +158,9 @@ class UserBoardsFragment : BaseFragment(), StateHandler {
                 activity.drawerAdapter?.prevSelectedWorkspaceId = currentWorkspace.id
                 binding.toolbar.apply {
                     title = currentWorkspace.name
-                    requireActivity().apply {
-                        addMenuProvider(menuProvider, viewLifecycleOwner)
-                    }
+                    _currentWorkspace = currentWorkspace
+                    activity.removeMenuProvider(menuProvider)
+                    activity.addMenuProvider(menuProvider, viewLifecycleOwner, Lifecycle.State.RESUMED)
                 }
 
                 binding.fabCreateBoard.visibility = View.VISIBLE
@@ -146,9 +172,9 @@ class UserBoardsFragment : BaseFragment(), StateHandler {
                 }
             } else {
                 binding.toolbar.title = resources.getString(R.string.boards)
+                binding.toolbar.menu.clear()
                 binding.tvTip.text = resources.getString(R.string.workspace_selection_tip)
                 binding.fabCreateBoard.visibility = View.GONE
-                requireActivity().removeMenuProvider(menuProvider)
             }
 
             binding.loading.root.isVisible = isLoading
@@ -161,33 +187,7 @@ class UserBoardsFragment : BaseFragment(), StateHandler {
     }
 
     private fun createOptionsMenu() {
-        menuProvider = object : MenuProvider {
-            override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
-                if (menu.isEmpty()) {
-                    Log.d(TAG, "Inflate menu")
-                    menuInflater.inflate(R.menu.workspace_menu, menu)
-                }
-            }
 
-            override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
-                return when (menuItem.itemId) {
-                    R.id.workspace_settings -> {
-                        Log.d(
-                            TAG,
-                            "onMenuItemSelected: workspace_settings: workspace: ${viewModel.userBoardsState.value.currentWorkspace}"
-                        )
-                        navController.navigate(
-                            UserBoardsFragmentDirections.actionUserBoardsFragmentToWorkspaceSettingsFragment(
-                                viewModel.userBoardsState.value.currentWorkspace ?: Workspace()
-                            )
-                        )
-                        true
-                    }
-
-                    else -> false
-                }
-            }
-        }
     }
 
     private fun checkUserAuthState() {
@@ -260,7 +260,7 @@ class UserBoardsFragment : BaseFragment(), StateHandler {
 
     override fun onDestroyView() {
         super.onDestroyView()
-        requireActivity().removeMenuProvider(menuProvider)
+        activity.removeMenuProvider(menuProvider)
         _binding = null
     }
 }
