@@ -6,7 +6,7 @@ import com.example.kanbun.data.model.FirestoreUser
 import com.example.kanbun.data.model.FirestoreWorkspace
 import com.example.kanbun.domain.model.Board
 import com.example.kanbun.domain.model.BoardList
-import com.example.kanbun.domain.model.Card
+import com.example.kanbun.domain.model.Task
 import com.example.kanbun.domain.model.User
 import com.example.kanbun.domain.model.Workspace
 import com.google.firebase.auth.FirebaseUser
@@ -145,7 +145,7 @@ fun BoardList.toFirestoreBoardList(): FirestoreBoardList =
     FirestoreBoardList(
         name = name,
         position = position,
-        cards = cards.associate { card ->
+        tasks = tasks.associate { card ->
             card.id to mapOf()
         }
     )
@@ -155,8 +155,8 @@ fun FirestoreBoardList.toBoardList(boardListId: String): BoardList =
         id = boardListId,
         name = name,
         position = position,
-        cards = cards.map { entry ->
-            Card(
+        tasks = tasks.map { entry ->
+            Task(
                 id = entry.key
             )
         }

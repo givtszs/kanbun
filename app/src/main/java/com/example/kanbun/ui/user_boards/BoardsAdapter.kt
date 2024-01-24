@@ -1,4 +1,4 @@
-package com.example.kanbun.ui.root.user_boards
+package com.example.kanbun.ui.user_boards
 
 import android.view.LayoutInflater
 import android.view.ViewGroup

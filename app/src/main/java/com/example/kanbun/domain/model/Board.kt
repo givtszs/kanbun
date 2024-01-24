@@ -5,7 +5,7 @@ import com.example.kanbun.common.BoardRole
 data class Board(
     val id: String = "",
     val description: String = "",
-    val owner: String,
+    val owner: String = "",
     val settings: BoardSettings = BoardSettings(),
     val lists: List<String> = emptyList()
 ) {

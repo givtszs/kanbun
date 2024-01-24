@@ -1,4 +1,4 @@
-package com.example.kanbun.ui.root.user_boards.workspace_settings
+package com.example.kanbun.ui.workspace_settings
 
 import androidx.lifecycle.ViewModel
 import com.example.kanbun.common.Result

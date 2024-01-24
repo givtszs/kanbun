@@ -60,7 +60,7 @@
         tools:layout="@layout/fragment_email_verification"/>
     <fragment
         android:id="@+id/userBoardsFragment"
-        android:name="com.example.kanbun.ui.root.user_boards.UserBoardsFragment"
+        android:name="com.example.kanbun.ui.user_boards.UserBoardsFragment"
         android:label=""
         tools:layout="@layout/fragment_user_boards">
         <action
@@ -75,17 +75,17 @@
     </fragment>
     <fragment
         android:id="@+id/userCardsFragment"
-        android:name="com.example.kanbun.ui.root.user_cards.UserCardsFragment"
+        android:name="com.example.kanbun.ui.user_cards.UserCardsFragment"
         android:label="UserCardsFragment"
         tools:layout="@layout/fragment_user_cards" />
     <fragment
         android:id="@+id/inboxFragment"
-        android:name="com.example.kanbun.ui.root.inbox.InboxFragment"
+        android:name="com.example.kanbun.ui.inbox.InboxFragment"
         android:label="InboxFragment"
         tools:layout="@layout/fragment_inbox" />
     <fragment
         android:id="@+id/workspaceSettingsFragment"
-        android:name="com.example.kanbun.ui.root.user_boards.workspace_settings.WorkspaceSettingsFragment"
+        android:name="com.example.kanbun.ui.workspace_settings.WorkspaceSettingsFragment"
         tools:layout="@layout/fragment_workspace_settings"
         android:label="@string/workspace_settings" >
         <argument

@@ -1,4 +1,4 @@
-package com.example.kanbun.ui.root.user_cards
+package com.example.kanbun.ui.user_cards
 
 import android.os.Bundle
 import android.view.LayoutInflater

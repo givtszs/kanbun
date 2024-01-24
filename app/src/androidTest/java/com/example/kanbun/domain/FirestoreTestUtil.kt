@@ -128,7 +128,7 @@ class FirestoreTestUtil {
             BoardList(
                 name = name,
                 position = position,
-                cards = emptyList()
+                tasks = emptyList()
             )
     }
 }

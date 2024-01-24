@@ -1,4 +1,4 @@
-package com.example.kanbun.ui.root.inbox
+package com.example.kanbun.ui.inbox
 
 import android.os.Bundle
 import android.view.LayoutInflater

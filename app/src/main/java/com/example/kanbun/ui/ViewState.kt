@@ -1,5 +1,7 @@
 package com.example.kanbun.ui
 
+import com.example.kanbun.domain.model.Board
+import com.example.kanbun.domain.model.BoardList
 import com.example.kanbun.domain.model.User
 import com.example.kanbun.domain.model.Workspace
 import com.google.android.material.textfield.TextInputLayout
@@ -36,6 +38,13 @@ sealed class ViewState {
         val user: User? = null,
         val currentWorkspace: Workspace? = null,
         val isLoading: Boolean = true,
+        val message: String? = null
+    ) : ViewState()
+
+    data class BoardViewState(
+        val board: Board = Board(),
+        val lists: List<BoardList> = emptyList(),
+        val isLoading: Boolean = false,
         val message: String? = null
     ) : ViewState()
 }
