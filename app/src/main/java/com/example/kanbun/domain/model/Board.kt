@@ -7,7 +7,7 @@ data class Board(
     val description: String = "",
     val owner: String,
     val settings: BoardSettings = BoardSettings(),
-//    val lists: List<BoardList> = emptyList()
+    val lists: List<String> = emptyList()
 ) {
     data class BoardSettings(
         val name: String = "",

@@ -5,6 +5,7 @@ import com.example.kanbun.common.BoardRole
 import com.example.kanbun.common.FirestoreCollection
 import com.example.kanbun.common.WorkspaceRole
 import com.example.kanbun.domain.model.Board
+import com.example.kanbun.domain.model.BoardList
 import com.example.kanbun.domain.model.User
 import com.example.kanbun.domain.model.Workspace
 import com.google.firebase.auth.ktx.auth
@@ -121,6 +122,13 @@ class FirestoreTestUtil {
                     cover = null,
                     members = listOf(Board.BoardMember(userId, BoardRole.ADMIN))
                 )
+            )
+
+        fun createBoardList(name: String, position: Int): BoardList =
+            BoardList(
+                name = name,
+                position = position,
+                cards = emptyList()
             )
     }
 }

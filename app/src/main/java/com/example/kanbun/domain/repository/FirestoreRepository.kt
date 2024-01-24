@@ -2,6 +2,7 @@ package com.example.kanbun.domain.repository
 
 import com.example.kanbun.common.Result
 import com.example.kanbun.domain.model.Board
+import com.example.kanbun.domain.model.BoardList
 import com.example.kanbun.domain.model.User
 import com.example.kanbun.domain.model.Workspace
 import kotlinx.coroutines.flow.Flow
@@ -27,7 +28,7 @@ interface FirestoreRepository {
 
     fun getUserStream(userId: String): Flow<User?>
 
-    suspend fun createWorkspace(userId: String, workspace: Workspace): Result<String>
+    suspend fun createWorkspace(workspace: Workspace): Result<String>
 
     suspend fun getWorkspace(workspaceId: String): Result<Workspace>
 
@@ -39,5 +40,7 @@ interface FirestoreRepository {
 
     suspend fun deleteWorkspace(workspace: Workspace): Result<Unit>
 
-    suspend fun createBoard(board: Board, workspaceId: String): Result<String>
+    suspend fun createBoard(board: Board): Result<String>
+
+    suspend fun createBoardList(boardList: BoardList, board: Board): Result<String>
 }

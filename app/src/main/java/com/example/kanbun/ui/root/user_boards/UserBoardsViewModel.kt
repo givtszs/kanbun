@@ -94,7 +94,7 @@ class UserBoardsViewModel @Inject constructor(
             members = listOf(Workspace.WorkspaceMember(user.id, WorkspaceRole.ADMIN)),
         )
 
-        when (val result = firestoreRepository.createWorkspace(user.id, workspace)) {
+        when (val result = firestoreRepository.createWorkspace(workspace)) {
             is Result.Success -> _message.value = ToastMessage.WORKSPACE_CREATED
             is Result.Error -> _message.value = result.message
         }
@@ -137,7 +137,6 @@ class UserBoardsViewModel @Inject constructor(
                     members = listOf(Board.BoardMember(id = userId, role = BoardRole.ADMIN))
                 )
             ),
-            workspace.id
         )
         selectWorkspace(workspace.id)
     }

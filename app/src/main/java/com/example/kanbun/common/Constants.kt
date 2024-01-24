@@ -3,7 +3,8 @@ package com.example.kanbun.common
 enum class FirestoreCollection(val collectionName: String) {
     USERS("users"),
     WORKSPACES("workspaces"),
-    BOARD("boards");
+    BOARD("boards"),
+    BOARD_LIST("lists");
 
     companion object {
         fun getReference(collection: FirestoreCollection, id: String?) =

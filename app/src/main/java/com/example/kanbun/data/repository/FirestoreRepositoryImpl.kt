@@ -14,6 +14,7 @@ import com.example.kanbun.common.toWorkspace
 import com.example.kanbun.data.model.FirestoreUser
 import com.example.kanbun.data.model.FirestoreWorkspace
 import com.example.kanbun.domain.model.Board
+import com.example.kanbun.domain.model.BoardList
 import com.example.kanbun.domain.model.User
 import com.example.kanbun.domain.model.Workspace
 import com.example.kanbun.domain.repository.FirestoreRepository
@@ -109,14 +110,14 @@ class FirestoreRepositoryImpl @Inject constructor(
                 .getResult {}
         }
 
-    override suspend fun createWorkspace(userId: String, workspace: Workspace): Result<String> =
+    override suspend fun createWorkspace(workspace: Workspace): Result<String> =
         runCatching {
             firestore.collection(FirestoreCollection.WORKSPACES.collectionName)
                 .add(workspace.toFirestoreWorkspace())
                 .getResult {
                     // add the newly create workspace into the user's workspaces
                     val res = addWorkspaceInfoToUser(
-                        userId,
+                        workspace.owner,
                         User.WorkspaceInfo(result.id, workspace.name)
                     )
 
@@ -151,7 +152,7 @@ class FirestoreRepositoryImpl @Inject constructor(
                 .document(workspaceId)
                 .addSnapshotListener { docSnapshot, error ->
                     if (error != null) {
-                        Log.d(TAG, "getWorkspaceStream: error occured: ${error.message}")
+                        Log.d(TAG, "getWorkspaceStream: error occurred: ${error.message}")
                         trySend(null)
                         close(error)
                         return@addSnapshotListener
@@ -243,24 +244,53 @@ class FirestoreRepositoryImpl @Inject constructor(
             .getResult {}
     }
 
-    override suspend fun createBoard(board: Board, workspaceId: String): Result<String> =
-        runCatching {
-            firestore.collection("${FirestoreCollection.WORKSPACES.collectionName}/$workspaceId/${FirestoreCollection.BOARD.collectionName}")
-                .add(board.toFirestoreBoard())
-                .getResult {
-                    val workspaceUpdResult = addBoardInfoToWorkspace(
-                        workspaceId,
-                        Workspace.BoardInfo(
-                            id = result.id,
-                            name = board.settings.name,
-                            cover = board.settings.cover
-                        ))
+    override suspend fun createBoard(board: Board): Result<String> = runCatching {
+        val workspaceId = board.settings.workspace.id
+        firestore.collection("${FirestoreCollection.WORKSPACES.collectionName}/$workspaceId/${FirestoreCollection.BOARD.collectionName}")
+            .add(board.toFirestoreBoard())
+            .getResult {
+                val workspaceUpdResult = addBoardInfoToWorkspace(
+                    workspaceId,
+                    Workspace.BoardInfo(
+                        id = result.id,
+                        name = board.settings.name,
+                        cover = board.settings.cover
+                    )
+                )
 
-                    if (workspaceUpdResult is Result.Error) {
-                        throw workspaceUpdResult.e!!
-                    }
-
-                    result.id
+                if (workspaceUpdResult is Result.Error) {
+                    throw workspaceUpdResult.e!!
                 }
+
+                result.id
+            }
+    }
+
+    private fun updateBoardsList(board: Board, boardListId: String): Result<Unit> =
+        runCatching {
+            val workspacePath =
+                "${FirestoreCollection.WORKSPACES.collectionName}/${board.settings.workspace.id}"
+            firestore.collection("$workspacePath/${FirestoreCollection.BOARD.collectionName}")
+                .document(board.id)
+                .update("lists", board.lists + boardListId)
         }
+
+    override suspend fun createBoardList(
+        boardList: BoardList,
+        board: Board
+    ): Result<String> = runCatching {
+        val workspacePath =
+            "${FirestoreCollection.WORKSPACES.collectionName}/${board.settings.workspace.id}"
+        val boardPath = "${FirestoreCollection.BOARD.collectionName}/${board.id}"
+        firestore.collection("$workspacePath/$boardPath/${FirestoreCollection.BOARD_LIST.collectionName}")
+            .add(boardList)
+            .getResult {
+                val updateResult = updateBoardsList(board, result.id)
+                if (updateResult is Result.Error) {
+                    throw updateResult.e!!
+                }
+
+                result.id
+            }
+    }
 }

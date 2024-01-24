@@ -18,9 +18,10 @@ fun User.toFirestoreUser(): FirestoreUser =
         cards = cards
     )
 
-fun List<User.WorkspaceInfo>.toFirestoreWorkspaces(): Map<String, String> = associate { workspace ->
-    workspace.id to workspace.name
-}
+fun List<User.WorkspaceInfo>.toFirestoreWorkspaces(): Map<String, String> =
+    associate { workspace ->
+        workspace.id to workspace.name
+    }
 
 fun FirestoreUser.toUser(userId: String): User =
     User(
@@ -59,21 +60,24 @@ fun Workspace.toFirestoreWorkspace(): FirestoreWorkspace =
         boards = boards.toFirestoreBoards()
     )
 
-fun Workspace.BoardInfo.toFirestoreBoardInfo(): Map<String, String?> = mapOf(
-    "name" to name,
-    "cover" to cover
-)
-
-fun List<Workspace.WorkspaceMember>.toFirestoreMembers(): Map<String, String> = associate { member ->
-    member.id to member.role.roleName
-}
-
-fun List<Workspace.BoardInfo>.toFirestoreBoards(): Map<String, Map<String, String?>> = associate { boardInfo ->
-    boardInfo.id to mapOf (
-        "name" to boardInfo.name,
-        "cover" to boardInfo.cover
+fun Workspace.BoardInfo.toFirestoreBoardInfo(): Map<String, String?> =
+    mapOf(
+        "name" to name,
+        "cover" to cover
     )
-}
+
+fun List<Workspace.WorkspaceMember>.toFirestoreMembers(): Map<String, String> =
+    associate { member ->
+        member.id to member.role.roleName
+    }
+
+fun List<Workspace.BoardInfo>.toFirestoreBoards(): Map<String, Map<String, String?>> =
+    associate { boardInfo ->
+        boardInfo.id to mapOf(
+            "name" to boardInfo.name,
+            "cover" to boardInfo.cover
+        )
+    }
 
 fun FirestoreWorkspace.toWorkspace(workspaceId: String): Workspace =
     Workspace(
@@ -100,7 +104,8 @@ fun Board.toFirestoreBoard(): FirestoreBoard =
     FirestoreBoard(
         description = description,
         owner = owner,
-        settings = settings.toFirestoreBoardSettings()
+        settings = settings.toFirestoreBoardSettings(),
+        lists = lists
     )
 
 fun Board.BoardSettings.toFirestoreBoardSettings(): Map<String, Any?> =
@@ -111,4 +116,24 @@ fun Board.BoardSettings.toFirestoreBoardSettings(): Map<String, Any?> =
         "members" to members.associate { member ->
             member.id to member.role.roleName
         }
+    )
+
+fun FirestoreBoard.toBoard(boardId: String): Board =
+    Board(
+        id = boardId,
+        description = description,
+        owner = owner,
+        settings = Board.BoardSettings(
+            name = settings["name"] as String,
+            workspace = (settings["workspace"] as Map<String, String>).map { entry ->
+                User.WorkspaceInfo(id = entry.key, name = entry.value)
+            }.first(),
+            cover = settings["cover"] as String?,
+            members = (settings["members"] as Map<String, String>).map { entry ->
+                Board.BoardMember(
+                    id = entry.key,
+                    role = BoardRole.entries.first { it.roleName == entry.value })
+            }
+        ),
+        lists = lists
     )

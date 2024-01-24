@@ -111,7 +111,7 @@ class FirestoreRepositoryTest {
         repository.createUser(user)
 
         val workspace = FirestoreTestUtil.createWorkspace(user.id, "Test")
-        val createResult = repository.createWorkspace(user.id, workspace)
+        val createResult = repository.createWorkspace(workspace)
 
         assertThat(createResult).isInstanceOf(Result.Success::class.java)
 
@@ -135,7 +135,7 @@ class FirestoreRepositoryTest {
         val user = FirestoreTestUtil.createUser("user1")
         repository.createUser(user)
         val workspace = FirestoreTestUtil.createWorkspace(user.id, "Workspace")
-        val workspaceId = (repository.createWorkspace(user.id, workspace) as Result.Success).data
+        val workspaceId = (repository.createWorkspace(workspace) as Result.Success).data
 
         val result = repository.getWorkspace(workspaceId)
 
@@ -165,7 +165,7 @@ class FirestoreRepositoryTest {
         repository.createUser(user)
 
         var workspace = FirestoreTestUtil.createWorkspace(user.id, "Workspace")
-        workspace = (repository.createWorkspace(user.id, workspace) as Result.Success).data.run {
+        workspace = (repository.createWorkspace(workspace) as Result.Success).data.run {
             workspace.copy(id = this)
         }
 
@@ -193,7 +193,7 @@ class FirestoreRepositoryTest {
         val user = FirestoreTestUtil.createUser("user")
         repository.createUser(user)
         val workspace = FirestoreTestUtil.createWorkspace(user.id, "Workspace").run {
-            val id = (repository.createWorkspace(user.id, this) as Result.Success).data
+            val id = (repository.createWorkspace(this) as Result.Success).data
             this.copy(id = id)
         }
 
@@ -207,7 +207,7 @@ class FirestoreRepositoryTest {
         val user = FirestoreTestUtil.userSample
         repository.createUser(user)
         var workspace = FirestoreTestUtil.createWorkspace(user.id, "Workspace")
-        workspace = (repository.createWorkspace(user.id, workspace) as Result.Success).data.run {
+        workspace = (repository.createWorkspace(workspace) as Result.Success).data.run {
             workspace.copy(id = this)
         }
 
@@ -240,7 +240,7 @@ class FirestoreRepositoryTest {
 
             var workspace = FirestoreTestUtil.createWorkspace(user1.id, "Test")
             workspace =
-                (repository.createWorkspace(user1.id, workspace) as Result.Success).data.run {
+                (repository.createWorkspace(workspace) as Result.Success).data.run {
                     workspace.copy(id = this)
                 }
 
@@ -258,7 +258,7 @@ class FirestoreRepositoryTest {
         repository.createUser(user2)
 
         var workspace = FirestoreTestUtil.createWorkspace(user1.id, "Test")
-        workspace = (repository.createWorkspace(user1.id, workspace) as Result.Success).data.run {
+        workspace = (repository.createWorkspace(workspace) as Result.Success).data.run {
             workspace.copy(id = this)
         }
         repository.inviteToWorkspace(workspace, user2)
@@ -283,7 +283,7 @@ class FirestoreRepositoryTest {
         repository.createUser(user)
         var workspace = FirestoreTestUtil.createWorkspace(user.id, "Workspace").run {
             this.copy(
-                id = (repository.createWorkspace(user.id, this) as Result.Success).data
+                id = (repository.createWorkspace(this) as Result.Success).data
             )
         }
 
@@ -293,7 +293,7 @@ class FirestoreRepositoryTest {
             "Board 1"
         )
 
-        val result = repository.createBoard(board, workspace.id)
+        val result = repository.createBoard(board)
 
         assertThat(result).isInstanceOf(Result.Success::class.java)
 
@@ -306,5 +306,39 @@ class FirestoreRepositoryTest {
 
         assertThat(workspace.boards).isNotEmpty()
         assertThat(workspace.boards.any { it.id == board.id }).isTrue()
+    }
+
+    @Test
+    fun createBoardList_createsDocumentInTheListsSubcollection() = runBlocking {
+        val user = FirestoreTestUtil.createUser("user").also {
+            repository.createUser(it)
+        }
+
+        val workspace = FirestoreTestUtil.createWorkspace(user.id, "Workspace").run {
+            this.copy(
+                id = (repository.createWorkspace(this) as Result.Success).data
+            )
+        }
+
+        var board = FirestoreTestUtil.createBoard(
+            user.id,
+            User.WorkspaceInfo(workspace.id, workspace.name),
+            "Board 1"
+        ).run {
+            this.copy(
+                id = (repository.createBoard(this) as Result.Success).data
+            )
+        }
+
+        var boardList = FirestoreTestUtil.createBoardList("List 1", 0)
+
+        val resultCreate = repository.createBoardList(boardList, board)
+
+        assertThat(resultCreate).isInstanceOf(Result.Success::class.java)
+
+        val resultId = (resultCreate as Result.Success).data
+        boardList = boardList.copy(id = resultId)
+
+        assertThat(boardList.id).isEqualTo(resultId)
     }
 }
