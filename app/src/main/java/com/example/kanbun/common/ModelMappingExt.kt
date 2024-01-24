@@ -1,9 +1,12 @@
 package com.example.kanbun.common
 
 import com.example.kanbun.data.model.FirestoreBoard
+import com.example.kanbun.data.model.FirestoreBoardList
 import com.example.kanbun.data.model.FirestoreUser
 import com.example.kanbun.data.model.FirestoreWorkspace
 import com.example.kanbun.domain.model.Board
+import com.example.kanbun.domain.model.BoardList
+import com.example.kanbun.domain.model.Card
 import com.example.kanbun.domain.model.User
 import com.example.kanbun.domain.model.Workspace
 import com.google.firebase.auth.FirebaseUser
@@ -136,4 +139,25 @@ fun FirestoreBoard.toBoard(boardId: String): Board =
             }
         ),
         lists = lists
+    )
+
+fun BoardList.toFirestoreBoardList(): FirestoreBoardList =
+    FirestoreBoardList(
+        name = name,
+        position = position,
+        cards = cards.associate { card ->
+            card.id to mapOf()
+        }
+    )
+
+fun FirestoreBoardList.toBoardList(boardListId: String): BoardList =
+    BoardList(
+        id = boardListId,
+        name = name,
+        position = position,
+        cards = cards.map { entry ->
+            Card(
+                id = entry.key
+            )
+        }
     )

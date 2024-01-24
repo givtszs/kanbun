@@ -1,6 +1,7 @@
 package com.example.kanbun.domain.repository
 
 import com.example.kanbun.common.Result
+import com.example.kanbun.data.model.FirestoreBoard
 import com.example.kanbun.data.repository.FirestoreRepositoryImpl
 import com.example.kanbun.domain.FirestoreTestUtil
 import com.example.kanbun.domain.model.User
@@ -309,6 +310,32 @@ class FirestoreRepositoryTest {
     }
 
     @Test
+    fun getBoard_withValidArgs_returnsBoard() = runBlocking {
+        val user = FirestoreTestUtil.createUser("user").also {
+            repository.createUser(it)
+        }
+
+        val workspace = FirestoreTestUtil.createWorkspace(user.id, "Workspace").run {
+            this.copy(
+                id = (repository.createWorkspace(this) as Result.Success).data
+            )
+        }
+
+        val board = FirestoreTestUtil.createBoard(
+            user.id,
+            User.WorkspaceInfo(workspace.id, workspace.name),
+            "Board 1"
+        ).run {
+            val boardId = (repository.createBoard(this) as Result.Success).data
+            this.copy(id = boardId)
+        }
+
+        val resultGet = repository.getBoard(workspace.id, board.id)
+
+        assertThat(resultGet).isInstanceOf(Result.Success::class.java)
+    }
+
+    @Test
     fun createBoardList_createsDocumentInTheListsSubcollection() = runBlocking {
         val user = FirestoreTestUtil.createUser("user").also {
             repository.createUser(it)
@@ -340,5 +367,37 @@ class FirestoreRepositoryTest {
         boardList = boardList.copy(id = resultId)
 
         assertThat(boardList.id).isEqualTo(resultId)
+    }
+
+    @Test
+    fun getBoardListStream_returnsBoardsListDataChangesOverTime() = runBlocking {
+        val user = FirestoreTestUtil.createUser("user").also {
+            repository.createUser(it)
+        }
+
+        val workspace = FirestoreTestUtil.createWorkspace(user.id, "Workspace").run {
+            this.copy(
+                id = (repository.createWorkspace(this) as Result.Success).data
+            )
+        }
+
+        val board = FirestoreTestUtil.createBoard(
+            user.id,
+            User.WorkspaceInfo(workspace.id, workspace.name),
+            "Board 1"
+        ).run {
+            this.copy(
+                id = (repository.createBoard(this) as Result.Success).data
+            )
+        }
+
+        val boardList = FirestoreTestUtil.createBoardList("List 1", 0).run {
+            val listId = (repository.createBoardList(this, board) as Result.Success).data
+            this.copy(id = listId)
+        }
+
+        val boardListFlow = repository.getBoardListsFlow(board)
+
+        assertThat(boardListFlow.first().first()).isEqualTo(boardList)
     }
 }

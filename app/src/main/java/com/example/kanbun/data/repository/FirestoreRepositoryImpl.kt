@@ -5,12 +5,17 @@ import com.example.kanbun.common.FirestoreCollection
 import com.example.kanbun.common.Result
 import com.example.kanbun.common.WorkspaceRole
 import com.example.kanbun.common.runCatching
+import com.example.kanbun.common.toBoard
+import com.example.kanbun.common.toBoardList
 import com.example.kanbun.common.toFirestoreBoard
 import com.example.kanbun.common.toFirestoreBoardInfo
+import com.example.kanbun.common.toFirestoreBoardList
 import com.example.kanbun.common.toFirestoreUser
 import com.example.kanbun.common.toFirestoreWorkspace
 import com.example.kanbun.common.toUser
 import com.example.kanbun.common.toWorkspace
+import com.example.kanbun.data.model.FirestoreBoard
+import com.example.kanbun.data.model.FirestoreBoardList
 import com.example.kanbun.data.model.FirestoreUser
 import com.example.kanbun.data.model.FirestoreWorkspace
 import com.example.kanbun.domain.model.Board
@@ -246,7 +251,7 @@ class FirestoreRepositoryImpl @Inject constructor(
 
     override suspend fun createBoard(board: Board): Result<String> = runCatching {
         val workspaceId = board.settings.workspace.id
-        firestore.collection("${FirestoreCollection.WORKSPACES.collectionName}/$workspaceId/${FirestoreCollection.BOARD.collectionName}")
+        firestore.collection("${FirestoreCollection.WORKSPACES.collectionName}/$workspaceId/${FirestoreCollection.BOARDS.collectionName}")
             .add(board.toFirestoreBoard())
             .getResult {
                 val workspaceUpdResult = addBoardInfoToWorkspace(
@@ -266,11 +271,23 @@ class FirestoreRepositoryImpl @Inject constructor(
             }
     }
 
+    override suspend fun getBoard(workspaceId: String, boardId: String): Result<Board> =
+        runCatching {
+            val workspacePath = "${FirestoreCollection.WORKSPACES.collectionName}/$workspaceId"
+            firestore.collection("$workspacePath/${FirestoreCollection.BOARDS.collectionName}")
+                .document(boardId)
+                .get()
+                .getResult {
+                    result.toObject(FirestoreBoard::class.java)?.toBoard(boardId)
+                        ?: throw NullPointerException("Couldn't convert FirestoreBoard to Board since the value is null")
+                }
+        }
+
     private fun updateBoardsList(board: Board, boardListId: String): Result<Unit> =
         runCatching {
             val workspacePath =
                 "${FirestoreCollection.WORKSPACES.collectionName}/${board.settings.workspace.id}"
-            firestore.collection("$workspacePath/${FirestoreCollection.BOARD.collectionName}")
+            firestore.collection("$workspacePath/${FirestoreCollection.BOARDS.collectionName}")
                 .document(board.id)
                 .update("lists", board.lists + boardListId)
         }
@@ -281,9 +298,9 @@ class FirestoreRepositoryImpl @Inject constructor(
     ): Result<String> = runCatching {
         val workspacePath =
             "${FirestoreCollection.WORKSPACES.collectionName}/${board.settings.workspace.id}"
-        val boardPath = "${FirestoreCollection.BOARD.collectionName}/${board.id}"
+        val boardPath = "${FirestoreCollection.BOARDS.collectionName}/${board.id}"
         firestore.collection("$workspacePath/$boardPath/${FirestoreCollection.BOARD_LIST.collectionName}")
-            .add(boardList)
+            .add(boardList.toFirestoreBoardList())
             .getResult {
                 val updateResult = updateBoardsList(board, result.id)
                 if (updateResult is Result.Error) {
@@ -292,5 +309,26 @@ class FirestoreRepositoryImpl @Inject constructor(
 
                 result.id
             }
+    }
+
+    override fun getBoardListsFlow(board: Board): Flow<List<BoardList>> = callbackFlow {
+        val workspacePath =
+            "${FirestoreCollection.WORKSPACES.collectionName}/${board.settings.workspace.id}"
+        val boardPath = "${FirestoreCollection.BOARDS.collectionName}/${board.id}"
+        val listener =
+            firestore.collection("$workspacePath/$boardPath/${FirestoreCollection.BOARD_LIST.collectionName}")
+                .addSnapshotListener { querySnapshot, error ->
+                    querySnapshot?.let {
+                        trySend(
+                            it.documents.map { docSnapshot ->
+                                docSnapshot.toObject(FirestoreBoardList::class.java)?.toBoardList(docSnapshot.id) ?: throw NullPointerException("Couldn't convert FirestoreBoardList to BoardList since the value is null")
+                            }
+                        )
+                    }
+                }
+
+        awaitClose {
+            listener.remove()
+        }
     }
 }

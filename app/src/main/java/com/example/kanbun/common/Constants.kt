@@ -3,7 +3,7 @@ package com.example.kanbun.common
 enum class FirestoreCollection(val collectionName: String) {
     USERS("users"),
     WORKSPACES("workspaces"),
-    BOARD("boards"),
+    BOARDS("boards"),
     BOARD_LIST("lists");
 
     companion object {
