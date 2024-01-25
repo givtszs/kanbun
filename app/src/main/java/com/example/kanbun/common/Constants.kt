@@ -36,5 +36,10 @@ object ToastMessage {
     const val WORKSPACE_CREATED = "Workspace has been created"
 }
 
+object BoardListsAdapterViewType {
+    const val VIEW_TYPE_LIST = 0
+    const val VIEW_TYPE_CREATE_LIST = 1
+}
+
 const val EMAIL_RESEND_TIME_LIMIT = 60
 const val RECYCLERVIEW_BOARDS_COLUMNS = 2

@@ -76,7 +76,7 @@ fun List<Workspace.WorkspaceMember>.toFirestoreMembers(): Map<String, String> =
 
 fun List<Workspace.BoardInfo>.toFirestoreBoards(): Map<String, Map<String, String?>> =
     associate { boardInfo ->
-        boardInfo.id to mapOf(
+        boardInfo.boardId to mapOf(
             "name" to boardInfo.name,
             "cover" to boardInfo.cover
         )
@@ -96,7 +96,8 @@ fun FirestoreWorkspace.toWorkspace(workspaceId: String): Workspace =
         boards = boards.map { entry ->
             val values = entry.value
             Workspace.BoardInfo(
-                id = entry.key,
+                boardId = entry.key,
+                workspaceId = workspaceId,
                 name = values["name"]!!,
                 cover = values["cover"]
             )

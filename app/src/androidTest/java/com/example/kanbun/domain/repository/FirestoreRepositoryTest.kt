@@ -1,7 +1,6 @@
 package com.example.kanbun.domain.repository
 
 import com.example.kanbun.common.Result
-import com.example.kanbun.data.model.FirestoreBoard
 import com.example.kanbun.data.repository.FirestoreRepositoryImpl
 import com.example.kanbun.domain.FirestoreTestUtil
 import com.example.kanbun.domain.model.User
@@ -306,7 +305,7 @@ class FirestoreRepositoryTest {
         workspace = (repository.getWorkspace(workspace.id) as Result.Success).data
 
         assertThat(workspace.boards).isNotEmpty()
-        assertThat(workspace.boards.any { it.id == board.id }).isTrue()
+        assertThat(workspace.boards.any { it.boardId == board.id }).isTrue()
     }
 
     @Test

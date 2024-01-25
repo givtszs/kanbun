@@ -3,6 +3,9 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
     <color name="dark_red">#8D0801</color>
+    <color name="platinum">#E5E5E5</color>
+    <color name="gray">#808080</color>
+    <color name="ghost_white">#F8F8FF</color>
 
     <!-- Theme colors -->
     <color name="md_theme_light_primary">#FF6110</color>

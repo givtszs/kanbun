@@ -1,5 +1,6 @@
 package com.example.kanbun.ui.board
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.kanbun.common.Result
@@ -12,15 +13,16 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.cancellable
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import javax.inject.Inject
+
+private const val TAG = "BoardViewModel"
 
 @HiltViewModel
-class BoardViewModel(
+class BoardViewModel @Inject constructor(
     private val firestoreRepository: FirestoreRepository
 ) : ViewModel() {
 
@@ -30,6 +32,7 @@ class BoardViewModel(
     private val _message = MutableStateFlow<String?>(null)
     val boardState: StateFlow<BoardViewState> =
         combine(_board, _boardLists, _isLoading, _message) { board, boardLists, isLoading, message ->
+            Log.d(TAG, "boardState#_boardLists: $boardLists")
             BoardViewState(
                 board = board,
                 lists = boardLists,
@@ -46,5 +49,13 @@ class BoardViewModel(
         }
 
         _boardLists = firestoreRepository.getBoardListsFlow(_board.value)
+    }
+
+    fun messageShown() {
+        _message.value = null
+    }
+
+    fun createBoardList(listName: String) = viewModelScope.launch {
+        // implement board list creation
     }
 }

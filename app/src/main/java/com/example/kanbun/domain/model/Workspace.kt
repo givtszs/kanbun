@@ -21,7 +21,8 @@ data class Workspace(
 
     @Parcelize
     data class BoardInfo(
-        val id: String,
+        val boardId: String,
+        val workspaceId: String,
         val name: String,
         val cover: String?
     ) : Parcelable

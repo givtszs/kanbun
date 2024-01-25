@@ -245,7 +245,7 @@ class FirestoreRepositoryImpl @Inject constructor(
     ): Result<Unit> = runCatching {
         firestore.collection(FirestoreCollection.WORKSPACES.collectionName)
             .document(workspaceId)
-            .update("boards.${boardInfo.id}", boardInfo.toFirestoreBoardInfo())
+            .update("boards.${boardInfo.boardId}", boardInfo.toFirestoreBoardInfo())
             .getResult {}
     }
 
@@ -257,7 +257,8 @@ class FirestoreRepositoryImpl @Inject constructor(
                 val workspaceUpdResult = addBoardInfoToWorkspace(
                     workspaceId,
                     Workspace.BoardInfo(
-                        id = result.id,
+                        boardId = result.id,
+                        workspaceId = workspaceId,
                         name = board.settings.name,
                         cover = board.settings.cover
                     )
@@ -321,7 +322,9 @@ class FirestoreRepositoryImpl @Inject constructor(
                     querySnapshot?.let {
                         trySend(
                             it.documents.map { docSnapshot ->
-                                docSnapshot.toObject(FirestoreBoardList::class.java)?.toBoardList(docSnapshot.id) ?: throw NullPointerException("Couldn't convert FirestoreBoardList to BoardList since the value is null")
+                                val boardList = docSnapshot.toObject(FirestoreBoardList::class.java)?.toBoardList(docSnapshot.id) ?: throw NullPointerException("Couldn't convert FirestoreBoardList to BoardList since the value is null")
+                                Log.d(TAG, "getBoardListsFlow#boardList: $boardList")
+                                boardList
                             }
                         )
                     }
