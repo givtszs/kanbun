@@ -42,9 +42,9 @@ interface FirestoreRepository {
 
     suspend fun createBoard(board: Board): Result<String>
 
-    suspend fun getBoard(workspaceId: String, boardId: String): Result<Board>
+    suspend fun getBoard(boardId: String, workspaceId: String): Result<Board>
 
     suspend fun createBoardList(boardList: BoardList, board: Board): Result<String>
 
-    fun getBoardListsFlow(board: Board): Flow<List<BoardList>>
+    fun getBoardListsFlow(boardId: String, workspaceId: String): Flow<List<BoardList>>
 }

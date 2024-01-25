@@ -9,7 +9,7 @@ class ItemCreateBoardListViewHolder(
 ) : RecyclerView.ViewHolder(binding.root) {
 
     fun bind() {
-        binding.root.setOnClickListener {
+        binding.cardView.setOnClickListener {
             onClickListener()
         }
     }

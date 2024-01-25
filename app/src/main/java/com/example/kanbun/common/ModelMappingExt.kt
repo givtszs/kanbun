@@ -129,9 +129,9 @@ fun FirestoreBoard.toBoard(boardId: String): Board =
         owner = owner,
         settings = Board.BoardSettings(
             name = settings["name"] as String,
-            workspace = (settings["workspace"] as Map<String, String>).map { entry ->
-                User.WorkspaceInfo(id = entry.key, name = entry.value)
-            }.first(),
+            workspace = (settings["workspace"] as Map<String, String>).run {
+                User.WorkspaceInfo(id = this["id"]!!, name = this["name"]!!)
+            },
             cover = settings["cover"] as String?,
             members = (settings["members"] as Map<String, String>).map { entry ->
                 Board.BoardMember(

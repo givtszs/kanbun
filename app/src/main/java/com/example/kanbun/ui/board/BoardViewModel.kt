@@ -14,7 +14,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -27,28 +27,32 @@ class BoardViewModel @Inject constructor(
 ) : ViewModel() {
 
     private val _board = MutableStateFlow(Board())
-    private var _boardLists: Flow<List<BoardList>> = flowOf(emptyList())
+    private var _boardLists: Flow<List<BoardList>> = _board.flatMapLatest { board ->
+        firestoreRepository.getBoardListsFlow(
+            boardId = board.id,
+            workspaceId = board.settings.workspace.id
+        )
+    }
     private val _isLoading = MutableStateFlow(false)
     private val _message = MutableStateFlow<String?>(null)
     val boardState: StateFlow<BoardViewState> =
         combine(_board, _boardLists, _isLoading, _message) { board, boardLists, isLoading, message ->
             Log.d(TAG, "boardState#_boardLists: $boardLists")
+            Log.d(TAG, "boardState#_board: $board")
             BoardViewState(
                 board = board,
-                lists = boardLists,
+                lists = boardLists.reversed(),
                 isLoading = isLoading,
                 message = message
             )
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), BoardViewState())
 
-    fun initBoard(boardId: String, workspaceId: String) = viewModelScope.launch {
+    suspend fun getBoard(boardId: String, workspaceId: String) {
         // get board
-        when (val result = firestoreRepository.getBoard(workspaceId, boardId)) {
+        when (val result = firestoreRepository.getBoard(boardId, workspaceId)) {
             is Result.Success -> _board.value = result.data
             is Result.Error -> _message.value = result.message
         }
-
-        _boardLists = firestoreRepository.getBoardListsFlow(_board.value)
     }
 
     fun messageShown() {
@@ -56,6 +60,18 @@ class BoardViewModel @Inject constructor(
     }
 
     fun createBoardList(listName: String) = viewModelScope.launch {
-        // implement board list creation
+        firestoreRepository.createBoardList(
+            boardList = BoardList(
+                name = listName,
+                position = _board.value.lists.size,
+            ),
+            board = _board.value
+        )
+
+        // update board
+        getBoard(
+            boardId = _board.value.id,
+            workspaceId = _board.value.settings.workspace.id
+        )
     }
 }

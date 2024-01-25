@@ -314,7 +314,7 @@ class FirestoreRepositoryTest {
             repository.createUser(it)
         }
 
-        val workspace = FirestoreTestUtil.createWorkspace(user.id, "Workspace").run {
+        var workspace = FirestoreTestUtil.createWorkspace(user.id, "Workspace").run {
             this.copy(
                 id = (repository.createWorkspace(this) as Result.Success).data
             )
@@ -332,6 +332,10 @@ class FirestoreRepositoryTest {
         val resultGet = repository.getBoard(workspace.id, board.id)
 
         assertThat(resultGet).isInstanceOf(Result.Success::class.java)
+
+        val resultBoard = (resultGet as Result.Success).data
+
+        assertThat(resultBoard).isEqualTo(board)
     }
 
     @Test

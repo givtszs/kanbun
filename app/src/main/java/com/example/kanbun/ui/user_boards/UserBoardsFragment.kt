@@ -132,7 +132,7 @@ class UserBoardsFragment : BaseFragment(), StateHandler {
 
     override fun collectState() {
         lifecycleScope.launch {
-            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.RESUMED) {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.userBoardsState.collectLatest {
                     processState(it)
                 }
