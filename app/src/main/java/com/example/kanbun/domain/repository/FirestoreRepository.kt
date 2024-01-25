@@ -3,6 +3,7 @@ package com.example.kanbun.domain.repository
 import com.example.kanbun.common.Result
 import com.example.kanbun.domain.model.Board
 import com.example.kanbun.domain.model.BoardList
+import com.example.kanbun.domain.model.Task
 import com.example.kanbun.domain.model.User
 import com.example.kanbun.domain.model.Workspace
 import kotlinx.coroutines.flow.Flow
@@ -47,4 +48,6 @@ interface FirestoreRepository {
     suspend fun createBoardList(boardList: BoardList, board: Board): Result<String>
 
     fun getBoardListsStream(boardId: String, workspaceId: String): Flow<Result<List<BoardList>>>
+
+    suspend fun createTask(task: Task, listId: String, boardId: String, workspaceId: String): Result<String>
 }

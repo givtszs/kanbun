@@ -6,6 +6,7 @@ import com.example.kanbun.common.FirestoreCollection
 import com.example.kanbun.common.WorkspaceRole
 import com.example.kanbun.domain.model.Board
 import com.example.kanbun.domain.model.BoardList
+import com.example.kanbun.domain.model.Task
 import com.example.kanbun.domain.model.User
 import com.example.kanbun.domain.model.Workspace
 import com.google.firebase.auth.ktx.auth
@@ -129,6 +130,13 @@ class FirestoreTestUtil {
                 name = name,
                 position = position,
                 tasks = emptyList()
+            )
+
+        fun createTask(name: String, position: Long): Task =
+            Task(
+                position = position,
+                name = name,
+                description = "Awesome $name task description"
             )
     }
 }

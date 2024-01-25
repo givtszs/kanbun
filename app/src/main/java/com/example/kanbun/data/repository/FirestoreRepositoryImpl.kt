@@ -12,6 +12,7 @@ import com.example.kanbun.common.toFirestoreBoardInfo
 import com.example.kanbun.common.toFirestoreBoardList
 import com.example.kanbun.common.toFirestoreUser
 import com.example.kanbun.common.toFirestoreWorkspace
+import com.example.kanbun.common.toMap
 import com.example.kanbun.common.toUser
 import com.example.kanbun.common.toWorkspace
 import com.example.kanbun.data.model.FirestoreBoard
@@ -31,6 +32,7 @@ import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
+import java.util.UUID
 import javax.inject.Inject
 
 private const val TAG = "FirestoreRepository"
@@ -343,5 +345,22 @@ class FirestoreRepositoryImpl @Inject constructor(
         awaitClose {
             listener?.remove()
         }
+    }
+
+    override suspend fun createTask(
+        task: com.example.kanbun.domain.model.Task,
+        listId: String,
+        boardId: String,
+        workspaceId: String
+    ): Result<String> = runCatching {
+        val workspacePath = "${FirestoreCollection.WORKSPACES.collectionName}/$workspaceId"
+        val boardPath = "${FirestoreCollection.BOARDS.collectionName}/$boardId"
+        val listPath = "${FirestoreCollection.BOARD_LIST.collectionName}"
+        val taskId = UUID.randomUUID().toString()
+        firestore
+            .collection("$workspacePath/$boardPath/$listPath")
+            .document(listId)
+            .update("tasks.${taskId}", task.toMap())
+            .getResult { taskId  }
     }
 }

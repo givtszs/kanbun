@@ -2,6 +2,7 @@ package com.example.kanbun.common
 
 import com.example.kanbun.data.model.FirestoreBoard
 import com.example.kanbun.data.model.FirestoreBoardList
+import com.example.kanbun.data.model.FirestoreTask
 import com.example.kanbun.data.model.FirestoreUser
 import com.example.kanbun.data.model.FirestoreWorkspace
 import com.example.kanbun.domain.model.Board
@@ -146,8 +147,12 @@ fun BoardList.toFirestoreBoardList(): FirestoreBoardList =
     FirestoreBoardList(
         name = name,
         position = position,
-        tasks = tasks.associate { card ->
-            card.id to mapOf()
+        tasks = tasks.associate { task ->
+            task.id to mapOf(
+                "position" to task.position,
+                "name" to task.name,
+                "description" to task.description
+            )
         }
     )
 
@@ -157,8 +162,19 @@ fun FirestoreBoardList.toBoardList(boardListId: String): BoardList =
         name = name,
         position = position,
         tasks = tasks.map { entry ->
+            val values = entry.value
             Task(
-                id = entry.key
+                id = entry.key,
+                position = values["position"] as Long,
+                name = values["name"] as String,
+                description = values["description"] as String
             )
         }
+    )
+
+fun Task.toMap(): Map<String, Any> =
+    mapOf(
+        "position" to position,
+        "name" to name,
+        "description" to description
     )

@@ -6,7 +6,7 @@ import com.example.kanbun.domain.FirestoreTestUtil
 import com.example.kanbun.domain.model.BoardList
 import com.example.kanbun.domain.model.User
 import com.google.common.truth.Truth.assertThat
-import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.runBlocking
@@ -415,5 +415,60 @@ class FirestoreRepositoryTest {
         val resultData = (results[1] as Result.Success).data.first()
 
         assertThat(resultData).isEqualTo(boardList)
+    }
+
+    @Test
+    fun createTask_withValidArguments_addsTaskInFirestore() = runBlocking {
+        val args = createTaskArgs()
+        val task = FirestoreTestUtil.createTask("Task", 0)
+
+        val resultCreate =
+            repository.createTask(task, args["boardListId"]!!, args["boardId"]!!, args["workspaceId"]!!)
+
+        assertThat(resultCreate).isInstanceOf(Result.Success::class.java)
+
+        val taskId = (resultCreate as Result.Success).data
+
+        val boardListFlow = repository.getBoardListsStream(args["boardId"]!!, args["workspaceId"]!!).take(2)
+        val listResults = mutableListOf<Result<List<BoardList>>>().apply {
+            boardListFlow.collectLatest { this.add(it) }
+        }
+        val boardListData = (listResults[1] as Result.Success).data.first()
+
+        assertThat(boardListData.tasks.any { it.id == taskId }).isTrue()
+
+        val taskData = boardListData.tasks.first { it.id == taskId }
+
+        assertThat(taskData.name).isEqualTo(task.name)
+        assertThat(taskData.description).isEqualTo(task.description)
+        assertThat(taskData.position).isEqualTo(task.position)
+    }
+
+    private suspend fun createTaskArgs(): Map<String, String> {
+        val user = FirestoreTestUtil.createUser("user").also {
+            repository.createUser(it)
+        }
+
+        val workspace = FirestoreTestUtil.createWorkspace(user.id, "Workspace").run {
+            this.copy(id = (repository.createWorkspace(this) as Result.Success).data)
+        }
+
+        val board = FirestoreTestUtil.createBoard(
+            user.id,
+            User.WorkspaceInfo(workspace.id, workspace.name),
+            "Board"
+        ).run {
+            this.copy(id = (repository.createBoard(this) as Result.Success).data)
+        }
+
+        val boardList = FirestoreTestUtil.createBoardList("List", 0).run {
+            this.copy(id = (repository.createBoardList(this, board) as Result.Success).data)
+        }
+
+        return mapOf(
+            "workspaceId" to workspace.id,
+            "boardId" to board.id,
+            "boardListId" to boardList.id
+        )
     }
 }
