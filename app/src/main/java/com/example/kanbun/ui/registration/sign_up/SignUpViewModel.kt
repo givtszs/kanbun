@@ -54,6 +54,7 @@ class SignUpViewModel @Inject constructor(
             }
 
             is Result.Error -> processAuthenticationError(result.message)
+            is Result.Loading -> {}
         }
     }
 }

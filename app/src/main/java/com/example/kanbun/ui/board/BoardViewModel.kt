@@ -9,6 +9,7 @@ import com.example.kanbun.domain.model.BoardList
 import com.example.kanbun.domain.repository.FirestoreRepository
 import com.example.kanbun.ui.ViewState.BoardViewState
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -27,22 +28,40 @@ class BoardViewModel @Inject constructor(
 ) : ViewModel() {
 
     private val _board = MutableStateFlow(Board())
-    private var _boardLists: Flow<List<BoardList>> = _board.flatMapLatest { board ->
-        firestoreRepository.getBoardListsFlow(
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    private var _boardLists: Flow<Result<List<BoardList>>> = _board.flatMapLatest { board ->
+        firestoreRepository.getBoardListsStream(
             boardId = board.id,
             workspaceId = board.settings.workspace.id
         )
     }
-    private val _isLoading = MutableStateFlow(false)
+    private val _isLoading = MutableStateFlow(true)
     private val _message = MutableStateFlow<String?>(null)
     val boardState: StateFlow<BoardViewState> =
-        combine(_board, _boardLists, _isLoading, _message) { board, boardLists, isLoading, message ->
+        combine(
+            _board,
+            _boardLists,
+            _isLoading,
+            _message
+        ) { board, boardLists, isLoading, message ->
             Log.d(TAG, "boardState#_boardLists: $boardLists")
             Log.d(TAG, "boardState#_board: $board")
+            var isLoading1 = isLoading
             BoardViewState(
                 board = board,
-                lists = boardLists.reversed(),
-                isLoading = isLoading,
+                lists = when (boardLists) {
+                    is Result.Success -> {
+                        isLoading1 = false
+                        boardLists.data.reversed()
+                    }
+                    is Result.Error -> emptyList()
+                    is Result.Loading -> {
+                        isLoading1 = true
+                        emptyList()
+                    }
+                },
+                isLoading = isLoading1,
                 message = message
             )
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), BoardViewState())
@@ -52,6 +71,7 @@ class BoardViewModel @Inject constructor(
         when (val result = firestoreRepository.getBoard(boardId, workspaceId)) {
             is Result.Success -> _board.value = result.data
             is Result.Error -> _message.value = result.message
+            is Result.Loading -> _isLoading.value = true
         }
     }
 

@@ -312,29 +312,32 @@ class FirestoreRepositoryImpl @Inject constructor(
             }
     }
 
-    override fun getBoardListsFlow(boardId: String, workspaceId: String): Flow<List<BoardList>> = callbackFlow {
+    override fun getBoardListsStream(
+        boardId: String,
+        workspaceId: String
+    ): Flow<Result<List<BoardList>>> = callbackFlow {
         var listener: ListenerRegistration? = null
         if (boardId.isEmpty() || workspaceId.isEmpty()) {
-            trySend(emptyList())
-//            close()
-//            return@callbackFlow
+            trySend(Result.Loading)
         } else {
             val workspacePath =
                 "${FirestoreCollection.WORKSPACES.collectionName}/$workspaceId"
             val boardPath = "${FirestoreCollection.BOARDS.collectionName}/$boardId"
-            listener =
-                firestore.collection("$workspacePath/$boardPath/${FirestoreCollection.BOARD_LIST.collectionName}")
-                    .addSnapshotListener { querySnapshot, error ->
-                        querySnapshot?.let {
-                            trySend(
-                                it.documents.map { docSnapshot ->
-                                    val boardList = docSnapshot.toObject(FirestoreBoardList::class.java)?.toBoardList(docSnapshot.id) ?: throw NullPointerException("Couldn't convert FirestoreBoardList to BoardList since the value is null")
-                                    Log.d(TAG, "getBoardListsFlow#boardList: $boardList")
-                                    boardList
-                                }
-                            )
+            listener = firestore
+                .collection("$workspacePath/$boardPath/${FirestoreCollection.BOARD_LIST.collectionName}")
+                .addSnapshotListener { querySnapshot, error ->
+                    trySend(Result.Loading)
+                    querySnapshot?.let {
+                        val boardLists = it.documents.map { docSnapshot ->
+                            val boardList = docSnapshot.toObject(FirestoreBoardList::class.java)
+                                ?.toBoardList(docSnapshot.id)
+                                ?: throw NullPointerException("Couldn't convert FirestoreBoardList to BoardList since the value is null")
+                            Log.d(TAG, "getBoardListsFlow#boardList: $boardList")
+                            boardList
                         }
+                        trySend(Result.Success(boardLists))
                     }
+                }
         }
 
         awaitClose {

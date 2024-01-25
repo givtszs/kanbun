@@ -3,9 +3,12 @@ package com.example.kanbun.domain.repository
 import com.example.kanbun.common.Result
 import com.example.kanbun.data.repository.FirestoreRepositoryImpl
 import com.example.kanbun.domain.FirestoreTestUtil
+import com.example.kanbun.domain.model.BoardList
 import com.example.kanbun.domain.model.User
 import com.google.common.truth.Truth.assertThat
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Before
@@ -399,8 +402,18 @@ class FirestoreRepositoryTest {
             this.copy(id = listId)
         }
 
-        val boardListFlow = repository.getBoardListsFlow(board)
+        val boardListFlow = repository.getBoardListsStream(board.id, workspace.id).take(2)
+        val results = mutableListOf<Result<List<BoardList>>>()
 
-        assertThat(boardListFlow.first().first()).isEqualTo(boardList)
+        boardListFlow.collect {
+            results.add(it)
+        }
+
+        assertThat(results.first()).isInstanceOf(Result.Loading::class.java)
+        assertThat(results[1]).isInstanceOf(Result.Success::class.java)
+
+        val resultData = (results[1] as Result.Success).data.first()
+
+        assertThat(resultData).isEqualTo(boardList)
     }
 }

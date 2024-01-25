@@ -19,6 +19,7 @@ class WorkspaceSettingsViewModel @Inject constructor(
         return when (val result = firestoreRepository.updateWorkspaceName(workspace, newName)) {
             is Result.Success -> Pair(true, "Workspace data has been updated")
             is Result.Error -> Pair(false, result.message ?: "")
+            is Result.Loading -> Pair(false, "Loading...")
         }
     }
 

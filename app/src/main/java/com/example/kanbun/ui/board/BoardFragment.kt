@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
+import androidx.core.view.isVisible
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
@@ -22,6 +23,7 @@ import com.example.kanbun.ui.ViewState
 import com.example.kanbun.ui.board.adapter.BoardListsAdapter
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
@@ -119,6 +121,8 @@ class BoardFragment : BaseFragment(), StateHandler {
             if (lists.isNotEmpty()) {
                 boardListsAdapter?.setData(lists)
             }
+
+            binding.loading.root.isVisible = isLoading
 
             message?.let {
                 showToast(it)

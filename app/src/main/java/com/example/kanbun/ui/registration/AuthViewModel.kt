@@ -128,6 +128,7 @@ open class AuthViewModel @Inject constructor(
             }
 
             is Result.Error -> showMessage(result.message)
+            is Result.Loading -> {}
         }
     }
 
@@ -147,6 +148,7 @@ open class AuthViewModel @Inject constructor(
             }
 
             is Result.Error -> showMessage(result.message)
+            is Result.Loading -> {}
         }
     }
 }
