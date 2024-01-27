@@ -336,7 +336,7 @@ class FirestoreRepositoryImpl @Inject constructor(
                                 ?: throw NullPointerException("Couldn't convert FirestoreBoardList to BoardList since the value is null")
                             Log.d(TAG, "getBoardListsFlow#boardList: $boardList")
                             boardList
-                        }
+                        }.reversed()
                         trySend(Result.Success(boardLists))
                     }
                 }

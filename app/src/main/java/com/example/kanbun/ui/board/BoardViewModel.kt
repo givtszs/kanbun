@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.kanbun.common.Result
 import com.example.kanbun.domain.model.Board
 import com.example.kanbun.domain.model.BoardList
+import com.example.kanbun.domain.model.Task
 import com.example.kanbun.domain.repository.FirestoreRepository
 import com.example.kanbun.ui.ViewState.BoardViewState
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -45,16 +46,17 @@ class BoardViewModel @Inject constructor(
             _isLoading,
             _message
         ) { board, boardLists, isLoading, message ->
-            Log.d(TAG, "boardState#_boardLists: $boardLists")
-            Log.d(TAG, "boardState#_board: $board")
+            Log.d(TAG, "boardState#_board: $board,\n_boardLists: $boardLists,\nisLoading: $isLoading,\nmessage: $message")
             var isLoading1 = isLoading
             BoardViewState(
                 board = board,
                 lists = when (boardLists) {
                     is Result.Success -> {
                         isLoading1 = false
-                        boardLists.data.reversed()
+                        Log.d(TAG, "boardState#_boardLists: ${boardLists.data.reversed()}")
+                        boardLists.data
                     }
+
                     is Result.Error -> emptyList()
                     is Result.Loading -> {
                         isLoading1 = true
@@ -94,4 +96,19 @@ class BoardViewModel @Inject constructor(
             workspaceId = _board.value.settings.workspace.id
         )
     }
+
+    fun createTask(name: String, boardList: BoardList) = viewModelScope.launch {
+        val task = Task(
+            position = boardList.tasks.size.toLong(),
+            name = name,
+        )
+
+        firestoreRepository.createTask(
+            task = task,
+            listId = boardList.id,
+            boardId = _board.value.id,
+            workspaceId = _board.value.settings.workspace.id
+        )
+    }
+
 }

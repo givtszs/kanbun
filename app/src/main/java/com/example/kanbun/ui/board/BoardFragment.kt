@@ -16,6 +16,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.PagerSnapHelper
 import com.example.kanbun.databinding.FragmentBoardBinding
+import com.example.kanbun.domain.model.BoardList
 import com.example.kanbun.domain.model.Workspace
 import com.example.kanbun.ui.BaseFragment
 import com.example.kanbun.ui.StateHandler
@@ -66,7 +67,10 @@ class BoardFragment : BaseFragment(), StateHandler {
     private fun setUpBoardListsAdapter() {
         boardListsAdapter = BoardListsAdapter(
             onCreateListClickListener = {
-                buildListCreationDialog()
+                buildCreateListDialog()
+            },
+            onCreateTaskListener = { boardList ->
+                buildCreateTaskDialog(boardList)
             },
             navController = navController
         )
@@ -76,23 +80,47 @@ class BoardFragment : BaseFragment(), StateHandler {
         }
     }
 
-    private fun buildListCreationDialog() {
+    private fun buildCreateListDialog() {
+        buildAlertDialog(
+            dialogTitle = "Create list",
+            editTextHint = "Enter a new list name",
+            createCallback = { name ->
+                viewModel.createBoardList(name)
+            }
+        )
+    }
+
+    private fun buildCreateTaskDialog(boardList: BoardList) {
+        buildAlertDialog(
+            dialogTitle = "Create task",
+            editTextHint = "Enter a new task name",
+            createCallback = { name ->
+                viewModel.createTask(name, boardList)
+            }
+        )
+    }
+
+    private fun buildAlertDialog(
+        dialogTitle: String,
+        editTextHint: String,
+        createCallback: (String) -> Unit
+    ) {
         val editText = EditText(requireContext()).apply {
-            hint = "Enter a new list name"
+            hint = editTextHint
         }
 
         MaterialAlertDialogBuilder(requireContext())
-            .setTitle("Create list")
+            .setTitle(dialogTitle)
             .setView(editText)
             .setPositiveButton("Create") { _, _ ->
-                viewModel.createBoardList(editText.text.trim().toString())
+                createCallback(editText.text.trim().toString())
             }
             .setNegativeButton("Cancel") { dialog, _ ->
                 dialog.cancel()
             }
             .create()
-            .apply { 
-                setOnShowListener { 
+            .apply {
+                setOnShowListener {
                     val posButton = this.getButton(AlertDialog.BUTTON_POSITIVE).apply {
                         isEnabled = false
                     }

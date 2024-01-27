@@ -1,5 +1,6 @@
 package com.example.kanbun.ui.board.tasks_adapter
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
@@ -14,6 +15,7 @@ class TasksAdapter(
 
     fun setData(data: List<Task>) {
         tasks = data
+        Log.d("TasksAdapter", "adapter: ${this}\tsetData: $data")
         notifyDataSetChanged()
     }
 
@@ -29,6 +31,7 @@ class TasksAdapter(
         }
 
         fun bind(task: Task) {
+            Log.d("TasksAdapter", "bind:\ttask: $task")
             binding.apply {
                 tvName.text = task.name
             }
@@ -36,6 +39,7 @@ class TasksAdapter(
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ItemTaskViewHolder {
+        Log.d("TasksAdapter", "onCreateViewHolder is called")
         return ItemTaskViewHolder(
              ItemTaskBinding.inflate(LayoutInflater.from(parent.context), parent, false),
         ) { position ->

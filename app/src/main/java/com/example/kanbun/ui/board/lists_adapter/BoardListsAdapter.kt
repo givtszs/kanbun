@@ -11,6 +11,7 @@ import com.example.kanbun.domain.model.BoardList
 
 class BoardListsAdapter(
     private val onCreateListClickListener: () -> Unit,
+    private val onCreateTaskListener: (BoardList) -> Unit,
     private val navController: NavController
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
@@ -24,8 +25,11 @@ class BoardListsAdapter(
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return when (viewType) {
             BoardListsAdapterViewType.VIEW_TYPE_LIST ->  ItemBoardListViewHolder(
-                ItemBoardListBinding.inflate(LayoutInflater.from(parent.context), parent, false),
-                navController
+                binding = ItemBoardListBinding.inflate(LayoutInflater.from(parent.context), parent, false),
+                navController = navController,
+                onCreateTaskListener = { position ->
+                    onCreateTaskListener(lists[position])
+                }
             )
 
             BoardListsAdapterViewType.VIEW_TYPE_CREATE_LIST -> ItemCreateBoardListViewHolder(

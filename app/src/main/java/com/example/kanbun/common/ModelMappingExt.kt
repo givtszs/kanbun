@@ -169,6 +169,8 @@ fun FirestoreBoardList.toBoardList(boardListId: String): BoardList =
                 name = values["name"] as String,
                 description = values["description"] as String
             )
+        }.sortedBy { task ->
+            task.position
         }
     )
 
