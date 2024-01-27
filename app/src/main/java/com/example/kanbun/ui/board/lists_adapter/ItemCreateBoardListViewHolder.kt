@@ -1,4 +1,4 @@
-package com.example.kanbun.ui.board.adapter
+package com.example.kanbun.ui.board.lists_adapter
 
 import androidx.recyclerview.widget.RecyclerView
 import com.example.kanbun.databinding.ItemCreateBoardListBinding

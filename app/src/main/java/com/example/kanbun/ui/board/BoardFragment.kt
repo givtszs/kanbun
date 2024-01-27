@@ -20,10 +20,9 @@ import com.example.kanbun.domain.model.Workspace
 import com.example.kanbun.ui.BaseFragment
 import com.example.kanbun.ui.StateHandler
 import com.example.kanbun.ui.ViewState
-import com.example.kanbun.ui.board.adapter.BoardListsAdapter
+import com.example.kanbun.ui.board.lists_adapter.BoardListsAdapter
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
@@ -68,7 +67,8 @@ class BoardFragment : BaseFragment(), StateHandler {
         boardListsAdapter = BoardListsAdapter(
             onCreateListClickListener = {
                 buildListCreationDialog()
-            }
+            },
+            navController = navController
         )
         binding.rvLists.apply {
             adapter = boardListsAdapter

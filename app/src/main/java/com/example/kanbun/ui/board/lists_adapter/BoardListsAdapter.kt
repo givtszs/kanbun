@@ -1,7 +1,8 @@
-package com.example.kanbun.ui.board.adapter
+package com.example.kanbun.ui.board.lists_adapter
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.navigation.NavController
 import androidx.recyclerview.widget.RecyclerView
 import com.example.kanbun.common.BoardListsAdapterViewType
 import com.example.kanbun.databinding.ItemBoardListBinding
@@ -9,7 +10,8 @@ import com.example.kanbun.databinding.ItemCreateBoardListBinding
 import com.example.kanbun.domain.model.BoardList
 
 class BoardListsAdapter(
-    private val onCreateListClickListener: () -> Unit
+    private val onCreateListClickListener: () -> Unit,
+    private val navController: NavController
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     private var lists: List<BoardList> = emptyList()
@@ -22,7 +24,8 @@ class BoardListsAdapter(
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return when (viewType) {
             BoardListsAdapterViewType.VIEW_TYPE_LIST ->  ItemBoardListViewHolder(
-                ItemBoardListBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+                ItemBoardListBinding.inflate(LayoutInflater.from(parent.context), parent, false),
+                navController
             )
 
             BoardListsAdapterViewType.VIEW_TYPE_CREATE_LIST -> ItemCreateBoardListViewHolder(
