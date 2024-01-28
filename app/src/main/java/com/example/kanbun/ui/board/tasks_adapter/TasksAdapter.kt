@@ -9,7 +9,7 @@ import com.example.kanbun.domain.model.Task
 
 class TasksAdapter(
     private val onTaskClickListener: (Task) -> Unit
-) : RecyclerView.Adapter<TasksAdapter.ItemTaskViewHolder>() {
+) : RecyclerView.Adapter<ItemTaskViewHolder>() {
 
     private var tasks: List<Task> = emptyList()
 
@@ -19,29 +19,10 @@ class TasksAdapter(
         notifyDataSetChanged()
     }
 
-    class ItemTaskViewHolder(
-        private val binding: ItemTaskBinding,
-        private val clickAtPosition: (Int) -> Unit
-    ) : RecyclerView.ViewHolder(binding.root) {
-
-        init {
-            binding.materialCard.setOnClickListener {
-                clickAtPosition(adapterPosition)
-            }
-        }
-
-        fun bind(task: Task) {
-            Log.d("TasksAdapter", "bind:\ttask: $task")
-            binding.apply {
-                tvName.text = task.name
-            }
-        }
-    }
-
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ItemTaskViewHolder {
         Log.d("TasksAdapter", "onCreateViewHolder is called")
         return ItemTaskViewHolder(
-             ItemTaskBinding.inflate(LayoutInflater.from(parent.context), parent, false),
+             ItemTaskBinding.inflate(LayoutInflater.from(parent.context), parent, false)
         ) { position ->
             onTaskClickListener(tasks[position])
         }

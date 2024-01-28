@@ -25,7 +25,24 @@
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
         android:orientation="horizontal" />
 
+    <View
+        android:id="@+id/leftSide"
+        android:layout_width="50dp"
+        android:layout_height="match_parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <View
+        android:id="@+id/rightSide"
+        android:layout_width="50dp"
+        android:layout_height="match_parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
     <include
+        android:visibility="invisible"
         android:id="@+id/loading"
         layout="@layout/loading_state" />
 </androidx.constraintlayout.widget.ConstraintLayout>
