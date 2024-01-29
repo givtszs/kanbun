@@ -8,11 +8,13 @@ import com.example.kanbun.common.BoardListsAdapterViewType
 import com.example.kanbun.databinding.ItemBoardListBinding
 import com.example.kanbun.databinding.ItemCreateBoardListBinding
 import com.example.kanbun.domain.model.BoardList
+import kotlinx.coroutines.CoroutineScope
 
 class BoardListsAdapter(
     private val onCreateListClickListener: () -> Unit,
     private val onCreateTaskListener: (BoardList) -> Unit,
-    private val navController: NavController
+    private val navController: NavController,
+    private val coroutineScope: CoroutineScope
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     private var lists: List<BoardList> = emptyList()
@@ -27,6 +29,7 @@ class BoardListsAdapter(
             BoardListsAdapterViewType.VIEW_TYPE_LIST ->  ItemBoardListViewHolder(
                 binding = ItemBoardListBinding.inflate(LayoutInflater.from(parent.context), parent, false),
                 navController = navController,
+                coroutineScope = coroutineScope,
                 onCreateTaskListener = { position ->
                     onCreateTaskListener(lists[position])
                 }

@@ -53,7 +53,6 @@
                 app:layout_constraintTop_toBottomOf="@id/btnMore"
                 app:layout_constraintBottom_toTopOf="@id/btnCreateTask" />
 
-
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnCreateTask"
                 style="@style/Widget.Material3.Button.TextButton"
@@ -67,6 +66,19 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent" />
+
+            <View
+                android:id="@+id/topSide"
+                android:layout_width="match_parent"
+                android:layout_height="30dp"
+                app:layout_constraintTop_toTopOf="@id/rvTasks" />
+
+            <View
+                android:id="@+id/bottomSide"
+                android:layout_width="match_parent"
+                android:layout_height="30dp"
+                app:layout_constraintBottom_toBottomOf="@id/rvTasks" />
+
         </androidx.constraintlayout.widget.ConstraintLayout>
 
     </com.google.android.material.card.MaterialCardView>

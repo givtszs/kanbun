@@ -16,7 +16,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.PagerSnapHelper
-import com.example.kanbun.common.VERTICAL_SCROLL_DISTANCE
+import com.example.kanbun.common.HORIZONTAL_SCROLL_DISTANCE
 import com.example.kanbun.databinding.FragmentBoardBinding
 import com.example.kanbun.domain.model.BoardList
 import com.example.kanbun.domain.model.Workspace
@@ -67,18 +67,44 @@ class BoardFragment : BaseFragment(), StateHandler {
     }
 
     override fun setUpListeners() {
-        binding.leftSide.setOnDragListener { view, dragEvent ->
-            handleDragEvent(
-                xScrollValue = -VERTICAL_SCROLL_DISTANCE,
-                event = dragEvent
-            )
-        }
+        binding.leftSide.setOnDragListener(dragListener(-HORIZONTAL_SCROLL_DISTANCE))
+        binding.rightSide.setOnDragListener(dragListener(HORIZONTAL_SCROLL_DISTANCE))
+    }
 
-        binding.rightSide.setOnDragListener { view, dragEvent ->
-            handleDragEvent(
-                xScrollValue = VERTICAL_SCROLL_DISTANCE,
-                event = dragEvent
-            )
+    private val dragListener: (Int) -> View.OnDragListener = { scrollDistance ->
+        View.OnDragListener { v, event ->
+            val draggableView = event?.localState as View
+
+            when (event.action) {
+                DragEvent.ACTION_DRAG_STARTED -> {
+                    pagerSnapHelper.attachToRecyclerView(null)
+                    true
+                }
+
+                DragEvent.ACTION_DRAG_ENTERED -> {
+                    scrollJob = lifecycleScope.launch {
+                        while (true) {
+                            binding.rvLists.scrollBy(scrollDistance, 0)
+                            delay(1)
+                        }
+                    }
+                    true
+                }
+
+                DragEvent.ACTION_DRAG_EXITED -> {
+                    scrollJob?.cancel()
+                    true
+                }
+
+                DragEvent.ACTION_DRAG_ENDED -> {
+                    scrollJob?.cancel()
+                    pagerSnapHelper.attachToRecyclerView(binding.rvLists)
+                    draggableView.visibility = View.VISIBLE
+                    true
+                }
+
+                else -> false
+            }
         }
     }
 
@@ -90,44 +116,13 @@ class BoardFragment : BaseFragment(), StateHandler {
             onCreateTaskListener = { boardList ->
                 buildCreateTaskDialog(boardList)
             },
-            navController = navController
+            navController = navController,
+            coroutineScope = lifecycleScope
         )
 
         binding.rvLists.apply {
             adapter = boardListsAdapter
             pagerSnapHelper.attachToRecyclerView(this)
-        }
-    }
-
-    private fun handleDragEvent(xScrollValue: Int, event: DragEvent): Boolean {
-        return when (event.action) {
-            DragEvent.ACTION_DRAG_STARTED -> {
-                pagerSnapHelper.attachToRecyclerView(null)
-                true
-            }
-
-            DragEvent.ACTION_DRAG_ENTERED -> {
-                scrollJob = lifecycleScope.launch {
-                    while (true) {
-                        binding.rvLists.scrollBy(xScrollValue, 0)
-                        delay(1)
-                    }
-                }
-                true
-            }
-
-            DragEvent.ACTION_DRAG_EXITED -> {
-                scrollJob?.cancel()
-                true
-            }
-
-            DragEvent.ACTION_DRAG_ENDED -> {
-                scrollJob?.cancel()
-                pagerSnapHelper.attachToRecyclerView(binding.rvLists)
-                true
-            }
-
-            else -> false
         }
     }
 
