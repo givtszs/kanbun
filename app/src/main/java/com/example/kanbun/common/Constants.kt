@@ -43,3 +43,4 @@ object BoardListsAdapterViewType {
 
 const val EMAIL_RESEND_TIME_LIMIT = 60
 const val RECYCLERVIEW_BOARDS_COLUMNS = 2
+const val VERTICAL_SCROLL_DISTANCE = 5
