@@ -99,8 +99,8 @@ class BoardFragment : BaseFragment(), StateHandler {
                 DragEvent.ACTION_DRAG_ENDED -> {
                     scrollJob?.cancel()
                     pagerSnapHelper.attachToRecyclerView(binding.rvLists)
-                    draggableView.visibility = View.VISIBLE
-                    true
+//                    draggableView.visibility = View.VISIBLE
+                    event.result
                 }
 
                 else -> false

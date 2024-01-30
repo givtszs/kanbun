@@ -65,6 +65,9 @@ dependencies {
     implementation(libs.androidx.navigation.ui.ktx)
     implementation(libs.glide)
     implementation(libs.androidx.datastore.preferences)
+    implementation(libs.moshi.kotlin)
+    kapt(libs.moshi.kotlin.codegen)
+    implementation(libs.moshi)
 
     testImplementation(libs.junit)
     testImplementation(libs.kotlinx.coroutines.test)

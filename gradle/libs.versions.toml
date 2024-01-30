@@ -12,6 +12,7 @@ kotlinxCoroutinesAndroid = "1.7.1"
 kotlinxCoroutinesTest = "1.8.0-RC2"
 material = "1.11.0"
 mockitoCore = "5.8.0"
+moshi = "1.15.0"
 navigation = "2.7.6"
 playServicesAuth = "20.7.0"
 secretsGradlePlugin = "2.0.1"
@@ -35,6 +36,9 @@ junit = { module = "junit:junit", version.ref = "junit" }
 kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "kotlinxCoroutinesTest" }
 material = { module = "com.google.android.material:material", version.ref = "material" }
 mockito-core = { module = "org.mockito:mockito-core", version.ref = "mockitoCore" }
+moshi = { module = "com.squareup.moshi:moshi", version.ref = "moshi" }
+moshi-kotlin = { module = "com.squareup.moshi:moshi-kotlin", version.ref = "moshi" }
+moshi-kotlin-codegen = { module = "com.squareup.moshi:moshi-kotlin-codegen", version.ref = "moshi" }
 play-services-auth = { module = "com.google.android.gms:play-services-auth", version.ref = "playServicesAuth" }
 secrets-gradle-plugin = { module = "com.google.android.libraries.mapsplatform.secrets-gradle-plugin:secrets-gradle-plugin", version.ref = "secretsGradlePlugin" }
 truth = { module = "com.google.truth:truth", version.ref = "truth" }
