@@ -49,5 +49,33 @@ interface FirestoreRepository {
 
     fun getBoardListsStream(boardId: String, workspaceId: String): Flow<Result<List<BoardList>>>
 
-    suspend fun createTask(task: Task, listId: String, boardId: String, workspaceId: String): Result<String>
+    suspend fun createTask(
+        task: Task,
+        listId: String,
+        boardId: String,
+        workspaceId: String
+    ): Result<String>
+
+    suspend fun rearrangeTasksPositions(
+        listPath: String,
+        listId: String,
+        tasks: List<Task>,
+        from: Int,
+        to: Int
+    ): Result<Unit>
+
+    suspend fun deleteTaskAndRearrange(
+        listPath: String,
+        listId: String,
+        tasks: List<Task>,
+        from: Int
+    ): Result<Unit>
+
+    suspend fun insertTaskAndRearrange(
+        listPath: String,
+        listId: String,
+        tasks: List<Task>,
+        task: Task,
+        to: Int
+    ): Result<Unit>
 }

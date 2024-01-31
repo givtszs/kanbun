@@ -19,11 +19,13 @@ import androidx.recyclerview.widget.PagerSnapHelper
 import com.example.kanbun.common.HORIZONTAL_SCROLL_DISTANCE
 import com.example.kanbun.databinding.FragmentBoardBinding
 import com.example.kanbun.domain.model.BoardList
+import com.example.kanbun.domain.model.Task
 import com.example.kanbun.domain.model.Workspace
 import com.example.kanbun.ui.BaseFragment
 import com.example.kanbun.ui.StateHandler
 import com.example.kanbun.ui.ViewState
 import com.example.kanbun.ui.board.lists_adapter.BoardListsAdapter
+import com.example.kanbun.ui.board.tasks_adapter.TasksAdapter
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Job
@@ -110,6 +112,7 @@ class BoardFragment : BaseFragment(), StateHandler {
 
     private fun setUpBoardListsAdapter() {
         boardListsAdapter = BoardListsAdapter(
+            dropCallbacks,
             onCreateListClickListener = {
                 buildCreateListDialog()
             },
@@ -123,6 +126,56 @@ class BoardFragment : BaseFragment(), StateHandler {
         binding.rvLists.apply {
             adapter = boardListsAdapter
             pagerSnapHelper.attachToRecyclerView(this)
+        }
+    }
+
+    private val dropCallbacks = object : DropCallbacks {
+        override fun dropToInsert(
+            adapter: TasksAdapter,
+            tasksToRemoveFrom: List<Task>,
+            task: Task,
+            from: Int,
+            to: Int
+        ) {
+//            // 1. delete from the old position
+//            lifecycleScope.launch {
+//                val tasksString = buildString {
+//
+//                }
+//                Log.d("ItemTaskViewHolder", "Deleting task in adapter $adapter at position $from from tasks $")
+//                viewModel.deleteTaskAndRearrange(
+//                    listPath = adapter.listInfo.path,
+//                    listId = adapter.listInfo.id,
+//                    tasks = tasksToRemoveFrom,
+//                    from = from
+//                ).join()
+//
+//                // 2. insert into new list
+//                Log.d("ItemTaskViewHolder", "Inserting task in adapter $adapter at position $to")
+//                viewModel.insertTaskAndRearrange(
+//                    listPath = adapter.listInfo.path,
+//                    listId = adapter.listInfo.id,
+//                    tasks = adapter.tasks,
+//                    task = task,
+//                    to = to
+//                )
+//            }
+
+            viewModel.deleteAndInsert(adapter, tasksToRemoveFrom, task, from, to)
+
+        }
+
+        override fun dropToMove(adapter: TasksAdapter, from: Int, to: Int) {
+            if (from != to && to != -1) {
+                Log.d("ItemTaskViewHolder", "ACTION_DROP: move tasks")
+                viewModel.rearrangeTasks(
+                    listPath = adapter.listInfo.path,
+                    listId = adapter.listInfo.id,
+                    tasks = adapter.tasks,
+                    from = from,
+                    to = to
+                )
+            }
         }
     }
 
@@ -193,7 +246,7 @@ class BoardFragment : BaseFragment(), StateHandler {
     override fun processState(state: ViewState) {
         with(state as ViewState.BoardViewState) {
             if (lists.isNotEmpty()) {
-                boardListsAdapter?.setData(lists)
+                boardListsAdapter?.setData(lists.sortedBy { it.position })
             }
 
             binding.loading.root.isVisible = isLoading

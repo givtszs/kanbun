@@ -147,36 +147,36 @@ fun BoardList.toFirestoreBoardList(): FirestoreBoardList =
     FirestoreBoardList(
         name = name,
         position = position,
-        tasks = tasks.associate { task ->
-            task.id to mapOf(
-                "position" to task.position,
-                "name" to task.name,
-                "description" to task.description
-            )
+        path = path,
+        tasks = tasks.associate {
+            it.id to it.toFirestoreTask()
         }
     )
 
-fun FirestoreBoardList.toBoardList(boardListId: String): BoardList =
+fun FirestoreBoardList.toBoardList(boardListId: String, boardListPath: String): BoardList =
     BoardList(
         id = boardListId,
         name = name,
         position = position,
-        tasks = tasks.map { entry ->
-            val values = entry.value
-            Task(
-                id = entry.key,
-                position = values["position"] as Long,
-                name = values["name"] as String,
-                description = values["description"] as String
-            )
-        }.sortedBy { task ->
-            task.position
-        }
+        path = boardListPath,
+        tasks = tasks
+            .map { entry ->
+                entry.value.toTask(entry.key)
+            }
+            .sortedBy { task -> task.position }
     )
 
-fun Task.toMap(): Map<String, Any> =
-    mapOf(
-        "position" to position,
-        "name" to name,
-        "description" to description
+fun Task.toFirestoreTask(): FirestoreTask =
+    FirestoreTask(
+        name = name,
+        position = position,
+        description = description
+    )
+
+fun FirestoreTask.toTask(id: String): Task =
+    Task(
+        id = id,
+        name = name,
+        position = position,
+        description = description
     )

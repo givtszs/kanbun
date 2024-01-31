@@ -12,7 +12,7 @@ import com.example.kanbun.common.toFirestoreBoardInfo
 import com.example.kanbun.common.toFirestoreBoardList
 import com.example.kanbun.common.toFirestoreUser
 import com.example.kanbun.common.toFirestoreWorkspace
-import com.example.kanbun.common.toMap
+import com.example.kanbun.common.toFirestoreTask
 import com.example.kanbun.common.toUser
 import com.example.kanbun.common.toWorkspace
 import com.example.kanbun.data.model.FirestoreBoard
@@ -54,7 +54,7 @@ class FirestoreRepositoryImpl @Inject constructor(
         firestore.collection(FirestoreCollection.USERS.collectionName)
             .document(user.id)
             .set(user.toFirestoreUser())
-            .getResult {}
+            .await()
     }
 
     override suspend fun getUser(userId: String): Result<User> = runCatching {
@@ -106,7 +106,7 @@ class FirestoreRepositoryImpl @Inject constructor(
             firestore.collection(FirestoreCollection.USERS.collectionName)
                 .document(userId)
                 .update("workspaces.${workspaceInfo.id}", workspaceInfo.name)
-                .getResult {}
+                .await()
         }
 
     private suspend fun deleteUserWorkspace(userId: String, workspaceId: String): Result<Unit> =
@@ -114,7 +114,7 @@ class FirestoreRepositoryImpl @Inject constructor(
             firestore.collection(FirestoreCollection.USERS.collectionName)
                 .document(userId)
                 .update("workspaces.$workspaceId", FieldValue.delete())
-                .getResult {}
+                .await()
         }
 
     override suspend fun createWorkspace(workspace: Workspace): Result<String> =
@@ -188,7 +188,7 @@ class FirestoreRepositoryImpl @Inject constructor(
                         firestore.collection(FirestoreCollection.USERS.collectionName)
                             .document(member.id)
                             .update("workspaces.${workspace.id}", name)
-                            .getResult {}
+                            .await()
                     }
                 }
         }
@@ -201,7 +201,7 @@ class FirestoreRepositoryImpl @Inject constructor(
         firestore.collection(FirestoreCollection.WORKSPACES.collectionName)
             .document(workspaceId)
             .update("members.$memberId", memberRole.roleName)
-            .getResult {}
+            .await()
     }
 
     override suspend fun inviteToWorkspace(
@@ -248,7 +248,7 @@ class FirestoreRepositoryImpl @Inject constructor(
         firestore.collection(FirestoreCollection.WORKSPACES.collectionName)
             .document(workspaceId)
             .update("boards.${boardInfo.boardId}", boardInfo.toFirestoreBoardInfo())
-            .getResult {}
+            .await()
     }
 
     override suspend fun createBoard(board: Board): Result<String> = runCatching {
@@ -286,13 +286,14 @@ class FirestoreRepositoryImpl @Inject constructor(
                 }
         }
 
-    private fun updateBoardsList(board: Board, boardListId: String): Result<Unit> =
+    private suspend fun updateBoardsList(board: Board, boardListId: String): Result<Unit> =
         runCatching {
             val workspacePath =
                 "${FirestoreCollection.WORKSPACES.collectionName}/${board.settings.workspace.id}"
             firestore.collection("$workspacePath/${FirestoreCollection.BOARDS.collectionName}")
                 .document(board.id)
                 .update("lists", board.lists + boardListId)
+                .await()
         }
 
     override suspend fun createBoardList(
@@ -325,14 +326,15 @@ class FirestoreRepositoryImpl @Inject constructor(
             val workspacePath =
                 "${FirestoreCollection.WORKSPACES.collectionName}/$workspaceId"
             val boardPath = "${FirestoreCollection.BOARDS.collectionName}/$boardId"
+            val path = "$workspacePath/$boardPath/${FirestoreCollection.BOARD_LIST.collectionName}"
             listener = firestore
-                .collection("$workspacePath/$boardPath/${FirestoreCollection.BOARD_LIST.collectionName}")
+                .collection(path)
                 .addSnapshotListener { querySnapshot, error ->
                     trySend(Result.Loading)
                     querySnapshot?.let {
                         val boardLists = it.documents.map { docSnapshot ->
                             val boardList = docSnapshot.toObject(FirestoreBoardList::class.java)
-                                ?.toBoardList(docSnapshot.id)
+                                ?.toBoardList(docSnapshot.id, path)
                                 ?: throw NullPointerException("Couldn't convert FirestoreBoardList to BoardList since the value is null")
                             Log.d(TAG, "getBoardListsFlow#boardList: $boardList")
                             boardList
@@ -360,7 +362,107 @@ class FirestoreRepositoryImpl @Inject constructor(
         firestore
             .collection("$workspacePath/$boardPath/$listPath")
             .document(listId)
-            .update("tasks.${taskId}", task.toMap())
-            .getResult { taskId  }
+            .update("tasks.${taskId}", task.toFirestoreTask())
+            .getResult { taskId }
+    }
+
+    private fun rearrange(
+        tasks: List<com.example.kanbun.domain.model.Task>,
+        from: Int,
+        to: Int
+    ): Map<String, Long> {
+        val updMap = mutableMapOf<String, Long>()
+        if (from < to) {
+            for (i in (from + 1)..to) {
+                updMap["tasks.${tasks[i].id}.position"] = tasks[i].position.dec()
+            }
+        } else {
+            for (i in to..<from) {
+                updMap["tasks.${tasks[i].id}.position"] = tasks[i].position.inc()
+            }
+        }
+
+        updMap["tasks.${tasks[from].id}.position"] = to.toLong()
+
+        return updMap
+    }
+
+    private suspend fun updateTasksPositions(
+        listPath: String,
+        listId: String,
+        updatesMap: Map<String, Any>
+    ) {
+        firestore.collection(listPath)
+            .document(listId)
+            .update(updatesMap)
+            .await()
+    }
+
+    override suspend fun rearrangeTasksPositions(
+        listPath: String,
+        listId: String,
+        tasks: List<com.example.kanbun.domain.model.Task>,
+        from: Int,
+        to: Int
+    ): Result<Unit> = runCatching {
+        val updatesMap = rearrange(tasks, from, to)
+        updateTasksPositions(listPath, listId, updatesMap)
+//        firestore.collection(listPath)
+//            .document(listId)
+//            .update(updatesMap)
+//            .await()
+    }
+
+    private fun deleteAndRearrange(
+        tasks: List<com.example.kanbun.domain.model.Task>,
+        from: Int
+    ): Map<String, Any> {
+        val updMap = mutableMapOf<String, Any>()
+
+        for (i in (from + 1)..<tasks.size) {
+            updMap["tasks.${tasks[i].id}.position"] = tasks[i].position.dec()
+        }
+
+
+        updMap["tasks.${tasks[from].id}"] = FieldValue.delete()
+
+        return updMap
+    }
+
+    override suspend fun deleteTaskAndRearrange(
+        listPath: String,
+        listId: String,
+        tasks: List<com.example.kanbun.domain.model.Task>,
+        from: Int
+    ): Result<Unit> = runCatching {
+        val updatesMap = deleteAndRearrange(tasks, from)
+        updateTasksPositions(listPath, listId, updatesMap)
+    }
+
+    private fun insertAndRearrange(
+        listToInsert: List<com.example.kanbun.domain.model.Task>,
+        task: com.example.kanbun.domain.model.Task,
+        to: Int
+    ): Map<String, Any> {
+        val updMap = mutableMapOf<String, Any>()
+
+        for (i in to..<listToInsert.size) {
+            updMap["tasks.${listToInsert[i].id}.position"] = listToInsert[i].position.inc()
+        }
+
+        updMap["tasks.${task.id}"] = task.toFirestoreTask()
+
+        return updMap
+    }
+
+    override suspend fun insertTaskAndRearrange(
+        listPath: String,
+        listId: String,
+        tasks: List<com.example.kanbun.domain.model.Task>,
+        task: com.example.kanbun.domain.model.Task,
+        to: Int
+    ): Result<Unit> = runCatching {
+        val updatesMap = insertAndRearrange(tasks, task, to)
+        updateTasksPositions(listPath, listId, updatesMap)
     }
 }

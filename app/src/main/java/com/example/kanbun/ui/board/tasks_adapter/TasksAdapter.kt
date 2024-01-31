@@ -10,30 +10,38 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.example.kanbun.databinding.ItemTaskBinding
 import com.example.kanbun.domain.model.Task
+import com.example.kanbun.ui.board.DropCallbacks
+import com.example.kanbun.ui.model.BoardListInfo
 import com.example.kanbun.ui.model.DragAndDropTaskItem
 import com.squareup.moshi.JsonAdapter
 import com.squareup.moshi.Moshi
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.currentCoroutineContext
-import java.util.Collections
-import kotlin.coroutines.coroutineContext
 
-private var taskOldPosition = -1
-private lateinit var draggedViewAdapter: TasksAdapter
-private var currentAdapter: TasksAdapter? = null
-private var draggedTask: Pair<Int, Task>? = null
+interface DragCallbacks {
+    fun move(from: Int, to: Int)
+    fun removeDragShadow()
+
+    fun removeDataAt(position: Int)
+    fun insertDragShadow(adapter: TasksAdapter, position: Int)
+
+}
 
 class TasksAdapter(
+    private val dropCallbacks: DropCallbacks,
     private val onTaskClickListener: (Task) -> Unit
-) : RecyclerView.Adapter<TasksAdapter.ItemTaskViewHolder>() {
-
-//    companion object {
-//        var taskOldPosition = -1
-//        var adapterOfDraggedView: TasksAdapter? = null
-//        var draggedTask: Pair<Int, Task>? = null
-//    }
-
+) : RecyclerView.Adapter<TasksAdapter.ItemTaskViewHolder>(), DragCallbacks {
     var tasks: MutableList<Task> = mutableListOf()
+
+    companion object {
+        var currentVisibleAdapter: TasksAdapter? = null
+//        var isNewAdapter = false
+    }
+//    var isNewAdapter = false
+//    private var taskOldPosition = -1
+//    private lateinit var draggedViewAdapter: TasksAdapter
+
+    lateinit var listInfo: BoardListInfo
+//    lateinit var draggedTask: DragAndDropTaskItem
+    var toPosition = -1
 
     fun setData(data: List<Task>) {
         tasks = data.toMutableList()
@@ -41,76 +49,64 @@ class TasksAdapter(
         notifyDataSetChanged()
     }
 
-    private val dragCallbackMove: (Int, Int) -> Unit = { from, to ->
-        if (from != to) {
+    override fun move(from: Int, to: Int) {
+        if (from != to && to != -1) {
             notifyItemMoved(from, to)
-//            Collections.swap(tasks, to, from)
             Log.d("ItemTaskViewHolder", "moved item from $from to $to")
-            taskOldPosition = to
+            ItemTaskViewHolder.oldPosition = to
+            toPosition = to
         }
     }
 
-    fun removeDragShadow() {
+    override fun removeDragShadow() {
         val shadowTask = tasks.find { it.id == "drag_shadow" }
 
-        if (shadowTask != null && draggedTask != null) {
-            removeDataAt(taskOldPosition)
-            draggedViewAdapter.tasks.add(draggedTask!!.first, draggedTask!!.second)
-            draggedViewAdapter.notifyItemInserted(draggedTask!!.first)
+        if (shadowTask != null) {
+            removeDataAt(ItemTaskViewHolder.oldPosition)
+
+            // insert a task with firestore repository methods
+
+//            draggedViewAdapter.tasks.add(draggedTask!!.first, draggedTask!!.second)
+//            draggedViewAdapter.notifyItemInserted(draggedTask!!.first)
+
             Log.d("ItemTaskViewHolder", "Drag shadow task removed. Dragged task reset")
         }
     }
 
-    fun removeDataAt(position: Int) {
+    override fun removeDataAt(position: Int) {
         if (position != -1) {
-            tasks.removeAt(taskOldPosition)
+//            tasks.removeAt(position)
             notifyItemRemoved(position)
+            ItemTaskViewHolder.oldPosition = -1
+
             Log.d("ItemTaskViewHolder", "removed item at $position")
-//            taskOldPosition = -1
         }
     }
 
-    val dragCallbackDrop: (TasksAdapter, Task) -> Unit = { adapter, task ->
-        adapter.setData(
-            tasks.map {
-                if (it.id == "drag_shadow") {
-                    task
-                } else {
-                    it
-                }
-            }
-        )
-        val updTasks = buildString {
-            tasks.forEach {
-                append("${it.id}, ")
-            }
-        }
-        Log.d("ItemTaskViewHolder", "Updated tasks on drop: $updTasks")
-        adapter.notifyDataSetChanged()
-    }
+    // TODO: if method works, remove adapter parameter
+    override fun insertDragShadow(adapter: TasksAdapter, position: Int) {
+        tasks.add(position, Task(id = "drag_shadow"))
 
-    private val dragCallbackInsertDragShadow: (TasksAdapter, Int) -> Unit = { adapter, pos ->
-        tasks.add(pos, Task(id = "drag_shadow"))
         val updTasks = buildString {
             tasks.forEach {
                 append("${it.id}, ")
             }
         }
         Log.d("ItemTaskViewHolder", "Updated tasks: $updTasks")
-        adapter.notifyItemInserted(pos)
-        Log.d("ItemTaskViewHolder", "inserted item at $pos")
-        taskOldPosition = pos
-        currentAdapter = adapter
+
+        notifyItemInserted(position)
+
+        Log.d("ItemTaskViewHolder", "inserted item at $position")
+        ItemTaskViewHolder.oldPosition = position
+        toPosition = position
+//        currentVisibleAdapter = adapter
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ItemTaskViewHolder {
         Log.d("TasksAdapter", "onCreateViewHolder is called")
         return ItemTaskViewHolder(
-//            tasksAdapter = this,
             binding = ItemTaskBinding.inflate(LayoutInflater.from(parent.context), parent, false),
-//            dragCallbackMove = dragCallbackMove,
-//            dragCallbackInsert = dragCallbackInsert,
-//            dragCallbackDrop = dragCallbackDrop,
+            tasksAdapter = this@TasksAdapter
         ) { position ->
             onTaskClickListener(tasks[position])
         }
@@ -122,17 +118,17 @@ class TasksAdapter(
 
     override fun getItemCount(): Int = tasks.size
 
-    inner class ItemTaskViewHolder(
-//        private val tasksAdapter: TasksAdapter,
+    class ItemTaskViewHolder(
         private val binding: ItemTaskBinding,
-//        private val dragCallbackMove: (Int, Int) -> Unit,
-//        private val dragCallbackInsert: (TasksAdapter, Int) -> Unit,
-//        private val dragCallbackDrop: (TasksAdapter, Task) -> Unit,
+        private val tasksAdapter: TasksAdapter,
         private val clickAtPosition: (Int) -> Unit
     ) : RecyclerView.ViewHolder(binding.root) {
 
+        companion object {
+            var oldPosition = -1
+        }
+
         private var task: Task? = null
-        private val tasksAdapter = this@TasksAdapter
 
         init {
             binding.materialCard.setOnClickListener {
@@ -147,19 +143,20 @@ class TasksAdapter(
                 )
 
 //                TasksAdapter.taskOldPosition = adapterPosition
-                taskOldPosition = adapterPosition
-                currentAdapter = tasksAdapter
-                draggedViewAdapter = tasksAdapter
-                draggedTask = Pair(
-                    adapterPosition,
-                    task ?: throw NullPointerException("Task is null")
-                )
+                // set up top-level fields
+//                taskOldPosition = adapterPosition
+                currentVisibleAdapter = tasksAdapter
+                ItemTaskViewHolder.oldPosition = adapterPosition
+                ItemTaskViewHolder.oldPosition = adapterPosition
+
+//                draggedViewAdapter = tasksAdapter
+//                tasksAdapter.draggedTask =
 
                 val moshi = Moshi.Builder().build()
                 val jsonAdapter: JsonAdapter<DragAndDropTaskItem> =
                     moshi.adapter(DragAndDropTaskItem::class.java)
                 val json =
-                    jsonAdapter.toJson(DragAndDropTaskItem(task, tasksAdapter.toString()))
+                    jsonAdapter.toJson(DragAndDropTaskItem(task ?: throw NullPointerException("Task can't be null"), adapterPosition, tasksAdapter.toString(), tasksAdapter.tasks))
                 Log.d("ItemTaskViewHolder", "Parsed task: $json")
 
                 val item = ClipData.Item(json)
@@ -180,30 +177,39 @@ class TasksAdapter(
                 true
             }
 
-            var isTopHandled = false
-            var isBottomHandled = false
+
+            var isMovedUp = false
+            var isMovedDown = false
             var isInsertHandled = false
             var isNewAdapter = false
 
-            binding.materialCard.setOnDragListener { view, event ->
+            binding.materialCard.setOnDragListener { _, event ->
                 val draggableView = event?.localState as View
 
                 when (event.action) {
                     DragEvent.ACTION_DRAG_STARTED -> {
-                        true
+                        val clipDescription = event.clipDescription
+                        clipDescription.hasMimeType(ClipDescription.MIMETYPE_TEXT_PLAIN)
                     }
 
                     DragEvent.ACTION_DRAG_ENTERED -> {
                         Log.d("ItemTaskViewHolder", "View under drag: $adapterPosition")
                         Log.d(
                             "ItemTaskViewHolder",
-                            "currAdapter: $tasksAdapter, lastAdapter: $currentAdapter"
+                            "currAdapter: $tasksAdapter, lastAdapter: $currentVisibleAdapter"
                         )
 
-                        isNewAdapter = currentAdapter != tasksAdapter
+                        isNewAdapter = currentVisibleAdapter != tasksAdapter
                         if (isNewAdapter) {
-                            currentAdapter?.removeDataAt(taskOldPosition)
+                            currentVisibleAdapter?.removeDataAt(ItemTaskViewHolder.oldPosition)
+                            currentVisibleAdapter = tasksAdapter
                         }
+
+//                        // check if the current adapter user interacting with is new
+//                        isNewAdapter = currentVisibleAdapter != tasksAdapter
+//                        if (isNewAdapter) {
+//                            currentVisibleAdapter?.removeDataAt(taskOldPosition)
+//                        }
                         true
                     }
 
@@ -212,35 +218,40 @@ class TasksAdapter(
 
                         var newPos = 0
                         if (!isNewAdapter) {
-                            if (event.y < pivot && !isTopHandled) {
-                                isBottomHandled = false
-                                isTopHandled = true
+                            if (event.y < pivot && !isMovedUp) {
+                                isMovedDown = false
+                                isMovedUp = true
                                 newPos =
-                                    if (adapterPosition < taskOldPosition) taskOldPosition - 1 else adapterPosition - 1
+                                    if (adapterPosition < ItemTaskViewHolder.oldPosition) ItemTaskViewHolder.oldPosition - 1 else adapterPosition - 1
                                 Log.d(
                                     "ItemTaskViewHolder",
-                                    "oldPos: $taskOldPosition, newPos: $newPos"
+                                    "oldPos: ${ItemTaskViewHolder.oldPosition}, newPos: $newPos"
                                 )
-                                dragCallbackMove(taskOldPosition, newPos)
-                            } else if (event.y > pivot && !isBottomHandled) {
-                                isTopHandled = false
-                                isBottomHandled = true
+                                tasksAdapter.move(ItemTaskViewHolder.oldPosition, newPos)
+                            } else if (event.y > pivot && !isMovedDown) {
+                                isMovedUp = false
+                                isMovedDown = true
                                 newPos =
-                                    if (adapterPosition < taskOldPosition) adapterPosition + 1 else adapterPosition
+                                    if (adapterPosition < ItemTaskViewHolder.oldPosition) adapterPosition + 1 else adapterPosition
                                 Log.d(
                                     "ItemTaskViewHolder",
-                                    "oldPos: $taskOldPosition, newPos: $newPos"
+                                    "oldPos: $ItemTaskViewHolder.oldPosition, newPos: $newPos"
                                 )
-                                dragCallbackMove(taskOldPosition, newPos)
+                                tasksAdapter.move(ItemTaskViewHolder.oldPosition, newPos)
                             }
-                        }
-
-                        if (isNewAdapter && !isInsertHandled) {
+                        } else if (!isInsertHandled) {
                             isInsertHandled = true
                             Log.d("ItemTaskViewHolder", "insertPos: $adapterPosition")
-                            dragCallbackInsertDragShadow(tasksAdapter, adapterPosition)
+                            tasksAdapter.insertDragShadow(tasksAdapter, adapterPosition)
                         }
 
+                        true
+                    }
+
+                    DragEvent.ACTION_DRAG_EXITED -> {
+                        isMovedUp = false
+                        isMovedDown = false
+                        isInsertHandled = false
                         true
                     }
 
@@ -252,31 +263,35 @@ class TasksAdapter(
 
                         val moshi = Moshi.Builder().build()
                         val jsonAdapter = moshi.adapter(DragAndDropTaskItem::class.java)
-                        val dragItem = jsonAdapter.fromJson(data)
-                        val initAdapter = dragItem?.initAdapter
+                        val dragItem = jsonAdapter.fromJson(data) ?: throw NullPointerException("Data obtained from the ClipData is null")
+                        val initPosition = dragItem.initPosition
+                        val initAdapter = dragItem.initAdapter
+                        val initTasks = dragItem.initTasksList
+                        val task = dragItem.task
+
 
                         Log.d(
                             "ItemTaskViewHolder",
-                            "Dragged over rvTasks, are adapters the same: ${initAdapter == tasksAdapter.toString()}"
+                            "ACTION_DROP: are adapters the same: ${initAdapter == tasksAdapter.toString()}"
                         )
                         if (initAdapter != tasksAdapter.toString()) {
-                            val task = dragItem?.task
-                                ?: throw NullPointerException("Task obtained from the ClipData is null")
-                            Log.d("ItemTaskViewHolder", "Converted json: $task")
 
-                            tasksAdapter.dragCallbackDrop(tasksAdapter, task)
-//                        draggableView.visibility = View.VISIBLE
-                            true
+                            Log.d("ItemTaskViewHolder", "ACTION_DROP: dropped task $task")
+
+                            tasksAdapter.dropCallbacks.dropToInsert(
+                                tasksAdapter,
+                                initTasks.toList(),
+                                task,
+                                initPosition,
+                                tasksAdapter.toPosition
+                            )
                         } else {
-//                        draggableView.visibility = View.VISIBLE
-                            false
+                            tasksAdapter.dropCallbacks.dropToMove(
+                                tasksAdapter,
+                                initPosition,
+                                tasksAdapter.toPosition
+                            )
                         }
-                    }
-
-                    DragEvent.ACTION_DRAG_EXITED -> {
-                        isTopHandled = false
-                        isBottomHandled = false
-                        isInsertHandled = false
                         true
                     }
 

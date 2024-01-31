@@ -9,6 +9,7 @@ import com.example.kanbun.domain.model.BoardList
 import com.example.kanbun.domain.model.Task
 import com.example.kanbun.domain.repository.FirestoreRepository
 import com.example.kanbun.ui.ViewState.BoardViewState
+import com.example.kanbun.ui.board.tasks_adapter.TasksAdapter
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -37,6 +38,7 @@ class BoardViewModel @Inject constructor(
             workspaceId = board.settings.workspace.id
         )
     }
+
     private val _isLoading = MutableStateFlow(true)
     private val _message = MutableStateFlow<String?>(null)
     val boardState: StateFlow<BoardViewState> =
@@ -46,7 +48,10 @@ class BoardViewModel @Inject constructor(
             _isLoading,
             _message
         ) { board, boardLists, isLoading, message ->
-            Log.d(TAG, "boardState#_board: $board,\n_boardLists: $boardLists,\nisLoading: $isLoading,\nmessage: $message")
+            Log.d(
+                TAG,
+                "boardState#_board: $board,\n_boardLists: $boardLists,\nisLoading: $isLoading,\nmessage: $message"
+            )
             var isLoading1 = isLoading
             BoardViewState(
                 board = board,
@@ -85,7 +90,7 @@ class BoardViewModel @Inject constructor(
         firestoreRepository.createBoardList(
             boardList = BoardList(
                 name = listName,
-                position = _board.value.lists.size,
+                position = _board.value.lists.size.toLong(),
             ),
             board = _board.value
         )
@@ -111,4 +116,66 @@ class BoardViewModel @Inject constructor(
         )
     }
 
+    fun rearrangeTasks(listPath: String, listId: String, tasks: List<Task>, from: Int, to: Int) =
+        viewModelScope.launch {
+            firestoreRepository.rearrangeTasksPositions(
+                listPath = listPath,
+                listId = listId,
+                tasks = tasks,
+                from = from,
+                to = to
+            )
+        }
+
+    fun deleteTaskAndRearrange(listPath: String, listId: String, tasks: List<Task>, from: Int) =
+        viewModelScope.launch {
+            firestoreRepository.deleteTaskAndRearrange(
+                listPath = listPath,
+                listId = listId,
+                tasks = tasks,
+                from = from,
+            )
+        }
+
+    fun insertTaskAndRearrange(
+        listPath: String,
+        listId: String,
+        tasks: List<Task>,
+        task: Task,
+        to: Int
+    ) = viewModelScope.launch {
+        firestoreRepository.insertTaskAndRearrange(
+            listPath = listPath,
+            listId = listId,
+            tasks = tasks,
+            task = task,
+            to = to
+        )
+    }
+
+    fun deleteAndInsert(
+        adapter: TasksAdapter,
+        tasksToRemoveFrom: List<Task>,
+        task: Task,
+        from: Int,
+        to: Int
+    ) = viewModelScope.launch {
+        val listPath = adapter.listInfo.path
+        val listId = adapter.listInfo.id
+        val tasksRemoveStr = buildString { tasksToRemoveFrom.forEach { append("$it, ") } }
+        Log.d("ItemTaskViewHolder", "Deleting task in adapter $adapter at position $from from tasks $tasksRemoveStr")
+        val deleteResult = firestoreRepository.deleteTaskAndRearrange(listPath, listId, tasksToRemoveFrom, from)
+
+        if (deleteResult is Result.Error) {
+            _message.value = deleteResult.message
+            return@launch
+        }
+
+        val tasksInsertStr = buildString { adapter.tasks.forEach { append("$it, ") } }
+        Log.d("ItemTaskViewHolder", "Inserting task in adapter $adapter at position $to from tasks $tasksInsertStr")
+        val insertResult = firestoreRepository.insertTaskAndRearrange(listPath, listId, adapter.tasks, task, to)
+        if (insertResult is Result.Error) {
+            _message.value = insertResult.message
+        }
+    }
 }

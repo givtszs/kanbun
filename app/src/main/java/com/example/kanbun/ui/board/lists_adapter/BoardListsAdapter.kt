@@ -8,9 +8,11 @@ import com.example.kanbun.common.BoardListsAdapterViewType
 import com.example.kanbun.databinding.ItemBoardListBinding
 import com.example.kanbun.databinding.ItemCreateBoardListBinding
 import com.example.kanbun.domain.model.BoardList
+import com.example.kanbun.ui.board.DropCallbacks
 import kotlinx.coroutines.CoroutineScope
 
 class BoardListsAdapter(
+    private val dropCallbacks: DropCallbacks,
     private val onCreateListClickListener: () -> Unit,
     private val onCreateTaskListener: (BoardList) -> Unit,
     private val navController: NavController,
@@ -28,11 +30,12 @@ class BoardListsAdapter(
         return when (viewType) {
             BoardListsAdapterViewType.VIEW_TYPE_LIST ->  ItemBoardListViewHolder(
                 binding = ItemBoardListBinding.inflate(LayoutInflater.from(parent.context), parent, false),
+                dropCallbacks = dropCallbacks,
                 navController = navController,
                 coroutineScope = coroutineScope,
                 onCreateTaskListener = { position ->
                     onCreateTaskListener(lists[position])
-                }
+                },
             )
 
             BoardListsAdapterViewType.VIEW_TYPE_CREATE_LIST -> ItemCreateBoardListViewHolder(

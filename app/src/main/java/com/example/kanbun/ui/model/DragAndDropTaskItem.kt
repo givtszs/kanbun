@@ -5,6 +5,8 @@ import com.squareup.moshi.JsonClass
 
 @JsonClass(generateAdapter = true)
 data class DragAndDropTaskItem(
-    val task: Task?,
-    val initAdapter: String
+    val task: Task,
+    val initPosition: Int,
+    val initAdapter: String,
+    val initTasksList: MutableList<Task>
 )

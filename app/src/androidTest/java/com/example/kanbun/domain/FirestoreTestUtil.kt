@@ -128,7 +128,7 @@ class FirestoreTestUtil {
         fun createBoardList(name: String, position: Int): BoardList =
             BoardList(
                 name = name,
-                position = position,
+                position = position.toLong(),
                 tasks = emptyList()
             )
 
