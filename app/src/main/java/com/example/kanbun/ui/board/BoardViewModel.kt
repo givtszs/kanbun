@@ -10,6 +10,7 @@ import com.example.kanbun.domain.model.Task
 import com.example.kanbun.domain.repository.FirestoreRepository
 import com.example.kanbun.ui.ViewState.BoardViewState
 import com.example.kanbun.ui.board.tasks_adapter.TasksAdapter
+import com.example.kanbun.ui.model.DragAndDropTaskItem
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -155,16 +156,20 @@ class BoardViewModel @Inject constructor(
 
     fun deleteAndInsert(
         adapter: TasksAdapter,
-        tasksToRemoveFrom: List<Task>,
-        task: Task,
-        from: Int,
+        dragItem: DragAndDropTaskItem,
         to: Int
     ) = viewModelScope.launch {
-        val listPath = adapter.listInfo.path
-        val listId = adapter.listInfo.id
-        val tasksRemoveStr = buildString { tasksToRemoveFrom.forEach { append("$it, ") } }
-        Log.d("ItemTaskViewHolder", "Deleting task in adapter $adapter at position $from from tasks $tasksRemoveStr")
-        val deleteResult = firestoreRepository.deleteTaskAndRearrange(listPath, listId, tasksToRemoveFrom, from)
+        val tasksRemoveStr = buildString { dragItem.initTasksList.forEach { append("$it, ") } }
+        Log.d(
+            "ItemTaskViewHolder",
+            "Deleting task in adapter $adapter at position ${dragItem.initPosition} from tasks $tasksRemoveStr"
+        )
+        val deleteResult = firestoreRepository.deleteTaskAndRearrange(
+            dragItem.initBoardList.path,
+            dragItem.initBoardList.id,
+            dragItem.initTasksList,
+            dragItem.initPosition
+        )
 
         if (deleteResult is Result.Error) {
             _message.value = deleteResult.message
@@ -172,8 +177,18 @@ class BoardViewModel @Inject constructor(
         }
 
         val tasksInsertStr = buildString { adapter.tasks.forEach { append("$it, ") } }
-        Log.d("ItemTaskViewHolder", "Inserting task in adapter $adapter at position $to from tasks $tasksInsertStr")
-        val insertResult = firestoreRepository.insertTaskAndRearrange(listPath, listId, adapter.tasks, task, to)
+        Log.d(
+            "ItemTaskViewHolder",
+            "Inserting task in adapter $adapter at position $to into tasks $tasksInsertStr"
+        )
+        val insertResult =
+            firestoreRepository.insertTaskAndRearrange(
+                adapter.listInfo.path,
+                adapter.listInfo.id,
+                adapter.tasks,
+                dragItem.task,
+                to
+            )
         if (insertResult is Result.Error) {
             _message.value = insertResult.message
         }

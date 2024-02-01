@@ -26,6 +26,7 @@ import com.example.kanbun.ui.StateHandler
 import com.example.kanbun.ui.ViewState
 import com.example.kanbun.ui.board.lists_adapter.BoardListsAdapter
 import com.example.kanbun.ui.board.tasks_adapter.TasksAdapter
+import com.example.kanbun.ui.model.DragAndDropTaskItem
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Job
@@ -99,10 +100,11 @@ class BoardFragment : BaseFragment(), StateHandler {
                 }
 
                 DragEvent.ACTION_DRAG_ENDED -> {
+                    Log.d("ItemTaskViewHolder", "BoardFragment#ACTION_DRAG_ENDED")
                     scrollJob?.cancel()
                     pagerSnapHelper.attachToRecyclerView(binding.rvLists)
 //                    draggableView.visibility = View.VISIBLE
-                    event.result
+                    true
                 }
 
                 else -> false
@@ -131,10 +133,8 @@ class BoardFragment : BaseFragment(), StateHandler {
 
     private val dropCallbacks = object : DropCallbacks {
         override fun dropToInsert(
-            adapter: TasksAdapter,
-            tasksToRemoveFrom: List<Task>,
-            task: Task,
-            from: Int,
+            adapterToInsert: TasksAdapter,
+            dragItem: DragAndDropTaskItem,
             to: Int
         ) {
 //            // 1. delete from the old position
@@ -161,13 +161,13 @@ class BoardFragment : BaseFragment(), StateHandler {
 //                )
 //            }
 
-            viewModel.deleteAndInsert(adapter, tasksToRemoveFrom, task, from, to)
+            viewModel.deleteAndInsert(adapterToInsert, dragItem, to)
 
         }
 
         override fun dropToMove(adapter: TasksAdapter, from: Int, to: Int) {
             if (from != to && to != -1) {
-                Log.d("ItemTaskViewHolder", "ACTION_DROP: move tasks")
+                Log.d("ItemTaskViewHolder", "ACTION_DROP: move tasks from $from to $to")
                 viewModel.rearrangeTasks(
                     listPath = adapter.listInfo.path,
                     listId = adapter.listInfo.id,

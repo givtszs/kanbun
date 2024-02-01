@@ -406,11 +406,8 @@ class FirestoreRepositoryImpl @Inject constructor(
         to: Int
     ): Result<Unit> = runCatching {
         val updatesMap = rearrange(tasks, from, to)
+        Log.d("ItemTaskViewHolder", "FirestoreRepository#rearrange: updates: $updatesMap")
         updateTasksPositions(listPath, listId, updatesMap)
-//        firestore.collection(listPath)
-//            .document(listId)
-//            .update(updatesMap)
-//            .await()
     }
 
     private fun deleteAndRearrange(
@@ -422,7 +419,6 @@ class FirestoreRepositoryImpl @Inject constructor(
         for (i in (from + 1)..<tasks.size) {
             updMap["tasks.${tasks[i].id}.position"] = tasks[i].position.dec()
         }
-
 
         updMap["tasks.${tasks[from].id}"] = FieldValue.delete()
 
@@ -436,6 +432,7 @@ class FirestoreRepositoryImpl @Inject constructor(
         from: Int
     ): Result<Unit> = runCatching {
         val updatesMap = deleteAndRearrange(tasks, from)
+        Log.d("ItemTaskViewHolder", "FirestoreRepository#delete: updates: $updatesMap")
         updateTasksPositions(listPath, listId, updatesMap)
     }
 
@@ -450,7 +447,9 @@ class FirestoreRepositoryImpl @Inject constructor(
             updMap["tasks.${listToInsert[i].id}.position"] = listToInsert[i].position.inc()
         }
 
-        updMap["tasks.${task.id}"] = task.toFirestoreTask()
+        val newTask = task.copy(position = to.toLong())
+
+        updMap["tasks.${task.id}"] = newTask.toFirestoreTask()
 
         return updMap
     }
@@ -463,6 +462,7 @@ class FirestoreRepositoryImpl @Inject constructor(
         to: Int
     ): Result<Unit> = runCatching {
         val updatesMap = insertAndRearrange(tasks, task, to)
+        Log.d("ItemTaskViewHolder", "FirestoreRepository#insert: updates: $updatesMap")
         updateTasksPositions(listPath, listId, updatesMap)
     }
 }

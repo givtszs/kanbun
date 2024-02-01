@@ -8,5 +8,6 @@ data class DragAndDropTaskItem(
     val task: Task,
     val initPosition: Int,
     val initAdapter: String,
+    val initBoardList: BoardListInfo,
     val initTasksList: MutableList<Task>
 )
