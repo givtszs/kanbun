@@ -16,7 +16,8 @@ class BoardListsAdapter(
     private val onCreateListClickListener: () -> Unit,
     private val onCreateTaskListener: (BoardList) -> Unit,
     private val navController: NavController,
-    private val coroutineScope: CoroutineScope
+    private val coroutineScope: CoroutineScope,
+    private val loadingCompleteCallback: () -> Unit
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     private var lists: List<BoardList> = emptyList()
@@ -24,6 +25,7 @@ class BoardListsAdapter(
     fun setData(data: List<BoardList>) {
         lists = data
         notifyDataSetChanged()
+        loadingCompleteCallback
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
@@ -35,7 +37,7 @@ class BoardListsAdapter(
                 coroutineScope = coroutineScope,
                 onCreateTaskListener = { position ->
                     onCreateTaskListener(lists[position])
-                },
+                }
             )
 
             BoardListsAdapterViewType.VIEW_TYPE_CREATE_LIST -> ItemCreateBoardListViewHolder(

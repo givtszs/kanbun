@@ -122,7 +122,8 @@ class BoardFragment : BaseFragment(), StateHandler {
                 buildCreateTaskDialog(boardList)
             },
             navController = navController,
-            coroutineScope = lifecycleScope
+            coroutineScope = lifecycleScope,
+            loadingCompleteCallback = { viewModel.stopLoading() }
         )
 
         binding.rvLists.apply {
@@ -167,7 +168,6 @@ class BoardFragment : BaseFragment(), StateHandler {
 
         override fun dropToMove(adapter: TasksAdapter, from: Int, to: Int) {
             if (from != to && to != -1) {
-                Log.d("ItemTaskViewHolder", "ACTION_DROP: move tasks from $from to $to")
                 viewModel.rearrangeTasks(
                     listPath = adapter.listInfo.path,
                     listId = adapter.listInfo.id,
@@ -247,6 +247,9 @@ class BoardFragment : BaseFragment(), StateHandler {
         with(state as ViewState.BoardViewState) {
             if (lists.isNotEmpty()) {
                 boardListsAdapter?.setData(lists.sortedBy { it.position })
+//                viewModel.stopLoading()
+            } else {
+                viewModel.stopLoading()
             }
 
             binding.loading.root.isVisible = isLoading

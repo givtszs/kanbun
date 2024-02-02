@@ -90,19 +90,11 @@ class ItemBoardListViewHolder(
             when (event.action) {
                 DragEvent.ACTION_DRAG_STARTED -> true
 
-                DragEvent.ACTION_DRAG_ENTERED -> {
-                    Log.d(
-                        "ItemTaskViewHolder",
-                        "RecView#ACTION_DRAG_ENTERED: \nAdapter: $tasksAdapter"
-                    )
-                    true
-                }
-
                 DragEvent.ACTION_DROP -> {
                     Log.d("ItemTaskViewHolder", "RecView#ACTION_DROP at $tasksAdapter")
 
                     val data = event.clipData.getItemAt(0).text.toString()
-                    Log.d("ItemTaskViewHolder", "Drop data: $data")
+                    Log.d("ItemTaskViewHolder", "RecView#ACTION_DROP: clip data: $data")
 
                     val moshi = Moshi.Builder().build()
                     val jsonAdapter = moshi.adapter(DragAndDropTaskItem::class.java)
@@ -111,18 +103,23 @@ class ItemBoardListViewHolder(
                     if (dragItem == null) {
                         Log.d(
                             "ItemTaskViewHolder",
-                            "ACTION_DROP: dragItem is null"
+                            "RecView#ACTION_DROP: dragItem is null"
                         )
                         false
                     } else {
-                        Log.d(
-                            "ItemTaskViewHolder",
-                            "RecView#ACTION_DROP: are adapters the same: ${dragItem.initAdapter == tasksAdapter.toString()}"
-                        )
-                        if (dragItem.initAdapter != tasksAdapter.toString()) {
-                            Log.d("ItemTaskViewHolder", "RecView#ACTION_DROP: dropped task $dragItem.task")
+                        tasksAdapter.tempRemovedTask = null
+                        tasksAdapter.removeDragShadow()
+//                        Log.d(
+//
+//                            "ItemTaskViewHolder",
+//                            "RecView#ACTION_DROP: are adapters the same: ${dragItem.initAdapter == tasksAdapter.toString()}"
+//                        )
 
-                            tasksAdapter.removeDragShadow()
+                        if (TasksAdapter.ItemTaskViewHolder.isNewAdapter) {
+                            Log.d(
+                                "ItemTaskViewHolder",
+                                "RecView#ACTION_DROP: insert task ${dragItem.task}"
+                            )
 
                             dropCallbacks.dropToInsert(
                                 adapterToInsert = tasksAdapter,
@@ -130,6 +127,10 @@ class ItemBoardListViewHolder(
                                 TasksAdapter.ItemTaskViewHolder.oldPosition
                             )
                         } else {
+                            Log.d(
+                                "ItemTaskViewHolder",
+                                "RecView#ACTION_DROP: move tasks from ${dragItem.initPosition} to ${TasksAdapter.ItemTaskViewHolder.oldPosition}"
+                            )
                             dropCallbacks.dropToMove(
                                 tasksAdapter,
                                 dragItem.initPosition,
@@ -138,15 +139,6 @@ class ItemBoardListViewHolder(
                         }
                         true
                     }
-                }
-
-                DragEvent.ACTION_DRAG_EXITED -> {
-                    Log.d(
-                        "ItemTaskViewHolder",
-                        "RecView#ACTION_DRAG_EXITED: \nAdapter: $tasksAdapter"
-                    )
-//                    TasksAdapter.adapterOfDraggedView?.removeDataAt(TasksAdapter.oldPosition)
-                    true
                 }
 
                 DragEvent.ACTION_DRAG_ENDED -> {

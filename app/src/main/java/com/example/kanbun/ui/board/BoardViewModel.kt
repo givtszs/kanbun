@@ -58,7 +58,6 @@ class BoardViewModel @Inject constructor(
                 board = board,
                 lists = when (boardLists) {
                     is Result.Success -> {
-                        isLoading1 = false
                         Log.d(TAG, "boardState#_boardLists: ${boardLists.data.reversed()}")
                         boardLists.data
                     }
@@ -85,6 +84,10 @@ class BoardViewModel @Inject constructor(
 
     fun messageShown() {
         _message.value = null
+    }
+
+    fun stopLoading() {
+        _isLoading.value = false
     }
 
     fun createBoardList(listName: String) = viewModelScope.launch {
