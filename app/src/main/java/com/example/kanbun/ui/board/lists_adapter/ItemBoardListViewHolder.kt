@@ -99,7 +99,7 @@ class ItemBoardListViewHolder(
 
                 DragEvent.ACTION_DRAG_ENDED -> {
                     Log.d("ItemTaskViewHolder", "RecView#ACTION_DRAG_ENDED")
-                    tasksAdapter.removeDragShadow()
+                    tasksAdapter.dragCallbacks.removeDropZone()
                     true
                 }
 

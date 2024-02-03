@@ -151,14 +151,14 @@ class BoardFragment : BaseFragment(), StateHandler {
                 )
                 false
             } else {
-                val containedDragShadow = adapter.removeDragShadow()
+                val containedDropZone = adapter.dragCallbacks.removeDropZone()
                 Log.d(
                     "ItemTaskViewHolder",
                     "drop: isNewAdapter: ${adapter.isNewAdapter}, " +
-                            "containsDragShadow: ${adapter.containsDragShadow}"
+                            "containedDropZone: $containedDropZone"
                 )
 
-                if (adapter.isNewAdapter || containedDragShadow) {
+                if (adapter.isNewAdapter || containedDropZone) {
                     Log.d(
                         "ItemTaskViewHolder",
                         "drop: insert task ${dragItem.task}"

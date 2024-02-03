@@ -7,6 +7,7 @@ import android.view.DragEvent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
 import com.example.kanbun.databinding.ItemTaskBinding
 import com.example.kanbun.domain.model.Task
@@ -18,25 +19,79 @@ import com.squareup.moshi.Moshi
 
 interface DragCallbacks {
     fun move(from: Int, to: Int)
-    fun removeDragShadow(): Boolean
+    fun removeDropZone(): Boolean
 
     fun removeDataAt(position: Int)
-    fun insertDragShadow(adapter: TasksAdapter, position: Int)
+    fun insertDropZone(adapter: TasksAdapter, position: Int)
 
 }
 
+private const val DROP_ZONE_TASK = "drop_zone"
+
 private lateinit var draggedTaskAdapter: TasksAdapter
-private var currentVisibleAdapter: TasksAdapter? = null
+private var currentInteractingAdapter: TasksAdapter? = null
 private var isActionDragEndedHandled = false
-private var dragShadowTask = Task(id = "drag_shadow")
+private var dropZoneTask = Task(id = DROP_ZONE_TASK)
 
 class TasksAdapter(
     private val dropCallback: DropCallback,
     private val onTaskClickListener: (Task) -> Unit
-) : RecyclerView.Adapter<TasksAdapter.ItemTaskViewHolder>(), DragCallbacks {
+) : RecyclerView.Adapter<TasksAdapter.ItemTaskViewHolder>() {
     var tasks: MutableList<Task> = mutableListOf()
 
     lateinit var listInfo: BoardListInfo
+    var isNewAdapter = false
+    var tempRemovedTask: Pair<Int, Task>? = null
+    
+    val dragCallbacks = object : DragCallbacks {
+        override fun move(from: Int, to: Int) {
+            if (from != to && to != -1) {
+                notifyItemMoved(from, to)
+                ItemTaskViewHolder.oldPosition = to
+                Log.d("ItemTaskViewHolder", "move: Moved item from $from to $to")
+            }
+        }
+
+        override fun removeDropZone(): Boolean {
+            val isDropZoneTaskPresent = tasks.any { it.id == DROP_ZONE_TASK }
+            return if (isDropZoneTaskPresent) {
+                // when we move items only the underlying dataset gets updated,
+                // so in the tasks list we remove dragShadowTask at its insert position...
+                tasks.removeAt(dropZoneTask.position.toInt())
+                dropZoneTask = dropZoneTask.copy(position = -1)
+                // ...but in the underlying dataset we remove item at the last moved position
+                notifyItemRemoved(ItemTaskViewHolder.oldPosition)
+                Log.d("ItemTaskViewHolder", "removeDropZone: removed drop zone at position ${ItemTaskViewHolder.oldPosition}")
+                true
+            } else {
+                false
+            }
+        }
+
+        override fun removeDataAt(position: Int) {
+            if (position != -1) {
+                tempRemovedTask = Pair(position, tasks[position])
+                Log.d("ItemTaskViewHolder", "removeDataAt: tempRemovedTask: ${tempRemovedTask?.second}")
+                // when we move items only the underlying dataset gets updated,
+                // so in the tasks list we remove item at its insert position...
+                tasks.removeAt(position)
+                // ...but in the underlying dataset we remove item at the last moved position
+                notifyItemRemoved(ItemTaskViewHolder.oldPosition)
+                ItemTaskViewHolder.oldPosition = -1 // TODO: Check if this reset is vital
+                Log.d("ItemTaskViewHolder", "removeData: removed item at $position")
+            }
+        }
+
+        override fun insertDropZone(adapter: TasksAdapter, position: Int) {
+            if (!tasks.any { it.id == DROP_ZONE_TASK }) {
+                dropZoneTask = dropZoneTask.copy(position = position.toLong())
+                tasks.add(position, dropZoneTask)
+                notifyItemInserted(position)
+                ItemTaskViewHolder.oldPosition = position
+                Log.d("ItemTaskViewHolder", "insertDropZone: inserted drop_zone")
+            }
+        }
+    }
 
     fun setData(data: List<Task>) {
         tasks = data.toMutableList()
@@ -46,66 +101,8 @@ class TasksAdapter(
 
     fun addData(position: Int, task: Task) {
         tasks.add(position, task)
+        notifyDataSetChanged()
         Log.d("ItemTaskViewHolder", "addData: Added task $task at position $position")
-    }
-
-    override fun move(from: Int, to: Int) {
-        if (from != to && to != -1) {
-            notifyItemMoved(from, to)
-            ItemTaskViewHolder.oldPosition = to
-
-            Log.d("ItemTaskViewHolder", "move: Moved item from $from to $to")
-        }
-    }
-
-    override fun removeDragShadow(): Boolean {
-        val isDragShadowTaskPresent = tasks.any { it.id == "drag_shadow" }
-        return if (isDragShadowTaskPresent) {
-            // when we move items only the underlying dataset gets updated,
-            // so in the tasks list we remove dragShadowTask at its insert position...
-            tasks.removeAt(dragShadowTask.position.toInt())
-            dragShadowTask = dragShadowTask.copy(position = -1)
-            // ...but in the underlying dataset we remove item at the last moved position
-            notifyItemRemoved(ItemTaskViewHolder.oldPosition)
-            containsDragShadow = false
-
-            Log.d("ItemTaskViewHolder", "removeDragShadow: removed visual drag_shadow at position ${ItemTaskViewHolder.oldPosition}")
-            true
-        } else {
-            false
-        }
-    }
-
-    var isNewAdapter = false
-    var tempRemovedTask: Pair<Int, Task>? = null
-    var containsDragShadow = false
-
-    override fun removeDataAt(position: Int) {
-        if (position != -1) {
-            tempRemovedTask = Pair(position, tasks[position])
-            Log.d("ItemTaskViewHolder", "removeDataAt: tempRemovedTask: ${tempRemovedTask?.second}")
-            // when we move items only the underlying dataset gets updated,
-            // so in the tasks list we remove item at its insert position...
-            tasks.removeAt(position)
-            // ...but in the underlying dataset we remove item at the last moved position
-            notifyItemRemoved(ItemTaskViewHolder.oldPosition)
-            ItemTaskViewHolder.oldPosition = -1 // TODO: Check if this reset is vital
-
-            Log.d("ItemTaskViewHolder", "removeData: removed item at $position")
-        }
-    }
-
-    override fun insertDragShadow(adapter: TasksAdapter, position: Int) {
-        if (!tasks.contains(Task(id = "drag_shadow"))) {
-            dragShadowTask = dragShadowTask.copy(position = position.toLong())
-            tasks.add(position, dragShadowTask)
-            notifyItemInserted(position)
-            containsDragShadow = true
-
-            ItemTaskViewHolder.oldPosition = position
-
-            Log.d("ItemTaskViewHolder", "insertDragShadow: inserted drag_shadow")
-        }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ItemTaskViewHolder {
@@ -151,7 +148,7 @@ class TasksAdapter(
 
                 isActionDragEndedHandled = false
                 draggedTaskAdapter = tasksAdapter
-                currentVisibleAdapter = tasksAdapter
+                currentInteractingAdapter = tasksAdapter
                 initPosition = adapterPosition
                 ItemTaskViewHolder.oldPosition = adapterPosition
                 tasksAdapter.isNewAdapter = false
@@ -208,18 +205,18 @@ class TasksAdapter(
                             "ItemTaskViewHolder",
                             "ACTION_DRAG_ENTERED: View under drag: $adapterPosition\n" +
                                     "currAdapter: $tasksAdapter,\n" +
-                                    "lastAdapter: $currentVisibleAdapter"
+                                    "lastAdapter: $currentInteractingAdapter"
                         )
 
-                        tasksAdapter.isNewAdapter = currentVisibleAdapter != tasksAdapter
+                        tasksAdapter.isNewAdapter = currentInteractingAdapter != tasksAdapter
                         if (tasksAdapter.isNewAdapter) {
-                            val isShadowRemoved = currentVisibleAdapter?.removeDragShadow()
+                            val isShadowRemoved = currentInteractingAdapter?.dragCallbacks?.removeDropZone()
                             if (isShadowRemoved != true) {
                                 // remove the draggable item from the hosting list
                                 // active if the user moves the item to another list
-                                currentVisibleAdapter?.removeDataAt(initPosition)
+                                currentInteractingAdapter?.dragCallbacks?.removeDataAt(initPosition)
                             }
-                            currentVisibleAdapter = tasksAdapter
+                            currentInteractingAdapter = tasksAdapter
                         }
                         true
                     }
@@ -237,7 +234,7 @@ class TasksAdapter(
                                 Log.d(
                                     "ItemTaskViewHolder",
                                     "ACTION_DRAG_LOCATION: oldPos: ${ItemTaskViewHolder.oldPosition}, newPos: $newPos")
-                                currentVisibleAdapter?.move(ItemTaskViewHolder.oldPosition, newPos)
+                                currentInteractingAdapter?.dragCallbacks?.move(ItemTaskViewHolder.oldPosition, newPos)
                             } else if (event.y > pivot && !isMovedDown) {
                                 isMovedUp = false
                                 isMovedDown = true
@@ -246,7 +243,7 @@ class TasksAdapter(
                                 Log.d(
                                     "ItemTaskViewHolder",
                                     "ACTION_DRAG_LOCATION: oldPos: ${ItemTaskViewHolder.oldPosition}, newPos: $newPos")
-                                currentVisibleAdapter?.move(ItemTaskViewHolder.oldPosition, newPos)
+                                currentInteractingAdapter?.dragCallbacks?.move(ItemTaskViewHolder.oldPosition, newPos)
                             }
                         } else if (!isInsertHandled) {
                             isInsertHandled = true
@@ -254,7 +251,7 @@ class TasksAdapter(
                                 "ItemTaskViewHolder",
                                 "ACTION_DRAG_LOCATION: insertPos: $adapterPosition"
                             )
-                            currentVisibleAdapter?.insertDragShadow(tasksAdapter, adapterPosition)
+                            currentInteractingAdapter?.dragCallbacks?.insertDropZone(tasksAdapter, adapterPosition)
                         }
 
                         true
@@ -285,8 +282,9 @@ class TasksAdapter(
                                     "tempRemovedTask: ${draggedTaskAdapter.tempRemovedTask}")
 
                             if (!event.result) {
+                                draggedTaskAdapter.dragCallbacks.removeDropZone()
                                 draggedTaskAdapter.tempRemovedTask?.let {
-                                    if (it.second.id != "drag_shadow") {
+                                    if (it.second.id != DROP_ZONE_TASK) {
                                         Log.d("ItemTaskViewHolder", "ACTION_DRAG_ENDED: bring back draggable item")
                                         draggedTaskAdapter.addData(it.first, it.second)
                                         draggedTaskAdapter.tempRemovedTask = null
@@ -311,12 +309,11 @@ class TasksAdapter(
             Log.d("TasksAdapter", "bind:\ttask: $task")
             binding.apply {
                 tvName.text = task.name
-            }
-
-            if (task.id == "drag_shadow") {
-                binding.materialCard.visibility = View.INVISIBLE
-            } else {
-                binding.materialCard.visibility = View.VISIBLE
+                materialCard.visibility = if (task.id != DROP_ZONE_TASK) {
+                    View.VISIBLE
+                } else {
+                    View.INVISIBLE
+                }
             }
 
             this.task = task
