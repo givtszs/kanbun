@@ -1,6 +1,7 @@
 package com.example.kanbun.ui.board
 
 import android.app.AlertDialog
+import android.content.ClipData
 import android.os.Bundle
 import android.util.Log
 import android.view.DragEvent
@@ -19,7 +20,6 @@ import androidx.recyclerview.widget.PagerSnapHelper
 import com.example.kanbun.common.HORIZONTAL_SCROLL_DISTANCE
 import com.example.kanbun.databinding.FragmentBoardBinding
 import com.example.kanbun.domain.model.BoardList
-import com.example.kanbun.domain.model.Task
 import com.example.kanbun.domain.model.Workspace
 import com.example.kanbun.ui.BaseFragment
 import com.example.kanbun.ui.StateHandler
@@ -28,6 +28,7 @@ import com.example.kanbun.ui.board.lists_adapter.BoardListsAdapter
 import com.example.kanbun.ui.board.tasks_adapter.TasksAdapter
 import com.example.kanbun.ui.model.DragAndDropTaskItem
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.squareup.moshi.Moshi
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -132,41 +133,67 @@ class BoardFragment : BaseFragment(), StateHandler {
         }
     }
 
-    private val dropCallbacks = object : DropCallbacks {
-        override fun dropToInsert(
+    private val dropCallbacks = object : DropCallback {
+        override fun drop(
+            clipData: ClipData,
+            adapter: TasksAdapter,
+            position: Int
+        ): Boolean {
+            val data = clipData.getItemAt(0).text.toString()
+            val moshi = Moshi.Builder().build()
+            val jsonAdapter = moshi.adapter(DragAndDropTaskItem::class.java)
+            val dragItem = jsonAdapter.fromJson(data)
+
+            return if (dragItem == null) {
+                Log.d(
+                    "ItemTaskViewHolder",
+                    "drop: dragItem is null"
+                )
+                false
+            } else {
+                val containedDragShadow = adapter.removeDragShadow()
+                Log.d(
+                    "ItemTaskViewHolder",
+                    "drop: isNewAdapter: ${adapter.isNewAdapter}, " +
+                            "containsDragShadow: ${adapter.containsDragShadow}"
+                )
+
+                if (adapter.isNewAdapter || containedDragShadow) {
+                    Log.d(
+                        "ItemTaskViewHolder",
+                        "drop: insert task ${dragItem.task}"
+                    )
+
+                    dropToInsert(
+                        adapterToInsert = adapter,
+                        dragItem,
+                        TasksAdapter.ItemTaskViewHolder.oldPosition
+                    )
+                } else {
+                    Log.d(
+                        "ItemTaskViewHolder",
+                        "drop: move tasks from ${dragItem.initPosition} to ${TasksAdapter.ItemTaskViewHolder.oldPosition}"
+                    )
+                    dropToMove(
+                        adapter,
+                        dragItem.initPosition,
+                        TasksAdapter.ItemTaskViewHolder.oldPosition
+                    )
+                }
+                true
+            }
+        }
+
+        private fun dropToInsert(
             adapterToInsert: TasksAdapter,
             dragItem: DragAndDropTaskItem,
             to: Int
         ) {
-//            // 1. delete from the old position
-//            lifecycleScope.launch {
-//                val tasksString = buildString {
-//
-//                }
-//                Log.d("ItemTaskViewHolder", "Deleting task in adapter $adapter at position $from from tasks $")
-//                viewModel.deleteTaskAndRearrange(
-//                    listPath = adapter.listInfo.path,
-//                    listId = adapter.listInfo.id,
-//                    tasks = tasksToRemoveFrom,
-//                    from = from
-//                ).join()
-//
-//                // 2. insert into new list
-//                Log.d("ItemTaskViewHolder", "Inserting task in adapter $adapter at position $to")
-//                viewModel.insertTaskAndRearrange(
-//                    listPath = adapter.listInfo.path,
-//                    listId = adapter.listInfo.id,
-//                    tasks = adapter.tasks,
-//                    task = task,
-//                    to = to
-//                )
-//            }
-
             viewModel.deleteAndInsert(adapterToInsert, dragItem, to)
 
         }
 
-        override fun dropToMove(adapter: TasksAdapter, from: Int, to: Int) {
+        private fun dropToMove(adapter: TasksAdapter, from: Int, to: Int) {
             if (from != to && to != -1) {
                 viewModel.rearrangeTasks(
                     listPath = adapter.listInfo.path,
