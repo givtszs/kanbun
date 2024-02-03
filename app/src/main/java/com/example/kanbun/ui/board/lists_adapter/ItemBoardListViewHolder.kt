@@ -108,14 +108,16 @@ class ItemBoardListViewHolder(
                         false
                     } else {
                         tasksAdapter.tempRemovedTask = null
-                        tasksAdapter.removeDragShadow()
 //                        Log.d(
 //
 //                            "ItemTaskViewHolder",
 //                            "RecView#ACTION_DROP: are adapters the same: ${dragItem.initAdapter == tasksAdapter.toString()}"
 //                        )
+                        Log.d("ItemTaskViewHolder", "ACTION_DROP: isNewAdapter: ${tasksAdapter.isNewAdapter}, " +
+                                "containsDragShadow: ${tasksAdapter.containsDragShadow}")
+                        val containedDragShadow = tasksAdapter.removeDragShadow()
 
-                        if (TasksAdapter.ItemTaskViewHolder.isNewAdapter) {
+                        if (tasksAdapter.isNewAdapter || containedDragShadow) {
                             Log.d(
                                 "ItemTaskViewHolder",
                                 "RecView#ACTION_DROP: insert task ${dragItem.task}"
