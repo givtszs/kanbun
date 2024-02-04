@@ -18,7 +18,6 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.PagerSnapHelper
 import androidx.recyclerview.widget.RecyclerView
-import com.example.kanbun.common.FirestoreCollection
 import com.example.kanbun.common.HORIZONTAL_SCROLL_DISTANCE
 import com.example.kanbun.databinding.FragmentBoardBinding
 import com.example.kanbun.domain.model.BoardList
@@ -119,16 +118,15 @@ class BoardFragment : BaseFragment(), StateHandler {
 
     private fun setUpBoardListsAdapter() {
         boardListsAdapter = BoardListsAdapter(
-            taskDropCallback,
-            boardListDropCallback,
+            coroutineScope = lifecycleScope,
+            taskDropCallback = taskDropCallbacks,
+            boardListDropCallback =  boardListDropCallback,
             onCreateListClickListener = {
                 buildCreateListDialog()
             },
             onCreateTaskListener = { boardList ->
                 buildCreateTaskDialog(boardList)
             },
-            navController = navController,
-            coroutineScope = lifecycleScope,
             loadingCompleteCallback = { viewModel.stopLoading() }
         )
 
@@ -138,67 +136,16 @@ class BoardFragment : BaseFragment(), StateHandler {
         }
     }
 
-    private val taskDropCallback = object : DropCallback {
-        override fun <T : RecyclerView.ViewHolder> drop(
-            clipData: ClipData,
-            adapter: RecyclerView.Adapter<T>,
-            position: Int
-        ): Boolean {
-            val tasksAdapter = adapter as TasksAdapter
-            val data = clipData.getItemAt(0).text.toString()
-            val moshi = Moshi.Builder().build()
-            val jsonAdapter = moshi.adapter(DragAndDropTaskItem::class.java)
-            val dragItem = jsonAdapter.fromJson(data)
-
-            return if (dragItem == null) {
-                Log.d(
-                    "ItemTaskViewHolder",
-                    "drop: dragItem is null"
-                )
-                false
-            } else {
-                val containedDropZone = tasksAdapter.dragCallbacks.removeDropZone()
-                Log.d(
-                    "ItemTaskViewHolder",
-                    "drop: isNewAdapter: ${tasksAdapter.isNewAdapter}, " +
-                            "containedDropZone: $containedDropZone"
-                )
-
-                if (tasksAdapter.isNewAdapter || containedDropZone) {
-                    Log.d(
-                        "ItemTaskViewHolder",
-                        "drop: insert task ${dragItem.task}"
-                    )
-
-                    dropToInsert(
-                        adapterToInsert = tasksAdapter,
-                        dragItem,
-                        TasksAdapter.ItemTaskViewHolder.oldPosition
-                    )
-                } else {
-                    Log.d(
-                        "ItemTaskViewHolder",
-                        "drop: move tasks from ${dragItem.initPosition} to ${TasksAdapter.ItemTaskViewHolder.oldPosition}"
-                    )
-                    dropToMove(
-                        tasksAdapter,
-                        dragItem.initPosition,
-                        TasksAdapter.ItemTaskViewHolder.oldPosition
-                    )
-                }
-                true
-            }
-        }
-
-        private fun dropToInsert(
-            adapterToInsert: TasksAdapter,
+    private val taskDropCallbacks = object : TaskDropCallbacks {
+        override fun dropToInsert(
+            adapter: TasksAdapter,
             dragItem: DragAndDropTaskItem,
-            to: Int
+            position: Int
         ) {
-            viewModel.deleteAndInsert(adapterToInsert, dragItem, to)
+            viewModel.deleteAndInsert(adapter, dragItem, position)
         }
 
-        private fun dropToMove(adapter: TasksAdapter, from: Int, to: Int) {
+        override fun dropToMove(adapter: TasksAdapter, from: Int, to: Int) {
             if (from != to && to != -1) {
                 viewModel.rearrangeTasks(
                     listPath = adapter.listInfo.path,

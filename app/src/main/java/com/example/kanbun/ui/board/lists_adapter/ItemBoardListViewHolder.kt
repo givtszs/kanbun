@@ -13,6 +13,7 @@ import com.example.kanbun.common.VERTICAL_SCROLL_DISTANCE
 import com.example.kanbun.databinding.ItemBoardListBinding
 import com.example.kanbun.domain.model.BoardList
 import com.example.kanbun.ui.board.DropCallback
+import com.example.kanbun.ui.board.TaskDropCallbacks
 import com.example.kanbun.ui.board.tasks_adapter.TasksAdapter
 import com.example.kanbun.ui.model.BoardListInfo
 import com.example.kanbun.ui.model.DragAndDropListItem
@@ -26,12 +27,11 @@ import kotlinx.coroutines.launch
 private const val TAG = "DragNDrop"
 
 class ItemBoardListViewHolder(
-    private val binding: ItemBoardListBinding,
-    private val taskDropCallback: DropCallback,
-    private val boardListDropCallback: DropCallback,
-    private val navController: NavController,
-    private val coroutineScope: CoroutineScope,
+     val binding: ItemBoardListBinding,
     private val boardListAdapter: BoardListsAdapter,
+    private val coroutineScope: CoroutineScope,
+    private val boardListDropCallback: DropCallback,
+    taskDropCallback: TaskDropCallbacks,
     private val onCreateTaskListener: (Int) -> Unit
 ) : RecyclerView.ViewHolder(binding.root) {
 
@@ -83,7 +83,7 @@ class ItemBoardListViewHolder(
             onCreateTaskListener(adapterPosition)
         }
 
-        tasksAdapter = TasksAdapter(taskDropCallback) { task ->
+        tasksAdapter = TasksAdapter(binding.rvTasks, taskDropCallback) { task ->
             // navigate to task settings fragment
 //                navController.navigate()
         }
@@ -97,33 +97,6 @@ class ItemBoardListViewHolder(
 
         binding.bottomSide.setOnDragListener(rvScrollerDragListener(VERTICAL_SCROLL_DISTANCE))
 
-        binding.rvTasks.setOnDragListener { _, event ->
-            val draggableView = event.localState as View
-
-            when (event.action) {
-                DragEvent.ACTION_DRAG_STARTED -> {
-                    event.clipDescription.hasMimeType(ClipDescription.MIMETYPE_TEXT_PLAIN)
-                }
-
-                DragEvent.ACTION_DROP -> {
-                    Log.d("ItemTaskViewHolder", "RecView#ACTION_DROP at $tasksAdapter")
-                    taskDropCallback.drop(
-                        clipData = event.clipData,
-                        adapter = tasksAdapter,
-                        position = TasksAdapter.ItemTaskViewHolder.oldPosition
-                    )
-                }
-
-                DragEvent.ACTION_DRAG_ENDED -> {
-                    Log.d("ItemTaskViewHolder", "RecView#ACTION_DRAG_ENDED")
-                    tasksAdapter.dragCallbacks.removeDropZone()
-                    true
-                }
-
-                else -> false
-            }
-        }
-
         binding.tvListName.setOnLongClickListener { view ->
             val moshi = Moshi.Builder().build()
             val jsonAdapter: JsonAdapter<DragAndDropListItem> =
@@ -131,6 +104,7 @@ class ItemBoardListViewHolder(
             val json = jsonAdapter.toJson(DragAndDropListItem(initPosition = adapterPosition))
 
             ItemBoardListViewHolder.oldPosition = adapterPosition
+            isActionDragEndedHandled = false
 
             val item = ClipData.Item(json)
             val clipData = ClipData(
@@ -170,7 +144,7 @@ class ItemBoardListViewHolder(
             when (event.action) {
                 DragEvent.ACTION_DRAG_STARTED -> {
                     Log.d("ItemBoardListViewHolder", "ACTION_DRAG_STARTED")
-                    isActionDragEndedHandled = false
+//                    isActionDragEndedHandled = false
                     event.clipDescription.hasMimeType(ClipDescription.MIMETYPE_TEXT_HTML)
                 }
 

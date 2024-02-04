@@ -9,7 +9,7 @@ import com.example.kanbun.domain.model.Workspace
 import kotlinx.coroutines.flow.Flow
 
 /**
- * Interface  defining methods for Firestore interactions related to user data.
+ * Interface defining methods for Firestore interactions related to user data.
  */
 interface FirestoreRepository {
 

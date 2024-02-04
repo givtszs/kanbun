@@ -132,32 +132,6 @@ class BoardViewModel @Inject constructor(
             )
         }
 
-    fun deleteTaskAndRearrange(listPath: String, listId: String, tasks: List<Task>, from: Int) =
-        viewModelScope.launch {
-            firestoreRepository.deleteTaskAndRearrange(
-                listPath = listPath,
-                listId = listId,
-                tasks = tasks,
-                from = from,
-            )
-        }
-
-    fun insertTaskAndRearrange(
-        listPath: String,
-        listId: String,
-        tasks: List<Task>,
-        task: Task,
-        to: Int
-    ) = viewModelScope.launch {
-        firestoreRepository.insertTaskAndRearrange(
-            listPath = listPath,
-            listId = listId,
-            tasks = tasks,
-            task = task,
-            to = to
-        )
-    }
-
     fun deleteAndInsert(
         adapter: TasksAdapter,
         dragItem: DragAndDropTaskItem,

@@ -10,15 +10,15 @@ import com.example.kanbun.databinding.ItemBoardListBinding
 import com.example.kanbun.databinding.ItemCreateBoardListBinding
 import com.example.kanbun.domain.model.BoardList
 import com.example.kanbun.ui.board.DropCallback
+import com.example.kanbun.ui.board.TaskDropCallbacks
 import kotlinx.coroutines.CoroutineScope
 
 class BoardListsAdapter(
-    private val taskDropCallback: DropCallback,
+    private val coroutineScope: CoroutineScope,
+    private val taskDropCallback: TaskDropCallbacks,
     private val boardListDropCallback: DropCallback,
     private val onCreateListClickListener: () -> Unit,
     private val onCreateTaskListener: (BoardList) -> Unit,
-    private val navController: NavController,
-    private val coroutineScope: CoroutineScope,
     private val loadingCompleteCallback: () -> Unit
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
@@ -36,7 +36,6 @@ class BoardListsAdapter(
                 binding = ItemBoardListBinding.inflate(LayoutInflater.from(parent.context), parent, false),
                 taskDropCallback = taskDropCallback,
                 boardListDropCallback = boardListDropCallback,
-                navController = navController,
                 coroutineScope = coroutineScope,
                 boardListAdapter = this@BoardListsAdapter,
                 onCreateTaskListener = { position ->
