@@ -78,4 +78,11 @@ interface FirestoreRepository {
         task: Task,
         to: Int
     ): Result<Unit>
+
+    suspend fun rearrangeBoardListsPositions(
+        listsPath: String,
+        boardLists: List<BoardList>,
+        from: Int,
+        to: Int
+    ): Result<Unit>
 }

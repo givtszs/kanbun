@@ -1,5 +1,6 @@
 package com.example.kanbun.ui.board.lists_adapter
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.navigation.NavController
@@ -12,7 +13,8 @@ import com.example.kanbun.ui.board.DropCallback
 import kotlinx.coroutines.CoroutineScope
 
 class BoardListsAdapter(
-    private val dropCallbacks: DropCallback,
+    private val taskDropCallback: DropCallback,
+    private val boardListDropCallback: DropCallback,
     private val onCreateListClickListener: () -> Unit,
     private val onCreateTaskListener: (BoardList) -> Unit,
     private val navController: NavController,
@@ -20,7 +22,7 @@ class BoardListsAdapter(
     private val loadingCompleteCallback: () -> Unit
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
-    private var lists: List<BoardList> = emptyList()
+    var lists: List<BoardList> = emptyList()
 
     fun setData(data: List<BoardList>) {
         lists = data
@@ -32,9 +34,11 @@ class BoardListsAdapter(
         return when (viewType) {
             BoardListsAdapterViewType.VIEW_TYPE_LIST ->  ItemBoardListViewHolder(
                 binding = ItemBoardListBinding.inflate(LayoutInflater.from(parent.context), parent, false),
-                dropCallback = dropCallbacks,
+                taskDropCallback = taskDropCallback,
+                boardListDropCallback = boardListDropCallback,
                 navController = navController,
                 coroutineScope = coroutineScope,
+                boardListAdapter = this@BoardListsAdapter,
                 onCreateTaskListener = { position ->
                     onCreateTaskListener(lists[position])
                 }
@@ -45,6 +49,14 @@ class BoardListsAdapter(
                 onCreateListClickListener
             )
             else -> throw IllegalArgumentException("Invalid view type")
+        }
+    }
+
+    fun move(from: Int, to: Int) {
+        if (from != to && to != -1) {
+            notifyItemMoved(from, to)
+            ItemBoardListViewHolder.oldPosition = to
+            Log.d("ItemBoardListViewHolder", "Move from $from to $to")
         }
     }
 

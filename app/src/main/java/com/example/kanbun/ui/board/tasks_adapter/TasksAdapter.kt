@@ -197,6 +197,7 @@ class TasksAdapter(
                 when (event.action) {
                     DragEvent.ACTION_DRAG_STARTED -> {
                         val clipDescription = event.clipDescription
+                        isActionDragEndedHandled = false
                         clipDescription.hasMimeType(ClipDescription.MIMETYPE_TEXT_PLAIN)
                     }
 
@@ -230,7 +231,7 @@ class TasksAdapter(
                                 isMovedDown = false
                                 isMovedUp = true
                                 newPos =
-                                    if (adapterPosition < ItemTaskViewHolder.oldPosition) ItemTaskViewHolder.oldPosition - 1 else adapterPosition - 1
+                                    if (adapterPosition < ItemTaskViewHolder.oldPosition) ItemTaskViewHolder.oldPosition - 1 else ItemTaskViewHolder.oldPosition
                                 Log.d(
                                     "ItemTaskViewHolder",
                                     "ACTION_DRAG_LOCATION: oldPos: ${ItemTaskViewHolder.oldPosition}, newPos: $newPos")

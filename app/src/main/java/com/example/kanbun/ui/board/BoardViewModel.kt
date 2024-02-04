@@ -3,6 +3,7 @@ package com.example.kanbun.ui.board
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.kanbun.common.FirestoreCollection
 import com.example.kanbun.common.Result
 import com.example.kanbun.domain.model.Board
 import com.example.kanbun.domain.model.BoardList
@@ -194,6 +195,24 @@ class BoardViewModel @Inject constructor(
             )
         if (insertResult is Result.Error) {
             _message.value = insertResult.message
+        }
+    }
+
+    fun rearrangeLists(
+        boardLists: List<BoardList>,
+        from: Int,
+        to: Int
+    ) = viewModelScope.launch {
+        if (from != to && to != -1) {
+            val workspacePath = "${FirestoreCollection.WORKSPACES.collectionName}/${_board.value.settings.workspace.id}"
+            val boardPath = "${FirestoreCollection.BOARDS.collectionName}/${_board.value.id}"
+            val listsPath = "$workspacePath/$boardPath/${FirestoreCollection.BOARD_LIST.collectionName}"
+            firestoreRepository.rearrangeBoardListsPositions(
+                listsPath,
+                boardLists,
+                from,
+                to
+            )
         }
     }
 }

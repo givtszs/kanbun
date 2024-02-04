@@ -24,7 +24,9 @@ import com.example.kanbun.domain.model.BoardList
 import com.example.kanbun.domain.model.User
 import com.example.kanbun.domain.model.Workspace
 import com.example.kanbun.domain.repository.FirestoreRepository
+import com.example.kanbun.ui.board.lists_adapter.ItemBoardListViewHolder
 import com.google.android.gms.tasks.Task
+import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
@@ -464,5 +466,44 @@ class FirestoreRepositoryImpl @Inject constructor(
         val updatesMap = insertAndRearrange(tasks, task, to)
         Log.d("ItemTaskViewHolder", "FirestoreRepository#insert: updates: $updatesMap")
         updateTasksPositions(listPath, listId, updatesMap)
+    }
+
+    private fun updateBoardListPosition(
+        collectionReference: CollectionReference,
+        documentId: String,
+        newPosition: Long
+    ): Task<Void> {
+        Log.d("ItemBoardListViewHolder", "FirestoreRepository#updateBoardListPosition: " +
+                "docId: $documentId, newPos: $newPosition")
+        return collectionReference.document(documentId)
+            .update("position", newPosition)
+    }
+
+    override suspend fun rearrangeBoardListsPositions(
+        listsPath: String,
+        boardLists: List<BoardList>,
+        from: Int,
+        to: Int
+    ): Result<Unit> = runCatching {
+        // TODO: test speed of the function with and without `await()`
+        val collectionRef = firestore.collection(listsPath)
+
+        if (from < to) {
+            boardLists.forEach { list ->
+                if (list.position in (from + 1)..to) {
+                    updateBoardListPosition(collectionRef, list.id, list.position.dec())
+                }
+            }
+
+        } else if (from > to) {
+            boardLists.forEach { list ->
+                if (list.position in to..<from) {
+                    updateBoardListPosition(collectionRef, list.id, list.position.inc())
+                }
+            }
+        }
+
+        val listToMove = boardLists[from]
+        updateBoardListPosition(collectionRef, listToMove.id, to.toLong()).await()
     }
 }

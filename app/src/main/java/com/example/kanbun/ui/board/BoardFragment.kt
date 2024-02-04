@@ -17,6 +17,8 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.PagerSnapHelper
+import androidx.recyclerview.widget.RecyclerView
+import com.example.kanbun.common.FirestoreCollection
 import com.example.kanbun.common.HORIZONTAL_SCROLL_DISTANCE
 import com.example.kanbun.databinding.FragmentBoardBinding
 import com.example.kanbun.domain.model.BoardList
@@ -25,7 +27,9 @@ import com.example.kanbun.ui.BaseFragment
 import com.example.kanbun.ui.StateHandler
 import com.example.kanbun.ui.ViewState
 import com.example.kanbun.ui.board.lists_adapter.BoardListsAdapter
+import com.example.kanbun.ui.board.lists_adapter.ItemBoardListViewHolder
 import com.example.kanbun.ui.board.tasks_adapter.TasksAdapter
+import com.example.kanbun.ui.model.DragAndDropListItem
 import com.example.kanbun.ui.model.DragAndDropTaskItem
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.squareup.moshi.Moshi
@@ -115,7 +119,8 @@ class BoardFragment : BaseFragment(), StateHandler {
 
     private fun setUpBoardListsAdapter() {
         boardListsAdapter = BoardListsAdapter(
-            dropCallbacks,
+            taskDropCallback,
+            boardListDropCallback,
             onCreateListClickListener = {
                 buildCreateListDialog()
             },
@@ -133,12 +138,13 @@ class BoardFragment : BaseFragment(), StateHandler {
         }
     }
 
-    private val dropCallbacks = object : DropCallback {
-        override fun drop(
+    private val taskDropCallback = object : DropCallback {
+        override fun <T : RecyclerView.ViewHolder> drop(
             clipData: ClipData,
-            adapter: TasksAdapter,
+            adapter: RecyclerView.Adapter<T>,
             position: Int
         ): Boolean {
+            val tasksAdapter = adapter as TasksAdapter
             val data = clipData.getItemAt(0).text.toString()
             val moshi = Moshi.Builder().build()
             val jsonAdapter = moshi.adapter(DragAndDropTaskItem::class.java)
@@ -151,21 +157,21 @@ class BoardFragment : BaseFragment(), StateHandler {
                 )
                 false
             } else {
-                val containedDropZone = adapter.dragCallbacks.removeDropZone()
+                val containedDropZone = tasksAdapter.dragCallbacks.removeDropZone()
                 Log.d(
                     "ItemTaskViewHolder",
-                    "drop: isNewAdapter: ${adapter.isNewAdapter}, " +
+                    "drop: isNewAdapter: ${tasksAdapter.isNewAdapter}, " +
                             "containedDropZone: $containedDropZone"
                 )
 
-                if (adapter.isNewAdapter || containedDropZone) {
+                if (tasksAdapter.isNewAdapter || containedDropZone) {
                     Log.d(
                         "ItemTaskViewHolder",
                         "drop: insert task ${dragItem.task}"
                     )
 
                     dropToInsert(
-                        adapterToInsert = adapter,
+                        adapterToInsert = tasksAdapter,
                         dragItem,
                         TasksAdapter.ItemTaskViewHolder.oldPosition
                     )
@@ -175,7 +181,7 @@ class BoardFragment : BaseFragment(), StateHandler {
                         "drop: move tasks from ${dragItem.initPosition} to ${TasksAdapter.ItemTaskViewHolder.oldPosition}"
                     )
                     dropToMove(
-                        adapter,
+                        tasksAdapter,
                         dragItem.initPosition,
                         TasksAdapter.ItemTaskViewHolder.oldPosition
                     )
@@ -190,7 +196,6 @@ class BoardFragment : BaseFragment(), StateHandler {
             to: Int
         ) {
             viewModel.deleteAndInsert(adapterToInsert, dragItem, to)
-
         }
 
         private fun dropToMove(adapter: TasksAdapter, from: Int, to: Int) {
@@ -203,6 +208,30 @@ class BoardFragment : BaseFragment(), StateHandler {
                     to = to
                 )
             }
+        }
+    }
+
+    private val boardListDropCallback = object : DropCallback {
+        override fun <T : RecyclerView.ViewHolder> drop(
+            clipData: ClipData,
+            adapter: RecyclerView.Adapter<T>,
+            position: Int
+        ): Boolean {
+            val boardListAdapter = adapter as BoardListsAdapter
+            val data = clipData.getItemAt(0).text.toString()
+            val moshi = Moshi.Builder().build()
+            val jsonAdapter = moshi.adapter(DragAndDropListItem::class.java)
+            val dragItem = jsonAdapter.fromJson(data)
+
+            dragItem?.let {
+                viewModel.rearrangeLists(
+                    boardLists = boardListAdapter.lists,
+                    from = dragItem.initPosition,
+                    to = ItemBoardListViewHolder.oldPosition
+                )
+            }
+
+            return true
         }
     }
 

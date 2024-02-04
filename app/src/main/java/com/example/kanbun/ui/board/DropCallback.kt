@@ -1,8 +1,9 @@
 package com.example.kanbun.ui.board
 
 import android.content.ClipData
-import com.example.kanbun.ui.board.tasks_adapter.TasksAdapter
+import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.RecyclerView.ViewHolder
 
 interface DropCallback {
-    fun drop(clipData: ClipData, adapter: TasksAdapter, position: Int): Boolean
+    fun <T : ViewHolder> drop(clipData: ClipData, adapter: RecyclerView.Adapter<T>, position: Int): Boolean
 }
