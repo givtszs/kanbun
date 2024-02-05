@@ -12,6 +12,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.kanbun.common.VERTICAL_SCROLL_DISTANCE
 import com.example.kanbun.databinding.ItemBoardListBinding
 import com.example.kanbun.domain.model.BoardList
+import com.example.kanbun.domain.model.Task
 import com.example.kanbun.ui.board.DropCallback
 import com.example.kanbun.ui.board.TaskDropCallbacks
 import com.example.kanbun.ui.board.tasks_adapter.TasksAdapter
@@ -32,7 +33,8 @@ class ItemBoardListViewHolder(
     private val coroutineScope: CoroutineScope,
     private val boardListDropCallback: DropCallback,
     taskDropCallback: TaskDropCallbacks,
-    private val onCreateTaskListener: (Int) -> Unit
+    private val onCreateTaskListener: (Int) -> Unit,
+    private val onTaskClicked: (Task) -> Unit
 ) : RecyclerView.ViewHolder(binding.root) {
 
     companion object {
@@ -83,10 +85,7 @@ class ItemBoardListViewHolder(
             onCreateTaskListener(adapterPosition)
         }
 
-        tasksAdapter = TasksAdapter(binding.rvTasks, taskDropCallback) { task ->
-            // navigate to task settings fragment
-//                navController.navigate()
-        }
+        tasksAdapter = TasksAdapter(binding.rvTasks, taskDropCallback, onTaskClicked = onTaskClicked)
 
         Log.d("TasksAdapter", "ItemBoardListViewHolder init:\ttasksAdapter: $tasksAdapter")
 

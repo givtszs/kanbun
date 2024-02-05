@@ -33,4 +33,9 @@
     <string name="fab_new_board">New board</string>
     <string name="create_task">Create task</string>
     <string name="create_board_list">Create list</string>
+    <string name="created_by">Created by: %s</string>
+    <string name="section_tags">Tags</string>
+    <string name="section_people">People(%d)</string>
+    <string name="date_starts">Starts</string>
+    <string name="date_ends">Ends</string>
 </resources>

@@ -100,5 +100,17 @@
         <argument
             android:name="boardInfo"
             app:argType="com.example.kanbun.domain.model.Workspace$BoardInfo" />
+        <action
+            android:id="@+id/action_boardFragment_to_taskDetailsFragment"
+            app:destination="@id/taskDetailsFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/taskDetailsFragment"
+        android:name="com.example.kanbun.ui.task_details.TaskDetailsFragment"
+        tools:layout="@layout/fragment_task_details"
+        android:label="Task details" >
+        <argument
+            android:name="task"
+            app:argType="com.example.kanbun.domain.model.Task" />
     </fragment>
 </navigation>

@@ -26,7 +26,7 @@ import com.squareup.moshi.Moshi
 class TasksAdapter(
     rvTasks: RecyclerView,
     private val taskDropCallbacks: TaskDropCallbacks,
-    private val onTaskClickListener: (Task) -> Unit
+    private val onTaskClicked: (Task) -> Unit,
 ) : RecyclerView.Adapter<TasksAdapter.ItemTaskViewHolder>() {
     var tasks: MutableList<Task> = mutableListOf()
         private set
@@ -79,7 +79,7 @@ class TasksAdapter(
             binding = ItemTaskBinding.inflate(LayoutInflater.from(parent.context), parent, false),
             tasksAdapter = this@TasksAdapter
         ) { position ->
-            onTaskClickListener(tasks[position])
+            onTaskClicked(tasks[position])
         }
     }
 

@@ -127,7 +127,8 @@ class BoardFragment : BaseFragment(), StateHandler {
             onCreateTaskListener = { boardList ->
                 buildCreateTaskDialog(boardList)
             },
-            loadingCompleteCallback = { viewModel.stopLoading() }
+            loadingCompleteCallback = { viewModel.stopLoading() },
+            onTaskClicked = { task -> navController.navigate(BoardFragmentDirections.actionBoardFragmentToTaskDetailsFragment(task)) }
         )
 
         binding.rvLists.apply {

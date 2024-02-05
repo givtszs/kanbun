@@ -9,6 +9,7 @@ import com.example.kanbun.common.BoardListsAdapterViewType
 import com.example.kanbun.databinding.ItemBoardListBinding
 import com.example.kanbun.databinding.ItemCreateBoardListBinding
 import com.example.kanbun.domain.model.BoardList
+import com.example.kanbun.domain.model.Task
 import com.example.kanbun.ui.board.DropCallback
 import com.example.kanbun.ui.board.TaskDropCallbacks
 import kotlinx.coroutines.CoroutineScope
@@ -19,7 +20,8 @@ class BoardListsAdapter(
     private val boardListDropCallback: DropCallback,
     private val onCreateListClickListener: () -> Unit,
     private val onCreateTaskListener: (BoardList) -> Unit,
-    private val loadingCompleteCallback: () -> Unit
+    private val loadingCompleteCallback: () -> Unit,
+    private val onTaskClicked: (Task) -> Unit
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     var lists: List<BoardList> = emptyList()
@@ -40,7 +42,8 @@ class BoardListsAdapter(
                 boardListAdapter = this@BoardListsAdapter,
                 onCreateTaskListener = { position ->
                     onCreateTaskListener(lists[position])
-                }
+                },
+                onTaskClicked = onTaskClicked
             )
 
             BoardListsAdapterViewType.VIEW_TYPE_CREATE_LIST -> ItemCreateBoardListViewHolder(
