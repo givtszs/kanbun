@@ -34,8 +34,10 @@
     <string name="create_task">Create task</string>
     <string name="create_board_list">Create list</string>
     <string name="created_by">Created by: %s</string>
-    <string name="section_tags">Tags</string>
-    <string name="section_people">People(%d)</string>
+    <string name="tags">Tags</string>
+    <string name="task_members">Members (%d)</string>
     <string name="date_starts">Starts</string>
     <string name="date_ends">Ends</string>
+    <string name="no_tags">No tags set yet</string>
+    <string name="no_task_members">No one assigned yet</string>
 </resources>

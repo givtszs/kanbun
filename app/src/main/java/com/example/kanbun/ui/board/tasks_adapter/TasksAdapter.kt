@@ -11,7 +11,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.kanbun.databinding.ItemTaskBinding
 import com.example.kanbun.domain.model.Task
 import com.example.kanbun.ui.board.TaskDropCallbacks
-import com.example.kanbun.ui.model.BoardListInfo
+import com.example.kanbun.domain.model.BoardListInfo
 import com.example.kanbun.ui.model.DragAndDropTaskItem
 import com.squareup.moshi.JsonAdapter
 import com.squareup.moshi.Moshi

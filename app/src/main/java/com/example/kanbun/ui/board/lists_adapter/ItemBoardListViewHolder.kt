@@ -7,7 +7,6 @@ import android.util.Log
 import android.view.DragEvent
 import android.view.View
 import android.view.View.DragShadowBuilder
-import androidx.navigation.NavController
 import androidx.recyclerview.widget.RecyclerView
 import com.example.kanbun.common.VERTICAL_SCROLL_DISTANCE
 import com.example.kanbun.databinding.ItemBoardListBinding
@@ -16,7 +15,7 @@ import com.example.kanbun.domain.model.Task
 import com.example.kanbun.ui.board.DropCallback
 import com.example.kanbun.ui.board.TaskDropCallbacks
 import com.example.kanbun.ui.board.tasks_adapter.TasksAdapter
-import com.example.kanbun.ui.model.BoardListInfo
+import com.example.kanbun.domain.model.BoardListInfo
 import com.example.kanbun.ui.model.DragAndDropListItem
 import com.squareup.moshi.JsonAdapter
 import com.squareup.moshi.Moshi

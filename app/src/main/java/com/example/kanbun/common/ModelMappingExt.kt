@@ -7,6 +7,7 @@ import com.example.kanbun.data.model.FirestoreUser
 import com.example.kanbun.data.model.FirestoreWorkspace
 import com.example.kanbun.domain.model.Board
 import com.example.kanbun.domain.model.BoardList
+import com.example.kanbun.domain.model.BoardListInfo
 import com.example.kanbun.domain.model.Task
 import com.example.kanbun.domain.model.User
 import com.example.kanbun.domain.model.Workspace
@@ -110,7 +111,8 @@ fun Board.toFirestoreBoard(): FirestoreBoard =
         description = description,
         owner = owner,
         settings = settings.toFirestoreBoardSettings(),
-        lists = lists
+        lists = lists,
+        tags = tags
     )
 
 fun Board.BoardSettings.toFirestoreBoardSettings(): Map<String, Any?> =
@@ -140,7 +142,8 @@ fun FirestoreBoard.toBoard(boardId: String): Board =
                     role = BoardRole.entries.first { it.roleName == entry.value })
             }
         ),
-        lists = lists
+        lists = lists,
+        tags = tags
     )
 
 fun BoardList.toFirestoreBoardList(): FirestoreBoardList =
@@ -170,7 +173,11 @@ fun Task.toFirestoreTask(): FirestoreTask =
     FirestoreTask(
         name = name,
         position = position,
-        description = description
+        boardListInfo = boardListInfo.id to boardListInfo.path,
+        description = description,
+        author = author,
+        tags = tags,
+        members = members
     )
 
 fun FirestoreTask.toTask(id: String): Task =
@@ -178,5 +185,9 @@ fun FirestoreTask.toTask(id: String): Task =
         id = id,
         name = name,
         position = position,
-        description = description
+        boardListInfo = BoardListInfo(id = boardListInfo.first, path = boardListInfo.second),
+        description = description,
+        author = author,
+        tags = tags,
+        members = members
     )

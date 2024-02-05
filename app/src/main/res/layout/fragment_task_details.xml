@@ -12,100 +12,124 @@
         android:layout_height="wrap_content"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <ScrollView
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="0dp"
+        android:paddingHorizontal="16dp"
+        android:paddingVertical="8dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toBottomOf="@id/topAppBar">
 
-        <androidx.constraintlayout.widget.ConstraintLayout
+        <TextView
+            android:id="@+id/tvName"
+            style="?textAppearanceHeadline5"
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:paddingHorizontal="16dp"
-            android:paddingVertical="8dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/topAppBar">
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="Task sample name" />
 
-            <TextView
-                android:id="@+id/tvName"
-                style="?textAppearanceHeadline5"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                app:layout_constraintTop_toTopOf="parent"
-                tools:text="Task sample name" />
+        <TextView
+            android:id="@+id/tvCreatedBy"
+            style="?textAppearanceSubtitle1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="@string/created_by"
+            app:layout_constraintTop_toBottomOf="@id/tvName"
+            tools:text="Create by: John Smith" />
 
-            <TextView
-                android:id="@+id/tvCreatedBy"
-                style="?textAppearanceSubtitle1"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:text="@string/created_by"
-                app:layout_constraintTop_toBottomOf="@id/tvName"
-                tools:text="Create by: John Smith" />
+        <TextView
+            android:id="@+id/tvDescription"
+            style="?textAppearanceSubtitle1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            app:layout_constraintTop_toBottomOf="@id/tvCreatedBy"
+            tools:text="Description example" />
 
-            <TextView
-                android:id="@+id/tvDescription"
-                style="?textAppearanceSubtitle1"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                app:layout_constraintTop_toBottomOf="@id/tvCreatedBy"
-                tools:text="Description example" />
+        <!-- Section `Tags` -->
 
-            <TextView
-                android:id="@+id/tvSectionTags"
-                style="?textAppearanceTitleMedium"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="18dp"
-                android:text="@string/section_tags"
-                android:textSize="18sp"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/tvDescription" />
+        <TextView
+            android:id="@+id/tvTags"
+            style="?textAppearanceTitleMedium"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:text="@string/tags"
+            android:textSize="18sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tvDescription" />
 
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/rvTags"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:orientation="vertical"
-                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-                app:layout_constraintTop_toBottomOf="@id/tvSectionTags"
-                tools:listitem="@layout/item_task_tag" />
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvTags"
+            android:visibility="gone"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:orientation="vertical"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+            app:layout_constraintTop_toBottomOf="@id/tvTags"
+            tools:listitem="@layout/item_task_tag" />
 
-            <TextView
-                android:id="@+id/tvSectionPeople"
-                style="?textAppearanceTitleMedium"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="18dp"
-                android:text="@string/section_people"
-                android:textSize="18sp"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/rvTags"
-                tools:text="People(1)" />
+        <TextView
+            android:id="@+id/tvNoTags"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            app:layout_constraintTop_toTopOf="@id/rvTags"
+            app:layout_constraintStart_toStartOf="@id/rvTags"
+            style="?textAppearanceSubtitle1"
+            android:text="@string/no_tags" />
 
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/rvPeople"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:orientation="vertical"
-                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-                app:layout_constraintTop_toBottomOf="@id/tvSectionPeople"
-                tools:listitem="@layout/item_task_person" />
+        <TextView
+            android:id="@+id/tvMembers"
+            style="?textAppearanceTitleMedium"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:text="@string/task_members"
+            android:textSize="18sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tvNoTags" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvMembers"
+            android:visibility="gone"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:orientation="vertical"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+            app:layout_constraintTop_toBottomOf="@id/tvMembers"
+            tools:listitem="@layout/item_task_assigned" />
+
+        <TextView
+            android:id="@+id/tvNoMembers"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            app:layout_constraintTop_toTopOf="@id/rvMembers"
+            app:layout_constraintStart_toStartOf="@id/rvTags"
+            style="?textAppearanceSubtitle1"
+            android:text="@string/no_task_members" />
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/date"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            app:layout_constraintTop_toBottomOf="@id/tvNoMembers">
 
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/cardStarts"
                 android:layout_width="0dp"
                 android:layout_height="60dp"
-                android:layout_marginTop="18dp"
                 android:layout_marginEnd="4dp"
                 app:cardCornerRadius="10dp"
                 app:layout_constraintEnd_toStartOf="@+id/cardEnds"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/rvPeople">
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent">
 
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_width="match_parent"
@@ -139,11 +163,11 @@
                 android:layout_width="0dp"
                 android:layout_height="60dp"
                 android:layout_marginStart="4dp"
-                android:layout_marginTop="18dp"
                 app:cardCornerRadius="10dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@id/cardStarts"
-                app:layout_constraintTop_toBottomOf="@id/rvPeople">
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent">
 
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_width="match_parent"
@@ -172,8 +196,8 @@
 
             </com.google.android.material.card.MaterialCardView>
 
-
         </androidx.constraintlayout.widget.ConstraintLayout>
 
-    </ScrollView>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

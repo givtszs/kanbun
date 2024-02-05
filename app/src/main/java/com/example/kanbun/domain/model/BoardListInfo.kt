@@ -1,7 +1,8 @@
-package com.example.kanbun.ui.model
+package com.example.kanbun.domain.model
 
-import com.example.kanbun.domain.model.BoardList
+import android.os.Parcelable
 import com.squareup.moshi.JsonClass
+import kotlinx.parcelize.Parcelize
 
 /**
  * Stores the [BoardList]'s Firestore reference path and document id
@@ -9,8 +10,9 @@ import com.squareup.moshi.JsonClass
  * @property id the Firestore document id
  * @property path the Firestore reference path
  */
+@Parcelize
 @JsonClass(generateAdapter = true)
 data class BoardListInfo(
-    val id: String,
-    val path: String
-)
+    val id: String = "",
+    val path: String = ""
+) : Parcelable

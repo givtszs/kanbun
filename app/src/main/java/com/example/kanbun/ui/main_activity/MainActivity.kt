@@ -47,7 +47,8 @@ class MainActivity : AppCompatActivity() {
             R.id.signInFragment,
             R.id.emailVerificationFragment,
             R.id.workspaceSettingsFragment,
-            R.id.boardFragment
+            R.id.boardFragment,
+            R.id.taskDetailsFragment
         )
 
         navController.addOnDestinationChangedListener { controller, destination, arguments ->

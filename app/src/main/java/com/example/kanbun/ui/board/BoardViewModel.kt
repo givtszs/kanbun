@@ -12,6 +12,8 @@ import com.example.kanbun.domain.repository.FirestoreRepository
 import com.example.kanbun.ui.ViewState.BoardViewState
 import com.example.kanbun.ui.board.tasks_adapter.TasksAdapter
 import com.example.kanbun.ui.model.DragAndDropTaskItem
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -111,6 +113,14 @@ class BoardViewModel @Inject constructor(
         val task = Task(
             position = boardList.tasks.size.toLong(),
             name = name,
+            author = when (val result = firestoreRepository.getUser(_board.value.owner)) {
+                is Result.Success -> result.data.name!!
+                is Result.Error -> {
+                    _message.value = result.message
+                    return@launch
+                }
+                Result.Loading -> { "" }
+            }
         )
 
         firestoreRepository.createTask(
