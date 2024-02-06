@@ -177,7 +177,9 @@ fun Task.toFirestoreTask(): FirestoreTask =
         description = description,
         author = author,
         tags = tags,
-        members = members
+        members = members,
+        dateStarts = dateStarts,
+        dateEnds = dateEnds
     )
 
 fun FirestoreTask.toTask(id: String): Task =
@@ -189,5 +191,7 @@ fun FirestoreTask.toTask(id: String): Task =
         description = description,
         author = author,
         tags = tags,
-        members = members
+        members = members,
+        dateStarts = dateStarts,
+        dateEnds = dateEnds
     )

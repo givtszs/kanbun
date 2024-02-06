@@ -34,7 +34,8 @@ class TaskDetailsFragment : BaseFragment() {
         binding.apply {
             tvName.text = task.name
             tvCreatedBy.text = resources.getString(R.string.created_by, task.author)
-            tvDescription.text = task.description
+            tvDescription.text =
+                task.description.ifEmpty { resources.getString(R.string.no_description) }
 
             if (task.tags.isNotEmpty()) {
                 tvNoTags.visibility = View.GONE
@@ -55,6 +56,9 @@ class TaskDetailsFragment : BaseFragment() {
             }
 
             tvMembers.text = resources.getString(R.string.task_members, task.members.size)
+
+            tvDateStarts.text = task.dateStarts.ifEmpty { resources.getString(R.string.no_date) }
+            tvDateEnds.text = task.dateStarts.ifEmpty { resources.getString(R.string.no_date) }
         }
     }
 }

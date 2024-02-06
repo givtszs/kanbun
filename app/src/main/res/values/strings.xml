@@ -40,4 +40,6 @@
     <string name="date_ends">Ends</string>
     <string name="no_tags">No tags set yet</string>
     <string name="no_task_members">No one assigned yet</string>
+    <string name="no_date">-- -- ----, --:--</string>
+    <string name="no_description">No description</string>
 </resources>

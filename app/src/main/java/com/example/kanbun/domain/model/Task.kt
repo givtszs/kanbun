@@ -14,5 +14,7 @@ data class Task(
     val description: String = "",
     val author: String = "", // the creator's name
     val tags: List<String> = emptyList(), // list of tag ids
-    val members: List<String> = emptyList() // list of user ids
+    val members: List<String> = emptyList(), // list of user ids
+    val dateStarts: String = "", // probably will be stored as the timestamp
+    val dateEnds: String = ""
 ) : Parcelable
