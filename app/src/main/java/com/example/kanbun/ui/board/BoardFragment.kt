@@ -18,6 +18,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.PagerSnapHelper
 import androidx.recyclerview.widget.RecyclerView
+import com.example.kanbun.R
 import com.example.kanbun.common.HORIZONTAL_SCROLL_DISTANCE
 import com.example.kanbun.databinding.FragmentBoardBinding
 import com.example.kanbun.domain.model.BoardList
@@ -125,7 +126,8 @@ class BoardFragment : BaseFragment(), StateHandler {
                 buildCreateListDialog()
             },
             onCreateTaskListener = { boardList ->
-                buildCreateTaskDialog(boardList)
+//                buildCreateTaskDialog(boardList)
+                navController.navigate(R.id.action_boardFragment_to_createTaskFragment)
             },
             loadingCompleteCallback = { viewModel.stopLoading() },
             onTaskClicked = { task -> navController.navigate(BoardFragmentDirections.actionBoardFragmentToTaskDetailsFragment(task)) }

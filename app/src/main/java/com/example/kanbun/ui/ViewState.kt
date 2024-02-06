@@ -47,4 +47,10 @@ sealed class ViewState {
         val isLoading: Boolean = true,
         val message: String? = null
     ) : ViewState()
+
+    data class CreateTaskViewState(
+        val members: List<String> = emptyList(),
+        val tags: List<String> = emptyList(),
+        val isLoading: Boolean = false
+    ) : ViewState()
 }

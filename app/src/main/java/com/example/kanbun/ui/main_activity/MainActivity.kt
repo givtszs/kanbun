@@ -48,6 +48,7 @@ class MainActivity : AppCompatActivity() {
             R.id.emailVerificationFragment,
             R.id.workspaceSettingsFragment,
             R.id.boardFragment,
+            R.id.createTaskFragment,
             R.id.taskDetailsFragment
         )
 

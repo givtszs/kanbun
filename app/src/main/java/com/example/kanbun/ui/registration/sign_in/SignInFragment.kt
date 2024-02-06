@@ -67,7 +67,7 @@ class SignInFragment : AuthFragment(), StateHandler {
                 successCallback = { firebaseUser ->
                     showToast(ToastMessage.SIGN_IN_SUCCESS, context = requireActivity())
                     if (!firebaseUser.isEmailVerified) {
-                        navController.navigate(R.id.emailVerificationFragment)
+                        navController.navigate(R.id.action_to_emailVerificationFragment)
                     } else {
                         navController.navigate(R.id.action_to_userBoardsFragment)
                     }
