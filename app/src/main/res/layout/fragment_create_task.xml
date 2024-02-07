@@ -65,9 +65,9 @@
             style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:endIconMode="custom"
-            app:endIconDrawable="@drawable/ic_search_24"
             android:layout_marginTop="6dp"
+            app:endIconDrawable="@drawable/ic_search_24"
+            app:endIconMode="custom"
             app:layout_constraintTop_toBottomOf="@id/tvAddMembers">
 
             <com.google.android.material.textfield.TextInputEditText
@@ -112,7 +112,8 @@
             <AutoCompleteTextView
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:hint="@string/no_date" />
+                android:hint="@string/no_date"
+                android:inputType="datetime" />
 
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -141,7 +142,8 @@
                 android:id="@+id/etDateEnds"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="@string/no_date" />
+                android:hint="@string/no_date"
+                android:inputType="datetime" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <TextView
@@ -157,28 +159,28 @@
 
         <TextView
             android:id="@+id/tvCreateTag"
+            style="?textAppearanceBodyLarge"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:layout_constraintTop_toBottomOf="@id/tvAddTags"
             android:layout_marginTop="8dp"
-            android:textColor="@color/md_theme_light_primary"
-            android:text="@string/create_new_tag"
             android:clickable="true"
             android:drawablePadding="8dp"
-            style="?textAppearanceBodyLarge"
-            app:layout_constraintStart_toStartOf="parent"
+            android:text="@string/create_new_tag"
+            android:textColor="@color/md_theme_light_primary"
             app:drawableStartCompat="@drawable/ic_add_24"
-            app:drawableTint="@color/md_theme_light_primary" />
+            app:drawableTint="@color/md_theme_light_primary"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tvAddTags" />
 
         <View
             android:id="@+id/separator"
             android:layout_width="1dp"
             android:layout_height="30dp"
-            android:background="@color/black"
             android:layout_marginStart="16dp"
+            android:background="@color/black"
+            app:layout_constraintBottom_toBottomOf="@id/tvCreateTag"
             app:layout_constraintStart_toEndOf="@id/tvCreateTag"
-            app:layout_constraintTop_toTopOf="@id/tvCreateTag"
-            app:layout_constraintBottom_toBottomOf="@id/tvCreateTag" />
+            app:layout_constraintTop_toTopOf="@id/tvCreateTag" />
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rvTags"
@@ -187,28 +189,28 @@
             android:orientation="horizontal"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
             app:layout_constraintBottom_toBottomOf="@id/tvCreateTag"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@id/separator"
             app:layout_constraintTop_toTopOf="@id/tvCreateTag"
-            app:layout_constraintEnd_toEndOf="parent"
             tools:listitem="@layout/item_task_tag" />
 
         <Button
             android:id="@+id/btnCreateTask"
-            android:enabled="false"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:layout_constraintBottom_toBottomOf="parent"
+            android:layout_marginBottom="16dp"
+            android:enabled="false"
             android:text="@string/create_task"
-            android:layout_marginBottom="16dp" />
+            app:layout_constraintBottom_toBottomOf="parent" />
 
         <ProgressBar
             android:id="@+id/loading"
             android:layout_width="wrap_content"
             android:layout_height="30dp"
             android:visibility="invisible"
-            app:layout_constraintTop_toTopOf="@id/btnCreateTask"
             app:layout_constraintBottom_toBottomOf="@id/btnCreateTask"
+            app:layout_constraintEnd_toEndOf="@id/btnCreateTask"
             app:layout_constraintStart_toStartOf="@id/btnCreateTask"
-            app:layout_constraintEnd_toEndOf="@id/btnCreateTask" />
+            app:layout_constraintTop_toTopOf="@id/btnCreateTask" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

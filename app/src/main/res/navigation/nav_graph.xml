@@ -119,6 +119,9 @@
         <argument
             android:name="task"
             app:argType="com.example.kanbun.domain.model.Task" />
+        <action
+            android:id="@+id/action_taskDetailsFragment_to_createTaskFragment"
+            app:destination="@id/createTaskFragment" />
     </fragment>
     <fragment
         tools:layout="@layout/fragment_create_task"

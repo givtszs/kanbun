@@ -2,6 +2,7 @@ package com.example.kanbun.ui
 
 import com.example.kanbun.domain.model.Board
 import com.example.kanbun.domain.model.BoardList
+import com.example.kanbun.domain.model.Task
 import com.example.kanbun.domain.model.User
 import com.example.kanbun.domain.model.Workspace
 import com.google.android.material.textfield.TextInputLayout
@@ -49,8 +50,9 @@ sealed class ViewState {
     ) : ViewState()
 
     data class CreateTaskViewState(
-        val members: List<String> = emptyList(),
-        val tags: List<String> = emptyList(),
-        val isLoading: Boolean = false
+        val task: Task? = null,
+        val isLoading: Boolean = false,
+        val isTaskCreating: Boolean = false,
+        val message: String? = null
     ) : ViewState()
 }

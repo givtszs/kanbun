@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.navigation.fragment.navArgs
 import com.example.kanbun.R
+import com.example.kanbun.common.TaskAction
 import com.example.kanbun.databinding.FragmentTaskDetailsBinding
 import com.example.kanbun.ui.BaseFragment
 
@@ -59,6 +60,13 @@ class TaskDetailsFragment : BaseFragment() {
 
             tvDateStarts.text = task.dateStarts.ifEmpty { resources.getString(R.string.no_date) }
             tvDateEnds.text = task.dateStarts.ifEmpty { resources.getString(R.string.no_date) }
+
+            fabEditTask.setOnClickListener {
+                navController.navigate(TaskDetailsFragmentDirections.actionTaskDetailsFragmentToCreateTaskFragment(
+                    actionType = TaskAction.ACTION_EDIT,
+                    task = task
+                ))
+            }
         }
     }
 }
