@@ -200,5 +200,15 @@
             app:layout_constraintBottom_toBottomOf="parent"
             android:text="@string/create_task"
             android:layout_marginBottom="16dp" />
+
+        <ProgressBar
+            android:id="@+id/loading"
+            android:layout_width="wrap_content"
+            android:layout_height="30dp"
+            android:visibility="invisible"
+            app:layout_constraintTop_toTopOf="@id/btnCreateTask"
+            app:layout_constraintBottom_toBottomOf="@id/btnCreateTask"
+            app:layout_constraintStart_toStartOf="@id/btnCreateTask"
+            app:layout_constraintEnd_toEndOf="@id/btnCreateTask" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>
