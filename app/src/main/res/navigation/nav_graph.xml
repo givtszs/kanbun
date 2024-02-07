@@ -136,5 +136,9 @@
             app:argType="com.example.kanbun.domain.model.Task"
             app:nullable="true"
             android:defaultValue="@null" />
+        <action
+            android:id="@+id/action_createTaskFragment_to_taskDetailsFragment"
+            app:destination="@id/taskDetailsFragment"
+            app:popUpTo="@id/boardFragment" />
     </fragment>
 </navigation>

@@ -364,6 +364,13 @@ class FirestoreRepositoryImpl @Inject constructor(
             .getResult { taskId }
     }
 
+    override suspend fun updateTask(task: com.example.kanbun.domain.model.Task): Result<Unit> = runCatching {
+        firestore.collection(task.boardListInfo.path)
+            .document(task.boardListInfo.id)
+            .update("tasks.${task.id}", task.toFirestoreTask())
+            .await()
+    }
+
     private fun rearrange(
         tasks: List<com.example.kanbun.domain.model.Task>,
         from: Int,

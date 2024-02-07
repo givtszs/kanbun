@@ -69,4 +69,9 @@ class TaskDetailsFragment : BaseFragment() {
             }
         }
     }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
 }

@@ -52,7 +52,7 @@ sealed class ViewState {
     data class CreateTaskViewState(
         val task: Task? = null,
         val isLoading: Boolean = false,
-        val isTaskCreating: Boolean = false,
+        val isUpsertingTask: Boolean = false,
         val message: String? = null
     ) : ViewState()
 }
