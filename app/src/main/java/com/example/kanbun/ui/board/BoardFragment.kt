@@ -19,9 +19,13 @@ import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.PagerSnapHelper
 import androidx.recyclerview.widget.RecyclerView
 import com.example.kanbun.R
+import com.example.kanbun.common.FirestoreCollection
 import com.example.kanbun.common.HORIZONTAL_SCROLL_DISTANCE
+import com.example.kanbun.common.TaskAction
 import com.example.kanbun.databinding.FragmentBoardBinding
 import com.example.kanbun.domain.model.BoardList
+import com.example.kanbun.domain.model.BoardListInfo
+import com.example.kanbun.domain.model.Task
 import com.example.kanbun.domain.model.Workspace
 import com.example.kanbun.ui.BaseFragment
 import com.example.kanbun.ui.StateHandler
@@ -121,16 +125,30 @@ class BoardFragment : BaseFragment(), StateHandler {
         boardListsAdapter = BoardListsAdapter(
             coroutineScope = lifecycleScope,
             taskDropCallback = taskDropCallbacks,
-            boardListDropCallback =  boardListDropCallback,
+            boardListDropCallback = boardListDropCallback,
             onCreateListClickListener = {
                 buildCreateListDialog()
             },
             onCreateTaskListener = { boardList ->
 //                buildCreateTaskDialog(boardList)
-                navController.navigate(R.id.action_boardFragment_to_createTaskFragment)
+                navController.navigate(
+                    BoardFragmentDirections.actionBoardFragmentToCreateTaskFragment(
+                        actionType = TaskAction.ACTION_CREATE,
+                        task = Task(
+                            boardListInfo = BoardListInfo(boardList.id, boardList.path),
+                            position = boardList.tasks.size.toLong()
+                        )
+                    )
+                )
             },
             loadingCompleteCallback = { viewModel.stopLoading() },
-            onTaskClicked = { task -> navController.navigate(BoardFragmentDirections.actionBoardFragmentToTaskDetailsFragment(task)) }
+            onTaskClicked = { task ->
+                navController.navigate(
+                    BoardFragmentDirections.actionBoardFragmentToTaskDetailsFragment(
+                        task
+                    )
+                )
+            }
         )
 
         binding.rvLists.apply {

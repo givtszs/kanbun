@@ -354,15 +354,11 @@ class FirestoreRepositoryImpl @Inject constructor(
     override suspend fun createTask(
         task: com.example.kanbun.domain.model.Task,
         listId: String,
-        boardId: String,
-        workspaceId: String
+        listPath: String
     ): Result<String> = runCatching {
-        val workspacePath = "${FirestoreCollection.WORKSPACES.collectionName}/$workspaceId"
-        val boardPath = "${FirestoreCollection.BOARDS.collectionName}/$boardId"
-        val listPath = "${FirestoreCollection.BOARD_LIST.collectionName}"
         val taskId = UUID.randomUUID().toString()
         firestore
-            .collection("$workspacePath/$boardPath/$listPath")
+            .collection(listPath)
             .document(listId)
             .update("tasks.${taskId}", task.toFirestoreTask())
             .getResult { taskId }

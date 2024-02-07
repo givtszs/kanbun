@@ -194,6 +194,7 @@
 
         <Button
             android:id="@+id/btnCreateTask"
+            android:enabled="false"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:layout_constraintBottom_toBottomOf="parent"

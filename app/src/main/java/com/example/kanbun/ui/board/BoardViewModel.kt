@@ -123,12 +123,12 @@ class BoardViewModel @Inject constructor(
             }
         )
 
-        firestoreRepository.createTask(
-            task = task,
-            listId = boardList.id,
-            boardId = _board.value.id,
-            workspaceId = _board.value.settings.workspace.id
-        )
+//        firestoreRepository.createTask(
+//            task = task,
+//            listId = boardList.id,
+//            boardId = _board.value.id,
+//            workspaceId = _board.value.settings.workspace.id
+//        )
     }
 
     fun rearrangeTasks(listPath: String, listId: String, tasks: List<Task>, from: Int, to: Int) =

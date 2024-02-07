@@ -52,8 +52,7 @@ interface FirestoreRepository {
     suspend fun createTask(
         task: Task,
         listId: String,
-        boardId: String,
-        workspaceId: String
+        listPath: String
     ): Result<String>
 
     suspend fun rearrangeTasksPositions(

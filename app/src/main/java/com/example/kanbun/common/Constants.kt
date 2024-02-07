@@ -41,6 +41,11 @@ object BoardListsAdapterViewType {
     const val VIEW_TYPE_CREATE_LIST = 1
 }
 
+enum class TaskAction {
+    ACTION_CREATE,
+    ACTION_EDIT
+}
+
 const val EMAIL_RESEND_TIME_LIMIT = 60
 const val RECYCLERVIEW_BOARDS_COLUMNS = 2
 const val HORIZONTAL_SCROLL_DISTANCE = 5

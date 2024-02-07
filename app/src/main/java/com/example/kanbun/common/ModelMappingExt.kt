@@ -173,7 +173,7 @@ fun Task.toFirestoreTask(): FirestoreTask =
     FirestoreTask(
         name = name,
         position = position,
-        boardListInfo = boardListInfo.id to boardListInfo.path,
+        boardListInfo = boardListInfo,
         description = description,
         author = author,
         tags = tags,
@@ -187,7 +187,7 @@ fun FirestoreTask.toTask(id: String): Task =
         id = id,
         name = name,
         position = position,
-        boardListInfo = BoardListInfo(id = boardListInfo.first, path = boardListInfo.second),
+        boardListInfo = boardListInfo,
         description = description,
         author = author,
         tags = tags,
