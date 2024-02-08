@@ -1,5 +1,7 @@
 package com.example.kanbun.common
 
+import com.example.kanbun.R
+
 enum class FirestoreCollection(val collectionName: String) {
     USERS("users"),
     WORKSPACES("workspaces"),
@@ -50,3 +52,12 @@ const val EMAIL_RESEND_TIME_LIMIT = 60
 const val RECYCLERVIEW_BOARDS_COLUMNS = 2
 const val HORIZONTAL_SCROLL_DISTANCE = 5
 const val VERTICAL_SCROLL_DISTANCE = 5
+
+val defaultTagColors = listOf(
+    R.color.red,
+    R.color.orange,
+    R.color.yellow,
+    R.color.violet,
+    R.color.green,
+    R.color.blue
+)

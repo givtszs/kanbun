@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:padding="6dp"
+    android:layout_width="60dp"
+    android:layout_height="60dp">
+
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/cardColor"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:clickable="true"
+        android:focusable="true"
+        app:strokeWidth="2dp"
+        app:cardBackgroundColor="@color/black"
+        app:cardCornerRadius="50dp" />
+
+</LinearLayout>
