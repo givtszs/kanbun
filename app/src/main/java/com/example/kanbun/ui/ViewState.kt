@@ -53,14 +53,18 @@ sealed class ViewState {
     data class CreateTaskViewState(
         val task: Task? = null,
         val tags: List<TagUi> = mutableListOf(),
-        val isLoading: Boolean = false,
-        val isUpsertingTask: Boolean = false,
-        val isLoadingTags: Boolean = false,
+       val loadingManager: LoadingManager = LoadingManager(),
         val message: String? = null
     ) : ViewState() {
-        data class TagUi(
-            val tag: Tag,
-            var isSelected: Boolean = false
+        data class LoadingManager(
+            val isScreenLoading: Boolean = false,
+            val isUpsertingTask: Boolean = false,
+            val isLoadingTags: Boolean = false
         )
     }
+
+    data class TagUi(
+        val tag: Tag,
+        var isSelected: Boolean = false
+    )
 }

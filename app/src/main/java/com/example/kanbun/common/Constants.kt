@@ -54,10 +54,10 @@ const val HORIZONTAL_SCROLL_DISTANCE = 5
 const val VERTICAL_SCROLL_DISTANCE = 5
 
 val defaultTagColors = listOf(
-    R.color.red,
-    R.color.orange,
-    R.color.yellow,
-    R.color.violet,
-    R.color.green,
-    R.color.blue
+    "#FF0000", // red
+    "#FFA500", // orange
+    "#FFFF00", // yellow
+    "#EE82EE", // violet
+    "#008000", // green
+    "#0000FF", // blue
 )

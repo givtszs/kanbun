@@ -27,21 +27,31 @@ class CreateTaskViewModel @Inject constructor(
 ) : BaseViewModel() {
     private var _task = MutableStateFlow<Task?>(null)
     private var _tags =
-        MutableStateFlow<List<ViewState.CreateTaskViewState.TagUi>>(emptyList())
-    private var _isLoading = MutableStateFlow(false)
-    private var _isUpsertingTask = MutableStateFlow(false)
-    private var _isLoadingTags = MutableStateFlow(false)
+        MutableStateFlow<List<ViewState.TagUi>>(emptyList())
     private var _message = MutableStateFlow<String?>(null)
 
-    val createTaskState: StateFlow<ViewState.CreateTaskViewState> = combine(
-        _task, _isLoading, _isUpsertingTask, _isLoadingTags, _message
-    ) { task, isLoading, isUpsertingTask, isLoadingTags, message ->
-        ViewState.CreateTaskViewState(
-            task = task,
-            message = message,
-            isLoading = isLoading,
+    private var _isScreenLoading = MutableStateFlow(false)
+    private var _isUpsertingTask = MutableStateFlow(false)
+    private var _isLoadingTags = MutableStateFlow(false)
+
+    private var _loadingManager = combine(
+        _isScreenLoading, _isUpsertingTask, _isLoadingTags
+    ) { isLoading, isUpsertingTask, isLoadingTags ->
+        ViewState.CreateTaskViewState.LoadingManager(
+            isScreenLoading = isLoading,
             isUpsertingTask = isUpsertingTask,
             isLoadingTags = isLoadingTags
+        )
+    }
+
+    val createTaskState: StateFlow<ViewState.CreateTaskViewState> = combine(
+        _task, _tags, _message, _loadingManager
+    ) { task, tags, message, loadingManager ->
+        ViewState.CreateTaskViewState(
+            task = task,
+            tags = tags,
+            message = message,
+            loadingManager = loadingManager
         )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), ViewState.CreateTaskViewState())
 
@@ -116,24 +126,18 @@ class CreateTaskViewModel @Inject constructor(
             }
         }
 
-    @OptIn(ExperimentalStdlibApi::class)
-    fun createTag(name: String, color: Int, boardListInfo: BoardListInfo) = viewModelScope.launch {
-        if (_task.value == null) {
-            _message.value = "Task is null"
-            return@launch
-        } else {
-            val boardRef =
-                boardListInfo.path.substringBefore("/${FirestoreCollection.BOARD_LIST.collectionName}")
-            val hexColorCode = color.toHexString()
+    fun createTag(name: String, color: String, boardListInfo: BoardListInfo) = viewModelScope.launch {
+        val boardRef =
+            boardListInfo.path.substringBefore("/${FirestoreCollection.BOARD_LIST.collectionName}")
 
-            when (
-                val result = firestoreRepository.createTag(
-                    boardPath = boardRef.substringBeforeLast("/"),
+        when (
+            val result = firestoreRepository.createTag(
+                boardPath = boardRef.substringBeforeLast("/"),
                     boardId = boardRef.substringAfterLast("/"),
                     tag = Tag(
                         name = name,
-                        textColor = "#$hexColorCode",
-                        backgroundColor = "#33$hexColorCode" // 33 - 20% alpha value
+                        textColor = color,
+                        backgroundColor = "#33${color.substringAfter("#")}" // 33 - 20% alpha value
                     )
                 )
             ) {
@@ -143,7 +147,6 @@ class CreateTaskViewModel @Inject constructor(
                     _isLoadingTags.value = true
                 }
             }
-        }
     }
 
     fun getTags(boardListInfo: BoardListInfo) = viewModelScope.launch {
@@ -159,7 +162,7 @@ class CreateTaskViewModel @Inject constructor(
         ) {
             is Result.Success -> {
                 _tags.value =
-                    result.data.map { tag -> ViewState.CreateTaskViewState.TagUi(tag, false) }
+                    result.data.map { tag -> ViewState.TagUi(tag, false) }
                 _isLoadingTags.value = false
             }
 

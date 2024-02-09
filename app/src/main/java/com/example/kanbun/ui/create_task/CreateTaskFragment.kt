@@ -2,6 +2,7 @@ package com.example.kanbun.ui.create_task
 
 import android.app.AlertDialog
 import android.content.Context
+import android.graphics.Color
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -31,6 +32,7 @@ import com.example.kanbun.domain.model.Task
 import com.example.kanbun.ui.BaseFragment
 import com.example.kanbun.ui.StateHandler
 import com.example.kanbun.ui.ViewState
+import com.example.kanbun.ui.board.common_adapters.TagsAdapter
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
@@ -44,7 +46,8 @@ class CreateTaskFragment : BaseFragment(), StateHandler {
     private val binding: FragmentCreateTaskBinding get() = _binding!!
     private val viewModel: CreateTaskViewModel by viewModels()
     private val args: CreateTaskFragmentArgs by navArgs()
-    private var alertBinding: AlertDialogCreateTagBinding? = null
+//    private var alertBinding: AlertDialogCreateTagBinding? = null
+    private var tagsAdapter: TagsAdapter? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -66,6 +69,7 @@ class CreateTaskFragment : BaseFragment(), StateHandler {
                 setUpActionBar(binding.topAppBar.toolbar, "Edit task")
             }
         }
+        viewModel.init(args.task, args.boardListInfo)
         collectState()
     }
 
@@ -94,7 +98,6 @@ class CreateTaskFragment : BaseFragment(), StateHandler {
 
                 TaskAction.ACTION_EDIT -> {
                     val task = args.task
-                    viewModel.init(task, args.boardListInfo)
 
                     etName.setText(task?.name)
                     etDescription.setText(task?.description)
@@ -102,8 +105,8 @@ class CreateTaskFragment : BaseFragment(), StateHandler {
                     with(btnCreateTask) {
                         isEnabled = true
                         setOnClickListener {
-                            task?.let {
-                                val updatedTask = task.copy(
+                            task?.let { _task ->
+                                val updatedTask = _task.copy(
                                     name = etName.text?.trim().toString(),
                                     description = etDescription.text?.trim().toString()
                                 )
@@ -126,18 +129,19 @@ class CreateTaskFragment : BaseFragment(), StateHandler {
                 buildCreateTagDialog()
             }
 
-            with(rvTags) {
-
-            }
+            // set up tags recycler view
+            tagsAdapter = TagsAdapter(areItemsClickable = true)
+            rvTags.adapter = tagsAdapter
         }
     }
 
     private fun buildCreateTagDialog() {
-        var tagColor = -1
-        alertBinding = AlertDialogCreateTagBinding.inflate(layoutInflater, null, false)
+        var tagColor = ""
+        var alertBinding: AlertDialogCreateTagBinding? = AlertDialogCreateTagBinding.inflate(layoutInflater, null, false)
         var colorPickerAdapter: ColorPickerAdapter? = ColorPickerAdapter { colorId ->
             // create new tag
             tagColor = colorId
+            showToast("tagColor: $tagColor")
         }
         alertBinding!!.apply {
             gridColors.adapter = colorPickerAdapter
@@ -148,11 +152,12 @@ class CreateTaskFragment : BaseFragment(), StateHandler {
                 .setView(root)
                 .setCancelable(false)
                 .setPositiveButton("Create") { _, _ ->
-                   viewModel.createTag(
-                       name = etName.text?.trim().toString(),
-                       color = tagColor,
-                       boardListInfo = args.boardListInfo
-                   )
+                    viewModel.createTag(
+                        name = etName.text?.trim().toString(),
+                        color = tagColor,
+                        boardListInfo = args.boardListInfo
+                    )
+                    alertBinding = null
                 }
                 .setNegativeButton("Cancel") { dialog, _ ->
                     colorPickerAdapter = null
@@ -185,7 +190,7 @@ class CreateTaskFragment : BaseFragment(), StateHandler {
     override fun processState(state: ViewState) {
         with(state as ViewState.CreateTaskViewState) {
             binding.apply {
-                if (isUpsertingTask) {
+                if (loadingManager.isUpsertingTask) {
                     btnCreateTask.text = ""
                     btnCreateTask.isEnabled = false
                     loading.isVisible = true
@@ -201,6 +206,10 @@ class CreateTaskFragment : BaseFragment(), StateHandler {
                 }
             }
 
+            if (tags.isNotEmpty()) {
+                tagsAdapter?.tags = tags
+            }
+
             message?.let {
                 showToast(it)
                 viewModel.messageShown()
@@ -208,13 +217,7 @@ class CreateTaskFragment : BaseFragment(), StateHandler {
         }
     }
 
-    override fun onDestroyView() {
-        super.onDestroyView()
-        alertBinding = null
-        _binding = null
-    }
-
-    private class ColorPickerAdapter(private val onItemClicked: (Int) -> Unit) :
+    private class ColorPickerAdapter(private val onItemClicked: (String) -> Unit) :
         RecyclerView.Adapter<ColorPickerAdapter.ItemColorPreviewViewHolder>() {
 
         init {
@@ -260,18 +263,27 @@ class CreateTaskFragment : BaseFragment(), StateHandler {
                 }
             }
 
-            fun bind(colorId: Int) {
+            fun bind(hexColorValue: String) {
                 binding.apply {
                     cardColor.isSelected = adapterPosition == prevSelectedPos
                     if (cardColor.isSelected) {
-                        cardColor.strokeColor = getColor(itemView.context, R.color.md_theme_light_primary)
+                        cardColor.strokeColor =
+                            getColor(itemView.context, R.color.md_theme_light_primary)
                     } else {
-                        cardColor.strokeColor = getColor(itemView.context, R.color.md_theme_light_outlineVariant)
+                        cardColor.strokeColor =
+                            getColor(itemView.context, R.color.md_theme_light_outlineVariant)
                     }
 
-                    cardColor.setCardBackgroundColor(getColor(itemView.context, colorId))
+                    cardColor.setCardBackgroundColor(Color.parseColor(hexColorValue))
                 }
             }
         }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+//        alertBinding = null
+        tagsAdapter = null
+        _binding = null
     }
 }
