@@ -7,5 +7,5 @@ data class FirestoreBoard(
     val owner: String = "",
     val settings: Map<String, Any?> = emptyMap(),
     val lists: List<String> = emptyList(),
-    val tags: List<Tag> = emptyList()
+    val tags: Map<String, FirestoreTag> = emptyMap()
 )

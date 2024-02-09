@@ -9,6 +9,7 @@ import com.example.kanbun.common.BoardListsAdapterViewType
 import com.example.kanbun.databinding.ItemBoardListBinding
 import com.example.kanbun.databinding.ItemCreateBoardListBinding
 import com.example.kanbun.domain.model.BoardList
+import com.example.kanbun.domain.model.BoardListInfo
 import com.example.kanbun.domain.model.Task
 import com.example.kanbun.ui.board.DropCallback
 import com.example.kanbun.ui.board.TaskDropCallbacks
@@ -21,7 +22,7 @@ class BoardListsAdapter(
     private val onCreateListClickListener: () -> Unit,
     private val onCreateTaskListener: (BoardList) -> Unit,
     private val loadingCompleteCallback: () -> Unit,
-    private val onTaskClicked: (Task) -> Unit
+    private val onTaskClicked: (Task, BoardListInfo) -> Unit
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     var lists: List<BoardList> = emptyList()

@@ -3,6 +3,7 @@ package com.example.kanbun.domain.repository
 import com.example.kanbun.common.Result
 import com.example.kanbun.domain.model.Board
 import com.example.kanbun.domain.model.BoardList
+import com.example.kanbun.domain.model.Tag
 import com.example.kanbun.domain.model.Task
 import com.example.kanbun.domain.model.User
 import com.example.kanbun.domain.model.Workspace
@@ -55,7 +56,7 @@ interface FirestoreRepository {
         listPath: String
     ): Result<String>
 
-    suspend fun updateTask(task: Task): Result<Unit>
+    suspend fun updateTask(task: Task, boardListPath: String, boardListId: String): Result<Unit>
 
     suspend fun rearrangeTasksPositions(
         listPath: String,
@@ -86,4 +87,10 @@ interface FirestoreRepository {
         from: Int,
         to: Int
     ): Result<Unit>
+
+    suspend fun createTag(
+        boardPath: String,
+        boardId: String,
+        tag: Tag
+    ): Result<String>
 }

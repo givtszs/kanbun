@@ -16,6 +16,7 @@ import com.example.kanbun.ui.board.DropCallback
 import com.example.kanbun.ui.board.TaskDropCallbacks
 import com.example.kanbun.ui.board.tasks_adapter.TasksAdapter
 import com.example.kanbun.domain.model.BoardListInfo
+import com.example.kanbun.ui.board.BoardFragmentDirections
 import com.example.kanbun.ui.model.DragAndDropListItem
 import com.squareup.moshi.JsonAdapter
 import com.squareup.moshi.Moshi
@@ -33,7 +34,7 @@ class ItemBoardListViewHolder(
     private val boardListDropCallback: DropCallback,
     taskDropCallback: TaskDropCallbacks,
     private val onCreateTaskListener: (Int) -> Unit,
-    private val onTaskClicked: (Task) -> Unit
+    private val onTaskClicked: (Task, BoardListInfo) -> Unit
 ) : RecyclerView.ViewHolder(binding.root) {
 
     companion object {
@@ -84,7 +85,13 @@ class ItemBoardListViewHolder(
             onCreateTaskListener(adapterPosition)
         }
 
-        tasksAdapter = TasksAdapter(binding.rvTasks, taskDropCallback, onTaskClicked = onTaskClicked)
+        tasksAdapter = TasksAdapter(
+            binding.rvTasks,
+            taskDropCallback,
+            onTaskClicked = { task ->
+                onTaskClicked(task, BoardListInfo(boardList!!.id, boardList!!.path))
+            }
+        )
 
         Log.d("TasksAdapter", "ItemBoardListViewHolder init:\ttasksAdapter: $tasksAdapter")
 

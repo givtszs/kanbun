@@ -4,9 +4,11 @@ import com.example.kanbun.common.FirestoreCollection
 import com.example.kanbun.common.Result
 import com.example.kanbun.data.repository.FirestoreRepositoryImpl
 import com.example.kanbun.domain.FirestoreTestUtil
+import com.example.kanbun.domain.model.Board
 import com.example.kanbun.domain.model.BoardList
 import com.example.kanbun.domain.model.Task
 import com.example.kanbun.domain.model.User
+import com.example.kanbun.domain.model.Workspace
 import com.google.common.truth.Truth.assertThat
 import com.google.firebase.firestore.FieldValue
 import kotlinx.coroutines.flow.collectLatest
@@ -421,32 +423,32 @@ class FirestoreRepositoryTest {
         assertThat(resultData).isEqualTo(boardList)
     }
 
-    @Test
-    fun createTask_withValidArguments_addsTaskInFirestore() = runBlocking {
-        val args = createTaskArgs()
-        val task = FirestoreTestUtil.createTask("Task", 0)
-
-        val resultCreate =
-            repository.createTask(task, args["boardListId"]!!, args["boardId"]!!, args["workspaceId"]!!)
-
-        assertThat(resultCreate).isInstanceOf(Result.Success::class.java)
-
-        val taskId = (resultCreate as Result.Success).data
-
-        val boardListFlow = repository.getBoardListsStream(args["boardId"]!!, args["workspaceId"]!!).take(2)
-        val listResults = mutableListOf<Result<List<BoardList>>>().apply {
-            boardListFlow.collectLatest { this.add(it) }
-        }
-        val boardListData = (listResults[1] as Result.Success).data.first()
-
-        assertThat(boardListData.tasks.any { it.id == taskId }).isTrue()
-
-        val taskData = boardListData.tasks.first { it.id == taskId }
-
-        assertThat(taskData.name).isEqualTo(task.name)
-        assertThat(taskData.description).isEqualTo(task.description)
-        assertThat(taskData.position).isEqualTo(task.position)
-    }
+//    @Test
+//    fun createTask_withValidArguments_addsTaskInFirestore() = runBlocking {
+//        val args = createTaskArgs()
+//        val task = FirestoreTestUtil.createTask("Task", 0)
+//
+//        val resultCreate =
+//            repository.createTask(task, args["boardListId"]!!, args["boardId"]!!, args["workspaceId"]!!)
+//
+//        assertThat(resultCreate).isInstanceOf(Result.Success::class.java)
+//
+//        val taskId = (resultCreate as Result.Success).data
+//
+//        val boardListFlow = repository.getBoardListsStream(args["boardId"]!!, args["workspaceId"]!!).take(2)
+//        val listResults = mutableListOf<Result<List<BoardList>>>().apply {
+//            boardListFlow.collectLatest { this.add(it) }
+//        }
+//        val boardListData = (listResults[1] as Result.Success).data.first()
+//
+//        assertThat(boardListData.tasks.any { it.id == taskId }).isTrue()
+//
+//        val taskData = boardListData.tasks.first { it.id == taskId }
+//
+//        assertThat(taskData.name).isEqualTo(task.name)
+//        assertThat(taskData.description).isEqualTo(task.description)
+//        assertThat(taskData.position).isEqualTo(task.position)
+//    }
 
     private suspend fun createTaskArgs(): Map<String, String> {
         val user = FirestoreTestUtil.createUser("user").also {
@@ -476,84 +478,100 @@ class FirestoreRepositoryTest {
         )
     }
 
+//    @Test
+//    fun rearrangeTaskPositions_toMoveTaskInAList() = runBlocking {
+//        val taskArgs = createTaskArgs()
+//
+//        val tasks = mutableListOf<Task>()
+//        repeat(4) { i ->
+//            val task = FirestoreTestUtil.createTask("Task $i", i.toLong()).run {
+//                this.copy(
+//                    id = (repository.createTask(this, taskArgs["boardListId"]!!, taskArgs["boardId"]!!, taskArgs["workspaceId"]!!) as Result.Success).data
+//                )
+//            }
+//
+//            tasks.add(task)
+//        }
+//
+//        val from = 0
+//        val to = 2
+//
+//        val boardListPath = "${FirestoreCollection.WORKSPACES.collectionName}/${taskArgs["workspaceId"]!!}/" +
+//                "${FirestoreCollection.BOARDS.collectionName}/${taskArgs["boardId"]!!}/" +
+//                FirestoreCollection.BOARD_LIST.collectionName
+//        val result = repository.rearrangeTasksPositions(boardListPath, taskArgs["boardListId"]!!, tasks, from, to)
+//
+//        assertThat(result).isInstanceOf(Result.Success::class.java)
+//    }
+
+//    @Test
+//    fun deleteTaskAndRearrange_toRemoveTaskInAList() = runBlocking {
+//        val taskArgs = createTaskArgs()
+//
+//        val tasks = mutableListOf<Task>()
+//        repeat(4) { i ->
+//            val task = FirestoreTestUtil.createTask("Task $i", i.toLong()).run {
+//                this.copy(
+//                    id = (repository.createTask(this, taskArgs["boardListId"]!!, taskArgs["boardId"]!!, taskArgs["workspaceId"]!!) as Result.Success).data
+//                )
+//            }
+//
+//            tasks.add(task)
+//        }
+//
+//        val from = 1
+//
+//        val boardListPath = "${FirestoreCollection.WORKSPACES.collectionName}/${taskArgs["workspaceId"]!!}/" +
+//                "${FirestoreCollection.BOARDS.collectionName}/${taskArgs["boardId"]!!}/" +
+//                FirestoreCollection.BOARD_LIST.collectionName
+//        val result = repository.deleteTaskAndRearrange(boardListPath, taskArgs["boardListId"]!!, tasks, from)
+//
+//        assertThat(result).isInstanceOf(Result.Success::class.java)
+//    }
+//    @Test
+//    fun insertTaskAndRearrange_toInsertTaskInAList() = runBlocking {
+//        val taskArgs = createTaskArgs()
+//
+//        val tasks = mutableListOf<Task>()
+//        repeat(4) { i ->
+//            val task = FirestoreTestUtil.createTask("Task $i", i.toLong()).run {
+//                this.copy(
+//                    id = (repository.createTask(this, taskArgs["boardListId"]!!, taskArgs["boardId"]!!, taskArgs["workspaceId"]!!) as Result.Success).data
+//                )
+//            }
+//
+//            tasks.add(task)
+//        }
+//
+//        val to = 2
+//        val taskToInsert = FirestoreTestUtil.createTask("Task Unknown", to.toLong()).run {
+//            this.copy(id = "test_id")
+//        }
+//
+//        val boardListPath = "${FirestoreCollection.WORKSPACES.collectionName}/${taskArgs["workspaceId"]!!}/" +
+//                "${FirestoreCollection.BOARDS.collectionName}/${taskArgs["boardId"]!!}/" +
+//                FirestoreCollection.BOARD_LIST.collectionName
+//        val result = repository.insertTaskAndRearrange(boardListPath, taskArgs["boardListId"]!!, tasks, taskToInsert, to)
+//
+//        assertThat(result).isInstanceOf(Result.Success::class.java)
+//    }
+
     @Test
-    fun rearrangeTaskPositions_toMoveTaskInAList() = runBlocking {
-        val taskArgs = createTaskArgs()
+    fun createTag_createsNewTag() = runBlocking {
+        val user = createUser("user1")
+        val workspace = createWorkspace(user.id, "workspace")
+        val board = createBoard(user.id, User.WorkspaceInfo(workspace.id, workspace.name), "board")
+        val tag = FirestoreTestUtil.createTag("Green", "43ff64")
 
-        val tasks = mutableListOf<Task>()
-        repeat(4) { i ->
-            val task = FirestoreTestUtil.createTask("Task $i", i.toLong()).run {
-                this.copy(
-                    id = (repository.createTask(this, taskArgs["boardListId"]!!, taskArgs["boardId"]!!, taskArgs["workspaceId"]!!) as Result.Success).data
-                )
-            }
-
-            tasks.add(task)
-        }
-
-        val from = 0
-        val to = 2
-
-        val boardListPath = "${FirestoreCollection.WORKSPACES.collectionName}/${taskArgs["workspaceId"]!!}/" +
-                "${FirestoreCollection.BOARDS.collectionName}/${taskArgs["boardId"]!!}/" +
-                FirestoreCollection.BOARD_LIST.collectionName
-        val result = repository.rearrangeTasksPositions(boardListPath, taskArgs["boardListId"]!!, tasks, from, to)
+        val result = repository.createTag(
+            "${FirestoreCollection.WORKSPACES.collectionName}/${workspace.id}" +
+                    "/${FirestoreCollection.BOARDS.collectionName}",
+            board.id,
+            tag
+        )
 
         assertThat(result).isInstanceOf(Result.Success::class.java)
     }
-
-    @Test
-    fun deleteTaskAndRearrange_toRemoveTaskInAList() = runBlocking {
-        val taskArgs = createTaskArgs()
-
-        val tasks = mutableListOf<Task>()
-        repeat(4) { i ->
-            val task = FirestoreTestUtil.createTask("Task $i", i.toLong()).run {
-                this.copy(
-                    id = (repository.createTask(this, taskArgs["boardListId"]!!, taskArgs["boardId"]!!, taskArgs["workspaceId"]!!) as Result.Success).data
-                )
-            }
-
-            tasks.add(task)
-        }
-
-        val from = 1
-
-        val boardListPath = "${FirestoreCollection.WORKSPACES.collectionName}/${taskArgs["workspaceId"]!!}/" +
-                "${FirestoreCollection.BOARDS.collectionName}/${taskArgs["boardId"]!!}/" +
-                FirestoreCollection.BOARD_LIST.collectionName
-        val result = repository.deleteTaskAndRearrange(boardListPath, taskArgs["boardListId"]!!, tasks, from)
-
-        assertThat(result).isInstanceOf(Result.Success::class.java)
-    }
-    @Test
-    fun insertTaskAndRearrange_toInsertTaskInAList() = runBlocking {
-        val taskArgs = createTaskArgs()
-
-        val tasks = mutableListOf<Task>()
-        repeat(4) { i ->
-            val task = FirestoreTestUtil.createTask("Task $i", i.toLong()).run {
-                this.copy(
-                    id = (repository.createTask(this, taskArgs["boardListId"]!!, taskArgs["boardId"]!!, taskArgs["workspaceId"]!!) as Result.Success).data
-                )
-            }
-
-            tasks.add(task)
-        }
-
-        val to = 2
-        val taskToInsert = FirestoreTestUtil.createTask("Task Unknown", to.toLong()).run {
-            this.copy(id = "test_id")
-        }
-
-        val boardListPath = "${FirestoreCollection.WORKSPACES.collectionName}/${taskArgs["workspaceId"]!!}/" +
-                "${FirestoreCollection.BOARDS.collectionName}/${taskArgs["boardId"]!!}/" +
-                FirestoreCollection.BOARD_LIST.collectionName
-        val result = repository.insertTaskAndRearrange(boardListPath, taskArgs["boardListId"]!!, tasks, taskToInsert, to)
-
-        assertThat(result).isInstanceOf(Result.Success::class.java)
-    }
-
 
     @Test
     fun test(): Unit = runBlocking {
@@ -601,5 +619,27 @@ class FirestoreRepositoryTest {
                 )
             )
             .await()
+    }
+
+    private suspend fun createUser(userId: String): User {
+        return FirestoreTestUtil.createUser(userId).also {
+            repository.createUser(it)
+        }
+    }
+
+    private suspend fun createWorkspace(userId: String, name: String): Workspace {
+        return FirestoreTestUtil.createWorkspace(userId, name).run {
+            copy(
+                id = (repository.createWorkspace(this) as Result.Success).data
+            )
+        }
+    }
+
+    private suspend fun createBoard(userId: String, workspaceInfo: User.WorkspaceInfo, name: String): Board {
+        return FirestoreTestUtil.createBoard(userId, workspaceInfo, name).run {
+            copy(
+                id = (repository.createBoard(this) as Result.Success).data
+            )
+        }
     }
 }

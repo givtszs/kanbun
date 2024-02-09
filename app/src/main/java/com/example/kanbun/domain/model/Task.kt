@@ -9,7 +9,6 @@ import kotlinx.parcelize.Parcelize
 data class Task(
     val id: String = "",
     val position: Long = 0,
-    val boardListInfo: BoardListInfo = BoardListInfo(),
     val name: String = "",
     val description: String = "",
     val author: String = "", // the creator's name

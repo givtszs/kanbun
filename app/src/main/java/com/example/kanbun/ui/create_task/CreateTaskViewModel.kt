@@ -2,7 +2,10 @@ package com.example.kanbun.ui.create_task
 
 import android.util.Log
 import androidx.lifecycle.viewModelScope
+import com.example.kanbun.common.FirestoreCollection
 import com.example.kanbun.common.Result
+import com.example.kanbun.domain.model.BoardListInfo
+import com.example.kanbun.domain.model.Tag
 import com.example.kanbun.domain.model.Task
 import com.example.kanbun.domain.repository.FirestoreRepository
 import com.example.kanbun.ui.BaseViewModel
@@ -48,12 +51,12 @@ class CreateTaskViewModel @Inject constructor(
         _message.value = null
     }
 
-    fun createTask(task: Task, onSuccessCallback: () -> Unit) = viewModelScope.launch {
+    fun createTask(task: Task, boardListInfo: BoardListInfo, onSuccessCallback: () -> Unit) = viewModelScope.launch {
         _isUpsertingTask.value = true
         when (val result = firestoreRepository.createTask(
             task = task,
-            listId = task.boardListInfo.id,
-            listPath = task.boardListInfo.path
+            listId = boardListInfo.id,
+            listPath = boardListInfo.path
         )) {
             is Result.Success -> {
                 _isUpsertingTask.value = false
@@ -70,14 +73,14 @@ class CreateTaskViewModel @Inject constructor(
         }
     }
 
-    fun editTask(updatedTask: Task?, onSuccessCallback: () -> Unit) = viewModelScope.launch {
+    fun editTask(updatedTask: Task?, boardListInfo: BoardListInfo, onSuccessCallback: () -> Unit) = viewModelScope.launch {
         Log.d(TAG, "editTask: areTheSame: ${updatedTask == _task.value}, oldTask: ${_task.value}\nupdatedTask: $updatedTask")
         if (updatedTask == _task.value || updatedTask == null) {
             _message.value = "No changes spotted"
             return@launch
         } else {
             _isUpsertingTask.value = true
-            when (val result = firestoreRepository.updateTask(updatedTask)) {
+            when (val result = firestoreRepository.updateTask(updatedTask, boardListInfo.path, boardListInfo.id)) {
                 is Result.Success -> {
                     _isUpsertingTask.value = false
                     onSuccessCallback()
@@ -88,6 +91,26 @@ class CreateTaskViewModel @Inject constructor(
                 }
                 Result.Loading -> {}
             }
+        }
+    }
+
+    @OptIn(ExperimentalStdlibApi::class)
+    fun createTag(name: String, color: Int, boardListInfo: BoardListInfo) = viewModelScope.launch {
+        if (_task.value == null) {
+            _message.value = "Task is null"
+            return@launch
+        } else {
+            val boardRef = boardListInfo.path.substringBefore("/${FirestoreCollection.BOARD_LIST.collectionName}")
+            val hexColorCode = color.toHexString()
+            firestoreRepository.createTag(
+                boardPath = boardRef.substringBeforeLast("/"),
+                boardId = boardRef.substringAfterLast("/"),
+                tag = Tag(
+                    name = name,
+                    textColor = "#$hexColorCode",
+                    backgroundColor = "#33$hexColorCode" // 33 - 20% alpha value
+                )
+            )
         }
     }
 }

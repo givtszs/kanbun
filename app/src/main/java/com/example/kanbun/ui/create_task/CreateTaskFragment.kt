@@ -26,6 +26,7 @@ import com.example.kanbun.common.getColor
 import com.example.kanbun.databinding.AlertDialogCreateTagBinding
 import com.example.kanbun.databinding.FragmentCreateTaskBinding
 import com.example.kanbun.databinding.ItemColorPreviewBinding
+import com.example.kanbun.domain.model.BoardListInfo
 import com.example.kanbun.domain.model.Task
 import com.example.kanbun.ui.BaseFragment
 import com.example.kanbun.ui.StateHandler
@@ -82,9 +83,9 @@ class CreateTaskFragment : BaseFragment(), StateHandler {
                             Task(
                                 name = etName.text?.trim().toString(),
                                 description = etDescription.text?.trim().toString(),
-                                boardListInfo = args.task!!.boardListInfo,
                                 author = viewModel.firebaseUser?.uid!!,
-                            )
+                            ),
+                            args.boardListInfo
                         ) {
                             navController.popBackStack()
                         }
@@ -106,10 +107,11 @@ class CreateTaskFragment : BaseFragment(), StateHandler {
                                     name = etName.text?.trim().toString(),
                                     description = etDescription.text?.trim().toString()
                                 )
-                                viewModel.editTask(updatedTask) {
+                                viewModel.editTask(updatedTask, args.boardListInfo) {
                                     navController.navigate(
                                         CreateTaskFragmentDirections.actionCreateTaskFragmentToTaskDetailsFragment(
-                                            updatedTask
+                                            task = updatedTask,
+                                            boardListInfo = args.boardListInfo
                                         )
                                     )
                                 }

@@ -5,7 +5,6 @@ import com.example.kanbun.domain.model.BoardListInfo
 data class FirestoreTask(
     val position: Long = 0,
     val name: String = "",
-    val boardListInfo: BoardListInfo = BoardListInfo(),
     val description: String = "",
     val author: String = "",
     val tags: List<String> = emptyList(),

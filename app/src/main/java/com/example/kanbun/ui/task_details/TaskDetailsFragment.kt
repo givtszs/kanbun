@@ -64,7 +64,8 @@ class TaskDetailsFragment : BaseFragment() {
             fabEditTask.setOnClickListener {
                 navController.navigate(TaskDetailsFragmentDirections.actionTaskDetailsFragmentToCreateTaskFragment(
                     actionType = TaskAction.ACTION_EDIT,
-                    task = task
+                    task = task,
+                    boardListInfo = args.boardListInfo
                 ))
             }
         }

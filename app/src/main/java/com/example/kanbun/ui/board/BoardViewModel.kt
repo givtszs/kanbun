@@ -94,10 +94,14 @@ class BoardViewModel @Inject constructor(
     }
 
     fun createBoardList(listName: String) = viewModelScope.launch {
+        val board = _board.value
         firestoreRepository.createBoardList(
             boardList = BoardList(
                 name = listName,
                 position = _board.value.lists.size.toLong(),
+                path = "${FirestoreCollection.WORKSPACES.collectionName}/${board.settings.workspace.id}" +
+                        "/${FirestoreCollection.BOARDS.collectionName}/${board.id}" +
+                        "/${FirestoreCollection.BOARD_LIST.collectionName}"
             ),
             board = _board.value
         )

@@ -135,17 +135,18 @@ class BoardFragment : BaseFragment(), StateHandler {
                     BoardFragmentDirections.actionBoardFragmentToCreateTaskFragment(
                         actionType = TaskAction.ACTION_CREATE,
                         task = Task(
-                            boardListInfo = BoardListInfo(boardList.id, boardList.path),
                             position = boardList.tasks.size.toLong()
-                        )
+                        ),
+                        boardListInfo = BoardListInfo(boardList.id, boardList.path)
                     )
                 )
             },
             loadingCompleteCallback = { viewModel.stopLoading() },
-            onTaskClicked = { task ->
+            onTaskClicked = { task, boardListInfo ->
                 navController.navigate(
                     BoardFragmentDirections.actionBoardFragmentToTaskDetailsFragment(
-                        task
+                        task,
+                        boardListInfo = boardListInfo
                     )
                 )
             }

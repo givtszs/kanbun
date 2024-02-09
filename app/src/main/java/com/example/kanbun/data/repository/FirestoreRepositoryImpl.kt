@@ -10,6 +10,7 @@ import com.example.kanbun.common.toBoardList
 import com.example.kanbun.common.toFirestoreBoard
 import com.example.kanbun.common.toFirestoreBoardInfo
 import com.example.kanbun.common.toFirestoreBoardList
+import com.example.kanbun.common.toFirestoreTag
 import com.example.kanbun.common.toFirestoreUser
 import com.example.kanbun.common.toFirestoreWorkspace
 import com.example.kanbun.common.toFirestoreTask
@@ -21,6 +22,7 @@ import com.example.kanbun.data.model.FirestoreUser
 import com.example.kanbun.data.model.FirestoreWorkspace
 import com.example.kanbun.domain.model.Board
 import com.example.kanbun.domain.model.BoardList
+import com.example.kanbun.domain.model.Tag
 import com.example.kanbun.domain.model.User
 import com.example.kanbun.domain.model.Workspace
 import com.example.kanbun.domain.repository.FirestoreRepository
@@ -364,12 +366,13 @@ class FirestoreRepositoryImpl @Inject constructor(
             .getResult { taskId }
     }
 
-    override suspend fun updateTask(task: com.example.kanbun.domain.model.Task): Result<Unit> = runCatching {
-        firestore.collection(task.boardListInfo.path)
-            .document(task.boardListInfo.id)
-            .update("tasks.${task.id}", task.toFirestoreTask())
-            .await()
-    }
+    override suspend fun updateTask(task: com.example.kanbun.domain.model.Task, boardListPath: String, boardListId: String): Result<Unit> =
+        runCatching {
+            firestore.collection(boardListPath)
+                .document(boardListId)
+                .update("tasks.${task.id}", task.toFirestoreTask())
+                .await()
+        }
 
     private fun rearrange(
         tasks: List<com.example.kanbun.domain.model.Task>,
@@ -476,8 +479,10 @@ class FirestoreRepositoryImpl @Inject constructor(
         documentId: String,
         newPosition: Long
     ): Task<Void> {
-        Log.d("ItemBoardListViewHolder", "FirestoreRepository#updateBoardListPosition: " +
-                "docId: $documentId, newPos: $newPosition")
+        Log.d(
+            "ItemBoardListViewHolder", "FirestoreRepository#updateBoardListPosition: " +
+                    "docId: $documentId, newPos: $newPosition"
+        )
         return collectionReference.document(documentId)
             .update("position", newPosition)
     }
@@ -509,4 +514,15 @@ class FirestoreRepositoryImpl @Inject constructor(
         val listToMove = boardLists[from]
         updateBoardListPosition(collectionRef, listToMove.id, to.toLong()).await()
     }
+
+    override suspend fun createTag(boardPath: String, boardId: String, tag: Tag): Result<String> =
+        runCatching {
+            val tagId = UUID.randomUUID().toString()
+            firestore.collection(boardPath)
+                .document(boardId)
+                .update("tags.$tagId", tag.toFirestoreTag())
+                .getResult {
+                    tagId
+                }
+        }
 }

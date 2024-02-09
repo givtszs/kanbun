@@ -2,12 +2,14 @@ package com.example.kanbun.common
 
 import com.example.kanbun.data.model.FirestoreBoard
 import com.example.kanbun.data.model.FirestoreBoardList
+import com.example.kanbun.data.model.FirestoreTag
 import com.example.kanbun.data.model.FirestoreTask
 import com.example.kanbun.data.model.FirestoreUser
 import com.example.kanbun.data.model.FirestoreWorkspace
 import com.example.kanbun.domain.model.Board
 import com.example.kanbun.domain.model.BoardList
 import com.example.kanbun.domain.model.BoardListInfo
+import com.example.kanbun.domain.model.Tag
 import com.example.kanbun.domain.model.Task
 import com.example.kanbun.domain.model.User
 import com.example.kanbun.domain.model.Workspace
@@ -112,8 +114,13 @@ fun Board.toFirestoreBoard(): FirestoreBoard =
         owner = owner,
         settings = settings.toFirestoreBoardSettings(),
         lists = lists,
-        tags = tags
+        tags = tags.toFirestoreTags()
     )
+
+fun List<Tag>.toFirestoreTags(): Map<String, FirestoreTag> =
+    associate { tag ->
+        tag.id to tag.toFirestoreTag()
+    }
 
 fun Board.BoardSettings.toFirestoreBoardSettings(): Map<String, Any?> =
     mapOf(
@@ -143,8 +150,13 @@ fun FirestoreBoard.toBoard(boardId: String): Board =
             }
         ),
         lists = lists,
-        tags = tags
+        tags = tags.toTags()
     )
+
+fun Map<String, FirestoreTag>.toTags(): List<Tag> =
+    map { entry ->
+       entry.value.toTag(entry.key)
+    }
 
 fun BoardList.toFirestoreBoardList(): FirestoreBoardList =
     FirestoreBoardList(
@@ -173,7 +185,6 @@ fun Task.toFirestoreTask(): FirestoreTask =
     FirestoreTask(
         name = name,
         position = position,
-        boardListInfo = boardListInfo,
         description = description,
         author = author,
         tags = tags,
@@ -187,11 +198,25 @@ fun FirestoreTask.toTask(id: String): Task =
         id = id,
         name = name,
         position = position,
-        boardListInfo = boardListInfo,
         description = description,
         author = author,
         tags = tags,
         members = members,
         dateStarts = dateStarts,
         dateEnds = dateEnds
+    )
+
+fun Tag.toFirestoreTag(): FirestoreTag =
+    FirestoreTag(
+        name = name,
+        textColor = textColor,
+        backgroundColor = backgroundColor
+    )
+
+fun FirestoreTag.toTag(tagId: String): Tag =
+    Tag(
+        id = tagId,
+        name = name,
+        textColor = textColor,
+        backgroundColor = backgroundColor
     )

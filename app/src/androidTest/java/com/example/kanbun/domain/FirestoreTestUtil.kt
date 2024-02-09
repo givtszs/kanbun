@@ -6,6 +6,7 @@ import com.example.kanbun.common.FirestoreCollection
 import com.example.kanbun.common.WorkspaceRole
 import com.example.kanbun.domain.model.Board
 import com.example.kanbun.domain.model.BoardList
+import com.example.kanbun.domain.model.Tag
 import com.example.kanbun.domain.model.Task
 import com.example.kanbun.domain.model.User
 import com.example.kanbun.domain.model.Workspace
@@ -137,6 +138,13 @@ class FirestoreTestUtil {
                 position = position,
                 name = name,
                 description = "Awesome $name task description"
+            )
+
+        fun createTag(name: String, color: String): Tag =
+            Tag(
+                name = name,
+                textColor = "#$color",
+                backgroundColor = "#33$color" // 33 at the beginning sets opacity to 20%
             )
     }
 }
