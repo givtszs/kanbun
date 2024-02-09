@@ -70,9 +70,9 @@ class CreateTaskFragment : BaseFragment(), StateHandler {
     }
 
     override fun setUpListeners() {
-        when (args.actionType) {
-            TaskAction.ACTION_CREATE -> {
-                binding.apply {
+        binding.apply {
+            when (args.actionType) {
+                TaskAction.ACTION_CREATE -> {
                     etName.doOnTextChanged { _, _, _, count ->
                         Log.d(TAG, "etName: count: $count")
                         btnCreateTask.isEnabled = count > 0
@@ -91,14 +91,14 @@ class CreateTaskFragment : BaseFragment(), StateHandler {
                         }
                     }
                 }
-            }
 
-            TaskAction.ACTION_EDIT -> {
-                val task = args.task
-                viewModel.init(task)
-                binding.apply {
+                TaskAction.ACTION_EDIT -> {
+                    val task = args.task
+                    viewModel.init(task, args.boardListInfo)
+
                     etName.setText(task?.name)
                     etDescription.setText(task?.description)
+
                     with(btnCreateTask) {
                         isEnabled = true
                         setOnClickListener {
@@ -120,10 +120,15 @@ class CreateTaskFragment : BaseFragment(), StateHandler {
                     }
                 }
             }
-        }
 
-        binding.tvCreateTag.setOnClickListener {
-            buildCreateTagDialog()
+
+            tvCreateTag.setOnClickListener {
+                buildCreateTagDialog()
+            }
+
+            with(rvTags) {
+
+            }
         }
     }
 
@@ -134,17 +139,20 @@ class CreateTaskFragment : BaseFragment(), StateHandler {
             // create new tag
             tagColor = colorId
         }
-        alertBinding?.let { binding ->
-            binding.gridColors.adapter = colorPickerAdapter
-            binding.gridColors.layoutManager = GridLayoutManager(requireContext(), 4)
+        alertBinding!!.apply {
+            gridColors.adapter = colorPickerAdapter
+            gridColors.layoutManager = GridLayoutManager(requireContext(), 4)
 
             MaterialAlertDialogBuilder(requireContext())
                 .setTitle("Create tag")
-                .setView(binding.root)
+                .setView(root)
                 .setCancelable(false)
                 .setPositiveButton("Create") { _, _ ->
-                    // viewmodel call
-                    showToast("Tag ${binding.etName.text?.trim()} with color $tagColor is created")
+                   viewModel.createTag(
+                       name = etName.text?.trim().toString(),
+                       color = tagColor,
+                       boardListInfo = args.boardListInfo
+                   )
                 }
                 .setNegativeButton("Cancel") { dialog, _ ->
                     colorPickerAdapter = null
@@ -155,10 +163,8 @@ class CreateTaskFragment : BaseFragment(), StateHandler {
                 .apply {
                     setOnShowListener {
                         val positiveButton = getButton(AlertDialog.BUTTON_POSITIVE)
-                        alertBinding?.let { binding ->
-                            binding.etName.doOnTextChanged { _, _, _, count ->
-                                positiveButton.isEnabled = count > 0
-                            }
+                        alertBinding!!.etName.doOnTextChanged { _, _, _, count ->
+                            positiveButton.isEnabled = count > 0
                         }
                     }
                 }

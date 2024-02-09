@@ -26,73 +26,95 @@ class CreateTaskViewModel @Inject constructor(
     private val firestoreRepository: FirestoreRepository
 ) : BaseViewModel() {
     private var _task = MutableStateFlow<Task?>(null)
+    private var _tags =
+        MutableStateFlow<List<ViewState.CreateTaskViewState.TagUi>>(emptyList())
     private var _isLoading = MutableStateFlow(false)
     private var _isUpsertingTask = MutableStateFlow(false)
+    private var _isLoadingTags = MutableStateFlow(false)
     private var _message = MutableStateFlow<String?>(null)
+
     val createTaskState: StateFlow<ViewState.CreateTaskViewState> = combine(
-        _task, _isLoading, _isUpsertingTask, _message) { task, isLoading, isUpsertingTask, message ->
+        _task, _isLoading, _isUpsertingTask, _isLoadingTags, _message
+    ) { task, isLoading, isUpsertingTask, isLoadingTags, message ->
         ViewState.CreateTaskViewState(
             task = task,
             message = message,
             isLoading = isLoading,
-            isUpsertingTask = isUpsertingTask
+            isUpsertingTask = isUpsertingTask,
+            isLoadingTags = isLoadingTags
         )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), ViewState.CreateTaskViewState())
 
-    fun init(task: Task?) {
-        _task.value = task
-
+    fun init(task: Task?, boardListInfo: BoardListInfo) {
         if (task == null) {
             _message.value = "Task is null"
         }
+
+        _task.value = task
+
+        // init tag list
+        getTags(boardListInfo)
+
+        // init members list
     }
 
     fun messageShown() {
         _message.value = null
     }
 
-    fun createTask(task: Task, boardListInfo: BoardListInfo, onSuccessCallback: () -> Unit) = viewModelScope.launch {
-        _isUpsertingTask.value = true
-        when (val result = firestoreRepository.createTask(
-            task = task,
-            listId = boardListInfo.id,
-            listPath = boardListInfo.path
-        )) {
-            is Result.Success -> {
-                _isUpsertingTask.value = false
-                onSuccessCallback()
-
-            }
-
-            is Result.Error -> {
-                _isUpsertingTask.value = false
-                _message.value = result.message
-            }
-
-            Result.Loading -> {}
-        }
-    }
-
-    fun editTask(updatedTask: Task?, boardListInfo: BoardListInfo, onSuccessCallback: () -> Unit) = viewModelScope.launch {
-        Log.d(TAG, "editTask: areTheSame: ${updatedTask == _task.value}, oldTask: ${_task.value}\nupdatedTask: $updatedTask")
-        if (updatedTask == _task.value || updatedTask == null) {
-            _message.value = "No changes spotted"
-            return@launch
-        } else {
+    fun createTask(task: Task, boardListInfo: BoardListInfo, onSuccessCallback: () -> Unit) =
+        viewModelScope.launch {
             _isUpsertingTask.value = true
-            when (val result = firestoreRepository.updateTask(updatedTask, boardListInfo.path, boardListInfo.id)) {
+            when (val result = firestoreRepository.createTask(
+                task = task,
+                listId = boardListInfo.id,
+                listPath = boardListInfo.path
+            )) {
                 is Result.Success -> {
                     _isUpsertingTask.value = false
                     onSuccessCallback()
+
                 }
+
                 is Result.Error -> {
                     _isUpsertingTask.value = false
                     _message.value = result.message
                 }
+
                 Result.Loading -> {}
             }
         }
-    }
+
+    fun editTask(updatedTask: Task?, boardListInfo: BoardListInfo, onSuccessCallback: () -> Unit) =
+        viewModelScope.launch {
+            Log.d(
+                TAG,
+                "editTask: areTheSame: ${updatedTask == _task.value}, oldTask: ${_task.value}\nupdatedTask: $updatedTask"
+            )
+            if (updatedTask == _task.value || updatedTask == null) {
+                _message.value = "No changes spotted"
+                return@launch
+            } else {
+                _isUpsertingTask.value = true
+                when (val result = firestoreRepository.updateTask(
+                    updatedTask,
+                    boardListInfo.path,
+                    boardListInfo.id
+                )) {
+                    is Result.Success -> {
+                        _isUpsertingTask.value = false
+                        onSuccessCallback()
+                    }
+
+                    is Result.Error -> {
+                        _isUpsertingTask.value = false
+                        _message.value = result.message
+                    }
+
+                    Result.Loading -> {}
+                }
+            }
+        }
 
     @OptIn(ExperimentalStdlibApi::class)
     fun createTag(name: String, color: Int, boardListInfo: BoardListInfo) = viewModelScope.launch {
@@ -100,17 +122,53 @@ class CreateTaskViewModel @Inject constructor(
             _message.value = "Task is null"
             return@launch
         } else {
-            val boardRef = boardListInfo.path.substringBefore("/${FirestoreCollection.BOARD_LIST.collectionName}")
+            val boardRef =
+                boardListInfo.path.substringBefore("/${FirestoreCollection.BOARD_LIST.collectionName}")
             val hexColorCode = color.toHexString()
-            firestoreRepository.createTag(
-                boardPath = boardRef.substringBeforeLast("/"),
-                boardId = boardRef.substringAfterLast("/"),
-                tag = Tag(
-                    name = name,
-                    textColor = "#$hexColorCode",
-                    backgroundColor = "#33$hexColorCode" // 33 - 20% alpha value
+
+            when (
+                val result = firestoreRepository.createTag(
+                    boardPath = boardRef.substringBeforeLast("/"),
+                    boardId = boardRef.substringAfterLast("/"),
+                    tag = Tag(
+                        name = name,
+                        textColor = "#$hexColorCode",
+                        backgroundColor = "#33$hexColorCode" // 33 - 20% alpha value
+                    )
                 )
+            ) {
+                is Result.Success -> getTags(boardListInfo)
+                is Result.Error -> _message.value = result.message
+                Result.Loading -> {
+                    _isLoadingTags.value = true
+                }
+            }
+        }
+    }
+
+    fun getTags(boardListInfo: BoardListInfo) = viewModelScope.launch {
+        _isLoadingTags.value = true
+        val boardRef =
+            boardListInfo.path.substringBefore("/${FirestoreCollection.BOARD_LIST.collectionName}")
+        when (
+            val result = firestoreRepository.getTags(
+                boardId = boardRef.substringAfterLast("/"),
+                workspaceId = boardRef.substringAfter("${FirestoreCollection.WORKSPACES.collectionName}/")
+                    .substringBefore("/${FirestoreCollection.BOARDS.collectionName}")
             )
+        ) {
+            is Result.Success -> {
+                _tags.value =
+                    result.data.map { tag -> ViewState.CreateTaskViewState.TagUi(tag, false) }
+                _isLoadingTags.value = false
+            }
+
+            is Result.Error -> {
+                _message.value = result.message
+                _isLoadingTags.value = false
+            }
+
+            Result.Loading -> _isLoadingTags.value = true
         }
     }
 }

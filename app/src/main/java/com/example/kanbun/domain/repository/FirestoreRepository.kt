@@ -93,4 +93,6 @@ interface FirestoreRepository {
         boardId: String,
         tag: Tag
     ): Result<String>
+
+    suspend fun getTags(boardId: String, workspaceId: String): Result<List<Tag>>
 }

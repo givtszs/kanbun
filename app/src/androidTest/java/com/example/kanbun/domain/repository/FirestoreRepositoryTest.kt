@@ -6,6 +6,7 @@ import com.example.kanbun.data.repository.FirestoreRepositoryImpl
 import com.example.kanbun.domain.FirestoreTestUtil
 import com.example.kanbun.domain.model.Board
 import com.example.kanbun.domain.model.BoardList
+import com.example.kanbun.domain.model.Tag
 import com.example.kanbun.domain.model.Task
 import com.example.kanbun.domain.model.User
 import com.example.kanbun.domain.model.Workspace
@@ -574,6 +575,21 @@ class FirestoreRepositoryTest {
     }
 
     @Test
+    fun getTags_getsListOfTags() = runBlocking {
+        val board = createBoard("board1")
+        val tag1 = createTag("Tag1", "FF0000", board.id, board.settings.workspace.id)
+        val tag2 = createTag("Tag2", "FFA500", board.id, board.settings.workspace.id)
+
+        val result = repository.getTags(board.id, board.settings.workspace.id)
+
+        assertThat(result).isInstanceOf(Result.Success::class.java)
+
+        val resTags = (result as Result.Success).data
+
+        assertThat(resTags).isEqualTo(listOf(tag1, tag2).sortedBy { it.name })
+    }
+
+    @Test
     fun test(): Unit = runBlocking {
         val firestore = FirestoreTestUtil.firestore
 
@@ -635,10 +651,35 @@ class FirestoreRepositoryTest {
         }
     }
 
-    private suspend fun createBoard(userId: String, workspaceInfo: User.WorkspaceInfo, name: String): Board {
+    private suspend fun createBoard(
+        userId: String,
+        workspaceInfo: User.WorkspaceInfo,
+        name: String
+    ): Board {
         return FirestoreTestUtil.createBoard(userId, workspaceInfo, name).run {
             copy(
                 id = (repository.createBoard(this) as Result.Success).data
+            )
+        }
+    }
+
+    private suspend fun createBoard(name: String): Board {
+        val user = createUser("user1")
+        val workspace = createWorkspace(user.id, "workspace")
+        return createBoard(user.id, User.WorkspaceInfo(workspace.id, workspace.name), name)
+    }
+
+    private suspend fun createTag(
+        name: String,
+        color: String,
+        boardId: String,
+        workspaceId: String
+    ): Tag {
+        val boardPath = "${FirestoreCollection.WORKSPACES.collectionName}/$workspaceId" +
+                "/${FirestoreCollection.BOARDS.collectionName}"
+        return FirestoreTestUtil.createTag(name, color).run {
+            copy(
+                id = (repository.createTag(boardPath, boardId, this) as Result.Success).data
             )
         }
     }

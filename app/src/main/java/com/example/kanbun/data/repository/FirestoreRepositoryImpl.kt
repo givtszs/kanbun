@@ -32,6 +32,7 @@ import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
+import com.google.firebase.firestore.toObject
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
@@ -525,4 +526,13 @@ class FirestoreRepositoryImpl @Inject constructor(
                     tagId
                 }
         }
+
+    override suspend fun getTags(boardId: String, workspaceId: String): Result<List<Tag>> = runCatching {
+        val boardRes = getBoard(boardId, workspaceId)
+        if (boardRes is Result.Error) {
+            throw boardRes.e!!
+        }
+
+        (boardRes as Result.Success).data.tags.sortedBy { it.name }
+    }
 }

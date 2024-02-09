@@ -2,6 +2,7 @@ package com.example.kanbun.ui
 
 import com.example.kanbun.domain.model.Board
 import com.example.kanbun.domain.model.BoardList
+import com.example.kanbun.domain.model.Tag
 import com.example.kanbun.domain.model.Task
 import com.example.kanbun.domain.model.User
 import com.example.kanbun.domain.model.Workspace
@@ -51,8 +52,15 @@ sealed class ViewState {
 
     data class CreateTaskViewState(
         val task: Task? = null,
+        val tags: List<TagUi> = mutableListOf(),
         val isLoading: Boolean = false,
         val isUpsertingTask: Boolean = false,
+        val isLoadingTags: Boolean = false,
         val message: String? = null
-    ) : ViewState()
+    ) : ViewState() {
+        data class TagUi(
+            val tag: Tag,
+            var isSelected: Boolean = false
+        )
+    }
 }
