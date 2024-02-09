@@ -46,7 +46,8 @@ class CreateTaskFragment : BaseFragment(), StateHandler {
     private val binding: FragmentCreateTaskBinding get() = _binding!!
     private val viewModel: CreateTaskViewModel by viewModels()
     private val args: CreateTaskFragmentArgs by navArgs()
-//    private var alertBinding: AlertDialogCreateTagBinding? = null
+
+    //    private var alertBinding: AlertDialogCreateTagBinding? = null
     private var tagsAdapter: TagsAdapter? = null
 
     override fun onCreateView(
@@ -69,7 +70,7 @@ class CreateTaskFragment : BaseFragment(), StateHandler {
                 setUpActionBar(binding.topAppBar.toolbar, "Edit task")
             }
         }
-        viewModel.init(args.task, args.boardListInfo)
+        viewModel.init(args.task, args.boardListInfo, args.actionType)
         collectState()
     }
 
@@ -88,6 +89,9 @@ class CreateTaskFragment : BaseFragment(), StateHandler {
                                 name = etName.text?.trim().toString(),
                                 description = etDescription.text?.trim().toString(),
                                 author = viewModel.firebaseUser?.uid!!,
+                                tags = viewModel.createTaskState.value.tags
+                                    .filter { it.isSelected }
+                                    .map { it.tag.id }
                             ),
                             args.boardListInfo
                         ) {
@@ -137,7 +141,8 @@ class CreateTaskFragment : BaseFragment(), StateHandler {
 
     private fun buildCreateTagDialog() {
         var tagColor = ""
-        var alertBinding: AlertDialogCreateTagBinding? = AlertDialogCreateTagBinding.inflate(layoutInflater, null, false)
+        var alertBinding: AlertDialogCreateTagBinding? =
+            AlertDialogCreateTagBinding.inflate(layoutInflater, null, false)
         var colorPickerAdapter: ColorPickerAdapter? = ColorPickerAdapter { colorId ->
             // create new tag
             tagColor = colorId

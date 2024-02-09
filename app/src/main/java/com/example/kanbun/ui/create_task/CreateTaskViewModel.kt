@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.lifecycle.viewModelScope
 import com.example.kanbun.common.FirestoreCollection
 import com.example.kanbun.common.Result
+import com.example.kanbun.common.TaskAction
 import com.example.kanbun.domain.model.BoardListInfo
 import com.example.kanbun.domain.model.Tag
 import com.example.kanbun.domain.model.Task
@@ -55,15 +56,22 @@ class CreateTaskViewModel @Inject constructor(
         )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), ViewState.CreateTaskViewState())
 
-    fun init(task: Task?, boardListInfo: BoardListInfo) {
+    fun init(task: Task?, boardListInfo: BoardListInfo, taskAction: TaskAction) {
         if (task == null) {
             _message.value = "Task is null"
         }
 
         _task.value = task
 
-        // init tag list
-        getTags(boardListInfo)
+        viewModelScope.launch {
+            // init tag list
+            getTags(boardListInfo)
+
+            if (taskAction == TaskAction.ACTION_EDIT) {
+                _tags.value.filter { it.tag.id in task!!.tags }.forEach { it.isSelected = true }
+            }
+        }
+
 
         // init members list
     }
@@ -149,7 +157,7 @@ class CreateTaskViewModel @Inject constructor(
             }
     }
 
-    fun getTags(boardListInfo: BoardListInfo) = viewModelScope.launch {
+    suspend fun getTags(boardListInfo: BoardListInfo) {
         _isLoadingTags.value = true
         val boardRef =
             boardListInfo.path.substringBefore("/${FirestoreCollection.BOARD_LIST.collectionName}")
