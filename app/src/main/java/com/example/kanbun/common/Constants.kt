@@ -54,6 +54,7 @@ const val HORIZONTAL_SCROLL_DISTANCE = 5
 const val VERTICAL_SCROLL_DISTANCE = 5
 const val DATE_FORMAT = "dd MMM yyyy"
 const val TIME_FORMAT = "HH:mm"
+const val DATE_TIME_FORMAT = "dd MMM yyyy, HH:mm"
 
 val defaultTagColors = listOf(
     "#FF0000", // red

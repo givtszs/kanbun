@@ -20,7 +20,10 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.kanbun.R
 import com.example.kanbun.common.DATE_FORMAT
+import com.example.kanbun.common.DATE_TIME_FORMAT
 import com.example.kanbun.common.TaskAction
+import com.example.kanbun.common.convertDateStringToTimestamp
+import com.example.kanbun.common.convertTimestampToDateString
 import com.example.kanbun.common.defaultTagColors
 import com.example.kanbun.common.getColor
 import com.example.kanbun.databinding.AlertDialogCreateTagBinding
@@ -85,20 +88,25 @@ class CreateTaskFragment : BaseFragment(), StateHandler {
     }
 
     override fun setUpListeners() {
+        val task = args.task
+
         binding.apply {
+            // use the task from arguments to preserve the `position` property
             when (args.actionType) {
                 TaskAction.ACTION_CREATE -> {
                     btnCreateTask.setOnClickListener {
+                        val updatedTask = task.copy(
+                            name = etName.text?.trim().toString(),
+                            description = etDescription.text?.trim().toString(),
+                            tags = viewModel.createTaskState.value.tags
+                                .filter { it.isSelected }
+                                .map { it.tag.id },
+                            dateStarts = convertDateStringToTimestamp(DATE_TIME_FORMAT, tvDateStarts.text.toString()),
+                            dateEnds = convertDateStringToTimestamp(DATE_TIME_FORMAT, tvDateEnds.text.toString())
+                        )
+
                         viewModel.createTask(
-                            // use the task from arguments to preserve the `position` property
-                            args.task.copy(
-                                name = etName.text?.trim().toString(),
-                                description = etDescription.text?.trim().toString(),
-                                author = viewModel.firebaseUser?.uid!!,
-                                tags = viewModel.createTaskState.value.tags
-                                    .filter { it.isSelected }
-                                    .map { it.tag.id }
-                            ),
+                            updatedTask,
                             args.boardListInfo
                         ) {
                             navController.popBackStack()
@@ -107,8 +115,6 @@ class CreateTaskFragment : BaseFragment(), StateHandler {
                 }
 
                 TaskAction.ACTION_EDIT -> {
-                    val task = args.task
-
                     etName.setText(task.name)
                     etDescription.setText(task.description)
 
@@ -117,7 +123,12 @@ class CreateTaskFragment : BaseFragment(), StateHandler {
                         setOnClickListener {
                             val updatedTask = task.copy(
                                 name = etName.text?.trim().toString(),
-                                description = etDescription.text?.trim().toString()
+                                description = etDescription.text?.trim().toString(),
+                                tags = viewModel.createTaskState.value.tags
+                                    .filter { it.isSelected }
+                                    .map { it.tag.id },
+                                dateStarts = convertDateStringToTimestamp(DATE_TIME_FORMAT, tvDateStarts.text.toString()),
+                                dateEnds = convertDateStringToTimestamp(DATE_TIME_FORMAT, tvDateEnds.text.toString())
                             )
 
                             viewModel.editTask(updatedTask, args.boardListInfo) {
@@ -146,17 +157,29 @@ class CreateTaskFragment : BaseFragment(), StateHandler {
             tagsAdapter = TagsAdapter(areItemsClickable = true)
             rvTags.adapter = tagsAdapter
 
-            tvDateStarts.setOnFocusChangeListener { v, hasFocus ->
-                if (hasFocus) {
-                    Log.d(TAG, "tvDateStarts is clicked")
-                    buildDateTimePickerDialog(binding.tvDateStarts)
+            tvDateStarts.apply {
+                task.dateStarts?.let {
+                    setText(convertTimestampToDateString(DATE_TIME_FORMAT, it))
+                }
+
+                setOnFocusChangeListener { v, hasFocus ->
+                    if (hasFocus) {
+                        Log.d(TAG, "tvDateStarts is clicked")
+                        buildDateTimePickerDialog(binding.tvDateStarts)
+                    }
                 }
             }
 
-            tvDateEnds.setOnFocusChangeListener { v, hasFocus ->
-                if (hasFocus) {
-                    Log.d(TAG, "tvDateEnds is clicked")
-                    buildDateTimePickerDialog(binding.tvDateEnds)
+            tvDateEnds.apply {
+                task.dateEnds?.let {
+                    setText(convertTimestampToDateString(DATE_TIME_FORMAT, it))
+                }
+
+                setOnFocusChangeListener { v, hasFocus ->
+                    if (hasFocus) {
+                        Log.d(TAG, "tvDateEnds is clicked")
+                        buildDateTimePickerDialog(binding.tvDateEnds)
+                    }
                 }
             }
         }
@@ -300,15 +323,7 @@ class CreateTaskFragment : BaseFragment(), StateHandler {
         alertDialogBinding: AlertDialogDatetimePickerBinding,
         date: String
     ) {
-        val dateTimestamp = try {
-            SimpleDateFormat(DATE_FORMAT, Locale.getDefault())
-                .apply { timeZone = TimeZone.getTimeZone("UTC") }
-                .parse(date)
-                ?.time
-        } catch (e: ParseException) {
-            Log.e(TAG, e.message, e)
-            null
-        }
+        val dateTimestamp = convertDateStringToTimestamp(DATE_FORMAT, date)
 
         val constraints = CalendarConstraints.Builder()
             .setValidator(DateValidatorPointForward.now())
@@ -321,10 +336,7 @@ class CreateTaskFragment : BaseFragment(), StateHandler {
 
         datePicker.addOnPositiveButtonClickListener {
             alertDialogBinding.tvSelectedDate.setText(
-                SimpleDateFormat(
-                    DATE_FORMAT,
-                    Locale.getDefault()
-                ).format(it).toString()
+               convertTimestampToDateString(DATE_FORMAT, it)
             )
         }
         datePicker.show(childFragmentManager, "date_picker")
