@@ -78,11 +78,6 @@ class CreateTaskFragment : BaseFragment(), StateHandler {
         binding.apply {
             when (args.actionType) {
                 TaskAction.ACTION_CREATE -> {
-                    etName.doOnTextChanged { _, _, _, count ->
-                        Log.d(TAG, "etName: count: $count")
-                        btnCreateTask.isEnabled = count > 0
-                    }
-
                     btnCreateTask.setOnClickListener {
                         viewModel.createTask(
                             Task(
@@ -128,6 +123,10 @@ class CreateTaskFragment : BaseFragment(), StateHandler {
                 }
             }
 
+            etName.doOnTextChanged { _, _, _, count ->
+                Log.d(TAG, "etName: count: $count")
+                btnCreateTask.isEnabled = count > 0
+            }
 
             tvCreateTag.setOnClickListener {
                 buildCreateTagDialog()
@@ -144,10 +143,9 @@ class CreateTaskFragment : BaseFragment(), StateHandler {
         var alertBinding: AlertDialogCreateTagBinding? =
             AlertDialogCreateTagBinding.inflate(layoutInflater, null, false)
         var colorPickerAdapter: ColorPickerAdapter? = ColorPickerAdapter { colorId ->
-            // create new tag
             tagColor = colorId
-            showToast("tagColor: $tagColor")
         }
+
         alertBinding!!.apply {
             gridColors.adapter = colorPickerAdapter
             gridColors.layoutManager = GridLayoutManager(requireContext(), 4)
@@ -172,7 +170,9 @@ class CreateTaskFragment : BaseFragment(), StateHandler {
                 .create()
                 .apply {
                     setOnShowListener {
-                        val positiveButton = getButton(AlertDialog.BUTTON_POSITIVE)
+                        val positiveButton = getButton(AlertDialog.BUTTON_POSITIVE).apply {
+                            isEnabled = false
+                        }
                         alertBinding!!.etName.doOnTextChanged { _, _, _, count ->
                             positiveButton.isEnabled = count > 0
                         }
