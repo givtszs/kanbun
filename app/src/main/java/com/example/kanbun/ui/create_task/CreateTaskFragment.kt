@@ -1,17 +1,15 @@
 package com.example.kanbun.ui.create_task
 
 import android.app.AlertDialog
-import android.content.Context
 import android.graphics.Color
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ArrayAdapter
+import android.widget.AutoCompleteTextView
 import androidx.core.view.isVisible
+import androidx.core.widget.doAfterTextChanged
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
@@ -21,22 +19,34 @@ import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.kanbun.R
+import com.example.kanbun.common.DATE_FORMAT
 import com.example.kanbun.common.TaskAction
 import com.example.kanbun.common.defaultTagColors
 import com.example.kanbun.common.getColor
 import com.example.kanbun.databinding.AlertDialogCreateTagBinding
+import com.example.kanbun.databinding.AlertDialogDatetimePickerBinding
 import com.example.kanbun.databinding.FragmentCreateTaskBinding
 import com.example.kanbun.databinding.ItemColorPreviewBinding
-import com.example.kanbun.domain.model.BoardListInfo
-import com.example.kanbun.domain.model.Task
 import com.example.kanbun.ui.BaseFragment
 import com.example.kanbun.ui.StateHandler
 import com.example.kanbun.ui.ViewState
 import com.example.kanbun.ui.board.common_adapters.TagsAdapter
+import com.google.android.material.datepicker.CalendarConstraints
+import com.google.android.material.datepicker.DateValidatorPointForward
+import com.google.android.material.datepicker.MaterialDatePicker
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.timepicker.MaterialTimePicker
+import com.google.android.material.timepicker.MaterialTimePicker.INPUT_MODE_CLOCK
+import com.google.android.material.timepicker.TimeFormat
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
+import java.text.ParseException
+import java.text.SimpleDateFormat
+import java.util.Locale
+import java.util.TimeZone
 
 private const val TAG = "CreateTaskFragment"
 
@@ -135,51 +145,221 @@ class CreateTaskFragment : BaseFragment(), StateHandler {
             // set up tags recycler view
             tagsAdapter = TagsAdapter(areItemsClickable = true)
             rvTags.adapter = tagsAdapter
+
+            tvDateStarts.setOnFocusChangeListener { v, hasFocus ->
+                if (hasFocus) {
+                    Log.d(TAG, "tvDateStarts is clicked")
+                    buildDateTimePickerDialog(binding.tvDateStarts)
+                }
+            }
+
+            tvDateEnds.setOnFocusChangeListener { v, hasFocus ->
+                if (hasFocus) {
+                    Log.d(TAG, "tvDateEnds is clicked")
+                    buildDateTimePickerDialog(binding.tvDateEnds)
+                }
+            }
         }
     }
 
     private fun buildCreateTagDialog() {
         var tagColor = ""
-        var alertBinding: AlertDialogCreateTagBinding? =
+        var alertDialogBinding: AlertDialogCreateTagBinding? =
             AlertDialogCreateTagBinding.inflate(layoutInflater, null, false)
         var colorPickerAdapter: ColorPickerAdapter? = ColorPickerAdapter { colorId ->
             tagColor = colorId
         }
 
-        alertBinding!!.apply {
-            gridColors.adapter = colorPickerAdapter
-            gridColors.layoutManager = GridLayoutManager(requireContext(), 4)
+        with(alertDialogBinding!!.gridColors) {
+            adapter = colorPickerAdapter
+            layoutManager = GridLayoutManager(requireContext(), 4)
+        }
+
+        MaterialAlertDialogBuilder(requireContext())
+            .setTitle("Create tag")
+            .setView(alertDialogBinding.root)
+            .setCancelable(false)
+            .setPositiveButton("Create") { _, _ ->
+                viewModel.createTag(
+                    name = alertDialogBinding!!.etName.text?.trim().toString(),
+                    color = tagColor,
+                    boardListInfo = args.boardListInfo
+                )
+                alertDialogBinding = null
+            }
+            .setNegativeButton("Cancel") { dialog, _ ->
+                colorPickerAdapter = null
+                alertDialogBinding = null
+                dialog.cancel()
+            }
+            .create()
+            .apply {
+                setOnShowListener {
+                    val positiveButton = getButton(AlertDialog.BUTTON_POSITIVE).apply {
+                        isEnabled = false
+                    }
+                    alertDialogBinding!!.etName.doOnTextChanged { _, _, _, count ->
+                        positiveButton.isEnabled = count > 0
+                    }
+                }
+            }
+            .show()
+    }
+
+    private fun buildDateTimePickerDialog(textField: AutoCompleteTextView) {
+//        fun close(dialogBinding: AlertDialogDatetimePickerBinding, dialog) {
+//            alertDialogBinding = null
+//            binding.tvDateStarts.clearFocus()
+//            dialog.cancel()
+//        }
+//
+        var alertDialogBinding: AlertDialogDatetimePickerBinding? =
+            AlertDialogDatetimePickerBinding.inflate(layoutInflater, null, false)
+
+        alertDialogBinding?.let { dialogBinding ->
+            val date = textField.text.toString().substringBefore(",")
+            val time = textField.text.toString().substringAfter(", ")
+
+            dialogBinding.tvSelectedDate.apply {
+                if (date.isNotEmpty()) {
+                    setText(date)
+                }
+
+                setOnClickListener {
+                    buildDatePicker(dialogBinding, dialogBinding.tvSelectedDate.text.toString())
+                }
+            }
+
+            dialogBinding.tvSelectedTime.apply {
+                if (time.isNotEmpty()) {
+                    setText(time)
+                }
+
+                setOnClickListener {
+                    buildTimePicker(dialogBinding, dialogBinding.tvSelectedTime.text.toString())
+                }
+            }
 
             MaterialAlertDialogBuilder(requireContext())
-                .setTitle("Create tag")
-                .setView(root)
-                .setCancelable(false)
-                .setPositiveButton("Create") { _, _ ->
-                    viewModel.createTag(
-                        name = etName.text?.trim().toString(),
-                        color = tagColor,
-                        boardListInfo = args.boardListInfo
+                .setView(dialogBinding.root)
+                .setPositiveButton("Save") { _, _ ->
+                    textField.setText(
+                        resources.getString(
+                            R.string.date_time,
+                            dialogBinding.tvSelectedDate.text,
+                            dialogBinding.tvSelectedTime.text
+                        )
                     )
-                    alertBinding = null
                 }
                 .setNegativeButton("Cancel") { dialog, _ ->
-                    colorPickerAdapter = null
-                    alertBinding = null
                     dialog.cancel()
                 }
+                .setOnDismissListener {
+                    alertDialogBinding = null
+                    textField.clearFocus()
+                }
+                .setCancelable(false)
                 .create()
                 .apply {
                     setOnShowListener {
-                        val positiveButton = getButton(AlertDialog.BUTTON_POSITIVE).apply {
-                            isEnabled = false
+                        val positiveButton = getButton(AlertDialog.BUTTON_POSITIVE).also {
+                            it.isEnabled = false
                         }
-                        alertBinding!!.etName.doOnTextChanged { _, _, _, count ->
-                            positiveButton.isEnabled = count > 0
+
+                        dialogBinding.apply {
+                            val _isDateSelected = MutableStateFlow(tvSelectedDate.text.isNotEmpty())
+                            val _isTimeSelected = MutableStateFlow(tvSelectedTime.text.isNotEmpty())
+                            lifecycleScope.launch {
+                                combine(
+                                    _isDateSelected,
+                                    _isTimeSelected
+                                ) { isDateSelected, isTimeSelected ->
+                                    isDateSelected && isTimeSelected
+                                }.collectLatest { isDateTimeSelected ->
+                                    positiveButton.isEnabled = isDateTimeSelected
+                                }
+                            }
+
+                            tvSelectedDate.doAfterTextChanged {
+                                Log.d(TAG, "date has changed: $it")
+                                _isDateSelected.value = it?.isNotEmpty() == true
+                            }
+
+                            tvSelectedTime.doAfterTextChanged {
+                                Log.d(TAG, "time has changed: $it")
+                                _isTimeSelected.value = it?.isNotEmpty() == true
+                            }
                         }
                     }
                 }
                 .show()
         }
+    }
+
+    private fun buildDatePicker(
+        alertDialogBinding: AlertDialogDatetimePickerBinding,
+        date: String
+    ) {
+        val dateTimestamp = try {
+            SimpleDateFormat(DATE_FORMAT, Locale.getDefault())
+                .apply { timeZone = TimeZone.getTimeZone("UTC") }
+                .parse(date)
+                ?.time
+        } catch (e: ParseException) {
+            Log.e(TAG, e.message, e)
+            null
+        }
+
+        val constraints = CalendarConstraints.Builder()
+            .setValidator(DateValidatorPointForward.now())
+            .build()
+
+        val datePicker = MaterialDatePicker.Builder.datePicker()
+            .setCalendarConstraints(constraints)
+            .setSelection(dateTimestamp ?: MaterialDatePicker.todayInUtcMilliseconds())
+            .build()
+
+        datePicker.addOnPositiveButtonClickListener {
+            alertDialogBinding.tvSelectedDate.setText(
+                SimpleDateFormat(
+                    DATE_FORMAT,
+                    Locale.getDefault()
+                ).format(it).toString()
+            )
+        }
+        datePicker.show(childFragmentManager, "date_picker")
+    }
+
+    private fun buildTimePicker(
+        alertDialogBinding: AlertDialogDatetimePickerBinding,
+        time: String,
+    ) {
+        fun addZero(time: Int): String {
+            return if (time < 10) {
+                "0$time"
+            } else {
+                time.toString()
+            }
+        }
+
+        val timePickerBuilder = MaterialTimePicker.Builder()
+            .setTimeFormat(TimeFormat.CLOCK_24H)
+            .setInputMode(INPUT_MODE_CLOCK)
+
+        if (time.isNotEmpty()) {
+            Log.d(TAG, "buildTimePicker: initTime: $time")
+            timePickerBuilder.setHour(time.substringBefore(":").toInt())
+            timePickerBuilder.setMinute(time.substringAfter(":").toInt())
+        }
+
+        val timePicker = timePickerBuilder.build()
+        timePicker.addOnPositiveButtonClickListener {
+            val hour = addZero(timePicker.hour)
+            val minute = addZero(timePicker.minute)
+            alertDialogBinding.tvSelectedTime.setText("$hour:$minute")
+        }
+
+        timePicker.show(childFragmentManager, "time_picker")
     }
 
     override fun collectState() {

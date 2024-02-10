@@ -52,6 +52,8 @@ const val EMAIL_RESEND_TIME_LIMIT = 60
 const val RECYCLERVIEW_BOARDS_COLUMNS = 2
 const val HORIZONTAL_SCROLL_DISTANCE = 5
 const val VERTICAL_SCROLL_DISTANCE = 5
+const val DATE_FORMAT = "dd MMM yyyy"
+const val TIME_FORMAT = "HH:mm"
 
 val defaultTagColors = listOf(
     "#FF0000", // red

@@ -1,6 +1,5 @@
 package com.example.kanbun.ui.task_details
 
-import android.graphics.Color
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -58,8 +57,8 @@ class TaskDetailsFragment : BaseFragment() {
 
             tvMembers.text = resources.getString(R.string.task_members, task.members.size)
 
-            tvDateStarts.text = task.dateStarts.ifEmpty { resources.getString(R.string.no_date) }
-            tvDateEnds.text = task.dateStarts.ifEmpty { resources.getString(R.string.no_date) }
+            tvDateStarts.text = task.dateStarts.ifEmpty { resources.getString(R.string.no_date_time) }
+            tvDateEnds.text = task.dateStarts.ifEmpty { resources.getString(R.string.no_date_time) }
 
             fabEditTask.setOnClickListener {
                 navController.navigate(TaskDetailsFragmentDirections.actionTaskDetailsFragmentToCreateTaskFragment(

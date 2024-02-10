@@ -55,6 +55,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="24dp"
+            android:labelFor="@id/etSearchMembers"
             android:text="@string/add_members"
             android:textSize="18sp"
             app:layout_constraintStart_toStartOf="parent"
@@ -94,6 +95,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="24dp"
+            android:labelFor="@id/tvDateStarts"
             android:text="@string/date_starts"
             android:textSize="18sp"
             app:layout_constraintStart_toStartOf="parent"
@@ -107,13 +109,15 @@
             android:layout_marginTop="6dp"
             app:endIconDrawable="@drawable/ic_calendar_outlined_24"
             app:endIconMode="custom"
+            app:hintEnabled="false"
             app:layout_constraintTop_toBottomOf="@id/tvStarts">
 
             <AutoCompleteTextView
+                android:id="@+id/tvDateStarts"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:hint="@string/no_date"
-                android:inputType="datetime" />
+                android:hint="@string/no_date_time"
+                android:inputType="none" />
 
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -123,6 +127,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="24dp"
+            android:labelFor="@id/tvDateEnds"
             android:text="@string/date_ends"
             android:textSize="18sp"
             app:layout_constraintStart_toStartOf="parent"
@@ -136,14 +141,15 @@
             android:layout_marginTop="6dp"
             app:endIconDrawable="@drawable/ic_calendar_outlined_24"
             app:endIconMode="custom"
+            app:hintEnabled="false"
             app:layout_constraintTop_toBottomOf="@id/tvEnds">
 
             <AutoCompleteTextView
-                android:id="@+id/etDateEnds"
+                android:id="@+id/tvDateEnds"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="@string/no_date"
-                android:inputType="datetime" />
+                android:hint="@string/no_date_time"
+                android:inputType="none" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <TextView
@@ -186,8 +192,8 @@
             android:id="@+id/rvTags"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
             android:layout_marginStart="4dp"
+            android:orientation="horizontal"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
             app:layout_constraintBottom_toBottomOf="@id/tvCreateTag"
             app:layout_constraintEnd_toEndOf="parent"
@@ -199,10 +205,10 @@
             android:id="@+id/pbLoadingTags"
             android:layout_width="wrap_content"
             android:layout_height="30dp"
-            app:layout_constraintTop_toTopOf="@id/rvTags"
             app:layout_constraintBottom_toBottomOf="@id/rvTags"
             app:layout_constraintEnd_toEndOf="@id/rvTags"
-            app:layout_constraintStart_toStartOf="@id/rvTags" />
+            app:layout_constraintStart_toStartOf="@id/rvTags"
+            app:layout_constraintTop_toTopOf="@id/rvTags" />
 
         <Button
             android:id="@+id/btnCreateTask"
