@@ -136,9 +136,7 @@
             app:argType="com.example.kanbun.common.TaskAction" />
         <argument
             android:name="task"
-            app:argType="com.example.kanbun.domain.model.Task"
-            app:nullable="true"
-            android:defaultValue="@null" />
+            app:argType="com.example.kanbun.domain.model.Task" />
         <action
             android:id="@+id/action_createTaskFragment_to_taskDetailsFragment"
             app:destination="@id/taskDetailsFragment"

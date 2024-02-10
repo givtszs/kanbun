@@ -195,6 +195,15 @@
             app:layout_constraintTop_toTopOf="@id/tvCreateTag"
             tools:listitem="@layout/item_task_tag" />
 
+        <ProgressBar
+            android:id="@+id/pbLoadingTags"
+            android:layout_width="wrap_content"
+            android:layout_height="30dp"
+            app:layout_constraintTop_toTopOf="@id/rvTags"
+            app:layout_constraintBottom_toBottomOf="@id/rvTags"
+            app:layout_constraintEnd_toEndOf="@id/rvTags"
+            app:layout_constraintStart_toStartOf="@id/rvTags" />
+
         <Button
             android:id="@+id/btnCreateTask"
             android:layout_width="match_parent"
@@ -205,7 +214,7 @@
             app:layout_constraintBottom_toBottomOf="parent" />
 
         <ProgressBar
-            android:id="@+id/loading"
+            android:id="@+id/pbCreatingTask"
             android:layout_width="wrap_content"
             android:layout_height="30dp"
             android:visibility="invisible"

@@ -80,7 +80,8 @@ class CreateTaskFragment : BaseFragment(), StateHandler {
                 TaskAction.ACTION_CREATE -> {
                     btnCreateTask.setOnClickListener {
                         viewModel.createTask(
-                            Task(
+                            // use the task from arguments to preserve the `position` property
+                            args.task.copy(
                                 name = etName.text?.trim().toString(),
                                 description = etDescription.text?.trim().toString(),
                                 author = viewModel.firebaseUser?.uid!!,
@@ -98,25 +99,24 @@ class CreateTaskFragment : BaseFragment(), StateHandler {
                 TaskAction.ACTION_EDIT -> {
                     val task = args.task
 
-                    etName.setText(task?.name)
-                    etDescription.setText(task?.description)
+                    etName.setText(task.name)
+                    etDescription.setText(task.description)
 
                     with(btnCreateTask) {
                         isEnabled = true
                         setOnClickListener {
-                            task?.let { _task ->
-                                val updatedTask = _task.copy(
-                                    name = etName.text?.trim().toString(),
-                                    description = etDescription.text?.trim().toString()
-                                )
-                                viewModel.editTask(updatedTask, args.boardListInfo) {
-                                    navController.navigate(
-                                        CreateTaskFragmentDirections.actionCreateTaskFragmentToTaskDetailsFragment(
-                                            task = updatedTask,
-                                            boardListInfo = args.boardListInfo
-                                        )
+                            val updatedTask = task.copy(
+                                name = etName.text?.trim().toString(),
+                                description = etDescription.text?.trim().toString()
+                            )
+
+                            viewModel.editTask(updatedTask, args.boardListInfo) {
+                                navController.navigate(
+                                    CreateTaskFragmentDirections.actionCreateTaskFragmentToTaskDetailsFragment(
+                                        task = updatedTask,
+                                        boardListInfo = args.boardListInfo
                                     )
-                                }
+                                )
                             }
                         }
                     }
@@ -198,7 +198,7 @@ class CreateTaskFragment : BaseFragment(), StateHandler {
                 if (loadingManager.isUpsertingTask) {
                     btnCreateTask.text = ""
                     btnCreateTask.isEnabled = false
-                    loading.isVisible = true
+                    pbCreatingTask.isVisible = true
                 } else {
                     btnCreateTask.text = if (args.actionType == TaskAction.ACTION_CREATE) {
                         resources.getString(R.string.create_task)
@@ -207,8 +207,10 @@ class CreateTaskFragment : BaseFragment(), StateHandler {
                     }
                     btnCreateTask.isEnabled =
                         etName.text?.trim().toString().isNotEmpty()
-                    loading.isVisible = false
+                    pbCreatingTask.isVisible = false
                 }
+
+                pbLoadingTags.isVisible = loadingManager.isLoadingTags
             }
 
             if (tags.isNotEmpty()) {
