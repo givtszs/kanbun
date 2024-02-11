@@ -15,7 +15,7 @@ fun getColor(context: Context, @ColorRes color: Int) = ContextCompat.getColor(co
 
 fun convertDateStringToTimestamp(format: String, date: String): Long? = try {
     SimpleDateFormat(format, Locale.getDefault())
-        .apply { timeZone = TimeZone.getTimeZone("UTC") }
+        .apply { timeZone = TimeZone.getDefault() }
         .parse(date)
         ?.time
 } catch (e: ParseException) {
@@ -23,7 +23,7 @@ fun convertDateStringToTimestamp(format: String, date: String): Long? = try {
     null
 }
 
-fun convertTimestampToDateString(format: String, timestamp: Long): String = SimpleDateFormat(
-    format,
-    Locale.getDefault()
-).format(timestamp).toString()
+fun convertTimestampToDateString(format: String, timestamp: Long): String =
+    SimpleDateFormat(format, Locale.getDefault())
+        .apply { timeZone = TimeZone.getDefault() }
+        .format(timestamp).toString()
