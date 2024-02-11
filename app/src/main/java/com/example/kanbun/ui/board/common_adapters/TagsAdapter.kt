@@ -7,11 +7,11 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.kanbun.R
 import com.example.kanbun.common.getColor
 import com.example.kanbun.databinding.ItemTaskTagBinding
-import com.example.kanbun.ui.ViewState
+import com.example.kanbun.ui.model.TagUi
 
 class TagsAdapter(private val areItemsClickable: Boolean = false) : RecyclerView.Adapter<TagsAdapter.ItemTagViewHolder>() {
 
-    var tags: List<ViewState.TagUi> = emptyList()
+    var tags: List<TagUi> = emptyList()
         set(value) {
             field = value
             notifyDataSetChanged()
@@ -47,7 +47,7 @@ class TagsAdapter(private val areItemsClickable: Boolean = false) : RecyclerView
             }
         }
 
-        fun bind(tagUi: ViewState.TagUi) {
+        fun bind(tagUi: TagUi) {
             binding.apply {
                 tvTag.text = tagUi.tag.name
                 tvTag.setTextColor(Color.parseColor(tagUi.tag.textColor))

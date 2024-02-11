@@ -11,6 +11,7 @@ import com.example.kanbun.domain.model.Task
 import com.example.kanbun.domain.repository.FirestoreRepository
 import com.example.kanbun.ui.BaseViewModel
 import com.example.kanbun.ui.ViewState
+import com.example.kanbun.ui.model.TagUi
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -28,7 +29,7 @@ class CreateTaskViewModel @Inject constructor(
 ) : BaseViewModel() {
     private var _task = MutableStateFlow<Task?>(null)
     private var _tags =
-        MutableStateFlow<List<ViewState.TagUi>>(emptyList())
+        MutableStateFlow<List<TagUi>>(emptyList())
     private var _message = MutableStateFlow<String?>(null)
 
     private var _isScreenLoading = MutableStateFlow(false)
@@ -170,7 +171,7 @@ class CreateTaskViewModel @Inject constructor(
         ) {
             is Result.Success -> {
                 _tags.value =
-                    result.data.map { tag -> ViewState.TagUi(tag, false) }
+                    result.data.map { tag -> TagUi(tag, false) }
                 _isLoadingTags.value = false
             }
 

@@ -48,6 +48,8 @@ interface FirestoreRepository {
 
     suspend fun createBoardList(boardList: BoardList, board: Board): Result<String>
 
+    suspend fun getBoardList(boardListPath: String, boardListId: String): Result<BoardList>
+
     fun getBoardListsStream(boardId: String, workspaceId: String): Flow<Result<List<BoardList>>>
 
     suspend fun createTask(
@@ -95,4 +97,10 @@ interface FirestoreRepository {
     ): Result<String>
 
     suspend fun getTags(boardId: String, workspaceId: String): Result<List<Tag>>
+
+    suspend fun getTaskTags(
+        boardId: String,
+        workspaceId: String,
+        tagIds: List<String>
+    ): Result<List<Tag>>
 }

@@ -320,6 +320,20 @@ class FirestoreRepositoryImpl @Inject constructor(
             }
     }
 
+    override suspend fun getBoardList(
+        boardListPath: String,
+        boardListId: String
+    ): Result<BoardList> = runCatching {
+        firestore.collection(boardListPath)
+            .document(boardListId)
+            .get()
+            .getResult {
+                result.toObject(FirestoreBoardList::class.java)
+                    ?.toBoardList(boardListId, boardListPath)
+                    ?: throw NullPointerException("Couldn't convert FirestoreBoardList to BoardList since the value is null")
+            }
+    }
+
     override fun getBoardListsStream(
         boardId: String,
         workspaceId: String
@@ -367,7 +381,11 @@ class FirestoreRepositoryImpl @Inject constructor(
             .getResult { taskId }
     }
 
-    override suspend fun updateTask(task: com.example.kanbun.domain.model.Task, boardListPath: String, boardListId: String): Result<Unit> =
+    override suspend fun updateTask(
+        task: com.example.kanbun.domain.model.Task,
+        boardListPath: String,
+        boardListId: String
+    ): Result<Unit> =
         runCatching {
             firestore.collection(boardListPath)
                 .document(boardListId)
@@ -527,12 +545,27 @@ class FirestoreRepositoryImpl @Inject constructor(
                 }
         }
 
-    override suspend fun getTags(boardId: String, workspaceId: String): Result<List<Tag>> = runCatching {
-        val boardRes = getBoard(boardId, workspaceId)
-        if (boardRes is Result.Error) {
-            throw boardRes.e!!
+    override suspend fun getTags(boardId: String, workspaceId: String): Result<List<Tag>> =
+        runCatching {
+            val boardRes = getBoard(boardId, workspaceId)
+            if (boardRes is Result.Error) {
+                throw boardRes.e!!
+            }
+
+            (boardRes as Result.Success).data.tags.sortedBy { it.name }
         }
 
-        (boardRes as Result.Success).data.tags.sortedBy { it.name }
+    override suspend fun getTaskTags(
+        boardId: String,
+        workspaceId: String,
+        tagIds: List<String>
+    ): Result<List<Tag>> = runCatching {
+        val tagsResult = getTags(boardId, workspaceId)
+        if (tagsResult is Result.Error) {
+            throw tagsResult.e!!
+        }
+
+        val tags = (tagsResult as Result.Success).data
+        tags.filter { it.id in tagIds }
     }
 }

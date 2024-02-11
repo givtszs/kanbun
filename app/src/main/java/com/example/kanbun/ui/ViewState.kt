@@ -2,10 +2,10 @@ package com.example.kanbun.ui
 
 import com.example.kanbun.domain.model.Board
 import com.example.kanbun.domain.model.BoardList
-import com.example.kanbun.domain.model.Tag
 import com.example.kanbun.domain.model.Task
 import com.example.kanbun.domain.model.User
 import com.example.kanbun.domain.model.Workspace
+import com.example.kanbun.ui.model.TagUi
 import com.google.android.material.textfield.TextInputLayout
 
 sealed class ViewState {
@@ -19,7 +19,7 @@ sealed class ViewState {
     ) : ViewState() {
         /**
          * Handles the text field error state
-          */
+         */
         fun processError(error: String?, textField: TextInputLayout) {
             if (!error.isNullOrEmpty()) {
                 textField.apply {
@@ -53,7 +53,7 @@ sealed class ViewState {
     data class CreateTaskViewState(
         val task: Task? = null,
         val tags: List<TagUi> = mutableListOf(),
-       val loadingManager: LoadingManager = LoadingManager(),
+        val loadingManager: LoadingManager = LoadingManager(),
         val message: String? = null
     ) : ViewState() {
         data class LoadingManager(
@@ -63,8 +63,22 @@ sealed class ViewState {
         )
     }
 
-    data class TagUi(
-        val tag: Tag,
-        var isSelected: Boolean = false
-    )
+    data class TaskDetailsViewState(
+        val author: UserInfo = UserInfo(),
+        val tags: List<TagUi> = emptyList(),
+        val members: List<Nothing> = emptyList(), // TODO: update generic type with the member model
+        val message: String? = null,
+        val loadingManager: LoadingManager = LoadingManager()
+    ) : ViewState() {
+        data class LoadingManager(
+            val isAuthorLoading: Boolean = false,
+            val isLoadingTags: Boolean = false,
+            val isLoadingMembers: Boolean = false
+        )
+
+        data class UserInfo(
+            val name: String = "",
+            val profilePicture: String? = null
+        )
+    }
 }

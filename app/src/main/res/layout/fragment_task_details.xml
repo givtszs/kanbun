@@ -33,24 +33,35 @@
             style="?textAppearanceSubtitle1"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
+            android:layout_marginTop="6dp"
             android:text="@string/created_by"
             app:layout_constraintTop_toBottomOf="@id/tvName"
             tools:text="Create by: John Smith" />
+
+        <TextView
+            android:id="@+id/tvDescriptionLabel"
+            style="?textAppearanceTitleMedium"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:text="@string/hint_description"
+            android:textSize="18sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tvCreatedBy" />
 
         <TextView
             android:id="@+id/tvDescription"
             style="?textAppearanceSubtitle1"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            app:layout_constraintTop_toBottomOf="@id/tvCreatedBy"
+            android:layout_marginTop="6dp"
+            app:layout_constraintTop_toBottomOf="@id/tvDescriptionLabel"
             tools:text="Description example" />
 
         <!-- Section `Tags` -->
 
         <TextView
-            android:id="@+id/tvTags"
+            android:id="@+id/tvTagsLabel"
             style="?textAppearanceTitleMedium"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -62,140 +73,78 @@
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rvTags"
-            android:visibility="gone"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:orientation="horizontal"
+            android:visibility="invisible"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-            app:layout_constraintTop_toBottomOf="@id/tvTags"
+            app:layout_constraintTop_toBottomOf="@id/tvTagsLabel"
             tools:listitem="@layout/item_task_tag" />
 
         <TextView
             android:id="@+id/tvNoTags"
+            style="?textAppearanceSubtitle1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            app:layout_constraintTop_toTopOf="@id/rvTags"
+            app:layout_constraintBottom_toBottomOf="@id/rvTags"
+            android:text="@string/no_tags"
             app:layout_constraintStart_toStartOf="@id/rvTags"
-            style="?textAppearanceSubtitle1"
-            android:text="@string/no_tags" />
+            app:layout_constraintTop_toTopOf="@id/rvTags" />
 
         <TextView
-            android:id="@+id/tvMembers"
+            android:id="@+id/tvMembersLabel"
             style="?textAppearanceTitleMedium"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
+            android:layout_marginTop="16dp"
             android:text="@string/task_members"
             android:textSize="18sp"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/tvNoTags" />
+            app:layout_constraintTop_toBottomOf="@id/rvTags" />
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rvMembers"
-            android:visibility="gone"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:orientation="horizontal"
+            android:visibility="gone"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-            app:layout_constraintTop_toBottomOf="@id/tvMembers"
+            app:layout_constraintTop_toBottomOf="@id/tvMembersLabel"
             tools:listitem="@layout/item_task_member" />
 
         <TextView
             android:id="@+id/tvNoMembers"
+            style="?textAppearanceSubtitle1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            app:layout_constraintTop_toTopOf="@id/rvMembers"
+            android:layout_marginTop="6dp"
+            android:text="@string/no_task_members"
             app:layout_constraintStart_toStartOf="@id/rvTags"
-            style="?textAppearanceSubtitle1"
-            android:text="@string/no_task_members" />
+            app:layout_constraintTop_toTopOf="@id/rvMembers" />
 
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/date"
-            android:layout_width="match_parent"
+        <TextView
+            android:id="@+id/tvDateLabel"
+            style="?textAppearanceTitleMedium"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:text="@string/date"
             android:layout_marginTop="24dp"
-            app:layout_constraintTop_toBottomOf="@id/tvNoMembers">
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tvNoMembers" />
 
-            <com.google.android.material.card.MaterialCardView
-                android:id="@+id/cardStarts"
-                android:layout_width="0dp"
-                android:layout_height="60dp"
-                android:layout_marginEnd="4dp"
-                app:cardCornerRadius="10dp"
-                app:layout_constraintEnd_toStartOf="@+id/cardEnds"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent">
-
-                <androidx.constraintlayout.widget.ConstraintLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:paddingHorizontal="10dp"
-                    android:paddingVertical="8dp">
-
-                    <TextView
-                        style="?textAppearanceLabelLarge"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/date_starts"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent" />
-
-                    <TextView
-                        android:id="@+id/tvDateStarts"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:drawablePadding="4dp"
-                        app:drawableStartCompat="@drawable/ic_calendar_outlined_18"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        tools:text="28 Feb 2024, 08.00" />
-
-                </androidx.constraintlayout.widget.ConstraintLayout>
-
-            </com.google.android.material.card.MaterialCardView>
-
-            <com.google.android.material.card.MaterialCardView
-                android:id="@+id/cardEnds"
-                android:layout_width="0dp"
-                android:layout_height="60dp"
-                android:layout_marginStart="4dp"
-                app:cardCornerRadius="10dp"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toEndOf="@id/cardStarts"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent">
-
-                <androidx.constraintlayout.widget.ConstraintLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:paddingHorizontal="10dp"
-                    android:paddingVertical="8dp">
-
-                    <TextView
-                        style="?textAppearanceLabelLarge"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/date_ends"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent" />
-
-                    <TextView
-                        android:id="@+id/tvDateEnds"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:drawablePadding="4dp"
-                        app:drawableStartCompat="@drawable/ic_calendar_outlined_18"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        tools:text="29 Feb 2024, 08.00" />
-
-                </androidx.constraintlayout.widget.ConstraintLayout>
-
-            </com.google.android.material.card.MaterialCardView>
-        </androidx.constraintlayout.widget.ConstraintLayout>
+        <TextView
+            android:id="@+id/tvDate"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:drawablePadding="4dp"
+            app:drawableStartCompat="@drawable/ic_calendar_outlined_18"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tvDateLabel"
+            android:text="@string/date_starts_ends"
+            tools:text="29 Feb 2024, 08:00 - 29 Feb 2024, 09:00" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -203,11 +152,11 @@
         android:id="@+id/fabEditTask"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="16dp"
         android:layout_marginEnd="16dp"
+        android:layout_marginBottom="16dp"
+        android:contentDescription="@string/edit_task"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:srcCompat="@drawable/ic_edit_outlined_24"
-        android:contentDescription="@string/edit_task" />
+        app:srcCompat="@drawable/ic_edit_outlined_24" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

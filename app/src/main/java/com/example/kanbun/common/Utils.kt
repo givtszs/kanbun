@@ -4,6 +4,7 @@ import android.content.Context
 import android.util.Log
 import androidx.annotation.ColorRes
 import androidx.core.content.ContextCompat
+import java.lang.IllegalArgumentException
 import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.Locale
@@ -23,7 +24,10 @@ fun convertDateStringToTimestamp(format: String, date: String): Long? = try {
     null
 }
 
-fun convertTimestampToDateString(format: String, timestamp: Long): String =
+fun convertTimestampToDateString(format: String, timestamp: Long?): String = try {
     SimpleDateFormat(format, Locale.getDefault())
         .apply { timeZone = TimeZone.getDefault() }
         .format(timestamp).toString()
+} catch (e: IllegalArgumentException) {
+    "dd/mm/yyyy, hh:mm"
+}
