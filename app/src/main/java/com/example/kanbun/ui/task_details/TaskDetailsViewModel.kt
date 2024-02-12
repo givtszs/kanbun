@@ -1,6 +1,7 @@
 package com.example.kanbun.ui.task_details
 
 
+import android.util.Log
 import androidx.lifecycle.viewModelScope
 import com.example.kanbun.common.Result
 import com.example.kanbun.domain.repository.FirestoreRepository
@@ -20,6 +21,8 @@ import javax.inject.Inject
 
 // TODO: Add network connectivity checks to this and others view models.
 
+private const val TAG = "TaskDetailsViewModel"
+
 @HiltViewModel
 class TaskDetailsViewModel @Inject constructor(
     private val firestoreRepository: FirestoreRepository
@@ -28,16 +31,27 @@ class TaskDetailsViewModel @Inject constructor(
     private var _tags = MutableStateFlow<List<TagUi>>(emptyList())
     private var _members = MutableStateFlow<List<Nothing>>(emptyList())
     private var _message = MutableStateFlow<String?>(null)
-    private var _loadingManager = MutableStateFlow(ViewState.TaskDetailsViewState.LoadingManager())
+
+    private var _isLoadingAuthor = MutableStateFlow(true)
+    private var _isLoadingTags = MutableStateFlow(true)
+    private var _isLoadingMembers = MutableStateFlow(true)
+
+    private var _isLoading = combine(
+        _isLoadingAuthor, _isLoadingTags, _isLoadingMembers
+    ) { isLoadingAuthor, isLoadingTags, isLoadingMembers ->
+        Log.d(TAG, "isLoadingAuthor: $isLoadingAuthor, isLoadingTags: $isLoadingTags, isLoadingMembers: $isLoadingMembers")
+        !(!isLoadingAuthor && !isLoadingTags && !isLoadingMembers)
+    }
 
     val taskDetailsState: StateFlow<ViewState.TaskDetailsViewState> = combine(
-        _author, _tags, _members, _message
-    ) { author, tags, members, message ->
+        _author, _tags, _members, _message, _isLoading
+    ) { author, tags, members, message, isLoading ->
         ViewState.TaskDetailsViewState(
             author = author,
             tags = tags,
             members = members,
-            message = message
+            message = message,
+            isLoading = isLoading
         )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), ViewState.TaskDetailsViewState())
 
@@ -46,10 +60,6 @@ class TaskDetailsViewModel @Inject constructor(
     }
 
     fun getAuthor() {
-        _loadingManager.update {
-            it.copy(isAuthorLoading = true)
-        }
-
         viewModelScope.launch(Dispatchers.IO) {
             if (firebaseUser == null) {
                 _message.value = "The user is null"
@@ -62,12 +72,12 @@ class TaskDetailsViewModel @Inject constructor(
                         name = result.data.name ?: "Unknown",
                         profilePicture = result.data.profilePicture
                     )
-                    _loadingManager.update { it.copy(isAuthorLoading = false) }
+                    _isLoadingAuthor.value = false
                 }
 
                 is Result.Error -> {
                     _message.value = result.message
-                    _loadingManager.update { it.copy(isAuthorLoading = false) }
+                    _isLoadingAuthor.value = false
                 }
                 Result.Loading -> {}
             }
@@ -75,22 +85,24 @@ class TaskDetailsViewModel @Inject constructor(
     }
 
     fun getTags(taskTags: List<String>, boardListPath: String) {
-        _loadingManager.update { it.copy(isLoadingTags = true) }
         viewModelScope.launch(Dispatchers.IO) {
             val boardId = boardListPath.substringAfter("boards/").substringBefore("/lists")
             val workspaceId = boardListPath.substringAfter("workspaces/").substringBefore("/boards")
             when (val result = firestoreRepository.getTaskTags(boardId, workspaceId, taskTags)) {
                 is Result.Success -> {
                     _tags.value = result.data.map { tag -> TagUi(tag, false) }
-                    _loadingManager.update { it.copy(isLoadingTags = false) }
+                    _isLoadingTags.value = false
                 }
                 is Result.Error -> {
                     _message.value = result.message
-                    _loadingManager.update { it.copy(isLoadingTags = false) }
+                    _isLoadingTags.value = false
                 }
                 Result.Loading -> {}
             }
         }
     }
 
+    fun getMembers() {
+        _isLoadingMembers.value = false
+    }
 }

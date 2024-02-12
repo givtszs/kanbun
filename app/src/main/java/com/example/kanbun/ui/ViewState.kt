@@ -68,13 +68,8 @@ sealed class ViewState {
         val tags: List<TagUi> = emptyList(),
         val members: List<Nothing> = emptyList(), // TODO: update generic type with the member model
         val message: String? = null,
-        val loadingManager: LoadingManager = LoadingManager()
+        val isLoading: Boolean = false
     ) : ViewState() {
-        data class LoadingManager(
-            val isAuthorLoading: Boolean = false,
-            val isLoadingTags: Boolean = false,
-            val isLoadingMembers: Boolean = false
-        )
 
         data class UserInfo(
             val name: String = "",

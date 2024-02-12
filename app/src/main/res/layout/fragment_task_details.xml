@@ -87,8 +87,8 @@
             style="?textAppearanceSubtitle1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:layout_constraintBottom_toBottomOf="@id/rvTags"
             android:text="@string/no_tags"
+            app:layout_constraintBottom_toBottomOf="@id/rvTags"
             app:layout_constraintStart_toStartOf="@id/rvTags"
             app:layout_constraintTop_toTopOf="@id/rvTags" />
 
@@ -129,8 +129,8 @@
             style="?textAppearanceTitleMedium"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/date"
             android:layout_marginTop="24dp"
+            android:text="@string/date"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/tvNoMembers" />
 
@@ -140,10 +140,10 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="6dp"
             android:drawablePadding="4dp"
+            android:text="@string/date_starts_ends"
             app:drawableStartCompat="@drawable/ic_calendar_outlined_18"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/tvDateLabel"
-            android:text="@string/date_starts_ends"
             tools:text="29 Feb 2024, 08:00 - 29 Feb 2024, 09:00" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
@@ -158,5 +158,14 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:srcCompat="@drawable/ic_edit_outlined_24" />
+
+    <include
+        android:id="@+id/loading"
+        layout="@layout/loading_state"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/topAppBar" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

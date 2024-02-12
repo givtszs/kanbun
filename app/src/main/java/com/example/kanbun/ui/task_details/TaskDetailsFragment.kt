@@ -1,9 +1,11 @@
 package com.example.kanbun.ui.task_details
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -21,6 +23,8 @@ import com.example.kanbun.ui.board.common_adapters.TagsAdapter
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+
+private const val TAG = "TaskDetailsFragment"
 
 @AndroidEntryPoint
 class TaskDetailsFragment : BaseFragment(), StateHandler {
@@ -51,7 +55,7 @@ class TaskDetailsFragment : BaseFragment(), StateHandler {
     private fun loadSupplementaryInfo() {
         viewModel.getAuthor()
         viewModel.getTags(args.task.tags, args.boardListInfo.path)
-        // get members
+        viewModel.getMembers()
     }
 
     override fun setUpListeners() {
@@ -92,6 +96,9 @@ class TaskDetailsFragment : BaseFragment(), StateHandler {
     override fun processState(state: ViewState) {
         with(state as ViewState.TaskDetailsViewState) {
             binding.apply {
+                Log.d(TAG, "isLoading: $isLoading")
+                loading.root.isVisible = isLoading
+
                 tvCreatedBy.text = resources.getString(R.string.created_by, author.name)
 
                 if (tags.isNotEmpty()) {
