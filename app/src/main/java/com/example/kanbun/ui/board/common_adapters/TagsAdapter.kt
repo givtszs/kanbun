@@ -19,7 +19,8 @@ class TagsAdapter(private val areItemsClickable: Boolean = false) : RecyclerView
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ItemTagViewHolder {
         return ItemTagViewHolder(
-            ItemTaskTagBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+            ItemTaskTagBinding.inflate(LayoutInflater.from(parent.context), parent, false),
+            areItemsClickable
         ) { position ->
             if (areItemsClickable) {
                 tags[position].isSelected = !tags[position].isSelected
@@ -36,10 +37,10 @@ class TagsAdapter(private val areItemsClickable: Boolean = false) : RecyclerView
 
     class ItemTagViewHolder(
         private val binding: ItemTaskTagBinding,
+        private val isClickable: Boolean,
         private val clickAtPosition: (Int) -> Unit
     ) :
         RecyclerView.ViewHolder(binding.root) {
-
 
         init {
             binding.cardTag.setOnClickListener {
@@ -49,6 +50,7 @@ class TagsAdapter(private val areItemsClickable: Boolean = false) : RecyclerView
 
         fun bind(tagUi: TagUi) {
             binding.apply {
+                cardTag.isClickable = isClickable
                 tvTag.text = tagUi.tag.name
                 tvTag.setTextColor(Color.parseColor(tagUi.tag.textColor))
                 cardTag.setCardBackgroundColor(Color.parseColor(tagUi.tag.backgroundColor))
