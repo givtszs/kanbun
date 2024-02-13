@@ -11,12 +11,11 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.kanbun.common.VERTICAL_SCROLL_DISTANCE
 import com.example.kanbun.databinding.ItemBoardListBinding
 import com.example.kanbun.domain.model.BoardList
+import com.example.kanbun.domain.model.BoardListInfo
 import com.example.kanbun.domain.model.Task
 import com.example.kanbun.ui.board.DropCallback
 import com.example.kanbun.ui.board.TaskDropCallbacks
 import com.example.kanbun.ui.board.tasks_adapter.TasksAdapter
-import com.example.kanbun.domain.model.BoardListInfo
-import com.example.kanbun.ui.board.BoardFragmentDirections
 import com.example.kanbun.ui.model.DragAndDropListItem
 import com.squareup.moshi.JsonAdapter
 import com.squareup.moshi.Moshi
@@ -28,7 +27,7 @@ import kotlinx.coroutines.launch
 private const val TAG = "DragNDrop"
 
 class ItemBoardListViewHolder(
-     val binding: ItemBoardListBinding,
+    val binding: ItemBoardListBinding,
     private val boardListAdapter: BoardListsAdapter,
     private val coroutineScope: CoroutineScope,
     private val boardListDropCallback: DropCallback,
@@ -87,6 +86,7 @@ class ItemBoardListViewHolder(
 
         tasksAdapter = TasksAdapter(
             binding.rvTasks,
+            boardListAdapter.boardTags,
             taskDropCallback,
             onTaskClicked = { task ->
                 onTaskClicked(task, BoardListInfo(boardList!!.id, boardList!!.path))
@@ -217,7 +217,10 @@ class ItemBoardListViewHolder(
                     if (!isActionDragEndedHandled) {
                         draggableView.visibility = View.VISIBLE
                         if (!event.result) {
-                            Log.d("ItemBoardListViewHolder", "MaterialCard#ACTION_DRAG_ENDED: event.result: ${event.result}")
+                            Log.d(
+                                "ItemBoardListViewHolder",
+                                "MaterialCard#ACTION_DRAG_ENDED: event.result: ${event.result}"
+                            )
                             // reset items position if dragging failed
                             boardListAdapter.notifyDataSetChanged()
                         }

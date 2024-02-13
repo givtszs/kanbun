@@ -3,13 +3,13 @@ package com.example.kanbun.ui.board.lists_adapter
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import androidx.navigation.NavController
 import androidx.recyclerview.widget.RecyclerView
 import com.example.kanbun.common.BoardListsAdapterViewType
 import com.example.kanbun.databinding.ItemBoardListBinding
 import com.example.kanbun.databinding.ItemCreateBoardListBinding
 import com.example.kanbun.domain.model.BoardList
 import com.example.kanbun.domain.model.BoardListInfo
+import com.example.kanbun.domain.model.Tag
 import com.example.kanbun.domain.model.Task
 import com.example.kanbun.ui.board.DropCallback
 import com.example.kanbun.ui.board.TaskDropCallbacks
@@ -25,6 +25,7 @@ class BoardListsAdapter(
     private val onTaskClicked: (Task, BoardListInfo) -> Unit
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
+    var boardTags: List<Tag> = emptyList()
     var lists: List<BoardList> = emptyList()
 
     fun setData(data: List<BoardList>) {

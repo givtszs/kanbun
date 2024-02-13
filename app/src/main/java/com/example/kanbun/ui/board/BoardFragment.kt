@@ -272,10 +272,14 @@ class BoardFragment : BaseFragment(), StateHandler {
         with(state as ViewState.BoardViewState) {
             if (lists.isNotEmpty()) {
                 boardListsAdapter?.setData(lists.sortedBy { it.position })
-//                viewModel.stopLoading()
+                if (board.tags.isNotEmpty()) {
+                    boardListsAdapter?.boardTags = board.tags
+                }
             } else {
                 viewModel.stopLoading()
             }
+
+
 
             binding.loading.root.isVisible = isLoading
 

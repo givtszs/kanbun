@@ -3,6 +3,6 @@
     <dimen name="main_horizontal_margin">20dp</dimen>
     <dimen name="text_link_margin_start">4dp</dimen>
     <dimen name="nav_bar_height">80dp</dimen>
-    <dimen name="item_task_margin_vertical">4dp</dimen>
-    <dimen name="item_task_margin_horizontal">8dp</dimen>
+    <dimen name="task_name_top_margin">4dp</dimen>
+    <dimen name="tags_vertical_padding">2dp</dimen>
 </resources>
