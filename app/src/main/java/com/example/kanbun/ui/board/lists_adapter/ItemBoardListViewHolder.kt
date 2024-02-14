@@ -15,7 +15,6 @@ import com.example.kanbun.domain.model.BoardListInfo
 import com.example.kanbun.domain.model.Task
 import com.example.kanbun.ui.board.DropCallback
 import com.example.kanbun.ui.board.TaskDropCallbacks
-import com.example.kanbun.ui.board.tasks_adapter.ItemTaskViewHolder
 import com.example.kanbun.ui.board.tasks_adapter.TasksAdapter
 import com.example.kanbun.ui.model.DragAndDropListItem
 import com.squareup.moshi.JsonAdapter

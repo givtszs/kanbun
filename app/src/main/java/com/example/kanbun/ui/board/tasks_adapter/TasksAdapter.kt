@@ -36,7 +36,6 @@ class TasksAdapter(
     lateinit var listInfo: BoardListInfo
 
     init {
-        val taskDragAndDropHelper = ItemTaskViewHolder.TaskDragAndDropHelper(this)
         rvTasks.setOnDragListener { _, event ->
             when (event.action) {
                 DragEvent.ACTION_DRAG_STARTED -> {
@@ -45,7 +44,7 @@ class TasksAdapter(
 
                 DragEvent.ACTION_DROP -> {
                     Log.d("ItemTaskViewHolder", "RecView#ACTION_DROP at $this")
-                    taskDragAndDropHelper.handleDrop(
+                    ItemTaskViewHolder.TaskDragAndDropHelper.handleDrop(
                         event.clipData,
                         taskDropCallbacks
                     )
@@ -53,7 +52,7 @@ class TasksAdapter(
 
                 DragEvent.ACTION_DRAG_ENDED -> {
                     Log.d("ItemTaskViewHolder", "RecView#ACTION_DRAG_ENDED")
-                    taskDragAndDropHelper.removeDropZone()
+                    ItemTaskViewHolder.TaskDragAndDropHelper.removeDropZone()
                     true
                 }
 
@@ -61,8 +60,6 @@ class TasksAdapter(
             }
         }
     }
-
-//    val dragAndDropHelper = DragAndDropHelper(this)
 
     fun setData(data: List<Task>) {
         tasks = data.toMutableList()
