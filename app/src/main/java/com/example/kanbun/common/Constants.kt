@@ -1,6 +1,7 @@
 package com.example.kanbun.common
 
 import com.example.kanbun.R
+import com.squareup.moshi.Moshi
 
 enum class FirestoreCollection(val collectionName: String) {
     USERS("users"),
@@ -64,3 +65,5 @@ val defaultTagColors = listOf(
     "#008000", // green
     "#0000FF", // blue
 )
+
+val moshi = Moshi.Builder().build()
