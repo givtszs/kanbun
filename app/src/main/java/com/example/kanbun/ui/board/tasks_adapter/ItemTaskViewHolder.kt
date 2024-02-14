@@ -41,7 +41,7 @@ class ItemTaskViewHolder(
 
         // initiates dragging action
         binding.materialCard.setOnLongClickListener { view ->
-            Log.d("ItemTaskViewHolder", "long clicked perfrom at: $adapterPosition")
+            Log.d("ItemTaskViewHolder", "long clicked perform at: $adapterPosition")
             draggedTaskInitPosition = adapterPosition
             draggedTaskPrevPosition = adapterPosition
 
@@ -49,7 +49,6 @@ class ItemTaskViewHolder(
         }
 
         binding.materialCard.setOnDragListener { receiverView, event ->
-            val draggableView = event?.localState as View
             TaskDragAndDropHelper.handleDragEvent(tasksAdapter, receiverView, event, adapterPosition)
         }
     }
@@ -106,9 +105,7 @@ class ItemTaskViewHolder(
     }
 
     /**
-     * A helper class for managing drag-and-drop interactions and states within the [TasksAdapter]
-     *
-     * @property adapter the [TasksAdapter] instance associated with this drag-and-drop helper
+     * A helper singleton class for managing drag-and-drop interactions and states within the [TasksAdapter]
      */
     object TaskDragAndDropHelper {
         const val DROP_ZONE_TASK = "drop_zone"
@@ -185,7 +182,6 @@ class ItemTaskViewHolder(
 
             return when (event.action) {
                 DragEvent.ACTION_DRAG_STARTED -> {
-//                        DragAndDropHelper.isActionDragEndedHandled = false
                     event.clipDescription.hasMimeType(ClipDescription.MIMETYPE_TEXT_PLAIN)
                 }
 
@@ -220,20 +216,20 @@ class ItemTaskViewHolder(
                             isMovedDown = false
                             isMovedUp = true
                             val newPos =
-                                if (position < ItemTaskViewHolder.draggedTaskPrevPosition) position else position - 1
+                                if (position < draggedTaskPrevPosition) position else position - 1
                             Log.d(
                                 "ItemTaskViewHolder",
-                                "ACTION_DRAG_LOCATION: oldPos: ${ItemTaskViewHolder.draggedTaskPrevPosition}, newPos: $newPos"
+                                "ACTION_DRAG_LOCATION: oldPos: $draggedTaskPrevPosition, newPos: $newPos"
                             )
-                            moveTask(ItemTaskViewHolder.draggedTaskPrevPosition, newPos)
+                            moveTask(draggedTaskPrevPosition, newPos)
                         } else if (event.y > pivot && !isMovedDown) {
                             isMovedUp = false
                             isMovedDown = true
                             val newPos =
-                                if (position < ItemTaskViewHolder.draggedTaskPrevPosition) position + 1 else position
+                                if (position < draggedTaskPrevPosition) position + 1 else position
                             Log.d(
                                 "ItemTaskViewHolder",
-                                "ACTION_DRAG_LOCATION: oldPos: ${ItemTaskViewHolder.draggedTaskPrevPosition}, newPos: $newPos"
+                                "ACTION_DRAG_LOCATION: oldPos: $draggedTaskPrevPosition, newPos: $newPos"
                             )
                             moveTask(draggedTaskPrevPosition, newPos)
                         }
@@ -333,10 +329,10 @@ class ItemTaskViewHolder(
                 currentAdapter?.tasks?.removeAt(dropZoneTask.position.toInt())
                 dropZoneTask = dropZoneTask.copy(position = -1)
                 // ...but in the underlying dataset we remove item at the last moved position
-                currentAdapter?.notifyItemRemoved(ItemTaskViewHolder.draggedTaskPrevPosition)
+                currentAdapter?.notifyItemRemoved(draggedTaskPrevPosition)
                 Log.d(
                     "ItemTaskViewHolder",
-                    "removeDropZone: removed drop zone at position ${ItemTaskViewHolder.draggedTaskPrevPosition}"
+                    "removeDropZone: removed drop zone at position $draggedTaskPrevPosition"
                 )
                 true
             } else {
@@ -425,17 +421,17 @@ class ItemTaskViewHolder(
                     taskDropCallbacks.dropToInsert(
                         currentAdapter!!,
                         dragItem,
-                        ItemTaskViewHolder.draggedTaskPrevPosition
+                        draggedTaskPrevPosition
                     )
                 } else {
                     Log.d(
                         "ItemTaskViewHolder",
-                        "drop: move tasks from ${dragItem.initPosition} to ${ItemTaskViewHolder.draggedTaskPrevPosition}"
+                        "drop: move tasks from ${dragItem.initPosition} to $draggedTaskPrevPosition"
                     )
                     taskDropCallbacks.dropToMove(
                         currentAdapter!!,
                         dragItem.initPosition,
-                        ItemTaskViewHolder.draggedTaskPrevPosition
+                        draggedTaskPrevPosition
                     )
                 }
                 true
