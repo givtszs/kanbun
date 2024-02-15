@@ -66,7 +66,7 @@ class TaskDetailsFragment : BaseFragment(), StateHandler {
                 task.description.ifEmpty { resources.getString(R.string.no_description) }
 
             tvDate.text = resources.getString(
-                R.string.date_starts_ends,
+                R.string.task_date,
                 convertTimestampToDateString(DATE_TIME_FORMAT, task.dateStarts),
                 convertTimestampToDateString(DATE_TIME_FORMAT, task.dateEnds)
             )

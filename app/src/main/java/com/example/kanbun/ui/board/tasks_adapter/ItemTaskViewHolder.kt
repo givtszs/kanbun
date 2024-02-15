@@ -8,11 +8,14 @@ import android.view.DragEvent
 import android.view.LayoutInflater
 import android.view.View
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
 import com.example.kanbun.R
+import com.example.kanbun.common.DATE_TIME_FORMAT
+import com.example.kanbun.common.convertTimestampToDateString
 import com.example.kanbun.common.moshi
 import com.example.kanbun.databinding.ItemTaskBinding
-import com.example.kanbun.databinding.ItemTaskTagBinding
+import com.example.kanbun.databinding.ItemTaskTagBigBinding
 import com.example.kanbun.domain.model.Tag
 import com.example.kanbun.domain.model.Task
 import com.example.kanbun.ui.board.TaskDropCallbacks
@@ -49,7 +52,12 @@ class ItemTaskViewHolder(
         }
 
         binding.materialCard.setOnDragListener { receiverView, event ->
-            TaskDragAndDropHelper.handleDragEvent(tasksAdapter, receiverView, event, adapterPosition)
+            TaskDragAndDropHelper.handleDragEvent(
+                tasksAdapter,
+                receiverView,
+                event,
+                adapterPosition
+            )
         }
     }
 
@@ -58,47 +66,69 @@ class ItemTaskViewHolder(
         this.task = task
 
         binding.apply {
-            materialCard.visibility =
-                if (task.id != DROP_ZONE_TASK) {
-                    View.VISIBLE
-                } else {
-                    View.INVISIBLE
-                }
-
-            with(tvName) {
-                text = task.name
-                val tvNameParams = (layoutParams as ConstraintLayout.LayoutParams).apply {
-                    topMargin = if (flexTags.visibility == View.GONE) {
-                        0
-                    } else {
-                        flexTags.resources.getDimensionPixelSize(R.dimen.task_name_top_margin)
-                    }
-                }
-                layoutParams = tvNameParams
+            materialCard.visibility = if (task.id != DROP_ZONE_TASK) {
+                View.VISIBLE
+            } else {
+                View.INVISIBLE
             }
 
-            // set up tags flexbox layout
-            with(flexTags) {
-                removeAllViews()
-                val verticalPadding = resources.getDimensionPixelSize(R.dimen.tags_vertical_padding)
+            setUpTagsFlexbox(task)
 
-                if (boardTags.isNotEmpty()) {
-                    boardTags.onEach { tag ->
-                        if (tag.id in task.tags) {
-                            val tagBinding = ItemTaskTagBinding.inflate(
-                                LayoutInflater.from(itemView.context),
-                                this@with,
-                                false
-                            ).apply {
-                                cardTag.isClickable = false
-                                tvTag.text = tag.name
-                                tvTag.setTextColor(Color.parseColor(tag.textColor))
-                                cardTag.setCardBackgroundColor(Color.parseColor(tag.backgroundColor))
-                                root.setPadding(0, verticalPadding, 0, verticalPadding)
-                            }
-                            addView(tagBinding.root)
-                        }
+            tvName.text = task.name
+            tvName.layoutParams = (tvName.layoutParams as ConstraintLayout.LayoutParams).apply {
+                topMargin = if (flexTags.visibility == View.GONE) {
+                    0
+                } else {
+                    flexTags.resources.getDimensionPixelSize(R.dimen.task_name_top_margin)
+                }
+            }
+
+            tvDescription.isVisible = task.description.isNotEmpty()
+            tvDescription.text = task.description
+
+            if (task.dateStarts == null && task.dateEnds == null) {
+                tvDate.isVisible = false
+                separatorHorizontal.isVisible = false
+            } else {
+                tvDate.isVisible = true
+                tvDate.text = root.resources.getString(
+                    R.string.task_date,
+                    convertTimestampToDateString(DATE_TIME_FORMAT, task.dateStarts),
+                    convertTimestampToDateString(DATE_TIME_FORMAT, task.dateEnds)
+                )
+                separatorHorizontal.isVisible = true
+            }
+
+        }
+    }
+
+    private fun setUpTagsFlexbox(task: Task) {
+        if (boardTags.isEmpty() || task.tags.isEmpty()) {
+            binding.flexTags.isVisible = false
+            return
+        }
+
+        binding.apply {
+            flexTags.isVisible = true
+            flexTags.removeAllViews()
+            val verticalPadding =
+                root.resources.getDimensionPixelSize(R.dimen.tags_vertical_padding)
+
+            boardTags.onEach { tag ->
+                if (tag.id in task.tags) {
+                    val tagBinding = ItemTaskTagBigBinding.inflate(
+                        LayoutInflater.from(itemView.context),
+                        flexTags,
+                        false
+                    ).apply {
+                        cardTag.isClickable = false
+                        tvTag.text = tag.name
+                        tvTag.setTextColor(Color.parseColor(tag.textColor))
+                        cardTag.setCardBackgroundColor(Color.parseColor(tag.backgroundColor))
+                        root.setPadding(0, verticalPadding, 0, verticalPadding)
                     }
+
+                    flexTags.addView(tagBinding.root)
                 }
             }
         }
@@ -177,7 +207,12 @@ class ItemTaskViewHolder(
         private var isMovedDown = false
         private var isInsertHandled = false
 
-        fun handleDragEvent(adapter: TasksAdapter, receiverView: View, event: DragEvent, position: Int): Boolean {
+        fun handleDragEvent(
+            adapter: TasksAdapter,
+            receiverView: View,
+            event: DragEvent,
+            position: Int
+        ): Boolean {
             val draggableView = event.localState as View
 
             return when (event.action) {
@@ -274,8 +309,10 @@ class ItemTaskViewHolder(
 //                        )
 
                         // if the drag and drop failed
-                        Log.d("ItemTaskViewHolder", "ACTION_ENDED: event result: ${event.result}\n" +
-                                "tempRemovedTask: $tempRemovedTask")
+                        Log.d(
+                            "ItemTaskViewHolder", "ACTION_ENDED: event result: ${event.result}\n" +
+                                    "tempRemovedTask: $tempRemovedTask"
+                        )
                         if (!event.result) {
                             with(taskInitAdapter) {
                                 tempRemovedTask?.let { task ->

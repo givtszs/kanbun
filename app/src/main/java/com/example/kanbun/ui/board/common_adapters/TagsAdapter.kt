@@ -6,7 +6,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.example.kanbun.R
 import com.example.kanbun.common.getColor
-import com.example.kanbun.databinding.ItemTaskTagBinding
+import com.example.kanbun.databinding.ItemTaskTagBigBinding
 import com.example.kanbun.ui.model.TagUi
 
 class TagsAdapter(private val areItemsClickable: Boolean = false) : RecyclerView.Adapter<TagsAdapter.ItemTagViewHolder>() {
@@ -19,7 +19,7 @@ class TagsAdapter(private val areItemsClickable: Boolean = false) : RecyclerView
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ItemTagViewHolder {
         return ItemTagViewHolder(
-            ItemTaskTagBinding.inflate(LayoutInflater.from(parent.context), parent, false),
+            ItemTaskTagBigBinding.inflate(LayoutInflater.from(parent.context), parent, false),
             areItemsClickable
         ) { position ->
             if (areItemsClickable) {
@@ -36,7 +36,7 @@ class TagsAdapter(private val areItemsClickable: Boolean = false) : RecyclerView
     override fun getItemCount(): Int = tags.size
 
     class ItemTagViewHolder(
-        private val binding: ItemTaskTagBinding,
+        private val binding: ItemTaskTagBigBinding,
         private val isClickable: Boolean,
         private val clickAtPosition: (Int) -> Unit
     ) :
