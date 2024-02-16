@@ -7,24 +7,25 @@
     android:paddingHorizontal="2dp">
 
     <com.google.android.material.card.MaterialCardView
-        android:id="@+id/cardTag"
+        android:id="@+id/cardTagSmall"
         android:layout_width="match_parent"
         android:layout_height="26dp"
         android:clickable="true"
         android:focusable="true"
-        app:cardCornerRadius="8dp"
+        app:cardCornerRadius="10dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:strokeColor="@color/black"
+        app:strokeColor="@color/white"
         app:strokeWidth="1dp">
 
         <TextView
-            android:id="@+id/tvTag"
+            android:id="@+id/tvTagSmall"
             style="?textAppearanceBodyLarge"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
             android:layout_marginHorizontal="8dp"
+            android:textSize="14sp"
             tools:text="Tag" />
 
     </com.google.android.material.card.MaterialCardView>

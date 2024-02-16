@@ -7,7 +7,7 @@
     android:paddingHorizontal="2dp">
 
     <com.google.android.material.card.MaterialCardView
-        android:id="@+id/cardTag"
+        android:id="@+id/cardTagBig"
         android:layout_width="match_parent"
         android:layout_height="36dp"
         android:clickable="true"
@@ -19,7 +19,7 @@
         app:strokeWidth="1dp">
 
         <TextView
-            android:id="@+id/tvTag"
+            android:id="@+id/tvTagBig"
             style="?textAppearanceBodyLarge"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

@@ -153,10 +153,6 @@ class CreateTaskFragment : BaseFragment(), StateHandler {
                 buildCreateTagDialog()
             }
 
-            // set up tags recycler view
-            tagsAdapter = TagsAdapter(areItemsClickable = true)
-            rvTags.adapter = tagsAdapter
-
             tvDateStarts.apply {
                 task.dateStarts?.let {
                     setText(convertTimestampToDateString(DATE_TIME_FORMAT, it))
@@ -403,11 +399,16 @@ class CreateTaskFragment : BaseFragment(), StateHandler {
                 }
 
                 pbLoadingTags.isVisible = loadingManager.isLoadingTags
+
+                if (tags.isNotEmpty()) {
+                    tagsAdapter = TagsAdapter(areItemsClickable = true).also {
+                        it.tags = tags
+                    }
+                    rvTags.adapter = tagsAdapter
+                }
             }
 
-            if (tags.isNotEmpty()) {
-                tagsAdapter?.tags = tags
-            }
+
 
             message?.let {
                 showToast(it)

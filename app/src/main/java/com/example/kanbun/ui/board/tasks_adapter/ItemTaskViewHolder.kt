@@ -2,10 +2,8 @@ package com.example.kanbun.ui.board.tasks_adapter
 
 import android.content.ClipData
 import android.content.ClipDescription
-import android.graphics.Color
 import android.util.Log
 import android.view.DragEvent
-import android.view.LayoutInflater
 import android.view.View
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.isVisible
@@ -15,12 +13,12 @@ import com.example.kanbun.common.DATE_TIME_FORMAT
 import com.example.kanbun.common.convertTimestampToDateString
 import com.example.kanbun.common.moshi
 import com.example.kanbun.databinding.ItemTaskBinding
-import com.example.kanbun.databinding.ItemTaskTagBigBinding
 import com.example.kanbun.domain.model.Tag
 import com.example.kanbun.domain.model.Task
 import com.example.kanbun.ui.board.TaskDropCallbacks
 import com.example.kanbun.ui.board.tasks_adapter.ItemTaskViewHolder.TaskDragAndDropHelper.DROP_ZONE_TASK
 import com.example.kanbun.ui.model.DragAndDropTaskItem
+import com.example.kanbun.ui.task_tag.TagView
 import com.squareup.moshi.Moshi
 
 class ItemTaskViewHolder(
@@ -116,19 +114,10 @@ class ItemTaskViewHolder(
 
             boardTags.onEach { tag ->
                 if (tag.id in task.tags) {
-                    val tagBinding = ItemTaskTagBigBinding.inflate(
-                        LayoutInflater.from(itemView.context),
-                        flexTags,
-                        false
-                    ).apply {
-                        cardTag.isClickable = false
-                        tvTag.text = tag.name
-                        tvTag.setTextColor(Color.parseColor(tag.textColor))
-                        cardTag.setCardBackgroundColor(Color.parseColor(tag.backgroundColor))
-                        root.setPadding(0, verticalPadding, 0, verticalPadding)
+                    val tagView = TagView(context = itemView.context, isBig = false).also {
+                        it.bind(tag, isClickable = false, isSelected = false)
                     }
-
-                    flexTags.addView(tagBinding.root)
+                    flexTags.addView(tagView)
                 }
             }
         }
