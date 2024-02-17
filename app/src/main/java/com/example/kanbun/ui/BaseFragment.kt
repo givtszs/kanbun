@@ -65,19 +65,6 @@ abstract class BaseFragment : Fragment() {
         }
     }
 
-    /**
-     * Sets up the action bar with the provided [toolbar] and a custom [navigation action][navigate].
-     * @param toolbar custom toolbar to be set up as the action bar.
-     * @param navigate callback function executed when either the `Navigate up` or `Back` button is pressed.
-     */
-    protected open fun setUpActionBar(toolbar: MaterialToolbar, navigate: () -> Unit) {
-        setUpActionBar(toolbar)
-        toolbar.setNavigationOnClickListener {
-            navigate()
-        }
-        addOnBackPressedAction(navigate)
-    }
-
     protected fun showToast(message: String, context: Context = requireContext(), duration: Int = Toast.LENGTH_SHORT) {
         Toast.makeText(context, message, duration).show()
     }

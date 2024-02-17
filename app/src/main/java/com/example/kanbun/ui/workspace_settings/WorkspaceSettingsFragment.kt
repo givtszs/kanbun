@@ -43,14 +43,20 @@ class WorkspaceSettingsFragment : BaseFragment() {
         setStatusBarColor(getColor(requireContext(), R.color.md_theme_light_surface))
     }
 
+    /**
+     * Overrides the parent implementation to set up a custom `Up` button.
+     *
+     * @param toolbar the toolbar to configure
+     */
     override fun setUpActionBar(toolbar: MaterialToolbar) {
+        (requireActivity() as MainActivity).setSupportActionBar(toolbar)
         toolbar.setNavigationOnClickListener {
             navController.popBackStack()
         }
     }
 
     override fun setUpListeners() {
-        with(binding) {
+        binding.apply {
             tfName.apply {
                 editText?.setText(workspace.name)
             }

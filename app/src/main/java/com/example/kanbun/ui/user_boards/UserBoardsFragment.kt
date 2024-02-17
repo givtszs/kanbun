@@ -64,11 +64,14 @@ class UserBoardsFragment : BaseFragment(), StateHandler {
                         TAG,
                         "onMenuItemSelected: workspace_settings: workspace: ${viewModel.userBoardsState.value.currentWorkspace}"
                     )
-                    navController.navigate(
-                        UserBoardsFragmentDirections.actionUserBoardsFragmentToWorkspaceSettingsFragment(
-                            viewModel.userBoardsState.value.currentWorkspace ?: Workspace()
+
+                    viewModel.userBoardsState.value.currentWorkspace?.let { workspace ->
+                        navController.navigate(
+                            UserBoardsFragmentDirections
+                                .actionUserBoardsFragmentToWorkspaceSettingsFragment(workspace)
                         )
-                    )
+                    }
+
                     true
                 }
 
@@ -77,6 +80,7 @@ class UserBoardsFragment : BaseFragment(), StateHandler {
         }
     }
 
+    private var isMenuProviderAdded = false
     private var boardsAdapter: BoardsAdapter? = null
 
     override fun onCreateView(
@@ -159,7 +163,12 @@ class UserBoardsFragment : BaseFragment(), StateHandler {
 
             if (currentWorkspace != null) {
                 activity.drawerAdapter?.prevSelectedWorkspaceId = currentWorkspace.id
-                createMenu()
+
+                if (!isMenuProviderAdded) {
+                    createMenu()
+                    isMenuProviderAdded = true
+                }
+
                 binding.apply {
                     topAppBar.toolbar.title = currentWorkspace.name
                     fabCreateBoard.visibility = View.VISIBLE
@@ -239,14 +248,16 @@ class UserBoardsFragment : BaseFragment(), StateHandler {
     }
 
     private fun createMenu() {
-        with(activity) {
-            removeMenuProvider(menuProvider)
-            addMenuProvider(
-                menuProvider,
-                viewLifecycleOwner,
-                Lifecycle.State.RESUMED
-            )
-        }
+        activity.addMenuProvider(
+            menuProvider,
+            viewLifecycleOwner,
+            Lifecycle.State.RESUMED
+        )
+    }
+
+    private fun removeMenu() {
+        activity.removeMenuProvider(menuProvider)
+        isMenuProviderAdded = false
     }
 
     private fun buildWorkspaceCreationDialog(user: User) {
@@ -322,7 +333,7 @@ class UserBoardsFragment : BaseFragment(), StateHandler {
 
     override fun onDestroyView() {
         super.onDestroyView()
-        activity.removeMenuProvider(menuProvider)
+        removeMenu()
         boardsAdapter = null
         _binding = null
     }
