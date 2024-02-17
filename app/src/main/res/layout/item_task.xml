@@ -27,10 +27,10 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                app:alignContent="space_between"
+                app:alignContent="flex_start"
                 app:alignItems="baseline"
                 app:flexWrap="wrap"
-                app:justifyContent="space_between"
+                app:justifyContent="flex_start"
                 app:layout_constraintTop_toTopOf="parent" />
 
             <TextView

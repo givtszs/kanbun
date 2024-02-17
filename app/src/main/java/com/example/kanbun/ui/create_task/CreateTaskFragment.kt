@@ -189,7 +189,7 @@ class CreateTaskFragment : BaseFragment(), StateHandler {
             tagColor = colorId
         }
 
-        with(alertDialogBinding!!.gridColors) {
+        with(alertDialogBinding!!.rvTagColors) {
             adapter = colorPickerAdapter
             layoutManager = GridLayoutManager(requireContext(), 4)
         }
@@ -405,6 +405,11 @@ class CreateTaskFragment : BaseFragment(), StateHandler {
                         it.tags = tags
                     }
                     rvTags.adapter = tagsAdapter
+                }
+
+                message?.let {
+                    showToast(it)
+                    viewModel.messageShown()
                 }
             }
 

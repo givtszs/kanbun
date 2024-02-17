@@ -9,6 +9,7 @@ import com.example.kanbun.domain.model.BoardListInfo
 import com.example.kanbun.domain.model.Tag
 import com.example.kanbun.domain.model.Task
 import com.example.kanbun.domain.repository.FirestoreRepository
+import com.example.kanbun.domain.usecase.CreateTagUseCase
 import com.example.kanbun.ui.BaseViewModel
 import com.example.kanbun.ui.ViewState
 import com.example.kanbun.ui.model.TagUi
@@ -25,7 +26,8 @@ private const val TAG = "CreateTaskViewModel"
 
 @HiltViewModel
 class CreateTaskViewModel @Inject constructor(
-    private val firestoreRepository: FirestoreRepository
+    private val firestoreRepository: FirestoreRepository,
+    private val createTagUseCase: CreateTagUseCase
 ) : BaseViewModel() {
     private var _task = MutableStateFlow<Task?>(null)
     private var _tags =
@@ -135,43 +137,47 @@ class CreateTaskViewModel @Inject constructor(
             }
         }
 
-    fun createTag(name: String, color: String, boardListInfo: BoardListInfo) = viewModelScope.launch {
-        val boardRef =
-            boardListInfo.path.substringBefore("/${FirestoreCollection.BOARD_LIST.collectionName}")
+    fun createTag(name: String, color: String, boardListInfo: BoardListInfo) =
+        viewModelScope.launch {
+            val boardRef =
+                boardListInfo.path.substringBefore("/${FirestoreCollection.BOARD_LIST.collectionName}")
+            val tag = Tag(
+                name = name,
+                textColor = color,
+                backgroundColor = "#33${color.substringAfter("#")}" // 33 - 20% alpha value
+            )
 
-        when (
-            val result = firestoreRepository.createTag(
-                boardPath = boardRef.substringBeforeLast("/"),
+            when (
+                val result = createTagUseCase(
+                    tags = _tags.value,
+                    newTag = tag,
+                    boardPath = boardRef.substringBeforeLast("/"),
                     boardId = boardRef.substringAfterLast("/"),
-                    tag = Tag(
-                        name = name,
-                        textColor = color,
-                        backgroundColor = "#33${color.substringAfter("#")}" // 33 - 20% alpha value
-                    )
                 )
             ) {
-                is Result.Success -> getTags(boardListInfo)
+                is Result.Success -> _tags.value = _tags.value + TagUi(tag, false)
                 is Result.Error -> _message.value = result.message
-                Result.Loading -> {
-                    _isLoadingTags.value = true
-                }
+                Result.Loading -> _isLoadingTags.value = true
             }
-    }
+        }
 
-    suspend fun getTags(boardListInfo: BoardListInfo) {
+
+    private suspend fun getTags(boardListInfo: BoardListInfo) {
         _isLoadingTags.value = true
         val boardRef =
             boardListInfo.path.substringBefore("/${FirestoreCollection.BOARD_LIST.collectionName}")
+        val workspaceId =
+            boardRef.substringAfter("${FirestoreCollection.WORKSPACES.collectionName}/")
+                .substringBefore("/${FirestoreCollection.BOARDS.collectionName}")
+
         when (
             val result = firestoreRepository.getTags(
                 boardId = boardRef.substringAfterLast("/"),
-                workspaceId = boardRef.substringAfter("${FirestoreCollection.WORKSPACES.collectionName}/")
-                    .substringBefore("/${FirestoreCollection.BOARDS.collectionName}")
+                workspaceId = workspaceId
             )
         ) {
             is Result.Success -> {
-                _tags.value =
-                    result.data.map { tag -> TagUi(tag, false) }
+                _tags.value = result.data.map { tag -> TagUi(tag, false) }
                 _isLoadingTags.value = false
             }
 
