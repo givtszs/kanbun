@@ -1,10 +1,17 @@
 package com.example.kanbun.ui.task_details
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.view.menu.MenuBuilder
+import androidx.core.view.MenuHost
+import androidx.core.view.MenuProvider
 import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
@@ -20,6 +27,7 @@ import com.example.kanbun.ui.BaseFragment
 import com.example.kanbun.ui.StateHandler
 import com.example.kanbun.ui.ViewState
 import com.example.kanbun.ui.board.common_adapters.TagsAdapter
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -46,6 +54,7 @@ class TaskDetailsFragment : BaseFragment(), StateHandler {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setUpActionBar(binding.topAppBar.toolbar)
+        setUpOptionsMenu()
         loadSupplementaryInfo()
         collectState()
     }
@@ -128,6 +137,33 @@ class TaskDetailsFragment : BaseFragment(), StateHandler {
                 tvMembersLabel.text = resources.getString(R.string.task_members, members.size)
             }
         }
+    }
+
+    private fun setUpOptionsMenu() {
+        (requireActivity() as MenuHost).addMenuProvider(object : MenuProvider {
+            @SuppressLint("RestrictedApi")
+            override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+                menuInflater.inflate(R.menu.task_details_menu, menu)
+                if (menu is MenuBuilder) {
+                    menu.setOptionalIconsVisible(true)
+                }
+            }
+
+            override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+                return when (menuItem.itemId) {
+                    R.id.item_delete -> {
+                        viewModel.deleteTask(
+                            task = args.task,
+                            boardListInfo = args.boardListInfo,
+                            navigateOnDelete = { navController.popBackStack() }
+                        )
+                        true
+                    }
+
+                    else -> false
+                }
+            }
+        }, viewLifecycleOwner, Lifecycle.State.RESUMED)
     }
 
     override fun onDestroyView() {

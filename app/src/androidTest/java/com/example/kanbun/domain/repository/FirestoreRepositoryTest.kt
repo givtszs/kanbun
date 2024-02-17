@@ -10,6 +10,8 @@ import com.example.kanbun.domain.model.Tag
 import com.example.kanbun.domain.model.Task
 import com.example.kanbun.domain.model.User
 import com.example.kanbun.domain.model.Workspace
+import com.google.common.truth.Subject
+import com.google.common.truth.Truth
 import com.google.common.truth.Truth.assertThat
 import com.google.firebase.firestore.FieldValue
 import kotlinx.coroutines.flow.collectLatest
@@ -35,6 +37,8 @@ class FirestoreRepositoryTest {
     fun tearDown() = runBlocking {
 //        FirestoreTestUtil.deleteFirestoreData()
     }
+
+    private fun Subject.isResultSuccess() = isInstanceOf(Result.Success::class.java)
 
     @Test
     fun createUser_withValidUserId_savesUserDataIntoFirestore() = runBlocking {
@@ -437,59 +441,41 @@ class FirestoreRepositoryTest {
         assertThat(resultData).isEqualTo(boardList)
     }
 
-//    @Test
-//    fun createTask_withValidArguments_addsTaskInFirestore() = runBlocking {
-//        val args = createTaskArgs()
-//        val task = FirestoreTestUtil.createTask("Task", 0)
-//
-//        val resultCreate =
-//            repository.createTask(task, args["boardListId"]!!, args["boardId"]!!, args["workspaceId"]!!)
-//
-//        assertThat(resultCreate).isInstanceOf(Result.Success::class.java)
-//
-//        val taskId = (resultCreate as Result.Success).data
-//
-//        val boardListFlow = repository.getBoardListsStream(args["boardId"]!!, args["workspaceId"]!!).take(2)
-//        val listResults = mutableListOf<Result<List<BoardList>>>().apply {
-//            boardListFlow.collectLatest { this.add(it) }
-//        }
-//        val boardListData = (listResults[1] as Result.Success).data.first()
-//
-//        assertThat(boardListData.tasks.any { it.id == taskId }).isTrue()
-//
-//        val taskData = boardListData.tasks.first { it.id == taskId }
-//
-//        assertThat(taskData.name).isEqualTo(task.name)
-//        assertThat(taskData.description).isEqualTo(task.description)
-//        assertThat(taskData.position).isEqualTo(task.position)
-//    }
+    @Test
+    fun createTask_withValidArguments_addsTaskInFirestore() = runBlocking {
+        val board = createBoard("board1")
+        val boardList = createBoardList("list1", 0, board)
+        var task = FirestoreTestUtil.createTask("task1", 0)
 
-    private suspend fun createTaskArgs(): Map<String, String> {
-        val user = FirestoreTestUtil.createUser("user").also {
-            repository.createUser(it)
+        val resultCreate = repository.createTask(task, boardList.id, boardList.path)
+
+        assertThat(resultCreate).isInstanceOf(Result.Success::class.java)
+
+       task = task.copy(
+           id = (resultCreate as Result.Success).data
+       )
+
+        val boardListFlow = repository.getBoardListsStream(board.id, board.settings.workspace.id).take(2) // take 2 because first result is Result.Loading
+        val listResults = mutableListOf<Result<List<BoardList>>>().apply {
+            boardListFlow.collectLatest { this.add(it) }
         }
+        val boardListData = (listResults[1] as Result.Success).data.first()
 
-        val workspace = FirestoreTestUtil.createWorkspace(user.id, "Workspace").run {
-            this.copy(id = (repository.createWorkspace(this) as Result.Success).data)
-        }
+        assertThat(boardListData.tasks.any { it.id == task.id }).isTrue()
 
-        val board = FirestoreTestUtil.createBoard(
-            user.id,
-            User.WorkspaceInfo(workspace.id, workspace.name),
-            "Board"
-        ).run {
-            this.copy(id = (repository.createBoard(this) as Result.Success).data)
-        }
+        val taskData = boardListData.tasks.first { it.id == task.id }
 
-        val boardList = FirestoreTestUtil.createBoardList("List", 0).run {
-            this.copy(id = (repository.createBoardList(this, board) as Result.Success).data)
-        }
+        assertThat(taskData).isEqualTo(task)
+    }
 
-        return mapOf(
-            "workspaceId" to workspace.id,
-            "boardId" to board.id,
-            "boardListId" to boardList.id
-        )
+    @Test
+    fun deleteTask_deletesTaskFromTheList() = runBlocking {
+        val boardList = createBoardList("list1", 0)
+        val task = createTask("task1", 0, boardList)
+
+        val result = repository.deleteTask(task, boardList.path, boardList.id)
+
+        assertThat(result).isResultSuccess()
     }
 
 //    @Test
@@ -578,10 +564,10 @@ class FirestoreRepositoryTest {
         val tag = FirestoreTestUtil.createTag("Green", "43ff64")
 
         val result = repository.createTag(
-            "${FirestoreCollection.WORKSPACES.collectionName}/${workspace.id}" +
-                    "/${FirestoreCollection.BOARDS.collectionName}",
+            tag,
             board.id,
-            tag
+            boardPath = "${FirestoreCollection.WORKSPACES.collectionName}/${workspace.id}" +
+                    "/${FirestoreCollection.BOARDS.collectionName}"
         )
 
         assertThat(result).isInstanceOf(Result.Success::class.java)
@@ -744,7 +730,7 @@ class FirestoreRepositoryTest {
                 "/${FirestoreCollection.BOARDS.collectionName}"
         return FirestoreTestUtil.createTag(name, color).run {
             copy(
-                id = (repository.createTag(boardPath, boardId, this) as Result.Success).data
+                id = (repository.createTag(this,  boardId, boardPath) as Result.Success).data
             )
         }
     }

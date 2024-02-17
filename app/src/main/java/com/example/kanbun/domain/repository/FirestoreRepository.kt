@@ -60,6 +60,8 @@ interface FirestoreRepository {
 
     suspend fun updateTask(task: Task, boardListPath: String, boardListId: String): Result<Unit>
 
+    suspend fun deleteTask(task: Task, boardListPath: String, boardListId: String): Result<Unit>
+
     suspend fun rearrangeTasksPositions(
         listPath: String,
         listId: String,

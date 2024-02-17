@@ -4,6 +4,8 @@ package com.example.kanbun.ui.task_details
 import android.util.Log
 import androidx.lifecycle.viewModelScope
 import com.example.kanbun.common.Result
+import com.example.kanbun.domain.model.BoardListInfo
+import com.example.kanbun.domain.model.Task
 import com.example.kanbun.domain.repository.FirestoreRepository
 import com.example.kanbun.ui.BaseViewModel
 import com.example.kanbun.ui.ViewState
@@ -104,5 +106,19 @@ class TaskDetailsViewModel @Inject constructor(
 
     fun getMembers() {
         _isLoadingMembers.value = false
+    }
+
+    fun deleteTask(task: Task, boardListInfo: BoardListInfo, navigateOnDelete: () -> Unit) = viewModelScope.launch {
+        when (
+            val result = firestoreRepository.deleteTask(
+                task = task,
+                boardListPath = boardListInfo.path,
+                boardListId = boardListInfo.id
+            )
+        ) {
+            is Result.Success -> navigateOnDelete()
+            is Result.Error -> _message.value = result.message
+            Result.Loading -> {}
+        }
     }
 }

@@ -393,6 +393,18 @@ class FirestoreRepositoryImpl @Inject constructor(
                 .await()
         }
 
+    override suspend fun deleteTask(
+        task: com.example.kanbun.domain.model.Task,
+        boardListPath: String,
+        boardListId: String
+    ): Result<Unit> =
+        runCatching {
+            firestore.collection(boardListPath)
+                .document(boardListId)
+                .update("tasks.${task.id}", FieldValue.delete())
+                .await()
+        }
+
     private fun rearrange(
         tasks: List<com.example.kanbun.domain.model.Task>,
         from: Int,
