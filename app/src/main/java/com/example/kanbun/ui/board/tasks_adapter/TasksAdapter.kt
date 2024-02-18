@@ -20,12 +20,11 @@ import com.squareup.moshi.Moshi
 /**
  * A [RecyclerView.Adapter] responsible for managing and displaying a list of [Task]s
  *
- * @param rvTasks the reference to a [RecyclerView] using this adapter
+ * @property boardTags the list of tags
  * @property taskDropCallbacks the set of callbacks used when the dragged item gets dropped
- * @property onTaskClickListener the callback called when the user click on a task item
+ * @property onTaskClicked the callback called when the user click on a task item
  */
 class TasksAdapter(
-    rvTasks: RecyclerView,
     private val boardTags: List<Tag>,
     val taskDropCallbacks: TaskDropCallbacks,
     private val onTaskClicked: (Task) -> Unit,
@@ -34,32 +33,6 @@ class TasksAdapter(
         private set
 
     lateinit var listInfo: BoardListInfo
-
-    init {
-        rvTasks.setOnDragListener { _, event ->
-            when (event.action) {
-                DragEvent.ACTION_DRAG_STARTED -> {
-                    event.clipDescription.hasMimeType(ClipDescription.MIMETYPE_TEXT_PLAIN)
-                }
-
-                DragEvent.ACTION_DROP -> {
-                    Log.d("ItemTaskViewHolder", "RecView#ACTION_DROP at $this")
-                    ItemTaskViewHolder.TaskDragAndDropHelper.handleDrop(
-                        event.clipData,
-                        taskDropCallbacks
-                    )
-                }
-
-                DragEvent.ACTION_DRAG_ENDED -> {
-                    Log.d("ItemTaskViewHolder", "RecView#ACTION_DRAG_ENDED")
-                    ItemTaskViewHolder.TaskDragAndDropHelper.removeDropZone()
-                    true
-                }
-
-                else -> false
-            }
-        }
-    }
 
     fun setData(data: List<Task>) {
         tasks = data.toMutableList()

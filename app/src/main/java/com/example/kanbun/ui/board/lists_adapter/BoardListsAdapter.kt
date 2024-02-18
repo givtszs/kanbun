@@ -18,7 +18,7 @@ import kotlinx.coroutines.CoroutineScope
 class BoardListsAdapter(
     private val coroutineScope: CoroutineScope,
     private val taskDropCallback: TaskDropCallbacks,
-    private val boardListDropCallback: DropCallback,
+    val boardListDropCallback: DropCallback,
     private val onCreateListClickListener: () -> Unit,
     private val onCreateTaskListener: (BoardList) -> Unit,
     private val loadingCompleteCallback: () -> Unit,

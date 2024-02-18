@@ -52,7 +52,6 @@ enum class TaskAction {
 const val EMAIL_RESEND_TIME_LIMIT = 60
 const val RECYCLERVIEW_BOARDS_COLUMNS = 2
 const val HORIZONTAL_SCROLL_DISTANCE = 5
-const val VERTICAL_SCROLL_DISTANCE = 5
 const val DATE_FORMAT = "dd MMM yyyy"
 const val TIME_FORMAT = "HH:mm"
 const val DATE_TIME_FORMAT = "dd MMM yyyy, HH:mm"
@@ -66,4 +65,4 @@ val defaultTagColors = listOf(
     "#0000FF", // blue
 )
 
-val moshi = Moshi.Builder().build()
+val moshi: Moshi = Moshi.Builder().build()

@@ -144,9 +144,9 @@ class CreateTaskFragment : BaseFragment(), StateHandler {
                 }
             }
 
-            etName.doOnTextChanged { _, _, _, count ->
-                Log.d(TAG, "etName: count: $count")
-                btnCreateTask.isEnabled = count > 0
+            etName.doOnTextChanged { text, _, _, _ ->
+                Log.d(TAG, "etName: textSize: ${text?.length}")
+                btnCreateTask.isEnabled = !text.isNullOrEmpty()
             }
 
             tvCreateTag.setOnClickListener {

@@ -18,10 +18,9 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.PagerSnapHelper
 import androidx.recyclerview.widget.RecyclerView
-import com.example.kanbun.R
-import com.example.kanbun.common.FirestoreCollection
 import com.example.kanbun.common.HORIZONTAL_SCROLL_DISTANCE
 import com.example.kanbun.common.TaskAction
+import com.example.kanbun.common.moshi
 import com.example.kanbun.databinding.FragmentBoardBinding
 import com.example.kanbun.domain.model.BoardList
 import com.example.kanbun.domain.model.BoardListInfo
@@ -36,7 +35,6 @@ import com.example.kanbun.ui.board.tasks_adapter.TasksAdapter
 import com.example.kanbun.ui.model.DragAndDropListItem
 import com.example.kanbun.ui.model.DragAndDropTaskItem
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.squareup.moshi.Moshi
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -188,9 +186,7 @@ class BoardFragment : BaseFragment(), StateHandler {
         ): Boolean {
             val boardListAdapter = adapter as BoardListsAdapter
             val data = clipData.getItemAt(0).text.toString()
-            val moshi = Moshi.Builder().build()
-            val jsonAdapter = moshi.adapter(DragAndDropListItem::class.java)
-            val dragItem = jsonAdapter.fromJson(data)
+            val dragItem = moshi.adapter(DragAndDropListItem::class.java).fromJson(data)
 
             dragItem?.let {
                 viewModel.rearrangeLists(

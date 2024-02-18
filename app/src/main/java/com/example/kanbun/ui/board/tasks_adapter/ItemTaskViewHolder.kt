@@ -57,6 +57,10 @@ class ItemTaskViewHolder(
                 adapterPosition
             )
         }
+
+        binding.root.setOnDragListener { _, event ->
+            TaskDragAndDropHelper.handleDragEvent(event)
+        }
     }
 
     fun bind(task: Task) {
@@ -109,8 +113,6 @@ class ItemTaskViewHolder(
         binding.apply {
             flexTags.isVisible = true
             flexTags.removeAllViews()
-            val verticalPadding =
-                root.resources.getDimensionPixelSize(R.dimen.tags_vertical_padding)
 
             boardTags.onEach { tag ->
                 if (tag.id in task.tags) {
@@ -126,7 +128,7 @@ class ItemTaskViewHolder(
     /**
      * A helper singleton class for managing drag-and-drop interactions and states within the [TasksAdapter]
      */
-    object TaskDragAndDropHelper {
+    private object TaskDragAndDropHelper {
         const val DROP_ZONE_TASK = "drop_zone"
 
         /** The dragged task's hosting [TasksAdapter] */
@@ -330,6 +332,30 @@ class ItemTaskViewHolder(
             }
         }
 
+        fun handleDragEvent(event: DragEvent): Boolean {
+            return when (event.action) {
+                DragEvent.ACTION_DRAG_STARTED -> {
+                    event.clipDescription.hasMimeType(ClipDescription.MIMETYPE_TEXT_PLAIN)
+                }
+
+                DragEvent.ACTION_DROP -> {
+                    Log.d("ItemTaskViewHolder", "Root#ACTION_DROP at $this")
+                    handleDrop(
+                        event.clipData,
+                        taskInitAdapter.taskDropCallbacks
+                    )
+                }
+
+                DragEvent.ACTION_DRAG_ENDED -> {
+                    Log.d("ItemTaskViewHolder", "Root#ACTION_DRAG_ENDED")
+                    removeDropZone()
+                    true
+                }
+
+                else -> false
+            }
+        }
+
         /**
          * Moves the task item in the [RecyclerView] list.
          *
@@ -347,7 +373,7 @@ class ItemTaskViewHolder(
         /**
          * Removes the drop zone from the [RecyclerView] and [TasksAdapter] datasets
          */
-        fun removeDropZone(): Boolean {
+        private fun removeDropZone(): Boolean {
             val isDropZoneTaskPresent = currentAdapter?.tasks?.any { it.id == DROP_ZONE_TASK }
             return if (isDropZoneTaskPresent == true) {
                 // when we move items only the underlying dataset gets updated,
@@ -418,7 +444,7 @@ class ItemTaskViewHolder(
          * If the dragged item has been dropped in an adapter other than the hosting, the [TaskDropCallbacks.dropToInsert]
          * callback is called.
          */
-        fun handleDrop(clipData: ClipData, taskDropCallbacks: TaskDropCallbacks): Boolean {
+        private fun handleDrop(clipData: ClipData, taskDropCallbacks: TaskDropCallbacks): Boolean {
             val data = clipData.getItemAt(0).text.toString()
             val moshi = Moshi.Builder().build()
             val jsonAdapter = moshi.adapter(DragAndDropTaskItem::class.java)
