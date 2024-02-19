@@ -55,9 +55,9 @@
             <View
                 android:id="@+id/separatorHorizontal"
                 android:layout_width="match_parent"
-                android:layout_height="1dp"
+                android:layout_height="2dp"
                 android:layout_marginTop="6dp"
-                android:background="@color/black"
+                android:background="@color/platinum_1"
                 app:layout_constraintTop_toBottomOf="@id/tvDescription" />
 
             <TextView
@@ -67,7 +67,9 @@
                 android:layout_marginTop="8dp"
                 android:drawablePadding="4dp"
                 android:text="@string/task_date"
+                android:textColor="@color/dim_gray"
                 app:drawableStartCompat="@drawable/ic_calendar_outlined_18"
+                app:drawableTint="@color/dim_gray"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/separatorHorizontal"
                 tools:text="29 Feb 2024, 08:00 - 29 Feb 2024, 09:00" />
