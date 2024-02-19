@@ -26,14 +26,13 @@ import com.example.kanbun.domain.model.Tag
 import com.example.kanbun.domain.model.User
 import com.example.kanbun.domain.model.Workspace
 import com.example.kanbun.domain.repository.FirestoreRepository
-import com.example.kanbun.ui.board.lists_adapter.ItemBoardListViewHolder
 import com.google.android.gms.tasks.Task
 import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
-import com.google.firebase.firestore.toObject
 import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
@@ -332,6 +331,36 @@ class FirestoreRepositoryImpl @Inject constructor(
                     ?.toBoardList(boardListId, boardListPath)
                     ?: throw NullPointerException("Couldn't convert FirestoreBoardList to BoardList since the value is null")
             }
+    }
+
+    override suspend fun updateBoardListName(
+        newName: String,
+        boardListPath: String,
+        boardListId: String
+    ): Result<Unit> = runCatching {
+        firestore.collection(boardListPath)
+            .document(boardListId)
+            .update("name", newName)
+            .await()
+    }
+
+    override suspend fun deleteBoardList(boardListPath: String, boardListId: String): Result<Unit> =
+        runCatching {
+            firestore.collection(boardListPath)
+                .document(boardListId)
+                .delete()
+                .getResult {
+                    deleteBoardsList(boardListPath, boardListId)
+                }
+        }
+
+    private fun deleteBoardsList(boardListPath: String, boardListId: String) {
+        val boardRef = boardListPath.substringBefore("/lists")
+        val boardPath = boardRef.substringBeforeLast("/")
+        val boardId = boardRef.substringAfterLast("/")
+        firestore.collection(boardPath)
+            .document(boardId)
+            .update("lists", FieldValue.arrayRemove(boardListId))
     }
 
     override fun getBoardListsStream(

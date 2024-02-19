@@ -1,4 +1,4 @@
-package com.example.kanbun.ui.board.lists_adapter
+package com.example.kanbun.ui.board.board_list
 
 import android.util.Log
 import android.view.LayoutInflater

@@ -400,6 +400,34 @@ class FirestoreRepositoryTest {
     }
 
     @Test
+    fun updateBoardListName_changesBoardListName() = runBlocking {
+        val boardList = createBoardList("list1", 0)
+        val newName = "Updated board list name"
+
+        val result = repository.updateBoardListName(newName, boardList.path, boardList.id)
+
+        assertThat(result).isResultSuccess()
+
+        val updBoardList = (repository.getBoardList(boardList.path, boardList.id) as Result.Success).data
+
+        assertThat(updBoardList.name).isEqualTo(newName)
+    }
+
+    @Test
+    fun deleteBoardList_changesBoardListName() = runBlocking {
+        val board = createBoard("board1")
+        val boardList = createBoardList("list1", 0, board)
+
+        val result = repository.deleteBoardList(boardList.path, boardList.id)
+
+        assertThat(result).isResultSuccess()
+
+        val updBoard = (repository.getBoard(board.id, board.settings.workspace.id) as Result.Success).data
+
+        assertThat(updBoard.lists.contains(boardList.id)).isFalse()
+    }
+
+    @Test
     fun getBoardListStream_returnsBoardsListDataChangesOverTime() = runBlocking {
         val user = FirestoreTestUtil.createUser("user").also {
             repository.createUser(it)

@@ -50,6 +50,14 @@ interface FirestoreRepository {
 
     suspend fun getBoardList(boardListPath: String, boardListId: String): Result<BoardList>
 
+    suspend fun updateBoardListName(
+        newName: String,
+        boardListPath: String,
+        boardListId: String
+    ): Result<Unit>
+
+    suspend fun deleteBoardList(boardListPath: String, boardListId: String): Result<Unit>
+
     fun getBoardListsStream(boardId: String, workspaceId: String): Flow<Result<List<BoardList>>>
 
     suspend fun createTask(

@@ -21,10 +21,4 @@ data class Board(
         val id: String,
         val role: BoardRole
     )
-
-    data class BoardList(
-        val id: String = "",
-        val name: String = "",
-        val cards: List<String> = emptyList()
-    )
 }

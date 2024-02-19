@@ -29,9 +29,10 @@ import com.example.kanbun.domain.model.Workspace
 import com.example.kanbun.ui.BaseFragment
 import com.example.kanbun.ui.StateHandler
 import com.example.kanbun.ui.ViewState
-import com.example.kanbun.ui.board.lists_adapter.BoardListsAdapter
-import com.example.kanbun.ui.board.lists_adapter.BoardListsAdapterCallbacks
-import com.example.kanbun.ui.board.lists_adapter.ItemBoardListViewHolder
+import com.example.kanbun.ui.board.board_list.BoardListMenuDialog
+import com.example.kanbun.ui.board.board_list.BoardListsAdapter
+import com.example.kanbun.ui.board.board_list.BoardListsAdapterCallbacks
+import com.example.kanbun.ui.board.board_list.ItemBoardListViewHolder
 import com.example.kanbun.ui.board.tasks_adapter.TasksAdapter
 import com.example.kanbun.ui.model.DragAndDropListItem
 import com.example.kanbun.ui.model.DragAndDropTaskItem
@@ -131,7 +132,7 @@ class BoardFragment : BaseFragment(), StateHandler {
                 }
 
                 override fun onBoardListMenuClicked(boardList: BoardList) {
-                    val boardListMenuDialog = BoardListMenuDialog.init(boardList.name)
+                    val boardListMenuDialog = BoardListMenuDialog.init(boardList)
                     boardListMenuDialog.show(childFragmentManager, "board_list_menu")
                 }
 
