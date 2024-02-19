@@ -130,8 +130,9 @@ class BoardFragment : BaseFragment(), StateHandler {
                     buildCreateListDialog()
                 }
 
-                override fun onBoardListMenuClicked() {
-                    TODO("Not yet implemented")
+                override fun onBoardListMenuClicked(boardList: BoardList) {
+                    val boardListMenuDialog = BoardListMenuDialog.init(boardList.name)
+                    boardListMenuDialog.show(childFragmentManager, "board_list_menu")
                 }
 
                 override fun createTask(boardList: BoardList) {

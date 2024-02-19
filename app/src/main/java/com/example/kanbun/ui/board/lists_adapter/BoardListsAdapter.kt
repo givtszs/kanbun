@@ -43,7 +43,7 @@ class BoardListsAdapter(
                 taskDropCallbacks = taskDropCallbacks,
                 boardListAdapter = this@BoardListsAdapter,
                 callbacks = object : BoardListViewHolderCallbacks {
-                    override fun onCreateTask(position: Int) {
+                    override fun createTask(position: Int) {
                         callbacks.createTask(lists[position])
                     }
 
@@ -51,8 +51,8 @@ class BoardListsAdapter(
                         callbacks.onTaskClicked(task, boardListInfo)
                     }
 
-                    override fun onMenuClicked() {
-                        TODO("Not yet implemented")
+                    override fun openMenu(position: Int) {
+                        callbacks.onBoardListMenuClicked(lists[position])
                     }
                 }
             )

@@ -53,7 +53,11 @@ class ItemBoardListViewHolder(
         ItemBoardListViewHolder.coroutineScope = coroutineScope
 
         binding.btnCreateTask.setOnClickListener {
-            callbacks.onCreateTask(adapterPosition)
+            callbacks.createTask(adapterPosition)
+        }
+
+        binding.btnMore.setOnClickListener {
+            callbacks.openMenu(adapterPosition)
         }
 
         tasksAdapter = TasksAdapter(
