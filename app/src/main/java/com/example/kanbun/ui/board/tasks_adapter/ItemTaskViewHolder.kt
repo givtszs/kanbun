@@ -88,19 +88,12 @@ class ItemTaskViewHolder(
             tvDescription.isVisible = task.description.isNotEmpty()
             tvDescription.text = task.description
 
-            if (task.dateStarts == null && task.dateEnds == null) {
-                tvDate.isVisible = false
-                separatorHorizontal.isVisible = false
-            } else {
-                tvDate.isVisible = true
-                tvDate.text = root.resources.getString(
-                    R.string.task_date,
-                    convertTimestampToDateString(DATE_TIME_FORMAT, task.dateStarts),
-                    convertTimestampToDateString(DATE_TIME_FORMAT, task.dateEnds)
-                )
-                separatorHorizontal.isVisible = true
+            // set up date
+            task.getDisplayDate(itemView.context).also { date ->
+                tvDate.text = date
+                tvDate.isVisible = date != null
+                separatorHorizontal.isVisible = date != null
             }
-
         }
     }
 

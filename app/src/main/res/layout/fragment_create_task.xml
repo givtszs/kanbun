@@ -96,7 +96,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="24dp"
             android:labelFor="@id/tvDateStarts"
-            android:text="@string/date_starts"
+            android:text="@string/date_starts_label"
             android:textSize="18sp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/rvMembers" />
@@ -116,7 +116,7 @@
                 android:id="@+id/tvDateStarts"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:hint="@string/no_date_time"
+                android:hint="@string/date_time_placeholder"
                 android:inputType="none" />
 
         </com.google.android.material.textfield.TextInputLayout>
@@ -128,7 +128,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="24dp"
             android:labelFor="@id/tvDateEnds"
-            android:text="@string/date_ends"
+            android:text="@string/date_ends_label"
             android:textSize="18sp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/tfDateStarts" />
@@ -148,7 +148,7 @@
                 android:id="@+id/tvDateEnds"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="@string/no_date_time"
+                android:hint="@string/date_time_placeholder"
                 android:inputType="none" />
         </com.google.android.material.textfield.TextInputLayout>
 

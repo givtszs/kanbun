@@ -1,6 +1,10 @@
 package com.example.kanbun.domain.model
 
+import android.content.Context
 import android.os.Parcelable
+import com.example.kanbun.R
+import com.example.kanbun.common.DATE_TIME_FORMAT
+import com.example.kanbun.common.convertTimestampToDateString
 import com.squareup.moshi.JsonClass
 import kotlinx.parcelize.Parcelize
 
@@ -16,4 +20,34 @@ data class Task(
     val members: List<String> = emptyList(), // list of user ids
     val dateStarts: Long? = null, // probably will be stored as the timestamp
     val dateEnds: Long? = null
-) : Parcelable
+) : Parcelable{
+    fun getDisplayDate(context: Context): String? {
+        return when {
+            dateStarts != null && dateEnds != null ->
+                context.resources.getString(
+                    R.string.task_date,
+                    convertTimestampToDateString(DATE_TIME_FORMAT, dateStarts),
+                    convertTimestampToDateString(DATE_TIME_FORMAT, dateEnds)
+                )
+
+            dateStarts != null ->
+                context.resources.getString(
+                    R.string.date_starts,
+                    convertTimestampToDateString(
+                        DATE_TIME_FORMAT,
+                        dateStarts
+                    )
+                )
+
+            dateEnds != null -> context.resources.getString(
+                R.string.date_ends,
+                convertTimestampToDateString(
+                    DATE_TIME_FORMAT,
+                    dateEnds
+                )
+            )
+
+            else -> null
+        }
+    }
+}

@@ -40,7 +40,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:focusableInTouchMode="false"
-            android:hint="@string/no_date"
+            android:hint="@string/date_placeholder"
             android:inputType="none"
             android:textSize="14sp" />
 
@@ -74,7 +74,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:focusableInTouchMode="false"
-            android:hint="@string/no_time"
+            android:hint="@string/time_placeholder"
             android:inputType="none"
             android:textSize="14sp" />
 
