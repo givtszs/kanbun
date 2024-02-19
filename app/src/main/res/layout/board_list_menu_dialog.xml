@@ -2,7 +2,7 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:background="@color/white"
+    android:background="@drawable/bottom_sheet_top_corners_rounded"
     android:layout_height="wrap_content">
 
     <com.google.android.material.bottomsheet.BottomSheetDragHandleView
@@ -17,8 +17,8 @@
         android:id="@+id/btnEditName"
         style="@style/BottomSheetDialog.Option.Button"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Edit name"
+        android:layout_height="@dimen/board_list_menu_option_height"
+        android:text="@string/action_edit_name"
         app:icon="@drawable/ic_edit_outlined_24"
         app:layout_constraintTop_toBottomOf="@id/dragHandle" />
 
@@ -26,8 +26,8 @@
         android:id="@+id/btnDelete"
         style="@style/BottomSheetDialog.Option.Button"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Delete"
+        android:layout_height="@dimen/board_list_menu_option_height"
+        android:text="@string/action_delete"
         app:icon="@drawable/ic_delete_outlined_24"
         app:layout_constraintTop_toBottomOf="@id/btnEditName" />
 
