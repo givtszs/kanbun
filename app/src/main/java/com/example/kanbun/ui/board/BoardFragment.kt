@@ -30,6 +30,7 @@ import com.example.kanbun.ui.BaseFragment
 import com.example.kanbun.ui.StateHandler
 import com.example.kanbun.ui.ViewState
 import com.example.kanbun.ui.board.lists_adapter.BoardListsAdapter
+import com.example.kanbun.ui.board.lists_adapter.BoardListsAdapterCallbacks
 import com.example.kanbun.ui.board.lists_adapter.ItemBoardListViewHolder
 import com.example.kanbun.ui.board.tasks_adapter.TasksAdapter
 import com.example.kanbun.ui.model.DragAndDropListItem
@@ -122,31 +123,41 @@ class BoardFragment : BaseFragment(), StateHandler {
     private fun setUpBoardListsAdapter() {
         boardListsAdapter = BoardListsAdapter(
             coroutineScope = lifecycleScope,
-            taskDropCallback = taskDropCallbacks,
+            taskDropCallbacks = taskDropCallbacks,
             boardListDropCallback = boardListDropCallback,
-            onCreateListClickListener = {
-                buildCreateListDialog()
-            },
-            onCreateTaskListener = { boardList ->
-//                buildCreateTaskDialog(boardList)
-                navController.navigate(
-                    BoardFragmentDirections.actionBoardFragmentToCreateTaskFragment(
-                        actionType = TaskAction.ACTION_CREATE,
-                        task = Task(
-                            position = boardList.tasks.size.toLong()
-                        ),
-                        boardListInfo = BoardListInfo(boardList.id, boardList.path)
+            callbacks = object : BoardListsAdapterCallbacks {
+                override fun createBoardList() {
+                    buildCreateListDialog()
+                }
+
+                override fun onBoardListMenuClicked() {
+                    TODO("Not yet implemented")
+                }
+
+                override fun createTask(boardList: BoardList) {
+                    navController.navigate(
+                        BoardFragmentDirections.actionBoardFragmentToCreateTaskFragment(
+                            actionType = TaskAction.ACTION_CREATE,
+                            task = Task(
+                                position = boardList.tasks.size.toLong()
+                            ),
+                            boardListInfo = BoardListInfo(boardList.id, boardList.path)
+                        )
                     )
-                )
-            },
-            loadingCompleteCallback = { viewModel.stopLoading() },
-            onTaskClicked = { task, boardListInfo ->
-                navController.navigate(
-                    BoardFragmentDirections.actionBoardFragmentToTaskDetailsFragment(
-                        task,
-                        boardListInfo = boardListInfo
+                }
+
+                override fun onTaskClicked(task: Task, boardListInfo: BoardListInfo) {
+                    navController.navigate(
+                        BoardFragmentDirections.actionBoardFragmentToTaskDetailsFragment(
+                            task,
+                            boardListInfo = boardListInfo
+                        )
                     )
-                )
+                }
+
+                override fun loadingComplete() {
+                    viewModel.stopLoading()
+                }
             }
         )
 

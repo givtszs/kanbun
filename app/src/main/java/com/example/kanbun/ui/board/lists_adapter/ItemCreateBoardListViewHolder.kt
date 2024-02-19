@@ -4,11 +4,11 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.kanbun.databinding.ItemCreateBoardListBinding
 
 class ItemCreateBoardListViewHolder(
-    private val binding: ItemCreateBoardListBinding,
+    binding: ItemCreateBoardListBinding,
     private val onClickListener: () -> Unit
 ) : RecyclerView.ViewHolder(binding.root) {
 
-    fun bind() {
+    init {
         binding.cardView.setOnClickListener {
             onClickListener()
         }

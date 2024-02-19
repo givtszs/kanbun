@@ -17,12 +17,9 @@ import kotlinx.coroutines.CoroutineScope
 
 class BoardListsAdapter(
     private val coroutineScope: CoroutineScope,
-    private val taskDropCallback: TaskDropCallbacks,
+    private val taskDropCallbacks: TaskDropCallbacks,
     val boardListDropCallback: DropCallback,
-    private val onCreateListClickListener: () -> Unit,
-    private val onCreateTaskListener: (BoardList) -> Unit,
-    private val loadingCompleteCallback: () -> Unit,
-    private val onTaskClicked: (Task, BoardListInfo) -> Unit
+    private val callbacks: BoardListsAdapterCallbacks,
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     var boardTags: List<Tag> = emptyList()
@@ -31,27 +28,45 @@ class BoardListsAdapter(
     fun setData(data: List<BoardList>) {
         lists = data
         notifyDataSetChanged()
-        loadingCompleteCallback
+        callbacks.loadingComplete()
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return when (viewType) {
-            BoardListsAdapterViewType.VIEW_TYPE_LIST ->  ItemBoardListViewHolder(
-                binding = ItemBoardListBinding.inflate(LayoutInflater.from(parent.context), parent, false),
-                taskDropCallback = taskDropCallback,
-                boardListDropCallback = boardListDropCallback,
+            BoardListsAdapterViewType.VIEW_TYPE_LIST -> ItemBoardListViewHolder(
+                binding = ItemBoardListBinding.inflate(
+                    LayoutInflater.from(parent.context),
+                    parent,
+                    false
+                ),
                 coroutineScope = coroutineScope,
+                taskDropCallbacks = taskDropCallbacks,
                 boardListAdapter = this@BoardListsAdapter,
-                onCreateTaskListener = { position ->
-                    onCreateTaskListener(lists[position])
-                },
-                onTaskClicked = onTaskClicked
+                callbacks = object : BoardListViewHolderCallbacks {
+                    override fun onCreateTask(position: Int) {
+                        callbacks.createTask(lists[position])
+                    }
+
+                    override fun onTaskClicked(task: Task, boardListInfo: BoardListInfo) {
+                        callbacks.onTaskClicked(task, boardListInfo)
+                    }
+
+                    override fun onMenuClicked() {
+                        TODO("Not yet implemented")
+                    }
+                }
             )
 
             BoardListsAdapterViewType.VIEW_TYPE_CREATE_LIST -> ItemCreateBoardListViewHolder(
-                ItemCreateBoardListBinding.inflate(LayoutInflater.from(parent.context), parent, false),
-                onCreateListClickListener
-            )
+                ItemCreateBoardListBinding.inflate(
+                    LayoutInflater.from(parent.context),
+                    parent,
+                    false
+                )
+            ) {
+                callbacks.createBoardList()
+            }
+
             else -> throw IllegalArgumentException("Invalid view type")
         }
     }
@@ -65,9 +80,8 @@ class BoardListsAdapter(
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        when (holder) {
-            is ItemBoardListViewHolder -> holder.bind(lists[position])
-            is ItemCreateBoardListViewHolder -> holder.bind()
+        if (holder is ItemBoardListViewHolder) {
+            holder.bind(lists[position])
         }
     }
 

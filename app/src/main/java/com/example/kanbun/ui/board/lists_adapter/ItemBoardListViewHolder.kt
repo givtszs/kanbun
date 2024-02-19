@@ -12,8 +12,6 @@ import com.example.kanbun.common.moshi
 import com.example.kanbun.databinding.ItemBoardListBinding
 import com.example.kanbun.domain.model.BoardList
 import com.example.kanbun.domain.model.BoardListInfo
-import com.example.kanbun.domain.model.Task
-import com.example.kanbun.ui.board.DropCallback
 import com.example.kanbun.ui.board.TaskDropCallbacks
 import com.example.kanbun.ui.board.tasks_adapter.TasksAdapter
 import com.example.kanbun.ui.model.DragAndDropListItem
@@ -23,13 +21,11 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 class ItemBoardListViewHolder(
+    coroutineScope: CoroutineScope,
+    taskDropCallbacks: TaskDropCallbacks,
     val binding: ItemBoardListBinding,
     private val boardListAdapter: BoardListsAdapter,
-    coroutineScope: CoroutineScope,
-    private val boardListDropCallback: DropCallback,
-    taskDropCallback: TaskDropCallbacks,
-    private val onCreateTaskListener: (Int) -> Unit,
-    private val onTaskClicked: (Task, BoardListInfo) -> Unit
+    private val callbacks: BoardListViewHolderCallbacks
 ) : RecyclerView.ViewHolder(binding.root) {
 
     companion object {
@@ -57,14 +53,14 @@ class ItemBoardListViewHolder(
         ItemBoardListViewHolder.coroutineScope = coroutineScope
 
         binding.btnCreateTask.setOnClickListener {
-            onCreateTaskListener(adapterPosition)
+            callbacks.onCreateTask(adapterPosition)
         }
 
         tasksAdapter = TasksAdapter(
             boardListAdapter.boardTags,
-            taskDropCallback,
+            taskDropCallbacks,
             onTaskClicked = { task ->
-                onTaskClicked(task, BoardListInfo(boardList!!.id, boardList!!.path))
+                callbacks.onTaskClicked(task, BoardListInfo(boardList!!.id, boardList!!.path))
             }
         )
 
