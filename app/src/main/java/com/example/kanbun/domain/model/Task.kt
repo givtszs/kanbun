@@ -20,34 +20,4 @@ data class Task(
     val members: List<String> = emptyList(), // list of user ids
     val dateStarts: Long? = null, // probably will be stored as the timestamp
     val dateEnds: Long? = null
-) : Parcelable{
-    fun getDisplayDate(context: Context): String? {
-        return when {
-            dateStarts != null && dateEnds != null ->
-                context.resources.getString(
-                    R.string.task_date,
-                    convertTimestampToDateString(DATE_TIME_FORMAT, dateStarts),
-                    convertTimestampToDateString(DATE_TIME_FORMAT, dateEnds)
-                )
-
-            dateStarts != null ->
-                context.resources.getString(
-                    R.string.date_starts,
-                    convertTimestampToDateString(
-                        DATE_TIME_FORMAT,
-                        dateStarts
-                    )
-                )
-
-            dateEnds != null -> context.resources.getString(
-                R.string.date_ends,
-                convertTimestampToDateString(
-                    DATE_TIME_FORMAT,
-                    dateEnds
-                )
-            )
-
-            else -> null
-        }
-    }
-}
+) : Parcelable

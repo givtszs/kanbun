@@ -2,6 +2,7 @@ package com.example.kanbun.ui.board.tasks_adapter
 
 import android.content.ClipData
 import android.content.ClipDescription
+import android.content.Context
 import android.util.Log
 import android.view.DragEvent
 import android.view.View
@@ -89,11 +90,42 @@ class ItemTaskViewHolder(
             tvDescription.text = task.description
 
             // set up date
-            task.getDisplayDate(itemView.context).also { date ->
+            getDisplayDate(task.dateStarts, task.dateEnds).also { date ->
                 tvDate.text = date
                 tvDate.isVisible = date != null
                 separatorHorizontal.isVisible = date != null
             }
+        }
+    }
+
+    private fun getDisplayDate(dateStarts: Long?, dateEnds: Long?): String? {
+        return when {
+            dateStarts != null && dateEnds != null ->
+                itemView.resources.getString(
+                    R.string.task_date,
+                    convertTimestampToDateString(DATE_TIME_FORMAT, dateStarts),
+                    convertTimestampToDateString(DATE_TIME_FORMAT, dateEnds)
+                )
+
+            dateStarts != null ->
+                itemView.resources.getString(
+                    R.string.date_starts,
+                    convertTimestampToDateString(
+                        DATE_TIME_FORMAT,
+                        dateStarts
+                    )
+                )
+
+            dateEnds != null ->
+                itemView.resources.getString(
+                R.string.date_ends,
+                convertTimestampToDateString(
+                    DATE_TIME_FORMAT,
+                    dateEnds
+                )
+            )
+
+            else -> null
         }
     }
 
