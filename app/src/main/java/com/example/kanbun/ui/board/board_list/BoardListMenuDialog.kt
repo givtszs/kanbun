@@ -80,7 +80,9 @@ class BoardListMenuDialog : BottomSheetDialogFragment() {
                     newName = editTextName.text.trim().toString(),
                     boardListPath = boardList.path,
                     boardListId = boardList.id
-                )
+                ) {
+                    this@BoardListMenuDialog.dismiss()
+                }
             }
             .setNegativeButton("Cancel") { _, _ ->
                 dismiss()

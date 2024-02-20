@@ -1,5 +1,6 @@
 package com.example.kanbun.ui.board.board_list
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.kanbun.common.Result
@@ -13,10 +14,19 @@ class BoardListViewModel @Inject constructor(
     private val firestoreRepository: FirestoreRepository
 ) : ViewModel() {
 
-    fun editBoardListName(newName: String, boardListPath: String, boardListId: String) =
-        viewModelScope.launch {
-            firestoreRepository.updateBoardListName(newName, boardListPath, boardListId)
+    fun editBoardListName(
+        newName: String,
+        boardListPath: String,
+        boardListId: String,
+        onSuccess: () -> Unit
+    ) = viewModelScope.launch {
+        when (val result = firestoreRepository.updateBoardListName(newName, boardListPath, boardListId)) {
+            is Result.Success -> onSuccess()
+            is Result.Error -> Log.d("BoardListViewModel", "${result.message}")
+            Result.Loading -> {}
         }
+
+    }
 
     fun deleteBoardList(
         boardListPath: String,
