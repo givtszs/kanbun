@@ -256,7 +256,7 @@ class FirestoreRepositoryImpl @Inject constructor(
     }
 
     override suspend fun createBoard(board: Board): Result<String> = runCatching {
-        val workspaceId = board.settings.workspace.id
+        val workspaceId = board.workspace.id
         firestore.collection("${FirestoreCollection.WORKSPACES.collectionName}/$workspaceId/${FirestoreCollection.BOARDS.collectionName}")
             .add(board.toFirestoreBoard())
             .getResult {
@@ -265,8 +265,8 @@ class FirestoreRepositoryImpl @Inject constructor(
                     Workspace.BoardInfo(
                         boardId = result.id,
                         workspaceId = workspaceId,
-                        name = board.settings.name,
-                        cover = board.settings.cover
+                        name = board.name,
+                        cover = board.cover
                     )
                 )
 
@@ -293,7 +293,7 @@ class FirestoreRepositoryImpl @Inject constructor(
     private suspend fun updateBoardsList(board: Board, boardListId: String): Result<Unit> =
         runCatching {
             val workspacePath =
-                "${FirestoreCollection.WORKSPACES.collectionName}/${board.settings.workspace.id}"
+                "${FirestoreCollection.WORKSPACES.collectionName}/${board.workspace.id}"
             firestore.collection("$workspacePath/${FirestoreCollection.BOARDS.collectionName}")
                 .document(board.id)
                 .update("lists", board.lists + boardListId)
@@ -305,7 +305,7 @@ class FirestoreRepositoryImpl @Inject constructor(
         board: Board
     ): Result<String> = runCatching {
         val workspacePath =
-            "${FirestoreCollection.WORKSPACES.collectionName}/${board.settings.workspace.id}"
+            "${FirestoreCollection.WORKSPACES.collectionName}/${board.workspace.id}"
         val boardPath = "${FirestoreCollection.BOARDS.collectionName}/${board.id}"
         firestore.collection("$workspacePath/$boardPath/${FirestoreCollection.BOARD_LIST.collectionName}")
             .add(boardList.toFirestoreBoardList())

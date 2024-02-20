@@ -116,14 +116,11 @@ class FirestoreTestUtil {
 
         fun createBoard(userId: String, workspace: User.WorkspaceInfo, name: String): Board =
             Board(
+                name = name,
                 description = "Simple description",
                 owner = userId,
-                settings = Board.BoardSettings(
-                    name = name,
-                    workspace = workspace,
-                    cover = null,
-                    members = listOf(Board.BoardMember(userId, BoardRole.ADMIN))
-                )
+                workspace = workspace,
+                members = listOf(Board.BoardMember(userId, BoardRole.ADMIN))
             )
 
         fun createBoardList(name: String, position: Int): BoardList =

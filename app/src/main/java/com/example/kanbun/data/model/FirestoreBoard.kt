@@ -1,11 +1,12 @@
 package com.example.kanbun.data.model
 
-import com.example.kanbun.domain.model.Tag
-
 data class FirestoreBoard(
+    val name: String = "",
     val description: String = "",
     val owner: String = "",
-    val settings: Map<String, Any?> = emptyMap(),
+    val workspace: Map<String, String> = emptyMap(),
+    val cover: String? = null,
     val lists: List<String> = emptyList(),
+    val members: Map<String, String> = emptyMap(),
     val tags: Map<String, FirestoreTag> = emptyMap()
 )

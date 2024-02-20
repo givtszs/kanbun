@@ -293,13 +293,8 @@ class FirestoreRepositoryTest {
 
     @Test
     fun createBoard_addsBoardEntryInFirestore() = runBlocking {
-        val user = FirestoreTestUtil.createUser("user")
-        repository.createUser(user)
-        var workspace = FirestoreTestUtil.createWorkspace(user.id, "Workspace").run {
-            this.copy(
-                id = (repository.createWorkspace(this) as Result.Success).data
-            )
-        }
+        val user = createUser("user1")
+        var workspace = createWorkspace(user.id, "workspace1")
 
         var board = FirestoreTestUtil.createBoard(
             user.id,
@@ -313,9 +308,6 @@ class FirestoreRepositoryTest {
 
         val resultId = (result as Result.Success).data
         board = board.copy(id = resultId)
-
-        assertThat(resultId).isNotEmpty()
-
         workspace = (repository.getWorkspace(workspace.id) as Result.Success).data
 
         assertThat(workspace.boards).isNotEmpty()
@@ -324,30 +316,12 @@ class FirestoreRepositoryTest {
 
     @Test
     fun getBoard_withValidArgs_returnsBoard() = runBlocking {
-        val user = FirestoreTestUtil.createUser("user").also {
-            repository.createUser(it)
-        }
+        val board = createBoard("board1")
+        val result = repository.getBoard(board.id, board.workspace.id)
 
-        var workspace = FirestoreTestUtil.createWorkspace(user.id, "Workspace").run {
-            this.copy(
-                id = (repository.createWorkspace(this) as Result.Success).data
-            )
-        }
+        assertThat(result).isInstanceOf(Result.Success::class.java)
 
-        val board = FirestoreTestUtil.createBoard(
-            user.id,
-            User.WorkspaceInfo(workspace.id, workspace.name),
-            "Board 1"
-        ).run {
-            val boardId = (repository.createBoard(this) as Result.Success).data
-            this.copy(id = boardId)
-        }
-
-        val resultGet = repository.getBoard(workspace.id, board.id)
-
-        assertThat(resultGet).isInstanceOf(Result.Success::class.java)
-
-        val resultBoard = (resultGet as Result.Success).data
+        val resultBoard = (result as Result.Success).data
 
         assertThat(resultBoard).isEqualTo(board)
     }
@@ -422,7 +396,7 @@ class FirestoreRepositoryTest {
 
         assertThat(result).isResultSuccess()
 
-        val updBoard = (repository.getBoard(board.id, board.settings.workspace.id) as Result.Success).data
+        val updBoard = (repository.getBoard(board.id, board.workspace.id) as Result.Success).data
 
         assertThat(updBoard.lists.contains(boardList.id)).isFalse()
     }
@@ -483,7 +457,7 @@ class FirestoreRepositoryTest {
            id = (resultCreate as Result.Success).data
        )
 
-        val boardListFlow = repository.getBoardListsStream(board.id, board.settings.workspace.id).take(2) // take 2 because first result is Result.Loading
+        val boardListFlow = repository.getBoardListsStream(board.id, board.workspace.id).take(2) // take 2 because first result is Result.Loading
         val listResults = mutableListOf<Result<List<BoardList>>>().apply {
             boardListFlow.collectLatest { this.add(it) }
         }
@@ -604,10 +578,10 @@ class FirestoreRepositoryTest {
     @Test
     fun getTags_getsListOfTags() = runBlocking {
         val board = createBoard("board1")
-        val tag1 = createTag("Tag1", "FF0000", board.id, board.settings.workspace.id)
-        val tag2 = createTag("Tag2", "FFA500", board.id, board.settings.workspace.id)
+        val tag1 = createTag("Tag1", "FF0000", board.id, board.workspace.id)
+        val tag2 = createTag("Tag2", "FFA500", board.id, board.workspace.id)
 
-        val result = repository.getTags(board.id, board.settings.workspace.id)
+        val result = repository.getTags(board.id, board.workspace.id)
 
         assertThat(result).isInstanceOf(Result.Success::class.java)
 
@@ -619,7 +593,7 @@ class FirestoreRepositoryTest {
     @Test
     fun getTaskTags_getsTagsForTheTask() = runBlocking {
         val board = createBoard("board1")
-        val workspaceId = board.settings.workspace.id
+        val workspaceId = board.workspace.id
         val boardList = createBoardList("list1", 0, board)
         var task = createTask("task1", 0, boardList)
         val tag1 = createTag("Tag 1", "#FFFFFF", board.id, workspaceId)
@@ -721,7 +695,7 @@ class FirestoreRepositoryTest {
         return FirestoreTestUtil.createBoardList(name, position).run {
             copy(
                 id = (repository.createBoardList(this, board) as Result.Success).data,
-                path = "${FirestoreCollection.WORKSPACES.collectionName}/${board.settings.workspace.id}" +
+                path = "${FirestoreCollection.WORKSPACES.collectionName}/${board.workspace.id}" +
                         "/${FirestoreCollection.BOARDS.collectionName}/${board.id}" +
                         "/${FirestoreCollection.BOARD_LIST.collectionName}"
             )
@@ -733,7 +707,7 @@ class FirestoreRepositoryTest {
         return FirestoreTestUtil.createBoardList(name, position).run {
             copy(
                 id = (repository.createBoardList(this, board) as Result.Success).data,
-                path = "${FirestoreCollection.WORKSPACES.collectionName}/${board.settings.workspace.id}" +
+                path = "${FirestoreCollection.WORKSPACES.collectionName}/${board.workspace.id}" +
                         "/${FirestoreCollection.BOARDS.collectionName}/${board.id}" +
                         "/${FirestoreCollection.BOARD_LIST.collectionName}"
             )

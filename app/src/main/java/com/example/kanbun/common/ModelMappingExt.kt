@@ -110,9 +110,15 @@ fun FirestoreWorkspace.toWorkspace(workspaceId: String): Workspace =
 
 fun Board.toFirestoreBoard(): FirestoreBoard =
     FirestoreBoard(
+        name = name,
         description = description,
         owner = owner,
-        settings = settings.toFirestoreBoardSettings(),
+        workspace = mapOf(
+            "id" to workspace.id,
+            "name" to workspace.name
+        ),
+        cover = cover,
+        members = members.toFirestoreBoardMembers(),
         lists = lists,
         tags = tags.toFirestoreTags()
     )
@@ -122,40 +128,34 @@ fun List<Tag>.toFirestoreTags(): Map<String, FirestoreTag> =
         tag.id to tag.toFirestoreTag()
     }
 
-fun Board.BoardSettings.toFirestoreBoardSettings(): Map<String, Any?> =
-    mapOf(
-        "name" to name,
-        "workspace" to mapOf("id" to workspace.id, "name" to workspace.name),
-        "cover" to cover,
-        "members" to members.associate { member ->
-            member.id to member.role.roleName
-        }
-    )
+fun List<Board.BoardMember>.toFirestoreBoardMembers() =
+    associate { member ->
+        member.id to member.role.roleName
+    }
 
 fun FirestoreBoard.toBoard(boardId: String): Board =
     Board(
         id = boardId,
+        name = name,
         description = description,
         owner = owner,
-        settings = Board.BoardSettings(
-            name = settings["name"] as String,
-            workspace = (settings["workspace"] as Map<String, String>).run {
-                User.WorkspaceInfo(id = this["id"]!!, name = this["name"]!!)
-            },
-            cover = settings["cover"] as String?,
-            members = (settings["members"] as Map<String, String>).map { entry ->
-                Board.BoardMember(
-                    id = entry.key,
-                    role = BoardRole.entries.first { it.roleName == entry.value })
-            }
+        workspace = User.WorkspaceInfo(
+            id = workspace["id"] as String,
+            name = workspace["name"] as String
         ),
+        cover = cover,
+        members = members.map { entry ->
+            Board.BoardMember(
+                id = entry.key,
+                role = BoardRole.entries.first { it.roleName == entry.value })
+        },
         lists = lists,
         tags = tags.toTags()
     )
 
 fun Map<String, FirestoreTag>.toTags(): List<Tag> =
     map { entry ->
-       entry.value.toTag(entry.key)
+        entry.value.toTag(entry.key)
     }
 
 fun BoardList.toFirestoreBoardList(): FirestoreBoardList =

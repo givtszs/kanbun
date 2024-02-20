@@ -132,12 +132,10 @@ class UserBoardsViewModel @Inject constructor(
 
         firestoreRepository.createBoard(
             Board(
+                name = name,
                 owner = userId,
-                settings = Board.BoardSettings(
-                    name = name,
-                    workspace = User.WorkspaceInfo(workspace.id, workspace.name),
-                    members = listOf(Board.BoardMember(id = userId, role = BoardRole.ADMIN))
-                )
+                workspace = User.WorkspaceInfo(workspace.id, workspace.name),
+                members = listOf(Board.BoardMember(id = userId, role = BoardRole.ADMIN))
             ),
         )
         selectWorkspace(workspace.id)

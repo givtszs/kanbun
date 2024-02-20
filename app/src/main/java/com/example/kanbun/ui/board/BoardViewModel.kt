@@ -39,7 +39,7 @@ class BoardViewModel @Inject constructor(
     private var _boardLists: Flow<Result<List<BoardList>>> = _board.flatMapLatest { board ->
         firestoreRepository.getBoardListsStream(
             boardId = board.id,
-            workspaceId = board.settings.workspace.id
+            workspaceId = board.workspace.id
         )
     }
 
@@ -99,7 +99,7 @@ class BoardViewModel @Inject constructor(
             boardList = BoardList(
                 name = listName,
                 position = _board.value.lists.size.toLong(),
-                path = "${FirestoreCollection.WORKSPACES.collectionName}/${board.settings.workspace.id}" +
+                path = "${FirestoreCollection.WORKSPACES.collectionName}/${board.workspace.id}" +
                         "/${FirestoreCollection.BOARDS.collectionName}/${board.id}" +
                         "/${FirestoreCollection.BOARD_LIST.collectionName}"
             ),
@@ -109,7 +109,7 @@ class BoardViewModel @Inject constructor(
         // update board
         getBoard(
             boardId = _board.value.id,
-            workspaceId = _board.value.settings.workspace.id
+            workspaceId = _board.value.workspace.id
         )
     }
 
@@ -192,7 +192,7 @@ class BoardViewModel @Inject constructor(
         to: Int
     ) = viewModelScope.launch {
         if (from != to && to != -1) {
-            val workspacePath = "${FirestoreCollection.WORKSPACES.collectionName}/${_board.value.settings.workspace.id}"
+            val workspacePath = "${FirestoreCollection.WORKSPACES.collectionName}/${_board.value.workspace.id}"
             val boardPath = "${FirestoreCollection.BOARDS.collectionName}/${_board.value.id}"
             val listsPath = "$workspacePath/$boardPath/${FirestoreCollection.BOARD_LIST.collectionName}"
             firestoreRepository.rearrangeBoardListsPositions(
