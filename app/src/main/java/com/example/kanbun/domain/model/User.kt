@@ -10,10 +10,4 @@ data class User(
     val authProvider: AuthProvider,
     val workspaces: List<WorkspaceInfo>,
     val cards: List<String>
-) {
-    data class WorkspaceInfo(
-        val id: String = "",
-        val name: String = ""
-    )
-}
-
+)

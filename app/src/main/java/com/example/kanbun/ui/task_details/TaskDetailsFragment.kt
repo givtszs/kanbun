@@ -27,7 +27,6 @@ import com.example.kanbun.ui.BaseFragment
 import com.example.kanbun.ui.StateHandler
 import com.example.kanbun.ui.ViewState
 import com.example.kanbun.ui.board.common_adapters.TagsAdapter
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -145,13 +144,14 @@ class TaskDetailsFragment : BaseFragment(), StateHandler {
             override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
                 menuInflater.inflate(R.menu.task_details_menu, menu)
                 if (menu is MenuBuilder) {
+                    // display icon in the options menu list
                     menu.setOptionalIconsVisible(true)
                 }
             }
 
             override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
                 return when (menuItem.itemId) {
-                    R.id.item_delete -> {
+                    R.id.menu_item_delete -> {
                         viewModel.deleteTask(
                             task = args.task,
                             boardListInfo = args.boardListInfo,

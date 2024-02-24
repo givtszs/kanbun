@@ -164,6 +164,7 @@
 
     <include
         android:id="@+id/loading"
+        android:visibility="invisible"
         layout="@layout/loading_state"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />

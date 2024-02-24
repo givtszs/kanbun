@@ -59,7 +59,7 @@ class UserBoardsFragment : BaseFragment(), StateHandler {
 
         override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
             return when (menuItem.itemId) {
-                R.id.workspace_settings -> {
+                R.id.menu_item_settings -> {
                     Log.d(
                         TAG,
                         "onMenuItemSelected: workspace_settings: workspace: ${viewModel.userBoardsState.value.currentWorkspace}"

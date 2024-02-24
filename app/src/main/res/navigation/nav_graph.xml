@@ -28,7 +28,7 @@
     <fragment
         android:id="@+id/registrationPromptFragment"
         android:name="com.example.kanbun.ui.registration.promt.RegistrationPromptFragment"
-        tools:layout="@layout/fragment_registration_prompt"/>
+        tools:layout="@layout/fragment_registration_prompt" />
     <fragment
         android:id="@+id/signUpFragment"
         android:name="com.example.kanbun.ui.registration.sign_up.SignUpFragment"
@@ -61,7 +61,7 @@
         android:id="@+id/emailVerificationFragment"
         android:name="com.example.kanbun.ui.registration.email_verification.EmailVerificationFragment"
         android:label="Email verification"
-        tools:layout="@layout/fragment_email_verification"/>
+        tools:layout="@layout/fragment_email_verification" />
     <fragment
         android:id="@+id/userBoardsFragment"
         android:name="com.example.kanbun.ui.user_boards.UserBoardsFragment"
@@ -90,17 +90,17 @@
     <fragment
         android:id="@+id/workspaceSettingsFragment"
         android:name="com.example.kanbun.ui.workspace_settings.WorkspaceSettingsFragment"
-        tools:layout="@layout/fragment_workspace_settings"
-        android:label="@string/workspace_settings" >
+        android:label="@string/workspace_settings"
+        tools:layout="@layout/fragment_workspace_settings">
         <argument
             android:name="workspace"
             app:argType="com.example.kanbun.domain.model.Workspace" />
     </fragment>
     <fragment
-        tools:layout="@layout/fragment_board"
         android:id="@+id/boardFragment"
         android:name="com.example.kanbun.ui.board.BoardFragment"
-        android:label="">
+        android:label=""
+        tools:layout="@layout/fragment_board">
         <argument
             android:name="boardInfo"
             app:argType="com.example.kanbun.domain.model.Workspace$BoardInfo" />
@@ -110,12 +110,15 @@
         <action
             android:id="@+id/action_boardFragment_to_createTaskFragment"
             app:destination="@id/createTaskFragment" />
+        <action
+            android:id="@+id/action_boardFragment_to_boardSettingsFragment"
+            app:destination="@id/boardSettingsFragment" />
     </fragment>
     <fragment
         android:id="@+id/taskDetailsFragment"
         android:name="com.example.kanbun.ui.task_details.TaskDetailsFragment"
-        tools:layout="@layout/fragment_task_details"
-        android:label="Task details" >
+        android:label="Task details"
+        tools:layout="@layout/fragment_task_details">
         <argument
             android:name="task"
             app:argType="com.example.kanbun.domain.model.Task" />
@@ -127,10 +130,10 @@
             app:argType="com.example.kanbun.domain.model.BoardListInfo" />
     </fragment>
     <fragment
-        tools:layout="@layout/fragment_create_task"
         android:id="@+id/createTaskFragment"
         android:name="com.example.kanbun.ui.create_task.CreateTaskFragment"
-        android:label="" >
+        android:label=""
+        tools:layout="@layout/fragment_create_task">
         <argument
             android:name="actionType"
             app:argType="com.example.kanbun.common.TaskAction" />
@@ -144,5 +147,14 @@
         <argument
             android:name="boardListInfo"
             app:argType="com.example.kanbun.domain.model.BoardListInfo" />
+    </fragment>
+    <fragment
+        android:id="@+id/boardSettingsFragment"
+        android:name="com.example.kanbun.ui.board_settings.BoardSettingsFragment"
+        android:label="BoardSettingsFragment"
+        tools:layout="@layout/fragment_board_settings" >
+        <argument
+            android:name="board"
+            app:argType="com.example.kanbun.domain.model.Board" />
     </fragment>
 </navigation>

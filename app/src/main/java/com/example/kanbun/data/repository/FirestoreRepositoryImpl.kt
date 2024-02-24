@@ -11,9 +11,9 @@ import com.example.kanbun.common.toFirestoreBoard
 import com.example.kanbun.common.toFirestoreBoardInfo
 import com.example.kanbun.common.toFirestoreBoardList
 import com.example.kanbun.common.toFirestoreTag
+import com.example.kanbun.common.toFirestoreTask
 import com.example.kanbun.common.toFirestoreUser
 import com.example.kanbun.common.toFirestoreWorkspace
-import com.example.kanbun.common.toFirestoreTask
 import com.example.kanbun.common.toUser
 import com.example.kanbun.common.toWorkspace
 import com.example.kanbun.data.model.FirestoreBoard
@@ -25,6 +25,7 @@ import com.example.kanbun.domain.model.BoardList
 import com.example.kanbun.domain.model.Tag
 import com.example.kanbun.domain.model.User
 import com.example.kanbun.domain.model.Workspace
+import com.example.kanbun.domain.model.WorkspaceInfo
 import com.example.kanbun.domain.repository.FirestoreRepository
 import com.google.android.gms.tasks.Task
 import com.google.firebase.firestore.CollectionReference
@@ -32,7 +33,6 @@ import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
 import kotlinx.coroutines.channels.awaitClose
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
@@ -104,7 +104,7 @@ class FirestoreRepositoryImpl @Inject constructor(
 
     private suspend fun addWorkspaceInfoToUser(
         userId: String,
-        workspaceInfo: User.WorkspaceInfo
+        workspaceInfo: WorkspaceInfo
     ): Result<Unit> =
         runCatching {
             firestore.collection(FirestoreCollection.USERS.collectionName)
@@ -129,7 +129,7 @@ class FirestoreRepositoryImpl @Inject constructor(
                     // add the newly create workspace into the user's workspaces
                     val res = addWorkspaceInfoToUser(
                         workspace.owner,
-                        User.WorkspaceInfo(result.id, workspace.name)
+                        WorkspaceInfo(result.id, workspace.name)
                     )
 
                     if (res is Result.Error) {
@@ -226,7 +226,7 @@ class FirestoreRepositoryImpl @Inject constructor(
         // update user's workspaces
         val userUpdateResult = addWorkspaceInfoToUser(
             user.id,
-            User.WorkspaceInfo(workspace.id, workspace.name)
+            WorkspaceInfo(workspace.id, workspace.name)
         )
 
         if (userUpdateResult is Result.Error) {

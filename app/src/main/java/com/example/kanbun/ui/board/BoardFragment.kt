@@ -6,9 +6,14 @@ import android.os.Bundle
 import android.util.Log
 import android.view.DragEvent
 import android.view.LayoutInflater
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
+import androidx.core.view.MenuHost
+import androidx.core.view.MenuProvider
 import androidx.core.view.isVisible
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.viewModels
@@ -18,6 +23,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.PagerSnapHelper
 import androidx.recyclerview.widget.RecyclerView
+import com.example.kanbun.R
 import com.example.kanbun.common.HORIZONTAL_SCROLL_DISTANCE
 import com.example.kanbun.common.TaskAction
 import com.example.kanbun.common.moshi
@@ -72,6 +78,7 @@ class BoardFragment : BaseFragment(), StateHandler {
         super.onViewCreated(view, savedInstanceState)
         setUpActionBar(binding.topAppBar.toolbar, boardInfo.name)
         setUpBoardListsAdapter()
+        setUpMenu()
         collectState()
         lifecycleScope.launch {
             viewModel.getBoard(boardInfo.boardId, boardInfo.workspaceId)
@@ -264,6 +271,31 @@ class BoardFragment : BaseFragment(), StateHandler {
                 }
             }
             .show()
+    }
+
+    private fun setUpMenu() {
+        (requireActivity() as MenuHost).addMenuProvider(
+            object : MenuProvider {
+                override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+                    menuInflater.inflate(R.menu.board_menu, menu)
+                }
+
+                override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+                    return when (menuItem.itemId) {
+                        R.id.menu_item_settings -> {
+                            navController.navigate(
+                                BoardFragmentDirections.actionBoardFragmentToBoardSettingsFragment(
+                                    viewModel.boardState.value.board
+                                )
+                            )
+                            true
+                        }
+
+                        else -> false
+                    }
+                }
+            }, viewLifecycleOwner, Lifecycle.State.RESUMED
+        )
     }
 
     override fun collectState() {

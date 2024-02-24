@@ -10,8 +10,8 @@ import com.example.kanbun.domain.model.Tag
 import com.example.kanbun.domain.model.Task
 import com.example.kanbun.domain.model.User
 import com.example.kanbun.domain.model.Workspace
+import com.example.kanbun.domain.model.WorkspaceInfo
 import com.google.common.truth.Subject
-import com.google.common.truth.Truth
 import com.google.common.truth.Truth.assertThat
 import com.google.firebase.firestore.FieldValue
 import kotlinx.coroutines.flow.collectLatest
@@ -298,7 +298,7 @@ class FirestoreRepositoryTest {
 
         var board = FirestoreTestUtil.createBoard(
             user.id,
-            User.WorkspaceInfo(workspace.id, workspace.name),
+            WorkspaceInfo(workspace.id, workspace.name),
             "Board 1"
         )
 
@@ -340,7 +340,7 @@ class FirestoreRepositoryTest {
 
         var board = FirestoreTestUtil.createBoard(
             user.id,
-            User.WorkspaceInfo(workspace.id, workspace.name),
+            WorkspaceInfo(workspace.id, workspace.name),
             "Board 1"
         ).run {
             this.copy(
@@ -415,7 +415,7 @@ class FirestoreRepositoryTest {
 
         val board = FirestoreTestUtil.createBoard(
             user.id,
-            User.WorkspaceInfo(workspace.id, workspace.name),
+            WorkspaceInfo(workspace.id, workspace.name),
             "Board 1"
         ).run {
             this.copy(
@@ -562,7 +562,7 @@ class FirestoreRepositoryTest {
     fun createTag_createsNewTag() = runBlocking {
         val user = createUser("user1")
         val workspace = createWorkspace(user.id, "workspace")
-        val board = createBoard(user.id, User.WorkspaceInfo(workspace.id, workspace.name), "board")
+        val board = createBoard(user.id, WorkspaceInfo(workspace.id, workspace.name), "board")
         val tag = FirestoreTestUtil.createTag("Green", "43ff64")
 
         val result = repository.createTag(
@@ -675,7 +675,7 @@ class FirestoreRepositoryTest {
 
     private suspend fun createBoard(
         userId: String,
-        workspaceInfo: User.WorkspaceInfo,
+        workspaceInfo: WorkspaceInfo,
         name: String
     ): Board {
         return FirestoreTestUtil.createBoard(userId, workspaceInfo, name).run {
@@ -688,7 +688,7 @@ class FirestoreRepositoryTest {
     private suspend fun createBoard(name: String): Board {
         val user = createUser("user1")
         val workspace = createWorkspace(user.id, "workspace")
-        return createBoard(user.id, User.WorkspaceInfo(workspace.id, workspace.name), name)
+        return createBoard(user.id, WorkspaceInfo(workspace.id, workspace.name), name)
     }
 
     private suspend fun createBoardList(name: String, position: Int, board: Board): BoardList {

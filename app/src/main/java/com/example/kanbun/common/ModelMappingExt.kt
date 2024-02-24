@@ -8,11 +8,11 @@ import com.example.kanbun.data.model.FirestoreUser
 import com.example.kanbun.data.model.FirestoreWorkspace
 import com.example.kanbun.domain.model.Board
 import com.example.kanbun.domain.model.BoardList
-import com.example.kanbun.domain.model.BoardListInfo
 import com.example.kanbun.domain.model.Tag
 import com.example.kanbun.domain.model.Task
 import com.example.kanbun.domain.model.User
 import com.example.kanbun.domain.model.Workspace
+import com.example.kanbun.domain.model.WorkspaceInfo
 import com.google.firebase.auth.FirebaseUser
 
 fun User.toFirestoreUser(): FirestoreUser =
@@ -25,7 +25,7 @@ fun User.toFirestoreUser(): FirestoreUser =
         cards = cards
     )
 
-fun List<User.WorkspaceInfo>.toFirestoreWorkspaces(): Map<String, String> =
+fun List<WorkspaceInfo>.toFirestoreWorkspaces(): Map<String, String> =
     associate { workspace ->
         workspace.id to workspace.name
     }
@@ -38,7 +38,7 @@ fun FirestoreUser.toUser(userId: String): User =
         profilePicture = profilePicture,
         authProvider = AuthProvider.entries.first { it.providerId == authProvider },
         workspaces = workspaces.map { entry ->
-            User.WorkspaceInfo(
+            WorkspaceInfo(
                 id = entry.key,
                 name = entry.value
             )
@@ -139,7 +139,7 @@ fun FirestoreBoard.toBoard(boardId: String): Board =
         name = name,
         description = description,
         owner = owner,
-        workspace = User.WorkspaceInfo(
+        workspace = WorkspaceInfo(
             id = workspace["id"] as String,
             name = workspace["name"] as String
         ),

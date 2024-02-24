@@ -12,6 +12,7 @@ import com.example.kanbun.data.local.PreferenceDataStoreKeys
 import com.example.kanbun.domain.model.Board
 import com.example.kanbun.domain.model.User
 import com.example.kanbun.domain.model.Workspace
+import com.example.kanbun.domain.model.WorkspaceInfo
 import com.example.kanbun.domain.repository.FirestoreRepository
 import com.example.kanbun.domain.utils.ConnectivityChecker
 import com.example.kanbun.ui.BaseViewModel
@@ -40,7 +41,8 @@ class UserBoardsViewModel @Inject constructor(
     private val dataStore: PreferenceDataStoreHelper
 ) : BaseViewModel() {
 
-    private val _user = firestoreRepository.getUserStream(firebaseUser?.uid ?: "").distinctUntilChanged()
+    private val _user =
+        firestoreRepository.getUserStream(firebaseUser?.uid ?: "").distinctUntilChanged()
     private val _currentWorkspace = MutableStateFlow<Workspace?>(null)
     private val _isLoading = MutableStateFlow(true)
     private val _message = MutableStateFlow<String?>(null)
@@ -107,19 +109,25 @@ class UserBoardsViewModel @Inject constructor(
             is Result.Success -> {
                 _currentWorkspace.value = result.data
                 _isLoading.value = false
-                dataStore.setPreference(PreferenceDataStoreKeys.CURRENT_WORKSPACE_ID, result.data.id)
+                dataStore.setPreference(
+                    PreferenceDataStoreKeys.CURRENT_WORKSPACE_ID,
+                    result.data.id
+                )
             }
+
             is Result.Error -> {
                 _message.value = result.message
                 _isLoading.value = false
                 _currentWorkspace.value = null
             }
+
             is Result.Loading -> _isLoading.value = true
         }
     }
 
     fun getCurrentWorkspace() = viewModelScope.launch {
-        val workspaceId = dataStore.getPreferenceFirst(PreferenceDataStoreKeys.CURRENT_WORKSPACE_ID, "")
+        val workspaceId =
+            dataStore.getPreferenceFirst(PreferenceDataStoreKeys.CURRENT_WORKSPACE_ID, "")
         Log.d("UserBoardsViewModel", "getCurrentWorkspace: $workspaceId")
         selectWorkspace(workspaceId)
     }
@@ -134,7 +142,7 @@ class UserBoardsViewModel @Inject constructor(
             Board(
                 name = name,
                 owner = userId,
-                workspace = User.WorkspaceInfo(workspace.id, workspace.name),
+                workspace = WorkspaceInfo(workspace.id, workspace.name),
                 members = listOf(Board.BoardMember(id = userId, role = BoardRole.ADMIN))
             ),
         )
