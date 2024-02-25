@@ -76,4 +76,9 @@ sealed class ViewState {
             val profilePicture: String? = null
         )
     }
+
+    data class BoardSettingsViewState(
+        val isLoading: Boolean = false,
+        val message: String? = null
+    ) : ViewState()
 }

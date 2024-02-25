@@ -112,7 +112,8 @@
             app:destination="@id/createTaskFragment" />
         <action
             android:id="@+id/action_boardFragment_to_boardSettingsFragment"
-            app:destination="@id/boardSettingsFragment" />
+            app:destination="@id/boardSettingsFragment"
+            app:popUpTo="@id/userBoardsFragment" />
     </fragment>
     <fragment
         android:id="@+id/taskDetailsFragment"

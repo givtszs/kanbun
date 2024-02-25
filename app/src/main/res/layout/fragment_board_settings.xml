@@ -90,11 +90,10 @@
             android:id="@+id/rvMembers"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="6dp"
             android:clipToPadding="false"
             android:orientation="horizontal"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-            app:layout_constraintTop_toBottomOf="@id/tvMembers"
+            app:layout_constraintTop_toBottomOf="@id/btnViewAllMembers"
             tools:listitem="@layout/item_user_profile_pic" />
 
         <com.google.android.material.button.MaterialButton
@@ -102,7 +101,6 @@
             style="@style/Widget.Material3.Button.TextButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:minHeight="0dp"
             android:paddingVertical="0dp"
             android:text="@string/action_view_all"
             android:textColor="@color/black"
@@ -126,11 +124,10 @@
             android:id="@+id/rvTags"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="6dp"
             android:clipToPadding="false"
             android:orientation="horizontal"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-            app:layout_constraintTop_toBottomOf="@id/tvTags"
+            app:layout_constraintTop_toBottomOf="@id/btnEditTags"
             tools:listitem="@layout/item_task_tag_big" />
 
         <com.google.android.material.button.MaterialButton
@@ -138,7 +135,6 @@
             style="@style/Widget.Material3.Button.TextButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:minHeight="0dp"
             android:paddingVertical="0dp"
             android:text="@string/action_edit_tags"
             android:textColor="@color/black"
@@ -152,10 +148,9 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="24dp"
-            android:minWidth="0dp"
-            android:minHeight="0dp"
             android:paddingHorizontal="0dp"
             android:text="@string/action_delete"
+            android:minWidth="70dp"
             android:textColor="@color/dark_red"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/rvTags" />

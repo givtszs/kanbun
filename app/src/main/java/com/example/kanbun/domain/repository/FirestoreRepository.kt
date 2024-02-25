@@ -46,6 +46,10 @@ interface FirestoreRepository {
 
     suspend fun getBoard(boardId: String, workspaceId: String): Result<Board>
 
+    suspend fun updateBoard(board: Board): Result<Unit>
+
+    suspend fun deleteBoard(boardId: String, workspaceId: String): Result<Unit>
+
     suspend fun createBoardList(boardList: BoardList, board: Board): Result<String>
 
     suspend fun getBoardList(boardListPath: String, boardListId: String): Result<BoardList>

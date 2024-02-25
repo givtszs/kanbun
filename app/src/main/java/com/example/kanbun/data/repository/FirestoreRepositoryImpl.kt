@@ -290,6 +290,59 @@ class FirestoreRepositoryImpl @Inject constructor(
                 }
         }
 
+    private suspend fun updateWorkspaceBoard(board: Board) {
+        firestore
+            .collection(FirestoreCollection.WORKSPACES.collectionName)
+            .document(board.workspace.id)
+            .update(
+                "boards.${board.id}",
+                mapOf(
+                    "cover" to board.cover,
+                    "name" to board.name
+                )
+            )
+            .await()
+    }
+
+    override suspend fun updateBoard(board: Board): Result<Unit> = runCatching {
+        firestore
+            .collection(
+                "${FirestoreCollection.WORKSPACES.collectionName}/${board.workspace.id}" +
+                        "/${FirestoreCollection.BOARDS.collectionName}"
+            )
+            .document(board.id)
+            .set(board.toFirestoreBoard())
+            .getResult {
+                updateWorkspaceBoard(board)
+            }
+    }
+
+    private suspend fun deleteWorkspaceBoard(
+        workspaceId: String,
+        boardId: String
+    ) {
+        firestore.collection(FirestoreCollection.WORKSPACES.collectionName)
+            .document(workspaceId)
+            .update("boards.${boardId}", FieldValue.delete())
+            .await()
+    }
+
+    override suspend fun deleteBoard(
+        boardId: String,
+        workspaceId: String
+    ): Result<Unit> = runCatching {
+        firestore
+            .collection(
+                "${FirestoreCollection.WORKSPACES.collectionName}/$workspaceId/" +
+                        "${FirestoreCollection.BOARDS.collectionName}"
+            )
+            .document(boardId)
+            .delete()
+            .getResult {
+                deleteWorkspaceBoard(workspaceId, boardId)
+            }
+    }
+
     private suspend fun updateBoardsList(board: Board, boardListId: String): Result<Unit> =
         runCatching {
             val workspacePath =

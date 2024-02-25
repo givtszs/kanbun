@@ -6,4 +6,6 @@ import com.google.firebase.ktx.Firebase
 
 abstract class BaseViewModel : ViewModel() {
     val firebaseUser = Firebase.auth.currentUser
+
+    // TODO: add toast message handling functions
 }

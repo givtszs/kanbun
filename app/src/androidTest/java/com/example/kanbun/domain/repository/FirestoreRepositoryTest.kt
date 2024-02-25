@@ -327,6 +327,33 @@ class FirestoreRepositoryTest {
     }
 
     @Test
+    fun updateBoard_updatesBoardValues() = runBlocking {
+        val board = createBoard("board1")
+        val newBoard = FirestoreTestUtil.createBoard(board.owner, board.workspace, "Updated name").run {
+            copy(id = board.id)
+        }
+        val result = repository.updateBoard(newBoard)
+
+        assertThat(result).isResultSuccess()
+
+        val updBoard = (repository.getBoard(newBoard.id, newBoard.workspace.id) as Result.Success).data
+
+        assertThat(updBoard).isEqualTo(newBoard)
+    }
+
+    @Test
+    fun deleteBoard_deletesBoard() = runBlocking {
+        val board = createBoard("board1")
+        val result = repository.deleteBoard(board.id, board.workspace.id)
+
+        assertThat(result).isResultSuccess()
+
+        val updWorkspace = (repository.getWorkspace(board.workspace.id) as Result.Success).data
+
+        assertThat(updWorkspace.boards.any { it.boardId == board.id }).isFalse()
+    }
+
+    @Test
     fun createBoardList_createsDocumentInTheListsSubcollection() = runBlocking {
         val user = FirestoreTestUtil.createUser("user").also {
             repository.createUser(it)

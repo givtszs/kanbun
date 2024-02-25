@@ -10,6 +10,7 @@ import com.example.kanbun.domain.model.Tag
 import com.example.kanbun.domain.model.Task
 import com.example.kanbun.domain.model.User
 import com.example.kanbun.domain.model.Workspace
+import com.example.kanbun.domain.model.WorkspaceInfo
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.firestoreSettings
 import com.google.firebase.firestore.ktx.firestore
@@ -80,7 +81,7 @@ class FirestoreTestUtil {
             name = "Test",
             profilePicture = null, // TODO("Change to URL string")
             authProvider = AuthProvider.GOOGLE,
-            workspaces = listOf(User.WorkspaceInfo("workspace1", "Test Workspace 1")),
+            workspaces = listOf(WorkspaceInfo("workspace1", "Test Workspace 1")),
             cards = emptyList() // TODO("Change to list of cards or whatever")
         )
 
@@ -114,7 +115,7 @@ class FirestoreTestUtil {
                 boards = emptyList()
             )
 
-        fun createBoard(userId: String, workspace: User.WorkspaceInfo, name: String): Board =
+        fun createBoard(userId: String, workspace: WorkspaceInfo, name: String): Board =
             Board(
                 name = name,
                 description = "Simple description",
