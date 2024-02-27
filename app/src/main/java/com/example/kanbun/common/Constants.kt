@@ -39,11 +39,6 @@ object ToastMessage {
     const val WORKSPACE_CREATED = "Workspace has been created"
 }
 
-object BoardListsAdapterViewType {
-    const val VIEW_TYPE_LIST = 0
-    const val VIEW_TYPE_CREATE_LIST = 1
-}
-
 enum class TaskAction {
     ACTION_CREATE,
     ACTION_EDIT

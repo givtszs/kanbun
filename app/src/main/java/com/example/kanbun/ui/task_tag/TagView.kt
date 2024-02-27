@@ -19,7 +19,6 @@ class TagView @JvmOverloads constructor(
     private var cardTag: MaterialCardView
     private var tvTag: TextView
 
-
     init {
         if (isBig) {
             LayoutInflater.from(context).inflate(R.layout.item_task_tag_big, this, true)

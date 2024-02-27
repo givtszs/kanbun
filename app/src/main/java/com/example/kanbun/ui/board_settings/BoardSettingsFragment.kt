@@ -6,10 +6,13 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.navArgs
+import com.example.kanbun.R
 import com.example.kanbun.databinding.FragmentBoardSettingsBinding
 import com.example.kanbun.domain.model.Board
 import com.example.kanbun.ui.BaseFragment
+import com.example.kanbun.ui.board.common_adapters.TagsAdapter
 import com.example.kanbun.ui.main_activity.MainActivity
+import com.example.kanbun.ui.model.TagUi
 import com.google.android.material.appbar.MaterialToolbar
 
 class BoardSettingsFragment : BaseFragment() {
@@ -19,6 +22,7 @@ class BoardSettingsFragment : BaseFragment() {
     private val args: BoardSettingsFragmentArgs by navArgs()
     private lateinit var board: Board
     private val viewModel: BoardSettingsViewModel by viewModels()
+    private var tagsAdapter: TagsAdapter? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -48,7 +52,7 @@ class BoardSettingsFragment : BaseFragment() {
             etDescription.setText(board.description)
             btnDeleteBoard.setOnClickListener {
                 viewModel.deleteBoard(board.id, board.workspace.id) {
-                    navController.popBackStack()
+                    navController.popBackStack(R.id.userBoardsFragment, false)
                 }
             }
 
@@ -68,6 +72,12 @@ class BoardSettingsFragment : BaseFragment() {
                     navController.popBackStack()
                 }
             }
+
+            tagsAdapter = TagsAdapter(createTags = true).apply {
+                onCreateTagClicked = { showToast("Create tag clicked") }
+                tags = board.tags.map { TagUi(it, false) }.sortedBy { it.tag.name }
+            }
+            rvTags.adapter = tagsAdapter
         }
     }
 

@@ -4,7 +4,6 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.example.kanbun.common.BoardListsAdapterViewType
 import com.example.kanbun.databinding.ItemBoardListBinding
 import com.example.kanbun.databinding.ItemCreateBoardListBinding
 import com.example.kanbun.domain.model.BoardList
@@ -14,6 +13,10 @@ import com.example.kanbun.domain.model.Task
 import com.example.kanbun.ui.board.DropCallback
 import com.example.kanbun.ui.board.TaskDropCallbacks
 import kotlinx.coroutines.CoroutineScope
+
+
+private const val VIEW_TYPE_BOARD_LIST = 0
+private const val VIEW_TYPE_CREATE_LIST = 1
 
 class BoardListsAdapter(
     private val coroutineScope: CoroutineScope,
@@ -33,7 +36,7 @@ class BoardListsAdapter(
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return when (viewType) {
-            BoardListsAdapterViewType.VIEW_TYPE_LIST -> ItemBoardListViewHolder(
+            VIEW_TYPE_BOARD_LIST -> ItemBoardListViewHolder(
                 binding = ItemBoardListBinding.inflate(
                     LayoutInflater.from(parent.context),
                     parent,
@@ -57,7 +60,7 @@ class BoardListsAdapter(
                 }
             )
 
-            BoardListsAdapterViewType.VIEW_TYPE_CREATE_LIST -> ItemCreateBoardListViewHolder(
+            VIEW_TYPE_CREATE_LIST -> ItemCreateBoardListViewHolder(
                 ItemCreateBoardListBinding.inflate(
                     LayoutInflater.from(parent.context),
                     parent,
@@ -87,9 +90,9 @@ class BoardListsAdapter(
 
     override fun getItemViewType(position: Int): Int {
         return if (position < lists.size) {
-            BoardListsAdapterViewType.VIEW_TYPE_LIST
+            VIEW_TYPE_BOARD_LIST
         } else {
-            BoardListsAdapterViewType.VIEW_TYPE_CREATE_LIST
+            VIEW_TYPE_CREATE_LIST
         }
     }
 
