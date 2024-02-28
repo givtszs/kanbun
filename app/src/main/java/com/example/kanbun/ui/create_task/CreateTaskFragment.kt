@@ -34,6 +34,7 @@ import com.example.kanbun.ui.BaseFragment
 import com.example.kanbun.ui.StateHandler
 import com.example.kanbun.ui.ViewState
 import com.example.kanbun.ui.board.common_adapters.TagsAdapter
+import com.example.kanbun.ui.create_tag_dialog.CreateTagDialog
 import com.google.android.material.datepicker.CalendarConstraints
 import com.google.android.material.datepicker.DateValidatorPointForward
 import com.google.android.material.datepicker.MaterialDatePicker
@@ -150,7 +151,11 @@ class CreateTaskFragment : BaseFragment(), StateHandler {
             }
 
             tvCreateTag.setOnClickListener {
-                buildCreateTagDialog()
+//                buildCreateTagDialog()
+                val createTagDialog = CreateTagDialog(requireContext()) { tagColor, tagName ->
+                    viewModel.createTag(tagName, tagColor, args.boardListInfo)
+                }
+                createTagDialog.create()
             }
 
             tvDateStarts.apply {
@@ -181,49 +186,49 @@ class CreateTaskFragment : BaseFragment(), StateHandler {
         }
     }
 
-    private fun buildCreateTagDialog() {
-        var tagColor = ""
-        var alertDialogBinding: AlertDialogCreateTagBinding? =
-            AlertDialogCreateTagBinding.inflate(layoutInflater, null, false)
-        var colorPickerAdapter: ColorPickerAdapter? = ColorPickerAdapter { colorId ->
-            tagColor = colorId
-        }
-
-        with(alertDialogBinding!!.rvTagColors) {
-            adapter = colorPickerAdapter
-            layoutManager = GridLayoutManager(requireContext(), 4)
-        }
-
-        MaterialAlertDialogBuilder(requireContext())
-            .setTitle("Create tag")
-            .setView(alertDialogBinding.root)
-            .setCancelable(false)
-            .setPositiveButton("Create") { _, _ ->
-                viewModel.createTag(
-                    name = alertDialogBinding!!.etName.text?.trim().toString(),
-                    color = tagColor,
-                    boardListInfo = args.boardListInfo
-                )
-                alertDialogBinding = null
-            }
-            .setNegativeButton("Cancel") { dialog, _ ->
-                colorPickerAdapter = null
-                alertDialogBinding = null
-                dialog.cancel()
-            }
-            .create()
-            .apply {
-                setOnShowListener {
-                    val positiveButton = getButton(AlertDialog.BUTTON_POSITIVE).apply {
-                        isEnabled = false
-                    }
-                    alertDialogBinding!!.etName.doOnTextChanged { _, _, _, count ->
-                        positiveButton.isEnabled = count > 0
-                    }
-                }
-            }
-            .show()
-    }
+//    private fun buildCreateTagDialog() {
+//        var tagColor = ""
+//        var alertDialogBinding: AlertDialogCreateTagBinding? =
+//            AlertDialogCreateTagBinding.inflate(layoutInflater, null, false)
+//        var colorPickerAdapter: ColorPickerAdapter? = ColorPickerAdapter { colorId ->
+//            tagColor = colorId
+//        }
+//
+//        alertDialogBinding!!.rvTagColors.apply {
+//            adapter = colorPickerAdapter
+//            layoutManager = GridLayoutManager(requireContext(), 4)
+//        }
+//
+//        MaterialAlertDialogBuilder(requireContext())
+//            .setTitle("Create tag")
+//            .setView(alertDialogBinding.root)
+//            .setCancelable(false)
+//            .setPositiveButton("Create") { _, _ ->
+//                viewModel.createTag(
+//                    name = alertDialogBinding!!.etName.text?.trim().toString(),
+//                    color = tagColor,
+//                    boardListInfo = args.boardListInfo
+//                )
+//                alertDialogBinding = null
+//            }
+//            .setNegativeButton("Cancel") { dialog, _ ->
+//                colorPickerAdapter = null
+//                alertDialogBinding = null
+//                dialog.cancel()
+//            }
+//            .create()
+//            .apply {
+//                setOnShowListener {
+//                    val positiveButton = getButton(AlertDialog.BUTTON_POSITIVE).apply {
+//                        isEnabled = false
+//                    }
+//                    alertDialogBinding!!.etName.doOnTextChanged { _, _, _, count ->
+//                        positiveButton.isEnabled = count > 0
+//                    }
+//                }
+//            }
+//            .show()
+//    }
 
     private fun buildDateTimePickerDialog(textField: AutoCompleteTextView) {
 //        fun close(dialogBinding: AlertDialogDatetimePickerBinding, dialog) {
@@ -422,68 +427,6 @@ class CreateTaskFragment : BaseFragment(), StateHandler {
         }
     }
 
-    private class ColorPickerAdapter(private val onItemClicked: (String) -> Unit) :
-        RecyclerView.Adapter<ColorPickerAdapter.ItemColorPreviewViewHolder>() {
-
-        init {
-            ItemColorPreviewViewHolder.prevSelectedPos = -1
-        }
-
-        override fun onCreateViewHolder(
-            parent: ViewGroup,
-            viewType: Int
-        ): ItemColorPreviewViewHolder {
-            return ItemColorPreviewViewHolder(
-                ItemColorPreviewBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-            ) { position ->
-                if (ItemColorPreviewViewHolder.prevSelectedPos != position) {
-                    notifyItemChanged(ItemColorPreviewViewHolder.prevSelectedPos)
-                    ItemColorPreviewViewHolder.prevSelectedPos = position
-                    notifyItemChanged(position)
-                    onItemClicked(defaultTagColors[position])
-                }
-            }
-        }
-
-        override fun onBindViewHolder(holder: ItemColorPreviewViewHolder, position: Int) {
-            holder.bind(defaultTagColors[position])
-        }
-
-        override fun getItemCount(): Int = defaultTagColors.size
-
-        class ItemColorPreviewViewHolder(
-            private val binding: ItemColorPreviewBinding,
-            private val clickAtPosition: (Int) -> Unit
-        ) : RecyclerView.ViewHolder(binding.root) {
-
-            companion object {
-                var prevSelectedPos = -1
-            }
-
-            init {
-                binding.cardColor.setOnClickListener {
-                    if (prevSelectedPos != adapterPosition) {
-                        clickAtPosition(adapterPosition)
-                    }
-                }
-            }
-
-            fun bind(hexColorValue: String) {
-                binding.apply {
-                    cardColor.isSelected = adapterPosition == prevSelectedPos
-                    if (cardColor.isSelected) {
-                        cardColor.strokeColor =
-                            getColor(itemView.context, R.color.md_theme_light_primary)
-                    } else {
-                        cardColor.strokeColor =
-                            getColor(itemView.context, R.color.md_theme_light_outlineVariant)
-                    }
-
-                    cardColor.setCardBackgroundColor(Color.parseColor(hexColorValue))
-                }
-            }
-        }
-    }
 
     override fun onDestroyView() {
         super.onDestroyView()

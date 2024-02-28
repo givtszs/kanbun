@@ -137,20 +137,20 @@ class CreateTaskViewModel @Inject constructor(
             }
         }
 
-    fun createTag(name: String, color: String, boardListInfo: BoardListInfo) =
+    fun createTag(name: String, color: String, boardListInfo: BoardListInfo) {
         viewModelScope.launch {
             val boardRef =
                 boardListInfo.path.substringBefore("/${FirestoreCollection.BOARD_LIST.collectionName}")
             val tag = Tag(
                 name = name,
                 textColor = color,
-                backgroundColor = "#33${color.substringAfter("#")}" // 33 - 20% alpha value
+                backgroundColor = Tag.processBackgroundColor(color)
             )
 
             when (
                 val result = createTagUseCase(
+                    tag = tag,
                     tags = _tags.value,
-                    newTag = tag,
                     boardPath = boardRef.substringBeforeLast("/"),
                     boardId = boardRef.substringAfterLast("/"),
                 )
@@ -160,6 +160,7 @@ class CreateTaskViewModel @Inject constructor(
                 Result.Loading -> _isLoadingTags.value = true
             }
         }
+    }
 
 
     private suspend fun getTags(boardListInfo: BoardListInfo) {

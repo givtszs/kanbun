@@ -9,4 +9,11 @@ data class Tag(
     val name: String = "",
     val textColor: String = "",
     val backgroundColor: String = ""
-) : Parcelable
+) : Parcelable {
+
+    companion object {
+        fun processBackgroundColor(color: String): String {
+            return "#33${color.substringAfter("#")}" // 33 - 20% alpha value
+        }
+    }
+}

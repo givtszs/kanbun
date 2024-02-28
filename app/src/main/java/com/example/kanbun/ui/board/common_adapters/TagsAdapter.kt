@@ -23,7 +23,7 @@ class TagsAdapter(
 
     var tags: List<TagUi> = emptyList()
         set(value) {
-            field = value
+            field = value.sortedBy { it.tag.name }
             notifyDataSetChanged()
         }
 

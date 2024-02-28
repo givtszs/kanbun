@@ -79,6 +79,7 @@ sealed class ViewState {
 
     data class BoardSettingsViewState(
         val isLoading: Boolean = false,
-        val message: String? = null
+        val message: String? = null,
+        val tags: List<TagUi> = emptyList()
     ) : ViewState()
 }

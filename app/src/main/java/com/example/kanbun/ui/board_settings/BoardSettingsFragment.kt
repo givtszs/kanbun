@@ -5,17 +5,25 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.navArgs
 import com.example.kanbun.R
 import com.example.kanbun.databinding.FragmentBoardSettingsBinding
 import com.example.kanbun.domain.model.Board
 import com.example.kanbun.ui.BaseFragment
+import com.example.kanbun.ui.StateHandler
+import com.example.kanbun.ui.ViewState
 import com.example.kanbun.ui.board.common_adapters.TagsAdapter
+import com.example.kanbun.ui.create_tag_dialog.CreateTagDialog
 import com.example.kanbun.ui.main_activity.MainActivity
 import com.example.kanbun.ui.model.TagUi
 import com.google.android.material.appbar.MaterialToolbar
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 
-class BoardSettingsFragment : BaseFragment() {
+class BoardSettingsFragment : BaseFragment(), StateHandler {
 
     private var _binding: FragmentBoardSettingsBinding? = null
     private val binding: FragmentBoardSettingsBinding get() = _binding!!
@@ -37,6 +45,7 @@ class BoardSettingsFragment : BaseFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setUpActionBar(binding.toolbar)
+        collectState()
     }
 
     override fun setUpActionBar(toolbar: MaterialToolbar) {
@@ -74,10 +83,38 @@ class BoardSettingsFragment : BaseFragment() {
             }
 
             tagsAdapter = TagsAdapter(createTags = true).apply {
-                onCreateTagClicked = { showToast("Create tag clicked") }
-                tags = board.tags.map { TagUi(it, false) }.sortedBy { it.tag.name }
+                onCreateTagClicked = {
+                    val createTagDialog = CreateTagDialog(requireContext()) { color, tagName ->
+                        viewModel.createTag(tagName, color, board)
+                    }
+                    createTagDialog.create()
+                }
+                tags = board.tags.map { TagUi(it, false) }
             }
             rvTags.adapter = tagsAdapter
+        }
+    }
+
+    override fun collectState() {
+        lifecycleScope.launch {
+            lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.boardSettingsState.collectLatest {
+                    processState(it)
+                }
+            }
+        }
+    }
+
+    override fun processState(state: ViewState) {
+        with(state as ViewState.BoardSettingsViewState) {
+            message?.let {
+                showToast(it)
+                viewModel.messageShown()
+            }
+
+            if (tags.isNotEmpty()) {
+                tagsAdapter?.tags = tags
+            }
         }
     }
 
