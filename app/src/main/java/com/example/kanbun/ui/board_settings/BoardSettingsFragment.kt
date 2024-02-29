@@ -66,7 +66,7 @@ class BoardSettingsFragment : BaseFragment(), StateHandler {
             }
 
             btnSave.setOnClickListener {
-                // TODO: figure out updates for the tags, members and cover
+                // compare only text fields, since tags and members updates are made in place
                 val newBoard = board.copy(
                     name = etName.text?.trim().toString(),
                     description = etDescription.text?.trim().toString()
@@ -74,7 +74,7 @@ class BoardSettingsFragment : BaseFragment(), StateHandler {
 
                 if (newBoard == board) {
                     showToast("No updates")
-                    return@setOnClickListener
+                    navController.popBackStack()
                 }
 
                 viewModel.updateBoard(newBoard) {

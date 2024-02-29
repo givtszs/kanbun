@@ -3,9 +3,11 @@ package com.example.kanbun.ui.create_tag_dialog
 import android.app.AlertDialog
 import android.content.Context
 import android.graphics.Color
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.core.widget.doOnTextChanged
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.kanbun.R
@@ -14,6 +16,10 @@ import com.example.kanbun.common.getColor
 import com.example.kanbun.databinding.AlertDialogCreateTagBinding
 import com.example.kanbun.databinding.ItemColorPreviewBinding
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.launch
 
 class CreateTagDialog(
     val context: Context,
@@ -27,9 +33,9 @@ class CreateTagDialog(
 
         )
 
-    private var tagColor = ""
+    private val tagColor = MutableStateFlow("")
     private var colorPickerAdapter: ColorPickerAdapter = ColorPickerAdapter { colorId ->
-        tagColor = colorId
+        tagColor.value = colorId
     }
 
     fun create() {
@@ -43,7 +49,7 @@ class CreateTagDialog(
             .setView(binding.root)
             .setCancelable(false)
             .setPositiveButton("Create") { _, _ ->
-                createTag(tagColor, binding.etName.text?.trim().toString())
+                createTag(tagColor.value, binding.etName.text?.trim().toString())
             }
             .setNegativeButton("Cancel") { dialog, _ ->
                 dialog.cancel()
@@ -54,8 +60,19 @@ class CreateTagDialog(
                     val positiveButton = getButton(AlertDialog.BUTTON_POSITIVE).apply {
                         isEnabled = false
                     }
-                    binding.etName.doOnTextChanged { _, _, _, count ->
-                        positiveButton.isEnabled = count > 0
+                    val isNameSet = MutableStateFlow(false)
+                    binding.etName.doOnTextChanged { text, _, _, _ ->
+                        isNameSet.value = !text.isNullOrEmpty()
+                    }
+
+                    // listen to tag text and color changes to enable/disable the positive button
+                    lifecycleScope.launch {
+                        combine(tagColor, isNameSet) { color, isNameSet ->
+                            Log.d("CreateTagDialog", "color: $color, isNameSet: $isNameSet")
+                            color.isNotEmpty() && isNameSet
+                        }.collectLatest {
+                            positiveButton.isEnabled = it
+                        }
                     }
                 }
             }
