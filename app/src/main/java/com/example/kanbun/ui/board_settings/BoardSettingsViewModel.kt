@@ -25,9 +25,9 @@ class BoardSettingsViewModel @Inject constructor(
     private var _boardSettingsState = MutableStateFlow(ViewState.BoardSettingsViewState())
     val boardSettingsState: StateFlow<ViewState.BoardSettingsViewState> = _boardSettingsState
 
-    fun deleteBoard(boardId: String, workspaceId: String, onSuccess: () -> Unit) =
+    fun deleteBoard(board: Board, onSuccess: () -> Unit) =
         viewModelScope.launch {
-            processResult(firestoreRepository.deleteBoard(boardId, workspaceId), onSuccess)
+            processResult(firestoreRepository.deleteBoard(board), onSuccess)
         }
 
     fun updateBoard(board: Board, onSuccess: () -> Unit) = viewModelScope.launch {

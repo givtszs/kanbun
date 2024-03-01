@@ -99,6 +99,7 @@ class CreateTaskFragment : BaseFragment(), StateHandler {
                         val updatedTask = task.copy(
                             name = etName.text?.trim().toString(),
                             description = etDescription.text?.trim().toString(),
+                            author = viewModel.firebaseUser!!.uid,
                             tags = viewModel.createTaskState.value.tags
                                 .filter { it.isSelected }
                                 .map { it.tag.id },

@@ -33,8 +33,10 @@ import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
 import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import java.util.UUID
 import javax.inject.Inject
@@ -328,19 +330,38 @@ class FirestoreRepositoryImpl @Inject constructor(
     }
 
     override suspend fun deleteBoard(
-        boardId: String,
-        workspaceId: String
-    ): Result<Unit> = runCatching {
-        firestore
-            .collection(
-                "${FirestoreCollection.WORKSPACES.collectionName}/$workspaceId/" +
-                        "${FirestoreCollection.BOARDS.collectionName}"
-            )
-            .document(boardId)
-            .delete()
-            .getResult {
-                deleteWorkspaceBoard(workspaceId, boardId)
-            }
+        board: Board
+    ): Result<Unit> {
+        fun deleteBoardList(listId: String, board: Board) {
+            firestore
+                .collection(
+                    "${FirestoreCollection.WORKSPACES.collectionName}/${board.workspace.id}" +
+                            "/${FirestoreCollection.BOARDS.collectionName}/${board.id}" +
+                            "/${FirestoreCollection.BOARD_LIST.collectionName}"
+                )
+                .document(listId)
+                .delete()
+        }
+
+        return runCatching {
+            firestore
+                .collection(
+                    "${FirestoreCollection.WORKSPACES.collectionName}/${board.workspace.id}" +
+                            "/${FirestoreCollection.BOARDS.collectionName}"
+                )
+                .document(board.id)
+                .delete()
+                .getResult {
+                    coroutineScope {
+                        board.lists.forEach { boardListId ->
+                            launch {
+                                deleteBoardList(boardListId, board)
+                            }
+                        }
+                    }
+                    deleteWorkspaceBoard(board.workspace.id, board.id)
+                }
+        }
     }
 
     private suspend fun updateBoardsList(board: Board, boardListId: String): Result<Unit> =

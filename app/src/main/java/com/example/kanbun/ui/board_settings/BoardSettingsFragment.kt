@@ -60,7 +60,7 @@ class BoardSettingsFragment : BaseFragment(), StateHandler {
             etName.setText(board.name)
             etDescription.setText(board.description)
             btnDeleteBoard.setOnClickListener {
-                viewModel.deleteBoard(board.id, board.workspace.id) {
+                viewModel.deleteBoard(board) {
                     navController.popBackStack(R.id.userBoardsFragment, false)
                 }
             }

@@ -61,7 +61,7 @@ class TaskDetailsFragment : BaseFragment(), StateHandler {
     // TODO: Update this bullshit of a class to load the task details in a single repository request
 
     private fun loadSupplementaryInfo() {
-        viewModel.getAuthor()
+        viewModel.getAuthor(args.task.author)
         viewModel.getTags(args.task.tags, args.boardListInfo.path)
         viewModel.getMembers()
     }

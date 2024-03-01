@@ -61,14 +61,14 @@ class TaskDetailsViewModel @Inject constructor(
         _message.value = null
     }
 
-    fun getAuthor() {
+    fun getAuthor(userId: String) {
         viewModelScope.launch(Dispatchers.IO) {
             if (firebaseUser == null) {
                 _message.value = "The user is null"
                 return@launch
             }
 
-            when (val result = firestoreRepository.getUser(firebaseUser.uid)) {
+            when (val result = firestoreRepository.getUser(userId)) {
                 is Result.Success -> {
                     _author.value = ViewState.TaskDetailsViewState.UserInfo(
                         name = result.data.name ?: "Unknown",
