@@ -92,6 +92,12 @@ class BoardSettingsFragment : BaseFragment(), StateHandler {
                 tags = board.tags.map { TagUi(it, false) }
             }
             rvTags.adapter = tagsAdapter
+
+            btnEditTags.setOnClickListener {
+                // launch bottom sheet dialog
+                val editTagsDialog = EditTagsBottomSheet.init(board.tags)
+                editTagsDialog.show(childFragmentManager, "edit_tags_dialog")
+            }
         }
     }
 
