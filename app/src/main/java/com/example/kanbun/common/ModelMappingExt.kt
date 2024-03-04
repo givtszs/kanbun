@@ -209,14 +209,12 @@ fun FirestoreTask.toTask(id: String): Task =
 fun Tag.toFirestoreTag(): FirestoreTag =
     FirestoreTag(
         name = name,
-        textColor = textColor,
-        backgroundColor = backgroundColor
+        color = color
     )
 
 fun FirestoreTag.toTag(tagId: String): Tag =
     Tag(
         id = tagId,
         name = name,
-        textColor = textColor,
-        backgroundColor = backgroundColor
+        color = color
     )

@@ -38,12 +38,12 @@ class TagView @JvmOverloads constructor(
     fun bind(tag: Tag, isClickable: Boolean, isSelected: Boolean) {
         tvTag.apply {
             text = tag.name
-            setTextColor(Color.parseColor(tag.textColor))
+            setTextColor(Color.parseColor(tag.color))
         }
 
         cardTag.apply {
             this.isClickable = isClickable
-            setCardBackgroundColor(Color.parseColor(tag.backgroundColor))
+            setCardBackgroundColor(Color.parseColor(tag.getBackgroundColor()))
             strokeColor = if (isSelected) {
                 getColor(context, R.color.md_theme_light_primary)
             } else {

@@ -143,8 +143,7 @@ class CreateTaskViewModel @Inject constructor(
                 boardListInfo.path.substringBefore("/${FirestoreCollection.BOARD_LIST.collectionName}")
             val tag = Tag(
                 name = name,
-                textColor = color,
-                backgroundColor = Tag.processBackgroundColor(color)
+                color = color,
             )
 
             when (

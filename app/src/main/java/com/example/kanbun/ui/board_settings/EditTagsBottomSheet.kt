@@ -94,8 +94,8 @@ class EditTagsBottomSheet : BottomSheetDialogFragment() {
             fun bind(tag: Tag) {
                 binding.apply {
                     tvTagName.text = tag.name
-                    tvTagName.setTextColor(Color.parseColor(tag.textColor))
-                    cardBackground.setCardBackgroundColor(Color.parseColor(tag.backgroundColor))
+                    tvTagName.setTextColor(Color.parseColor(tag.color))
+                    cardBackground.setCardBackgroundColor(Color.parseColor(tag.getBackgroundColor()))
                 }
             }
         }

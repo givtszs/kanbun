@@ -55,8 +55,7 @@ class BoardSettingsViewModel @Inject constructor(
         viewModelScope.launch {
             val tag = Tag(
                 name = tagName,
-                textColor = color,
-                backgroundColor = Tag.processBackgroundColor(color)
+                color = color
             )
             val tagsUi = _boardSettingsState.value.tags.ifEmpty {
                 board.tags.map { TagUi(it, false) }
