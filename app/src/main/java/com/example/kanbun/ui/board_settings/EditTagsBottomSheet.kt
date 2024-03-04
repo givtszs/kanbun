@@ -12,16 +12,19 @@ import com.example.kanbun.common.getColor
 import com.example.kanbun.databinding.EditTagsBottomSheetBinding
 import com.example.kanbun.databinding.ItemEditTagBinding
 import com.example.kanbun.domain.model.Tag
+import com.example.kanbun.ui.create_tag_dialog.CreateTagDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.shape.CornerFamily
 import com.google.android.material.shape.MaterialShapeDrawable
 import com.google.android.material.shape.ShapeAppearanceModel
+import java.text.FieldPosition
 
 class EditTagsBottomSheet : BottomSheetDialogFragment() {
     private var _binding: EditTagsBottomSheetBinding? = null
     private val binding: EditTagsBottomSheetBinding get() = _binding!!
     private var editTagsAdapter: EditTagsAdapter? = null
     private lateinit var tags: List<Tag>
+
     companion object {
         fun init(tags: List<Tag>): EditTagsBottomSheet {
             return EditTagsBottomSheet().apply {
@@ -42,7 +45,9 @@ class EditTagsBottomSheet : BottomSheetDialogFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         Log.d("EditTags", "tags: $tags")
-        editTagsAdapter = EditTagsAdapter(tags)
+        editTagsAdapter = EditTagsAdapter(tags) { tag ->
+            // edit tag
+        }
         binding.rvTags.adapter = editTagsAdapter
     }
 
@@ -53,13 +58,20 @@ class EditTagsBottomSheet : BottomSheetDialogFragment() {
     }
 
     private class EditTagsAdapter(
-        private val tags: List<Tag>
+        private val tags: List<Tag>,
+        private val onItemClicked: (Tag) -> Unit
     ) : RecyclerView.Adapter<EditTagsAdapter.ItemEditTagViewHolder>() {
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ItemEditTagViewHolder {
             return ItemEditTagViewHolder(
-                ItemEditTagBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-            )
+                ItemEditTagBinding.inflate(
+                    LayoutInflater.from(parent.context),
+                    parent,
+                    false
+                )
+            ) { position ->
+                onItemClicked(tags[position])
+            }
         }
 
         override fun onBindViewHolder(holder: ItemEditTagViewHolder, position: Int) {
@@ -69,21 +81,21 @@ class EditTagsBottomSheet : BottomSheetDialogFragment() {
         override fun getItemCount(): Int = tags.size
 
         class ItemEditTagViewHolder(
-            private val binding: ItemEditTagBinding
+            private val binding: ItemEditTagBinding,
+            clickAtPosition: (Int) -> Unit
         ) : RecyclerView.ViewHolder(binding.root) {
+
+            init {
+                binding.cardBackground.setOnClickListener {
+                    clickAtPosition(adapterPosition)
+                }
+            }
 
             fun bind(tag: Tag) {
                 binding.apply {
                     tvTagName.text = tag.name
-                    val shapeAppearance = ShapeAppearanceModel()
-                        .toBuilder()
-                        .setAllCorners(CornerFamily.ROUNDED, 30f)
-                        .build()
-                    val shapeDrawable = MaterialShapeDrawable(shapeAppearance)
-                    shapeDrawable.fillColor = ColorStateList.valueOf(Color.parseColor(tag.backgroundColor))
-                    tvTagName.background = shapeDrawable
                     tvTagName.setTextColor(Color.parseColor(tag.textColor))
-//                    tvTagName.setBackgroundColor(Color.parseColor(tag.backgroundColor))
+                    cardBackground.setCardBackgroundColor(Color.parseColor(tag.backgroundColor))
                 }
             }
         }
