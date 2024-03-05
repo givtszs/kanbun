@@ -84,8 +84,8 @@ class BoardSettingsFragment : BaseFragment(), StateHandler {
 
             tagsAdapter = TagsAdapter(createTags = true).apply {
                 onCreateTagClicked = {
-                    val createTagDialog = CreateTagDialog(requireContext()) { color, tagName ->
-                        viewModel.createTag(tagName, color, board)
+                    val createTagDialog = CreateTagDialog(requireContext()) { tag ->
+                        viewModel.createTag(tag, board)
                     }
                     createTagDialog.create()
                 }

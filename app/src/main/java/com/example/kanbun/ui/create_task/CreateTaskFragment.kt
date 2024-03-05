@@ -153,8 +153,8 @@ class CreateTaskFragment : BaseFragment(), StateHandler {
 
             tvCreateTag.setOnClickListener {
 //                buildCreateTagDialog()
-                val createTagDialog = CreateTagDialog(requireContext()) { tagColor, tagName ->
-                    viewModel.createTag(tagName, tagColor, args.boardListInfo)
+                val createTagDialog = CreateTagDialog(requireContext()) { tag ->
+                    viewModel.createTag(tag, args.boardListInfo)
                 }
                 createTagDialog.create()
             }

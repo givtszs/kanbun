@@ -51,12 +51,8 @@ class BoardSettingsViewModel @Inject constructor(
         }
     }
 
-    fun createTag(tagName: String, color: String, board: Board) {
+    fun createTag(tag: Tag, board: Board) {
         viewModelScope.launch {
-            val tag = Tag(
-                name = tagName,
-                color = color
-            )
             val tagsUi = _boardSettingsState.value.tags.ifEmpty {
                 board.tags.map { TagUi(it, false) }
             }

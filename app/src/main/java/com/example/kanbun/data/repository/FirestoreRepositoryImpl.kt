@@ -649,13 +649,13 @@ class FirestoreRepositoryImpl @Inject constructor(
         updateBoardListPosition(collectionRef, listToMove.id, to.toLong()).await()
     }
 
-    override suspend fun createTag(
+    override suspend fun upsertTag(
         tag: Tag,
         boardId: String,
-        boardPath: String
+        boardPath: String,
     ): Result<String> =
         runCatching {
-            val tagId = UUID.randomUUID().toString()
+            val tagId = tag.id.ifEmpty { UUID.randomUUID().toString() }
             firestore.collection(boardPath)
                 .document(boardId)
                 .update("tags.$tagId", tag.toFirestoreTag())

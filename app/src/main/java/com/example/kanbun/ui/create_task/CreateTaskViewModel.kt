@@ -137,14 +137,10 @@ class CreateTaskViewModel @Inject constructor(
             }
         }
 
-    fun createTag(name: String, color: String, boardListInfo: BoardListInfo) {
+    fun createTag(tag: Tag, boardListInfo: BoardListInfo) {
         viewModelScope.launch {
             val boardRef =
                 boardListInfo.path.substringBefore("/${FirestoreCollection.BOARD_LIST.collectionName}")
-            val tag = Tag(
-                name = name,
-                color = color,
-            )
 
             when (
                 val result = createTagUseCase(

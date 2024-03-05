@@ -19,7 +19,7 @@ class CreateTagUseCase @Inject constructor(
         return if (isAlreadyCreated) {
             Result.Error("Tag with the same name is already created")
         } else {
-            firestoreRepository.createTag(
+            firestoreRepository.upsertTag(
                 tag = tag,
                 boardId = boardId,
                 boardPath = boardPath

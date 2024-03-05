@@ -104,7 +104,7 @@ interface FirestoreRepository {
         to: Int
     ): Result<Unit>
 
-    suspend fun createTag(
+    suspend fun upsertTag(
         tag: Tag,
         boardId: String,
         boardPath: String

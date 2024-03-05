@@ -15,6 +15,7 @@ import com.example.kanbun.common.defaultTagColors
 import com.example.kanbun.common.getColor
 import com.example.kanbun.databinding.AlertDialogCreateTagBinding
 import com.example.kanbun.databinding.ItemColorPreviewBinding
+import com.example.kanbun.domain.model.Tag
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collectLatest
@@ -23,7 +24,7 @@ import kotlinx.coroutines.launch
 
 class CreateTagDialog(
     val context: Context,
-    val createTag: (tagColor: String, tagName: String) -> Unit
+    val createTag: (Tag) -> Unit
 ) {
     private var binding: AlertDialogCreateTagBinding =
         AlertDialogCreateTagBinding.inflate(
@@ -49,7 +50,12 @@ class CreateTagDialog(
             .setView(binding.root)
             .setCancelable(false)
             .setPositiveButton("Create") { _, _ ->
-                createTag(tagColor.value, binding.etName.text?.trim().toString())
+                createTag(
+                    Tag(
+                        name = binding.etName.text?.trim().toString(),
+                        color = tagColor.value,
+                    )
+                )
             }
             .setNegativeButton("Cancel") { dialog, _ ->
                 dialog.cancel()

@@ -47,6 +47,9 @@ class EditTagsBottomSheet : BottomSheetDialogFragment() {
         Log.d("EditTags", "tags: $tags")
         editTagsAdapter = EditTagsAdapter(tags) { tag ->
             // edit tag
+            val tagEditor = CreateTagDialog(requireContext()) {
+
+            }
         }
         binding.rvTags.adapter = editTagsAdapter
     }
