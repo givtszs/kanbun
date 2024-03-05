@@ -45,7 +45,7 @@ class EditTagsBottomSheet : BottomSheetDialogFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         Log.d("EditTags", "tags: $tags")
-        editTagsAdapter = EditTagsAdapter(tags) { tag ->
+        editTagsAdapter = EditTagsAdapter(tags.sortedBy { it.name }) { tag ->
             // edit tag
             val tagEditor = CreateTagDialog(requireContext()) {
 

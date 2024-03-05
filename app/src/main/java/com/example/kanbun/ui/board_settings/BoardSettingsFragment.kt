@@ -82,13 +82,7 @@ class BoardSettingsFragment : BaseFragment(), StateHandler {
                 }
             }
 
-            tagsAdapter = TagsAdapter(createTags = true).apply {
-                onCreateTagClicked = {
-                    val createTagDialog = CreateTagDialog(requireContext()) { tag ->
-                        viewModel.createTag(tag, board)
-                    }
-                    createTagDialog.create()
-                }
+            tagsAdapter = TagsAdapter().apply {
                 tags = board.tags.map { TagUi(it, false) }
             }
             rvTags.adapter = tagsAdapter

@@ -127,7 +127,7 @@ class CreateTagDialog(
 
             init {
                 binding.cardColor.setOnClickListener {
-                    if (prevSelectedPos != adapterPosition) {
+                    if (adapterPosition != prevSelectedPos) {
                         clickAtPosition(adapterPosition)
                     }
                 }

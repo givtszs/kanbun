@@ -407,7 +407,7 @@ class CreateTaskFragment : BaseFragment(), StateHandler {
                 pbLoadingTags.isVisible = loadingManager.isLoadingTags
 
                 if (tags.isNotEmpty()) {
-                    tagsAdapter = TagsAdapter(areItemsClickable = true, createTags = true).also {
+                    tagsAdapter = TagsAdapter(areItemsClickable = true).also {
                         it.tags = tags
                     }
                     rvTags.adapter = tagsAdapter
