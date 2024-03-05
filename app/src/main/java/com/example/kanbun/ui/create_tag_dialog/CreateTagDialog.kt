@@ -24,8 +24,9 @@ import kotlinx.coroutines.launch
 
 class CreateTagDialog(
     val context: Context,
-    val createTag: (Tag) -> Unit
+    val onDoneClicked: (Tag) -> Unit
 ) {
+
     private var binding: AlertDialogCreateTagBinding =
         AlertDialogCreateTagBinding.inflate(
             LayoutInflater.from(context),
@@ -33,26 +34,38 @@ class CreateTagDialog(
             false
 
         )
-
+    private val tagName = MutableStateFlow("")
     private val tagColor = MutableStateFlow("")
     private var colorPickerAdapter: ColorPickerAdapter = ColorPickerAdapter { colorId ->
         tagColor.value = colorId
     }
 
-    fun create() {
+    init {
+        binding.etName.doOnTextChanged { text, _, _, _ ->
+            tagName.value = text?.trim().toString()
+        }
+    }
+
+    fun setTag(tag: Tag) {
+        binding.etName.setText(tag.name)
+        colorPickerAdapter.selectColor(defaultTagColors.indexOf(tag.color))
+        tagColor.value = tag.color
+    }
+
+    fun show() {
         binding.rvTagColors.apply {
             adapter = colorPickerAdapter
             layoutManager = GridLayoutManager(context, 4)
         }
 
         MaterialAlertDialogBuilder(context)
-            .setTitle("Create tag")
+//            .setTitle("Create tag")
             .setView(binding.root)
             .setCancelable(false)
-            .setPositiveButton("Create") { _, _ ->
-                createTag(
+            .setPositiveButton("Done") { _, _ ->
+                onDoneClicked(
                     Tag(
-                        name = binding.etName.text?.trim().toString(),
+                        name = tagName.value,
                         color = tagColor.value,
                     )
                 )
@@ -66,16 +79,16 @@ class CreateTagDialog(
                     val positiveButton = getButton(AlertDialog.BUTTON_POSITIVE).apply {
                         isEnabled = false
                     }
-                    val isNameSet = MutableStateFlow(false)
-                    binding.etName.doOnTextChanged { text, _, _, _ ->
-                        isNameSet.value = !text.isNullOrEmpty()
-                    }
 
-                    // listen to tag text and color changes to enable/disable the positive button
+//                    val isNameSet = MutableStateFlow(false)
+//                    binding.etName.doOnTextChanged { text, _, _, _ ->
+//                        isNameSet.value = !text.isNullOrEmpty()
+//                    }
+                    // listen to the tag's text and color changes to enable/disable the positive button
                     lifecycleScope.launch {
-                        combine(tagColor, isNameSet) { color, isNameSet ->
-                            Log.d("CreateTagDialog", "color: $color, isNameSet: $isNameSet")
-                            color.isNotEmpty() && isNameSet
+                        combine(tagColor, tagName) { color, name ->
+                            Log.d("CreateTagDialog", "color: $color, name: $name")
+                            color.isNotEmpty() && name.isNotEmpty()
                         }.collectLatest {
                             positiveButton.isEnabled = it
                         }
@@ -92,6 +105,13 @@ class CreateTagDialog(
             ItemColorPreviewViewHolder.prevSelectedPos = -1
         }
 
+        fun selectColor(position: Int) {
+            notifyItemChanged(ItemColorPreviewViewHolder.prevSelectedPos)
+            ItemColorPreviewViewHolder.prevSelectedPos = position
+            // "select" current color item
+            notifyItemChanged(position)
+        }
+
         override fun onCreateViewHolder(
             parent: ViewGroup,
             viewType: Int
@@ -100,11 +120,12 @@ class CreateTagDialog(
                 ItemColorPreviewBinding.inflate(LayoutInflater.from(parent.context), parent, false)
             ) { position ->
                 if (ItemColorPreviewViewHolder.prevSelectedPos != position) {
-                    // "unselect" previous color item
-                    notifyItemChanged(ItemColorPreviewViewHolder.prevSelectedPos)
-                    ItemColorPreviewViewHolder.prevSelectedPos = position
-                    // "select" current color item
-                    notifyItemChanged(position)
+//                    // "unselect" previous color item
+//                    notifyItemChanged(ItemColorPreviewViewHolder.prevSelectedPos)
+//                    ItemColorPreviewViewHolder.prevSelectedPos = position
+//                    // "select" current color item
+//                    notifyItemChanged(position)
+                    selectColor(position)
                     onItemClicked(defaultTagColors[position])
                 }
             }

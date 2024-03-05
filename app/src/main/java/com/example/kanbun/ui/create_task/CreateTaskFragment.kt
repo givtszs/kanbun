@@ -1,7 +1,6 @@
 package com.example.kanbun.ui.create_task
 
 import android.app.AlertDialog
-import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -16,20 +15,14 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.navArgs
-import androidx.recyclerview.widget.GridLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.example.kanbun.R
 import com.example.kanbun.common.DATE_FORMAT
 import com.example.kanbun.common.DATE_TIME_FORMAT
 import com.example.kanbun.common.TaskAction
 import com.example.kanbun.common.convertDateStringToTimestamp
 import com.example.kanbun.common.convertTimestampToDateString
-import com.example.kanbun.common.defaultTagColors
-import com.example.kanbun.common.getColor
-import com.example.kanbun.databinding.AlertDialogCreateTagBinding
 import com.example.kanbun.databinding.AlertDialogDatetimePickerBinding
 import com.example.kanbun.databinding.FragmentCreateTaskBinding
-import com.example.kanbun.databinding.ItemColorPreviewBinding
 import com.example.kanbun.ui.BaseFragment
 import com.example.kanbun.ui.StateHandler
 import com.example.kanbun.ui.ViewState
@@ -47,10 +40,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
-import java.text.ParseException
-import java.text.SimpleDateFormat
-import java.util.Locale
-import java.util.TimeZone
 
 private const val TAG = "CreateTaskFragment"
 
@@ -156,7 +145,7 @@ class CreateTaskFragment : BaseFragment(), StateHandler {
                 val createTagDialog = CreateTagDialog(requireContext()) { tag ->
                     viewModel.createTag(tag, args.boardListInfo)
                 }
-                createTagDialog.create()
+                createTagDialog.show()
             }
 
             tvDateStarts.apply {

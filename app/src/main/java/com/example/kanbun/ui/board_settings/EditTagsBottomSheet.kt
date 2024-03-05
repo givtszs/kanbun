@@ -1,6 +1,5 @@
 package com.example.kanbun.ui.board_settings
 
-import android.content.res.ColorStateList
 import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
@@ -8,16 +7,11 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.example.kanbun.common.getColor
 import com.example.kanbun.databinding.EditTagsBottomSheetBinding
 import com.example.kanbun.databinding.ItemEditTagBinding
 import com.example.kanbun.domain.model.Tag
 import com.example.kanbun.ui.create_tag_dialog.CreateTagDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
-import com.google.android.material.shape.CornerFamily
-import com.google.android.material.shape.MaterialShapeDrawable
-import com.google.android.material.shape.ShapeAppearanceModel
-import java.text.FieldPosition
 
 class EditTagsBottomSheet : BottomSheetDialogFragment() {
     private var _binding: EditTagsBottomSheetBinding? = null
@@ -48,10 +42,19 @@ class EditTagsBottomSheet : BottomSheetDialogFragment() {
         editTagsAdapter = EditTagsAdapter(tags.sortedBy { it.name }) { tag ->
             // edit tag
             val tagEditor = CreateTagDialog(requireContext()) {
-
+                // update tag
             }
+            tagEditor.setTag(tag)
+            tagEditor.show()
         }
         binding.rvTags.adapter = editTagsAdapter
+
+        binding.btnCreateTag.setOnClickListener {
+            val createTagDialog = CreateTagDialog(requireContext()) {
+                // create tag
+            }
+            createTagDialog.show()
+        }
     }
 
     override fun onDestroyView() {
