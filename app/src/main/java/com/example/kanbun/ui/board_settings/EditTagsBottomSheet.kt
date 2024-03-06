@@ -27,6 +27,8 @@ class EditTagsBottomSheet : BottomSheetDialogFragment() {
         }
     }
 
+    var onClose: (List<Tag>) -> Unit = {}
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -61,6 +63,11 @@ class EditTagsBottomSheet : BottomSheetDialogFragment() {
         super.onDestroyView()
         _binding = null
         editTagsAdapter = null
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        onClose(tags)
     }
 
     private class EditTagsAdapter(

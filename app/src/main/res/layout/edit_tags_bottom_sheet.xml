@@ -3,6 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
+    android:paddingBottom="8dp"
     android:layout_height="wrap_content">
 
     <com.google.android.material.bottomsheet.BottomSheetDragHandleView
@@ -27,9 +28,10 @@
 
     <Button
         android:id="@+id/btnCreateTag"
+        style="@style/Widget.Material3.Button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Create tag"
+        android:text="@string/create_tag"
         android:layout_marginHorizontal="12dp"
         app:layout_constraintBottom_toBottomOf="parent" />
 

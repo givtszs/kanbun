@@ -12,8 +12,6 @@ import com.example.kanbun.domain.repository.FirestoreRepository
 import com.example.kanbun.ui.ViewState.BoardViewState
 import com.example.kanbun.ui.board.tasks_adapter.TasksAdapter
 import com.example.kanbun.ui.model.DragAndDropTaskItem
-import com.google.firebase.auth.ktx.auth
-import com.google.firebase.ktx.Firebase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -21,8 +19,10 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -36,11 +36,11 @@ class BoardViewModel @Inject constructor(
     private val _board = MutableStateFlow(Board())
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    private var _boardLists: Flow<Result<List<BoardList>>> = _board.flatMapLatest { board ->
-        firestoreRepository.getBoardListsStream(
-            boardId = board.id,
-            workspaceId = board.workspace.id
-        )
+    private var _boardListsResult: Flow<Result<List<BoardList>>> = _board.flatMapLatest { board ->
+            firestoreRepository.getBoardListsStream(
+                boardId = board.id,
+                workspaceId = board.workspace.id
+            )
     }
 
     private val _isLoading = MutableStateFlow(true)
@@ -48,33 +48,41 @@ class BoardViewModel @Inject constructor(
     val boardState: StateFlow<BoardViewState> =
         combine(
             _board,
-            _boardLists,
+            _boardListsResult,
             _isLoading,
             _message
-        ) { board, boardLists, isLoading, message ->
+        ) { board, boardListsResult, isLoading, message ->
             Log.d(
                 TAG,
-                "boardState#_board: $board,\n_boardLists: $boardLists,\nisLoading: $isLoading,\nmessage: $message"
+                "boardState#_board: $board,\n_boardLists: $boardListsResult,\nisLoading: $isLoading,\nmessage: $message"
             )
-            var isLoading1 = isLoading
+//            var isLoading1 = isLoading
             BoardViewState(
                 board = board,
-                lists = when (boardLists) {
-                    is Result.Success -> {
-                        Log.d(TAG, "boardState#_boardLists: ${boardLists.data.reversed()}")
-                        boardLists.data
-                    }
-
-                    is Result.Error -> emptyList()
-                    is Result.Loading -> {
-                        isLoading1 = true
-                        emptyList()
-                    }
-                },
-                isLoading = isLoading1,
+                lists = getBoardLists(boardListsResult),
+                isLoading = isLoading,
                 message = message
             )
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), BoardViewState())
+
+    private fun getBoardLists(result: Result<List<BoardList>>): List<BoardList> {
+        Log.d("BoardViewModel", "getBoardLists is called")
+        return when (result) {
+            is Result.Success -> {
+//                Log.d(TAG, "boardState#_boardLists: ${result.data}")
+                _board.update {
+                    it.copy(lists = result.data.map { boardList -> boardList.id })
+                }
+                result.data
+            }
+
+            is Result.Error -> emptyList()
+            is Result.Loading -> {
+//                isLoading1 = true
+                emptyList()
+            }
+        }
+    }
 
     suspend fun getBoard(boardId: String, workspaceId: String) {
         // get board
@@ -95,6 +103,7 @@ class BoardViewModel @Inject constructor(
 
     fun createBoardList(listName: String) = viewModelScope.launch {
         val board = _board.value
+        // TODO: Check the result of createBoardList and call updateBoard if the result is successful
         firestoreRepository.createBoardList(
             boardList = BoardList(
                 name = listName,
@@ -106,11 +115,11 @@ class BoardViewModel @Inject constructor(
             board = _board.value
         )
 
-        // update board
-        getBoard(
-            boardId = _board.value.id,
-            workspaceId = _board.value.workspace.id
-        )
+//        // update board
+//        getBoard(
+//            boardId = _board.value.id,
+//            workspaceId = _board.value.workspace.id
+//        )
     }
 
     fun createTask(name: String, boardList: BoardList) = viewModelScope.launch {
@@ -123,7 +132,10 @@ class BoardViewModel @Inject constructor(
                     _message.value = result.message
                     return@launch
                 }
-                Result.Loading -> { "" }
+
+                Result.Loading -> {
+                    ""
+                }
             }
         )
 
@@ -192,9 +204,11 @@ class BoardViewModel @Inject constructor(
         to: Int
     ) = viewModelScope.launch {
         if (from != to && to != -1) {
-            val workspacePath = "${FirestoreCollection.WORKSPACES.collectionName}/${_board.value.workspace.id}"
+            val workspacePath =
+                "${FirestoreCollection.WORKSPACES.collectionName}/${_board.value.workspace.id}"
             val boardPath = "${FirestoreCollection.BOARDS.collectionName}/${_board.value.id}"
-            val listsPath = "$workspacePath/$boardPath/${FirestoreCollection.BOARD_LIST.collectionName}"
+            val listsPath =
+                "$workspacePath/$boardPath/${FirestoreCollection.BOARD_LIST.collectionName}"
             firestoreRepository.rearrangeBoardListsPositions(
                 listsPath,
                 boardLists,

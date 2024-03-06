@@ -1,6 +1,7 @@
 package com.example.kanbun.ui.board_settings
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -16,7 +17,6 @@ import com.example.kanbun.ui.BaseFragment
 import com.example.kanbun.ui.StateHandler
 import com.example.kanbun.ui.ViewState
 import com.example.kanbun.ui.board.common_adapters.TagsAdapter
-import com.example.kanbun.ui.create_tag_dialog.CreateTagDialog
 import com.example.kanbun.ui.main_activity.MainActivity
 import com.example.kanbun.ui.model.TagUi
 import com.google.android.material.appbar.MaterialToolbar
@@ -90,6 +90,12 @@ class BoardSettingsFragment : BaseFragment(), StateHandler {
             btnEditTags.setOnClickListener {
                 // launch bottom sheet dialog
                 val editTagsDialog = EditTagsBottomSheet.init(board.tags)
+                editTagsDialog.onClose = { tags ->
+                    // update tags state
+                    Log.d("BoardSettingsFragment", "bottom sheet is closed: tags: $tags")
+                    // compareAndSet
+
+                }
                 editTagsDialog.show(childFragmentManager, "edit_tags_dialog")
             }
         }
