@@ -441,6 +441,7 @@ class FirestoreRepositoryImpl @Inject constructor(
         boardId: String,
         workspaceId: String
     ): Flow<Result<List<BoardList>>> = callbackFlow {
+        Log.d(TAG, "getBoardListsStream is called")
         var listener: ListenerRegistration? = null
         if (boardId.isEmpty() || workspaceId.isEmpty()) {
             trySend(Result.Loading)
@@ -458,9 +459,9 @@ class FirestoreRepositoryImpl @Inject constructor(
                             val boardList = docSnapshot.toObject(FirestoreBoardList::class.java)
                                 ?.toBoardList(docSnapshot.id, path)
                                 ?: throw NullPointerException("Couldn't convert FirestoreBoardList to BoardList since the value is null")
-                            Log.d(TAG, "getBoardListsFlow#boardList: $boardList")
                             boardList
                         }.reversed()
+                        Log.d(TAG, "getBoardListsFlow#boardLists: $boardLists")
                         trySend(Result.Success(boardLists))
                     }
                 }

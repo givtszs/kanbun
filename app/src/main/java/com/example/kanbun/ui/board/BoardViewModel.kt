@@ -13,14 +13,12 @@ import com.example.kanbun.ui.ViewState.BoardViewState
 import com.example.kanbun.ui.board.tasks_adapter.TasksAdapter
 import com.example.kanbun.ui.model.DragAndDropTaskItem
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.emptyFlow
-import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -34,62 +32,59 @@ class BoardViewModel @Inject constructor(
 ) : ViewModel() {
 
     private val _board = MutableStateFlow(Board())
-
-    @OptIn(ExperimentalCoroutinesApi::class)
-    private var _boardListsResult: Flow<Result<List<BoardList>>> = _board.flatMapLatest { board ->
-            firestoreRepository.getBoardListsStream(
-                boardId = board.id,
-                workspaceId = board.workspace.id
-            )
-    }
-
+    private var _boardLists = MutableStateFlow<List<BoardList>>(emptyList())
     private val _isLoading = MutableStateFlow(true)
     private val _message = MutableStateFlow<String?>(null)
     val boardState: StateFlow<BoardViewState> =
         combine(
             _board,
-            _boardListsResult,
+            _boardLists,
             _isLoading,
             _message
-        ) { board, boardListsResult, isLoading, message ->
+        ) { board, boardLists, isLoading, message ->
             Log.d(
                 TAG,
-                "boardState#_board: $board,\n_boardLists: $boardListsResult,\nisLoading: $isLoading,\nmessage: $message"
+                "boardState#_board: $board,\n_boardLists: $boardLists,\nisLoading: $isLoading,\nmessage: $message"
             )
-//            var isLoading1 = isLoading
             BoardViewState(
                 board = board,
-                lists = getBoardLists(boardListsResult),
+                lists = boardLists,
                 isLoading = isLoading,
                 message = message
             )
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), BoardViewState())
 
-    private fun getBoardLists(result: Result<List<BoardList>>): List<BoardList> {
-        Log.d("BoardViewModel", "getBoardLists is called")
-        return when (result) {
-            is Result.Success -> {
-//                Log.d(TAG, "boardState#_boardLists: ${result.data}")
-                _board.update {
-                    it.copy(lists = result.data.map { boardList -> boardList.id })
-                }
-                result.data
-            }
+    private fun getBoardLists(flow: Flow<Result<List<BoardList>>>) {
+        viewModelScope.launch {
+            flow.collectLatest { result ->
+                when (result) {
+                    is Result.Success -> {
+                        if (_boardLists != result.data) {
+                            _board.update {
+                                it.copy(lists = result.data.map { boardList -> boardList.id })
+                            }
+                        }
+                        _boardLists.value = result.data
+                    }
 
-            is Result.Error -> emptyList()
-            is Result.Loading -> {
-//                isLoading1 = true
-                emptyList()
+                    is Result.Error -> _message.value = result.message
+                    is Result.Loading -> {}
+                }
             }
         }
     }
 
-    suspend fun getBoard(boardId: String, workspaceId: String) {
-        // get board
-        when (val result = firestoreRepository.getBoard(boardId, workspaceId)) {
-            is Result.Success -> _board.value = result.data
-            is Result.Error -> _message.value = result.message
-            is Result.Loading -> _isLoading.value = true
+    fun getBoard(boardId: String, workspaceId: String) {
+        viewModelScope.launch {
+            when (val result = firestoreRepository.getBoard(boardId, workspaceId)) {
+                is Result.Success -> {
+                    val board = result.data
+                    _board.value = board
+                    getBoardLists(firestoreRepository.getBoardListsStream(board.id, board.workspace.id))
+                }
+                is Result.Error -> _message.value = result.message
+                is Result.Loading -> _isLoading.value = true
+            }
         }
     }
 
@@ -103,7 +98,6 @@ class BoardViewModel @Inject constructor(
 
     fun createBoardList(listName: String) = viewModelScope.launch {
         val board = _board.value
-        // TODO: Check the result of createBoardList and call updateBoard if the result is successful
         firestoreRepository.createBoardList(
             boardList = BoardList(
                 name = listName,
@@ -114,14 +108,9 @@ class BoardViewModel @Inject constructor(
             ),
             board = _board.value
         )
-
-//        // update board
-//        getBoard(
-//            boardId = _board.value.id,
-//            workspaceId = _board.value.workspace.id
-//        )
     }
 
+    // TODO: Remove if not used
     fun createTask(name: String, boardList: BoardList) = viewModelScope.launch {
         val task = Task(
             position = boardList.tasks.size.toLong(),

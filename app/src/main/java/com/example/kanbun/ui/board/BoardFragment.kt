@@ -80,9 +80,7 @@ class BoardFragment : BaseFragment(), StateHandler {
         setUpBoardListsAdapter()
         setUpMenu()
         collectState()
-        lifecycleScope.launch {
-            viewModel.getBoard(boardInfo.boardId, boardInfo.workspaceId)
-        }
+        viewModel.getBoard(boardInfo.boardId, boardInfo.workspaceId)
     }
 
     override fun setUpListeners() {
