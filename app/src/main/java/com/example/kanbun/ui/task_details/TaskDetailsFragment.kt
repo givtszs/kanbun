@@ -62,7 +62,7 @@ class TaskDetailsFragment : BaseFragment(), StateHandler {
 
     private fun loadSupplementaryInfo() {
         viewModel.getAuthor(args.task.author)
-        viewModel.getTags(args.task.tags, args.boardListInfo.path)
+        viewModel.getTags(args.task.tags, args.boardList.path)
         viewModel.getMembers()
     }
 
@@ -84,7 +84,7 @@ class TaskDetailsFragment : BaseFragment(), StateHandler {
                     TaskDetailsFragmentDirections.actionTaskDetailsFragmentToCreateTaskFragment(
                         actionType = TaskAction.ACTION_EDIT,
                         task = task,
-                        boardListInfo = args.boardListInfo
+                        boardList = args.boardList
                     )
                 )
             }
@@ -153,8 +153,8 @@ class TaskDetailsFragment : BaseFragment(), StateHandler {
                 return when (menuItem.itemId) {
                     R.id.menu_item_delete -> {
                         viewModel.deleteTask(
-                            task = args.task,
-                            boardListInfo = args.boardListInfo,
+                            taskPosition = args.task.position.toInt(),
+                            boardList = args.boardList,
                             navigateOnDelete = { navController.popBackStack() }
                         )
                         true

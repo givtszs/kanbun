@@ -23,6 +23,7 @@ import com.example.kanbun.common.convertDateStringToTimestamp
 import com.example.kanbun.common.convertTimestampToDateString
 import com.example.kanbun.databinding.AlertDialogDatetimePickerBinding
 import com.example.kanbun.databinding.FragmentCreateTaskBinding
+import com.example.kanbun.domain.model.BoardListInfo
 import com.example.kanbun.ui.BaseFragment
 import com.example.kanbun.ui.StateHandler
 import com.example.kanbun.ui.ViewState
@@ -49,6 +50,9 @@ class CreateTaskFragment : BaseFragment(), StateHandler {
     private val binding: FragmentCreateTaskBinding get() = _binding!!
     private val viewModel: CreateTaskViewModel by viewModels()
     private val args: CreateTaskFragmentArgs by navArgs()
+    private val boardListInfo: BoardListInfo by lazy {
+        BoardListInfo(args.boardList.id, args.boardList.path)
+    }
 
     //    private var alertBinding: AlertDialogCreateTagBinding? = null
     private var tagsAdapter: TagsAdapter? = null
@@ -73,7 +77,7 @@ class CreateTaskFragment : BaseFragment(), StateHandler {
                 setUpActionBar(binding.topAppBar.toolbar, "Edit task")
             }
         }
-        viewModel.init(args.task, args.boardListInfo, args.actionType)
+        viewModel.init(args.task, boardListInfo, args.actionType)
         collectState()
     }
 
@@ -92,13 +96,19 @@ class CreateTaskFragment : BaseFragment(), StateHandler {
                             tags = viewModel.createTaskState.value.tags
                                 .filter { it.isSelected }
                                 .map { it.tag.id },
-                            dateStarts = convertDateStringToTimestamp(DATE_TIME_FORMAT, tvDateStarts.text.toString()),
-                            dateEnds = convertDateStringToTimestamp(DATE_TIME_FORMAT, tvDateEnds.text.toString())
+                            dateStarts = convertDateStringToTimestamp(
+                                DATE_TIME_FORMAT,
+                                tvDateStarts.text.toString()
+                            ),
+                            dateEnds = convertDateStringToTimestamp(
+                                DATE_TIME_FORMAT,
+                                tvDateEnds.text.toString()
+                            )
                         )
 
                         viewModel.createTask(
                             updatedTask,
-                            args.boardListInfo
+                            boardListInfo
                         ) {
                             navController.popBackStack()
                         }
@@ -118,15 +128,21 @@ class CreateTaskFragment : BaseFragment(), StateHandler {
                                 tags = viewModel.createTaskState.value.tags
                                     .filter { it.isSelected }
                                     .map { it.tag.id },
-                                dateStarts = convertDateStringToTimestamp(DATE_TIME_FORMAT, tvDateStarts.text.toString()),
-                                dateEnds = convertDateStringToTimestamp(DATE_TIME_FORMAT, tvDateEnds.text.toString())
+                                dateStarts = convertDateStringToTimestamp(
+                                    DATE_TIME_FORMAT,
+                                    tvDateStarts.text.toString()
+                                ),
+                                dateEnds = convertDateStringToTimestamp(
+                                    DATE_TIME_FORMAT,
+                                    tvDateEnds.text.toString()
+                                )
                             )
 
-                            viewModel.editTask(updatedTask, args.boardListInfo) {
+                            viewModel.editTask(updatedTask, boardListInfo) {
                                 navController.navigate(
                                     CreateTaskFragmentDirections.actionCreateTaskFragmentToTaskDetailsFragment(
                                         task = updatedTask,
-                                        boardListInfo = args.boardListInfo
+                                        boardList = args.boardList
                                     )
                                 )
                             }
@@ -143,7 +159,7 @@ class CreateTaskFragment : BaseFragment(), StateHandler {
             tvCreateTag.setOnClickListener {
 //                buildCreateTagDialog()
                 val createTagDialog = CreateTagDialog(requireContext()) { tag ->
-                    viewModel.createTag(tag, args.boardListInfo)
+                    viewModel.createTag(tag, boardListInfo)
                 }
                 createTagDialog.show()
             }
@@ -327,7 +343,7 @@ class CreateTaskFragment : BaseFragment(), StateHandler {
 
         datePicker.addOnPositiveButtonClickListener {
             alertDialogBinding.tvSelectedDate.setText(
-               convertTimestampToDateString(DATE_FORMAT, it)
+                convertTimestampToDateString(DATE_FORMAT, it)
             )
         }
         datePicker.show(childFragmentManager, "date_picker")

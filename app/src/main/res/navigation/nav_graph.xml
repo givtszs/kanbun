@@ -126,8 +126,8 @@
             android:id="@+id/action_taskDetailsFragment_to_createTaskFragment"
             app:destination="@id/createTaskFragment" />
         <argument
-            android:name="boardListInfo"
-            app:argType="com.example.kanbun.domain.model.BoardListInfo" />
+            android:name="boardList"
+            app:argType="com.example.kanbun.domain.model.BoardList" />
     </fragment>
     <fragment
         android:id="@+id/createTaskFragment"
@@ -145,8 +145,8 @@
             app:destination="@id/taskDetailsFragment"
             app:popUpTo="@id/boardFragment" />
         <argument
-            android:name="boardListInfo"
-            app:argType="com.example.kanbun.domain.model.BoardListInfo" />
+            android:name="boardList"
+            app:argType="com.example.kanbun.domain.model.BoardList" />
     </fragment>
     <fragment
         android:id="@+id/boardSettingsFragment"

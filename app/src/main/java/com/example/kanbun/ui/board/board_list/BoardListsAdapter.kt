@@ -7,7 +7,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.kanbun.databinding.ItemBoardListBinding
 import com.example.kanbun.databinding.ItemCreateBoardListBinding
 import com.example.kanbun.domain.model.BoardList
-import com.example.kanbun.domain.model.BoardListInfo
 import com.example.kanbun.domain.model.Tag
 import com.example.kanbun.domain.model.Task
 import com.example.kanbun.ui.board.DropCallback
@@ -50,8 +49,8 @@ class BoardListsAdapter(
                         callbacks.createTask(lists[position])
                     }
 
-                    override fun onTaskClicked(task: Task, boardListInfo: BoardListInfo) {
-                        callbacks.onTaskClicked(task, boardListInfo)
+                    override fun onTaskClicked(task: Task, boardList: BoardList) {
+                        callbacks.onTaskClicked(task, boardList)
                     }
 
                     override fun openMenu(position: Int) {

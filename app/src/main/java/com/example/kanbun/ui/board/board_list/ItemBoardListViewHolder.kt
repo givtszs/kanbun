@@ -64,7 +64,7 @@ class ItemBoardListViewHolder(
             boardListAdapter.boardTags,
             taskDropCallbacks,
             onTaskClicked = { task ->
-                callbacks.onTaskClicked(task, BoardListInfo(boardList!!.id, boardList!!.path))
+                callbacks.onTaskClicked(task, boardList!!)
             }
         )
 

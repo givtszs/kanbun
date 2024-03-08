@@ -148,16 +148,16 @@ class BoardFragment : BaseFragment(), StateHandler {
                             task = Task(
                                 position = boardList.tasks.size.toLong()
                             ),
-                            boardListInfo = BoardListInfo(boardList.id, boardList.path)
+                            boardList = boardList
                         )
                     )
                 }
 
-                override fun onTaskClicked(task: Task, boardListInfo: BoardListInfo) {
+                override fun onTaskClicked(task: Task, boardList: BoardList) {
                     navController.navigate(
                         BoardFragmentDirections.actionBoardFragmentToTaskDetailsFragment(
                             task,
-                            boardListInfo = boardListInfo
+                            boardList = boardList
                         )
                     )
                 }

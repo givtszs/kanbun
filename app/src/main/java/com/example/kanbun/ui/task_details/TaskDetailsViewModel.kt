@@ -4,8 +4,7 @@ package com.example.kanbun.ui.task_details
 import android.util.Log
 import androidx.lifecycle.viewModelScope
 import com.example.kanbun.common.Result
-import com.example.kanbun.domain.model.BoardListInfo
-import com.example.kanbun.domain.model.Task
+import com.example.kanbun.domain.model.BoardList
 import com.example.kanbun.domain.repository.FirestoreRepository
 import com.example.kanbun.ui.BaseViewModel
 import com.example.kanbun.ui.ViewState
@@ -17,7 +16,6 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -108,12 +106,13 @@ class TaskDetailsViewModel @Inject constructor(
         _isLoadingMembers.value = false
     }
 
-    fun deleteTask(task: Task, boardListInfo: BoardListInfo, navigateOnDelete: () -> Unit) = viewModelScope.launch {
+    fun deleteTask(taskPosition: Int, boardList: BoardList, navigateOnDelete: () -> Unit) = viewModelScope.launch {
         when (
-            val result = firestoreRepository.deleteTask(
-                task = task,
-                boardListPath = boardListInfo.path,
-                boardListId = boardListInfo.id
+            val result = firestoreRepository.deleteTaskAndRearrange(
+                listPath = boardList.path,
+                listId = boardList.id,
+                tasks = boardList.tasks,
+                from  = taskPosition
             )
         ) {
             is Result.Success -> navigateOnDelete()

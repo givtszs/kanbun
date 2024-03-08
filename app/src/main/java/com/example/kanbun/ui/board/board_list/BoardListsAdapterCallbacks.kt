@@ -1,7 +1,6 @@
 package com.example.kanbun.ui.board.board_list
 
 import com.example.kanbun.domain.model.BoardList
-import com.example.kanbun.domain.model.BoardListInfo
 import com.example.kanbun.domain.model.Task
 
 interface BoardListsAdapterCallbacks {
@@ -11,7 +10,7 @@ interface BoardListsAdapterCallbacks {
 
     fun createTask(boardList: BoardList)
 
-    fun onTaskClicked(task: Task, boardListInfo: BoardListInfo)
+    fun onTaskClicked(task: Task, boardList: BoardList)
 
     fun loadingComplete()
 }
