@@ -78,6 +78,7 @@ class CreateTaskFragment : BaseFragment(), StateHandler {
             }
         }
         viewModel.init(args.task, boardListInfo, args.actionType)
+        setUpTagsAdapter()
         collectState()
     }
 
@@ -87,6 +88,7 @@ class CreateTaskFragment : BaseFragment(), StateHandler {
         binding.apply {
             // use the task from arguments to preserve the `position` property
             when (args.actionType) {
+                // TODO: Extract the `updatedTask` into a separate method if the code is similar for both creation and update
                 TaskAction.ACTION_CREATE -> {
                     btnCreateTask.setOnClickListener {
                         val updatedTask = task.copy(
@@ -192,6 +194,7 @@ class CreateTaskFragment : BaseFragment(), StateHandler {
         }
     }
 
+    // TODO: Remove the commented code if it's not needed
 //    private fun buildCreateTagDialog() {
 //        var tagColor = ""
 //        var alertDialogBinding: AlertDialogCreateTagBinding? =
@@ -412,10 +415,7 @@ class CreateTaskFragment : BaseFragment(), StateHandler {
                 pbLoadingTags.isVisible = loadingManager.isLoadingTags
 
                 if (tags.isNotEmpty()) {
-                    tagsAdapter = TagsAdapter(areItemsClickable = true).also {
-                        it.tags = tags
-                    }
-                    rvTags.adapter = tagsAdapter
+                    tagsAdapter?.tags = tags
                 }
 
                 message?.let {
@@ -424,8 +424,6 @@ class CreateTaskFragment : BaseFragment(), StateHandler {
                 }
             }
 
-
-
             message?.let {
                 showToast(it)
                 viewModel.messageShown()
@@ -433,6 +431,10 @@ class CreateTaskFragment : BaseFragment(), StateHandler {
         }
     }
 
+    private fun setUpTagsAdapter() {
+        tagsAdapter = TagsAdapter(areItemsClickable = true)
+        binding.rvTags.adapter = tagsAdapter
+    }
 
     override fun onDestroyView() {
         super.onDestroyView()

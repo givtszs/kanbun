@@ -1,5 +1,6 @@
 package com.example.kanbun.ui.board.common_adapters
 
+import android.util.Log
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
@@ -11,8 +12,11 @@ class TagsAdapter(
 ) : RecyclerView.Adapter<TagsAdapter.ItemTagViewHolder>() {
     var tags: List<TagUi> = emptyList()
         set(value) {
-            field = value.sortedBy { it.tag.name }
-            notifyDataSetChanged()
+            if (field != value) {
+                field = value.sortedBy { it.tag.name }
+                Log.d("CreateTaskFragment", "setTags: $field")
+                notifyDataSetChanged()
+            }
         }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ItemTagViewHolder {
@@ -21,6 +25,7 @@ class TagsAdapter(
         ) { position ->
             if (areItemsClickable) {
                 tags[position].isSelected = !tags[position].isSelected
+                Log.d("CreateTaskFragment", "tag selected: ${tags[position]}")
                 notifyItemChanged(position)
             }
         }

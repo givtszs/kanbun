@@ -24,9 +24,9 @@ import com.squareup.moshi.Moshi
 
 class ItemTaskViewHolder(
     private val binding: ItemTaskBinding,
-    private val boardTags: List<Tag>,
     private val tasksAdapter: TasksAdapter,
-    private val clickAtPosition: (Int) -> Unit
+    private val clickAtPosition: (Int) -> Unit,
+    private val loadTags: (List<String>) -> List<Tag>
 ) : RecyclerView.ViewHolder(binding.root) {
 
     companion object {
@@ -130,22 +130,23 @@ class ItemTaskViewHolder(
     }
 
     private fun setUpTagsFlexbox(task: Task) {
-        if (boardTags.isEmpty() || task.tags.isEmpty()) {
+        if (task.tags.isEmpty()) {
             binding.flexTags.isVisible = false
             return
         }
+
+        val tags = loadTags(task.tags)
+        Log.d("ItemTaskViewHolder", "tags: $tags")
 
         binding.apply {
             flexTags.isVisible = true
             flexTags.removeAllViews()
 
-            boardTags.onEach { tag ->
-                if (tag.id in task.tags) {
-                    val tagView = TagView(context = itemView.context, isBig = false).also {
-                        it.bind(tag, isClickable = false, isSelected = false)
-                    }
-                    flexTags.addView(tagView)
+            tags.forEach {  tag ->
+                val tagView = TagView(context = itemView.context, isBig = false).also {
+                    it.bind(tag, isClickable = false, isSelected = false)
                 }
+                flexTags.addView(tagView)
             }
         }
     }

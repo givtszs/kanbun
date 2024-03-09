@@ -673,14 +673,14 @@ class FirestoreRepositoryImpl @Inject constructor(
         tag: Tag,
         boardId: String,
         boardPath: String,
-    ): Result<String> =
+    ): Result<Tag> =
         runCatching {
             val tagId = tag.id.ifEmpty { UUID.randomUUID().toString() }
             firestore.collection(boardPath)
                 .document(boardId)
                 .update("tags.$tagId", tag.toFirestoreTag())
                 .getResult {
-                    tagId
+                    tag.copy(id = tagId)
                 }
         }
 

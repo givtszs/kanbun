@@ -61,10 +61,12 @@ class ItemBoardListViewHolder(
         }
 
         tasksAdapter = TasksAdapter(
-            boardListAdapter.boardTags,
-            taskDropCallbacks,
+            taskDropCallbacks = taskDropCallbacks,
             onTaskClicked = { task ->
                 callbacks.onTaskClicked(task, boardList!!)
+            },
+            loadTaskTags = { tagIds ->
+                boardListAdapter.boardTags.filter { tag -> tag.id in tagIds }
             }
         )
 

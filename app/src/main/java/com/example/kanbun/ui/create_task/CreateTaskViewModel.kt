@@ -150,7 +150,7 @@ class CreateTaskViewModel @Inject constructor(
                     boardId = boardRef.substringAfterLast("/"),
                 )
             ) {
-                is Result.Success -> _tags.value = _tags.value + TagUi(tag, false)
+                is Result.Success -> _tags.value = _tags.value + TagUi(result.data, false)
                 is Result.Error -> _message.value = result.message
                 Result.Loading -> _isLoadingTags.value = true
             }

@@ -14,7 +14,7 @@ class CreateTagUseCase @Inject constructor(
         tags: List<TagUi>,
         boardPath: String,
         boardId: String
-    ): Result<String> {
+    ): Result<Tag> {
         val isAlreadyCreated = tags.any { it.tag.name == tag.name }
         return if (isAlreadyCreated) {
             Result.Error("Tag with the same name is already created")

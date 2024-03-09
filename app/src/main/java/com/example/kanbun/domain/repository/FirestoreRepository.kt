@@ -113,7 +113,7 @@ interface FirestoreRepository {
         tag: Tag,
         boardId: String,
         boardPath: String
-    ): Result<String>
+    ): Result<Tag>
 
     suspend fun getTags(boardId: String, workspaceId: String): Result<List<Tag>>
 

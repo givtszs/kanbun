@@ -29,7 +29,6 @@ import com.example.kanbun.common.TaskAction
 import com.example.kanbun.common.moshi
 import com.example.kanbun.databinding.FragmentBoardBinding
 import com.example.kanbun.domain.model.BoardList
-import com.example.kanbun.domain.model.BoardListInfo
 import com.example.kanbun.domain.model.Task
 import com.example.kanbun.domain.model.Workspace
 import com.example.kanbun.ui.BaseFragment
@@ -49,7 +48,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
-private const val TAG = "BoardFragm"
+private const val TAG = "BoardFragment"
 
 @AndroidEntryPoint
 class BoardFragment : BaseFragment(), StateHandler {
@@ -317,8 +316,6 @@ class BoardFragment : BaseFragment(), StateHandler {
             } else {
                 viewModel.stopLoading()
             }
-
-
 
             binding.loading.root.isVisible = isLoading
 
