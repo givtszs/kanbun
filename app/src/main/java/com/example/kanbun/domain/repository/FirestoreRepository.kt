@@ -60,7 +60,12 @@ interface FirestoreRepository {
         boardListId: String
     ): Result<Unit>
 
-    suspend fun deleteBoardList(boardListPath: String, boardListId: String): Result<Unit>
+    suspend fun deleteBoardListAndRearrange(
+        id: String,
+        path: String,
+        boardLists: List<BoardList>,
+        deleteAt: Int
+    ): Result<Unit>
 
     fun getBoardListsStream(boardId: String, workspaceId: String): Flow<Result<List<BoardList>>>
 

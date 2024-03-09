@@ -6,7 +6,7 @@ import com.example.kanbun.domain.model.Task
 interface BoardListsAdapterCallbacks {
     fun createBoardList()
 
-    fun onBoardListMenuClicked(boardList: BoardList)
+    fun onBoardListMenuClicked(boardList: BoardList, boardLists: List<BoardList>)
 
     fun createTask(boardList: BoardList)
 

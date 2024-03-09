@@ -136,8 +136,8 @@ class BoardFragment : BaseFragment(), StateHandler {
                     buildCreateListDialog()
                 }
 
-                override fun onBoardListMenuClicked(boardList: BoardList) {
-                    val boardListMenuDialog = BoardListMenuDialog.init(boardList)
+                override fun onBoardListMenuClicked(boardList: BoardList, boardLists: List<BoardList>) {
+                    val boardListMenuDialog = BoardListMenuDialog.init(boardList, boardLists)
                     boardListMenuDialog.show(childFragmentManager, "board_list_menu")
                 }
 

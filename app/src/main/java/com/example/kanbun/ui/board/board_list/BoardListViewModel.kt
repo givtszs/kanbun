@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.kanbun.common.Result
+import com.example.kanbun.domain.model.BoardList
 import com.example.kanbun.domain.repository.FirestoreRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
@@ -29,11 +30,16 @@ class BoardListViewModel @Inject constructor(
     }
 
     fun deleteBoardList(
-        boardListPath: String,
-        boardListId: String,
+        boardList: BoardList,
+        boardLists: List<BoardList>,
         onSuccess: () -> Unit
     ) = viewModelScope.launch {
-        when (firestoreRepository.deleteBoardList(boardListPath, boardListId)) {
+        when (firestoreRepository.deleteBoardListAndRearrange(
+            id = boardList.id,
+            path = boardList.path,
+            boardLists = boardLists,
+            deleteAt = boardList.position.toInt()
+        )) {
             is Result.Success -> onSuccess()
             is Result.Error -> {}
             Result.Loading -> {}

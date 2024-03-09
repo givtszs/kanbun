@@ -418,23 +418,42 @@ class FirestoreRepositoryImpl @Inject constructor(
             .await()
     }
 
-    override suspend fun deleteBoardList(boardListPath: String, boardListId: String): Result<Unit> =
-        runCatching {
-            firestore.collection(boardListPath)
-                .document(boardListId)
-                .delete()
-                .getResult {
-                    deleteBoardsList(boardListPath, boardListId)
-                }
+    private fun rearrangeBoardLists(position: Int, path: String, boardLists: List<BoardList>) {
+        val boardListCollectionRef = firestore.collection(path)
+        Log.d(TAG, "rearrangeBoardLists is called")
+        for (i in (position + 1)..<boardLists.size) {
+            Log.d(TAG, "rearrangeBoardLists: boardList: ${boardLists[i]}")
+            updateBoardListPosition(
+                collectionReference = boardListCollectionRef,
+                documentId = boardLists[i].id,
+                newPosition = boardLists[i].position.dec()
+            )
         }
+    }
 
-    private fun deleteBoardsList(boardListPath: String, boardListId: String) {
+    override suspend fun deleteBoardListAndRearrange(
+        id: String,
+        path: String,
+        boardLists: List<BoardList>,
+        deleteAt: Int
+    ): Result<Unit> = runCatching {
+        firestore.collection(path)
+            .document(id)
+            .delete()
+            .getResult {
+                rearrangeBoardLists(deleteAt, path, boardLists)
+                deleteListFromBoard(path, id)
+            }
+    }
+
+    private fun deleteListFromBoard(boardListPath: String, boardListId: String) {
         val boardRef = boardListPath.substringBefore("/lists")
         val boardPath = boardRef.substringBeforeLast("/")
         val boardId = boardRef.substringAfterLast("/")
         firestore.collection(boardPath)
             .document(boardId)
             .update("lists", FieldValue.arrayRemove(boardListId))
+//            .await()
     }
 
     override fun getBoardListsStream(

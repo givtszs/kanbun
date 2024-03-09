@@ -141,8 +141,7 @@ class FirestoreTestUtil {
         fun createTag(name: String, color: String): Tag =
             Tag(
                 name = name,
-                textColor = "#$color",
-                backgroundColor = "#33$color" // 33 at the beginning sets opacity to 20%
+                color = color,
             )
     }
 }

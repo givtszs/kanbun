@@ -54,7 +54,7 @@ class BoardListsAdapter(
                     }
 
                     override fun openMenu(position: Int) {
-                        callbacks.onBoardListMenuClicked(lists[position])
+                        callbacks.onBoardListMenuClicked(lists[position], lists)
                     }
                 }
             )

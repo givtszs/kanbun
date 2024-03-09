@@ -22,11 +22,13 @@ class BoardListMenuDialog : BottomSheetDialogFragment() {
     private val binding: BoardListMenuDialogBinding get() = _binding!!
     private val viewModel: BoardListViewModel by viewModels()
     private lateinit var boardList: BoardList
+    private lateinit var boardLists: List<BoardList>
 
     companion object {
-        fun init(boardList: BoardList): BoardListMenuDialog {
+        fun init(boardList: BoardList, boardLists: List<BoardList>): BoardListMenuDialog {
             return BoardListMenuDialog().apply {
                 this.boardList = boardList
+                this.boardLists = boardLists
             }
         }
     }
@@ -44,7 +46,7 @@ class BoardListMenuDialog : BottomSheetDialogFragment() {
         super.onViewCreated(view, savedInstanceState)
 
         binding.btnDelete.setOnClickListener {
-            viewModel.deleteBoardList(boardList.path, boardList.id) { dismiss() }
+            viewModel.deleteBoardList(boardList, boardLists) { dismiss() }
         }
 
         binding.btnEditName.setOnClickListener {
