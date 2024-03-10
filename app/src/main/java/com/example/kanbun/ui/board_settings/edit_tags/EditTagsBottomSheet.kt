@@ -6,17 +6,25 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.RecyclerView
 import com.example.kanbun.databinding.EditTagsBottomSheetBinding
 import com.example.kanbun.databinding.ItemEditTagBinding
 import com.example.kanbun.domain.model.Tag
+import com.example.kanbun.ui.StateHandler
+import com.example.kanbun.ui.ViewState
 import com.example.kanbun.ui.create_tag_dialog.CreateTagDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
-class EditTagsBottomSheet : BottomSheetDialogFragment() {
+class EditTagsBottomSheet : BottomSheetDialogFragment(), StateHandler {
     private var _binding: EditTagsBottomSheetBinding? = null
     private val binding: EditTagsBottomSheetBinding get() = _binding!!
     private val viewModel: EditTagsViewModel by viewModels()
@@ -45,8 +53,43 @@ class EditTagsBottomSheet : BottomSheetDialogFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         Log.d("EditTags", "tags: $tags")
-//        viewModel.setTags(tags)
-        editTagsAdapter = EditTagsAdapter(tags.sortedBy { it.name }) { tag ->
+        setUpTagsAdapter()
+        viewModel.setTags(tags)
+        collectState()
+
+        binding.btnCreateTag.setOnClickListener {
+            val createTagDialog = CreateTagDialog(requireContext()) {
+                // create tag
+            }
+            createTagDialog.show()
+        }
+    }
+
+    override fun collectState() {
+        lifecycleScope.launch {
+            lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.editTagsState.collectLatest {
+                    processState(it)
+                }
+            }
+        }
+    }
+
+    override fun processState(state: ViewState) {
+        with(state as ViewState.EditTagsViewState) {
+            message?.let {
+                Toast.makeText(requireContext(), it, Toast.LENGTH_SHORT).show()
+                viewModel.messageShown()
+            }
+
+            if (tags.isNotEmpty()) {
+                editTagsAdapter?.tags = tags
+            }
+        }
+    }
+
+    private fun setUpTagsAdapter() {
+        editTagsAdapter = EditTagsAdapter { tag ->
             // edit tag
             val tagEditor = CreateTagDialog(requireContext()) {
                 // update tag
@@ -55,13 +98,6 @@ class EditTagsBottomSheet : BottomSheetDialogFragment() {
             tagEditor.show()
         }
         binding.rvTags.adapter = editTagsAdapter
-
-        binding.btnCreateTag.setOnClickListener {
-            val createTagDialog = CreateTagDialog(requireContext()) {
-                // create tag
-            }
-            createTagDialog.show()
-        }
     }
 
     override fun onDestroyView() {
@@ -76,9 +112,16 @@ class EditTagsBottomSheet : BottomSheetDialogFragment() {
     }
 
     private class EditTagsAdapter(
-        private val tags: List<Tag>,
         private val onItemClicked: (Tag) -> Unit
     ) : RecyclerView.Adapter<EditTagsAdapter.ItemEditTagViewHolder>() {
+
+        var tags: List<Tag> = emptyList()
+            set(value) {
+                if (field != value) {
+                    field = value
+                    notifyDataSetChanged()
+                }
+            }
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ItemEditTagViewHolder {
             return ItemEditTagViewHolder(

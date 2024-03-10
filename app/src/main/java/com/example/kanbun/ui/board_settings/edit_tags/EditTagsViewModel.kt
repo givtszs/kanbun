@@ -27,8 +27,12 @@ class EditTagsViewModel @Inject constructor(
 
     fun setTags(tags: List<Tag>) {
         _editTagsState.update {
-            it.copy(tags = tags.map { tag -> TagUi(tag, false) })
+            it.copy(tags = tags.sortedBy{ tag -> tag.name })
         }
+    }
+
+    fun messageShown() {
+        _editTagsState.update { it.copy(message = null) }
     }
 
     fun createTag(tag: Tag, board: Board) {
@@ -36,7 +40,7 @@ class EditTagsViewModel @Inject constructor(
             when (
                 val result = createTagUseCase(
                     tag = tag,
-                    tags = _editTagsState.value.tags,
+                    tags = _editTagsState.value.tags.map { TagUi(it, false) },
                     boardPath = "${FirestoreCollection.WORKSPACES.collectionName}/${board.workspace.id}" +
                             "/${FirestoreCollection.BOARDS.collectionName}",
                     boardId = board.id,
@@ -44,7 +48,7 @@ class EditTagsViewModel @Inject constructor(
             ) {
                 is Result.Success -> {
                     _editTagsState.update {
-                        it.copy(tags = _editTagsState.value.tags + TagUi(tag, false))
+                        it.copy(tags = _editTagsState.value.tags + tag)
                     }
                 }
 

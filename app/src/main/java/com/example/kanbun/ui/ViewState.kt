@@ -2,6 +2,7 @@ package com.example.kanbun.ui
 
 import com.example.kanbun.domain.model.Board
 import com.example.kanbun.domain.model.BoardList
+import com.example.kanbun.domain.model.Tag
 import com.example.kanbun.domain.model.Task
 import com.example.kanbun.domain.model.User
 import com.example.kanbun.domain.model.Workspace
@@ -84,7 +85,7 @@ sealed class ViewState {
     ) : ViewState()
 
     data class EditTagsViewState(
-        val tags: List<TagUi> = emptyList(),
+        val tags: List<Tag> = emptyList(),
         val message: String? = null
     ) : ViewState()
 }
