@@ -25,6 +25,10 @@ class BoardSettingsViewModel @Inject constructor(
     private var _boardSettingsState = MutableStateFlow(ViewState.BoardSettingsViewState())
     val boardSettingsState: StateFlow<ViewState.BoardSettingsViewState> = _boardSettingsState
 
+    fun init(tags: List<Tag>) {
+        setTags(tags)
+    }
+
     fun deleteBoard(board: Board, onSuccess: () -> Unit) =
         viewModelScope.launch {
             processResult(firestoreRepository.deleteBoard(board), onSuccess)
@@ -71,9 +75,25 @@ class BoardSettingsViewModel @Inject constructor(
                         it.copy(tags = tagsUi + TagUi(tag, false))
                     }
                 }
-                is Result.Error -> _boardSettingsState.update { it.copy(message =  result.message) }
+
+                is Result.Error -> _boardSettingsState.update { it.copy(message = result.message) }
                 Result.Loading -> {}
             }
         }
     }
+
+    fun setTags(tags: List<Tag>) {
+        if (!areTagsSame(
+            old = _boardSettingsState.value.tags.map { it.tag },
+            new = tags
+        )) {
+            _boardSettingsState.update {
+                it.copy(
+                    tags = tags.map { tag -> TagUi(tag, false) }
+                )
+            }
+        }
+    }
+    
+    private fun areTagsSame(old: List<Tag>, new: List<Tag>): Boolean = old == new
 }

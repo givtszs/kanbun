@@ -5,4 +5,4 @@ import com.example.kanbun.domain.model.Tag
 data class TagUi(
     val tag: Tag,
     var isSelected: Boolean = false
-    )
+)

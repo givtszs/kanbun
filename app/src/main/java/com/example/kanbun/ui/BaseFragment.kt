@@ -58,11 +58,8 @@ abstract class BaseFragment : Fragment() {
     }
 
     protected open fun setUpActionBar(toolbar: MaterialToolbar, title: String) {
-        (requireActivity() as MainActivity).apply {
-            setSupportActionBar(toolbar)
-            setupActionBarWithNavController(navController)
-            toolbar.title = title
-        }
+        setUpActionBar(toolbar)
+        toolbar.title = title
     }
 
     protected fun showToast(message: String, context: Context = requireContext(), duration: Int = Toast.LENGTH_SHORT) {

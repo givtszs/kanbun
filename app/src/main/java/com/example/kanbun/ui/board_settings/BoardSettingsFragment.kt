@@ -45,6 +45,8 @@ class BoardSettingsFragment : BaseFragment(), StateHandler {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setUpActionBar(binding.toolbar)
+        setUpTagsAdapter()
+        viewModel.init(board.tags)
         collectState()
     }
 
@@ -59,6 +61,7 @@ class BoardSettingsFragment : BaseFragment(), StateHandler {
         binding.apply {
             etName.setText(board.name)
             etDescription.setText(board.description)
+
             btnDeleteBoard.setOnClickListener {
                 viewModel.deleteBoard(board) {
                     navController.popBackStack(R.id.userBoardsFragment, false)
@@ -82,11 +85,6 @@ class BoardSettingsFragment : BaseFragment(), StateHandler {
                 }
             }
 
-            tagsAdapter = TagsAdapter().apply {
-                tags = board.tags.map { TagUi(it, false) }
-            }
-            rvTags.adapter = tagsAdapter
-
             btnEditTags.setOnClickListener {
                 // launch bottom sheet dialog
                 val editTagsDialog = EditTagsBottomSheet.init(board.tags)
@@ -94,7 +92,7 @@ class BoardSettingsFragment : BaseFragment(), StateHandler {
                     // update tags state
                     Log.d("BoardSettingsFragment", "bottom sheet is closed: tags: $tags")
                     // compareAndSet
-
+                    viewModel.setTags(tags)
                 }
                 editTagsDialog.show(childFragmentManager, "edit_tags_dialog")
             }
@@ -124,8 +122,14 @@ class BoardSettingsFragment : BaseFragment(), StateHandler {
         }
     }
 
+    private fun setUpTagsAdapter() {
+        tagsAdapter = TagsAdapter()
+        binding.rvTags.adapter = tagsAdapter
+    }
+
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+        tagsAdapter = null
     }
 }
