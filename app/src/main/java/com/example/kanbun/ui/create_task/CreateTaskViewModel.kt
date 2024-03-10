@@ -145,7 +145,7 @@ class CreateTaskViewModel @Inject constructor(
             when (
                 val result = createTagUseCase(
                     tag = tag,
-                    tags = _tags.value,
+                    tags = _tags.value.map { it.tag },
                     boardPath = boardRef.substringBeforeLast("/"),
                     boardId = boardRef.substringAfterLast("/"),
                 )

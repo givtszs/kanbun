@@ -40,7 +40,7 @@ class EditTagsViewModel @Inject constructor(
             when (
                 val result = createTagUseCase(
                     tag = tag,
-                    tags = _editTagsState.value.tags.map { TagUi(it, false) },
+                    tags = _editTagsState.value.tags,
                     boardPath = "${FirestoreCollection.WORKSPACES.collectionName}/${board.workspace.id}" +
                             "/${FirestoreCollection.BOARDS.collectionName}",
                     boardId = board.id,

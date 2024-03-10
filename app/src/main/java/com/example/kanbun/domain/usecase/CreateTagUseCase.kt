@@ -3,7 +3,6 @@ package com.example.kanbun.domain.usecase
 import com.example.kanbun.common.Result
 import com.example.kanbun.domain.model.Tag
 import com.example.kanbun.domain.repository.FirestoreRepository
-import com.example.kanbun.ui.model.TagUi
 import javax.inject.Inject
 
 class CreateTagUseCase @Inject constructor(
@@ -11,12 +10,12 @@ class CreateTagUseCase @Inject constructor(
 ) {
     suspend operator fun invoke(
         tag: Tag,
-        tags: List<TagUi>,
+        tags: List<Tag>,
         boardPath: String,
         boardId: String
     ): Result<Tag> {
-        val isAlreadyCreated = tags.any { it.tag.name == tag.name }
-        return if (isAlreadyCreated) {
+        val doesTagExist = tags.any { it.name == tag.name }
+        return if (doesTagExist) {
             Result.Error("Tag with the same name is already created")
         } else {
             firestoreRepository.upsertTag(
