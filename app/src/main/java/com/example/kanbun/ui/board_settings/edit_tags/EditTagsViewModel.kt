@@ -38,4 +38,12 @@ class EditTagsViewModel : ViewModel() {
             }
         }
     }
+
+    fun deleteTag(tagId: String) {
+        _editTagsState.update {
+            it.copy(
+                tags = it.tags.filterNot { tag -> tag.id == tagId }
+            )
+        }
+    }
 }

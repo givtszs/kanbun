@@ -90,15 +90,20 @@ class EditTagsBottomSheet : BottomSheetDialogFragment(), StateHandler {
     }
 
     private fun setUpTagsAdapter() {
-        editTagsAdapter = EditTagsAdapter { clickedTag ->
-            // edit tag
-            val tagEditor = CreateTagDialog(requireContext()) { tag ->
-                // update tag
-                viewModel.upsertTag(tag)
+        editTagsAdapter = EditTagsAdapter(
+            onItemClicked = { clickedTag ->
+                // edit tag
+                val tagEditor = CreateTagDialog(requireContext()) { tag ->
+                    // update tag
+                    viewModel.upsertTag(tag)
+                }
+                tagEditor.setTag(clickedTag)
+                tagEditor.show()
+            },
+            onDeleteIconClicked = { tagToDelete ->
+                viewModel.deleteTag(tagToDelete)
             }
-            tagEditor.setTag(clickedTag)
-            tagEditor.show()
-        }
+        )
         binding.rvTags.adapter = editTagsAdapter
     }
 
@@ -114,7 +119,8 @@ class EditTagsBottomSheet : BottomSheetDialogFragment(), StateHandler {
     }
 
     private class EditTagsAdapter(
-        private val onItemClicked: (Tag) -> Unit
+        private val onItemClicked: (Tag) -> Unit,
+        private val onDeleteIconClicked: (String) -> Unit
     ) : RecyclerView.Adapter<EditTagsAdapter.ItemEditTagViewHolder>() {
 
         var tags: List<Tag> = emptyList()
@@ -128,14 +134,18 @@ class EditTagsBottomSheet : BottomSheetDialogFragment(), StateHandler {
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ItemEditTagViewHolder {
             return ItemEditTagViewHolder(
-                ItemEditTagBinding.inflate(
+                binding = ItemEditTagBinding.inflate(
                     LayoutInflater.from(parent.context),
                     parent,
                     false
-                )
-            ) { position ->
-                onItemClicked(tags[position])
-            }
+                ),
+                onItemClicked = { position ->
+                    onItemClicked(tags[position])
+                },
+                onDeleteTagClicked = { position ->
+                    onDeleteIconClicked(tags[position].id)
+                }
+            )
         }
 
         override fun onBindViewHolder(holder: ItemEditTagViewHolder, position: Int) {
@@ -146,12 +156,19 @@ class EditTagsBottomSheet : BottomSheetDialogFragment(), StateHandler {
 
         class ItemEditTagViewHolder(
             private val binding: ItemEditTagBinding,
-            clickAtPosition: (Int) -> Unit
+            onItemClicked: (Int) -> Unit,
+            onDeleteTagClicked: (Int) -> Unit
         ) : RecyclerView.ViewHolder(binding.root) {
 
             init {
-                binding.cardBackground.setOnClickListener {
-                    clickAtPosition(adapterPosition)
+                binding.apply {
+                    cardBackground.setOnClickListener {
+                        onItemClicked(adapterPosition)
+                    }
+
+                    btnDeleteTag.setOnClickListener {
+                        onDeleteTagClicked(adapterPosition)
+                    }
                 }
             }
 
