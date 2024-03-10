@@ -1,4 +1,4 @@
-package com.example.kanbun.ui.board_settings
+package com.example.kanbun.ui.board_settings.edit_tags
 
 import android.graphics.Color
 import android.os.Bundle
@@ -6,16 +6,20 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.RecyclerView
 import com.example.kanbun.databinding.EditTagsBottomSheetBinding
 import com.example.kanbun.databinding.ItemEditTagBinding
 import com.example.kanbun.domain.model.Tag
 import com.example.kanbun.ui.create_tag_dialog.CreateTagDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class EditTagsBottomSheet : BottomSheetDialogFragment() {
     private var _binding: EditTagsBottomSheetBinding? = null
     private val binding: EditTagsBottomSheetBinding get() = _binding!!
+    private val viewModel: EditTagsViewModel by viewModels()
     private var editTagsAdapter: EditTagsAdapter? = null
     private lateinit var tags: List<Tag>
 
@@ -41,6 +45,7 @@ class EditTagsBottomSheet : BottomSheetDialogFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         Log.d("EditTags", "tags: $tags")
+//        viewModel.setTags(tags)
         editTagsAdapter = EditTagsAdapter(tags.sortedBy { it.name }) { tag ->
             // edit tag
             val tagEditor = CreateTagDialog(requireContext()) {

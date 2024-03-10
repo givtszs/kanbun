@@ -82,4 +82,9 @@ sealed class ViewState {
         val message: String? = null,
         val tags: List<TagUi> = emptyList()
     ) : ViewState()
+
+    data class EditTagsViewState(
+        val tags: List<TagUi> = emptyList(),
+        val message: String? = null
+    ) : ViewState()
 }

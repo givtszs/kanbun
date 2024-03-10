@@ -55,33 +55,6 @@ class BoardSettingsViewModel @Inject constructor(
         }
     }
 
-    fun createTag(tag: Tag, board: Board) {
-        viewModelScope.launch {
-            val tagsUi = _boardSettingsState.value.tags.ifEmpty {
-                board.tags.map { TagUi(it, false) }
-            }
-
-            when (
-                val result = createTagUseCase(
-                    tag = tag,
-                    tags = tagsUi,
-                    boardPath = "${FirestoreCollection.WORKSPACES.collectionName}/${board.workspace.id}" +
-                            "/${FirestoreCollection.BOARDS.collectionName}",
-                    boardId = board.id,
-                )
-            ) {
-                is Result.Success -> {
-                    _boardSettingsState.update {
-                        it.copy(tags = tagsUi + TagUi(tag, false))
-                    }
-                }
-
-                is Result.Error -> _boardSettingsState.update { it.copy(message = result.message) }
-                Result.Loading -> {}
-            }
-        }
-    }
-
     fun setTags(tags: List<Tag>) {
         if (!areTagsSame(
             old = _boardSettingsState.value.tags.map { it.tag },
