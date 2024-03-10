@@ -1,5 +1,6 @@
 package com.example.kanbun.ui.board_settings.edit_tags
 
+import android.content.DialogInterface
 import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
@@ -24,23 +25,27 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
+private const val TAG = "EditTags"
+
 @AndroidEntryPoint
 class EditTagsBottomSheet : BottomSheetDialogFragment(), StateHandler {
     private var _binding: EditTagsBottomSheetBinding? = null
     private val binding: EditTagsBottomSheetBinding get() = _binding!!
     private val viewModel: EditTagsViewModel by viewModels()
     private var editTagsAdapter: EditTagsAdapter? = null
+    private lateinit var tags: List<Tag>
     private lateinit var board: Board
 
     companion object {
-        fun init(board: Board): EditTagsBottomSheet {
+        fun init(tags: List<Tag>, board: Board): EditTagsBottomSheet {
             return EditTagsBottomSheet().apply {
+                this.tags = tags
                 this.board = board
             }
         }
     }
 
-    var onClose: (List<Tag>) -> Unit = {}
+    var onDismissCallback: (List<Tag>) -> Unit = {}
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -53,14 +58,14 @@ class EditTagsBottomSheet : BottomSheetDialogFragment(), StateHandler {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        Log.d("EditTags", "tags: ${board.tags}")
+        Log.d(TAG, "tags: $tags")
         setUpTagsAdapter()
-        viewModel.setTags(board.tags)
+        viewModel.setTags(tags)
         collectState()
 
         binding.btnCreateTag.setOnClickListener {
             val createTagDialog = CreateTagDialog(requireContext()) { tag ->
-                viewModel.createTag(tag, board)
+                viewModel.upsertTag(tag, board)
             }
             createTagDialog.show()
         }
@@ -90,12 +95,13 @@ class EditTagsBottomSheet : BottomSheetDialogFragment(), StateHandler {
     }
 
     private fun setUpTagsAdapter() {
-        editTagsAdapter = EditTagsAdapter { tag ->
+        editTagsAdapter = EditTagsAdapter { clickedTag ->
             // edit tag
-            val tagEditor = CreateTagDialog(requireContext()) {
+            val tagEditor = CreateTagDialog(requireContext()) { tag ->
                 // update tag
+                viewModel.upsertTag(tag, board)
             }
-            tagEditor.setTag(tag)
+            tagEditor.setTag(clickedTag)
             tagEditor.show()
         }
         binding.rvTags.adapter = editTagsAdapter
@@ -106,10 +112,10 @@ class EditTagsBottomSheet : BottomSheetDialogFragment(), StateHandler {
         _binding = null
         editTagsAdapter = null
     }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        onClose(viewModel.editTagsState.value.tags)
+    
+    override fun onDismiss(dialog: DialogInterface) {
+        super.onDismiss(dialog)
+        onDismissCallback(viewModel.editTagsState.value.tags)
     }
 
     private class EditTagsAdapter(
@@ -120,6 +126,7 @@ class EditTagsBottomSheet : BottomSheetDialogFragment(), StateHandler {
             set(value) {
                 if (field != value) {
                     field = value
+                    Log.d(TAG, "editTagsAdapter: tags: $field")
                     notifyDataSetChanged()
                 }
             }

@@ -1,12 +1,11 @@
 package com.example.kanbun.ui.board_settings
 
 import androidx.lifecycle.viewModelScope
-import com.example.kanbun.common.FirestoreCollection
 import com.example.kanbun.common.Result
 import com.example.kanbun.domain.model.Board
 import com.example.kanbun.domain.model.Tag
 import com.example.kanbun.domain.repository.FirestoreRepository
-import com.example.kanbun.domain.usecase.CreateTagUseCase
+import com.example.kanbun.domain.usecase.UpsertTagUseCase
 import com.example.kanbun.ui.BaseViewModel
 import com.example.kanbun.ui.ViewState
 import com.example.kanbun.ui.model.TagUi
@@ -20,7 +19,7 @@ import javax.inject.Inject
 @HiltViewModel
 class BoardSettingsViewModel @Inject constructor(
     private val firestoreRepository: FirestoreRepository,
-    private val createTagUseCase: CreateTagUseCase
+    private val createTagUseCase: UpsertTagUseCase
 ) : BaseViewModel() {
     private var _boardSettingsState = MutableStateFlow(ViewState.BoardSettingsViewState())
     val boardSettingsState: StateFlow<ViewState.BoardSettingsViewState> = _boardSettingsState

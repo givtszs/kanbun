@@ -6,10 +6,8 @@ import com.example.kanbun.common.FirestoreCollection
 import com.example.kanbun.common.Result
 import com.example.kanbun.domain.model.Board
 import com.example.kanbun.domain.model.Tag
-import com.example.kanbun.domain.repository.FirestoreRepository
-import com.example.kanbun.domain.usecase.CreateTagUseCase
+import com.example.kanbun.domain.usecase.UpsertTagUseCase
 import com.example.kanbun.ui.ViewState
-import com.example.kanbun.ui.model.TagUi
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -19,15 +17,14 @@ import javax.inject.Inject
 
 @HiltViewModel
 class EditTagsViewModel @Inject constructor(
-    private val firestoreRepository: FirestoreRepository,
-    private val createTagUseCase: CreateTagUseCase,
+    private val createTagUseCase: UpsertTagUseCase,
 ) : ViewModel() {
     private var _editTagsState = MutableStateFlow(ViewState.EditTagsViewState())
     val editTagsState: StateFlow<ViewState.EditTagsViewState> = _editTagsState
 
     fun setTags(tags: List<Tag>) {
         _editTagsState.update {
-            it.copy(tags = tags.sortedBy{ tag -> tag.name })
+            it.copy(tags = tags.sortedBy { tag -> tag.name })
         }
     }
 
@@ -35,7 +32,7 @@ class EditTagsViewModel @Inject constructor(
         _editTagsState.update { it.copy(message = null) }
     }
 
-    fun createTag(tag: Tag, board: Board) {
+    fun upsertTag(tag: Tag, board: Board) {
         viewModelScope.launch {
             when (
                 val result = createTagUseCase(
@@ -47,9 +44,16 @@ class EditTagsViewModel @Inject constructor(
                 )
             ) {
                 is Result.Success -> {
-                    _editTagsState.update {
-                        it.copy(tags = _editTagsState.value.tags + tag)
+                    val isTagUpdate = _editTagsState.value.tags.any { it.id == tag.id }
+                    if (isTagUpdate) {
+                        // update the list of tags
+                        setTags(_editTagsState.value.tags.filterNot { _tag -> _tag.id == tag.id } + tag)
+                    } else {
+                        _editTagsState.update {
+                            it.copy(tags = _editTagsState.value.tags + result.data)
+                        }
                     }
+
                 }
 
                 is Result.Error -> _editTagsState.update { it.copy(message = result.message) }

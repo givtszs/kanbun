@@ -87,8 +87,12 @@ class BoardSettingsFragment : BaseFragment(), StateHandler {
 
             btnEditTags.setOnClickListener {
                 // launch bottom sheet dialog
-                val editTagsDialog = EditTagsBottomSheet.init(board)
-                editTagsDialog.onClose = { tags ->
+                // TODO: Pass only board id and path
+                val editTagsDialog = EditTagsBottomSheet.init(
+                    viewModel.boardSettingsState.value.tags.map { it.tag },
+                    board
+                )
+                editTagsDialog.onDismissCallback = { tags ->
                     // update tags state
                     Log.d("BoardSettingsFragment", "bottom sheet is closed: tags: $tags")
                     // compareAndSet

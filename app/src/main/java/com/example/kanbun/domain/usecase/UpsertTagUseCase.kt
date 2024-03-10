@@ -5,7 +5,7 @@ import com.example.kanbun.domain.model.Tag
 import com.example.kanbun.domain.repository.FirestoreRepository
 import javax.inject.Inject
 
-class CreateTagUseCase @Inject constructor(
+class UpsertTagUseCase @Inject constructor(
     private val firestoreRepository: FirestoreRepository
 ) {
     suspend operator fun invoke(
@@ -14,7 +14,7 @@ class CreateTagUseCase @Inject constructor(
         boardPath: String,
         boardId: String
     ): Result<Tag> {
-        val doesTagExist = tags.any { it.name == tag.name }
+        val doesTagExist = tags.any { it.name == tag.name && it.id != tag.id }
         return if (doesTagExist) {
             Result.Error("Tag with the same name is already created")
         } else {

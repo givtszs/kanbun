@@ -2,6 +2,7 @@ package com.example.kanbun.domain.repository
 
 import com.example.kanbun.common.FirestoreCollection
 import com.example.kanbun.common.Result
+import com.example.kanbun.common.defaultTagColors
 import com.example.kanbun.data.repository.FirestoreRepositoryImpl
 import com.example.kanbun.domain.FirestoreTestUtil
 import com.example.kanbun.domain.model.Board
@@ -421,16 +422,16 @@ class FirestoreRepositoryTest {
     fun deleteBoardLists_deletesBoardListAndRearrangesOthers() = runBlocking {
         var board = createBoard("board1")
         val boardList1 = createBoardList("list1", 0, board).run {
-           board = first
-           second
+            board = first
+            second
         }
         val boardList2 = createBoardList("list2", 1, board).run {
-           board = first
-           second
+            board = first
+            second
         }
         val boardList3 = createBoardList("list3", 2, board).run {
-           board = first
-           second
+            board = first
+            second
         }
 
         val toDelete = boardList2
@@ -444,7 +445,8 @@ class FirestoreRepositoryTest {
 
         assertThat(result).isResultSuccess()
 
-        val updBoardList = (repository.getBoardList(boardList3.path, boardList3.id) as Result.Success).data
+        val updBoardList =
+            (repository.getBoardList(boardList3.path, boardList3.id) as Result.Success).data
 
         assertThat(updBoardList.position).isEqualTo(boardList3.position.dec())
     }
@@ -628,6 +630,26 @@ class FirestoreRepositoryTest {
     }
 
     @Test
+    fun upsertTag_updatesExistingTag() = runBlocking {
+        val board = createBoard("board1")
+        val tag = createTag("Test", "#000000", board.id, board.workspace.id)
+
+        val newTag = tag.copy(name = "Test 1")
+        val result = repository.upsertTag(
+            newTag,
+            board.id,
+            "${FirestoreCollection.WORKSPACES.collectionName}/${board.workspace.id}" +
+                    "/${FirestoreCollection.BOARDS.collectionName}"
+        )
+
+        assertThat(result).isResultSuccess()
+
+        val updTag = (repository.getTags(board.id, board.workspace.id) as Result.Success).data.first { it.id == tag.id }
+
+        assertThat(updTag).isEqualTo(newTag)
+    }
+
+    @Test
     fun getTags_getsListOfTags() = runBlocking {
         val board = createBoard("board1")
         val tag1 = createTag("Tag1", "FF0000", board.id, board.workspace.id)
@@ -746,7 +768,11 @@ class FirestoreRepositoryTest {
         return createBoard(user.id, WorkspaceInfo(workspace.id, workspace.name), name)
     }
 
-    private suspend fun createBoardList(name: String, position: Int, board: Board): Pair<Board, BoardList> {
+    private suspend fun createBoardList(
+        name: String,
+        position: Int,
+        board: Board
+    ): Pair<Board, BoardList> {
         val boardList = FirestoreTestUtil.createBoardList(name, position).run {
             copy(
                 id = (repository.createBoardList(this, board) as Result.Success).data,
@@ -792,9 +818,7 @@ class FirestoreRepositoryTest {
         val boardPath = "${FirestoreCollection.WORKSPACES.collectionName}/$workspaceId" +
                 "/${FirestoreCollection.BOARDS.collectionName}"
         return FirestoreTestUtil.createTag(name, color).run {
-            copy(
-                id = (repository.upsertTag(this, boardId, boardPath) as Result.Success).data
-            )
+            (repository.upsertTag(this, boardId, boardPath) as Result.Success).data
         }
     }
 }

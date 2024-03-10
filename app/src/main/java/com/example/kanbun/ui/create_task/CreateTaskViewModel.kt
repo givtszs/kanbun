@@ -9,7 +9,7 @@ import com.example.kanbun.domain.model.BoardListInfo
 import com.example.kanbun.domain.model.Tag
 import com.example.kanbun.domain.model.Task
 import com.example.kanbun.domain.repository.FirestoreRepository
-import com.example.kanbun.domain.usecase.CreateTagUseCase
+import com.example.kanbun.domain.usecase.UpsertTagUseCase
 import com.example.kanbun.ui.BaseViewModel
 import com.example.kanbun.ui.ViewState
 import com.example.kanbun.ui.model.TagUi
@@ -27,7 +27,7 @@ private const val TAG = "CreateTaskViewModel"
 @HiltViewModel
 class CreateTaskViewModel @Inject constructor(
     private val firestoreRepository: FirestoreRepository,
-    private val createTagUseCase: CreateTagUseCase
+    private val upsertTagUseCase: UpsertTagUseCase
 ) : BaseViewModel() {
     private var _task = MutableStateFlow<Task?>(null)
     private var _tags =
@@ -143,7 +143,7 @@ class CreateTaskViewModel @Inject constructor(
                 boardListInfo.path.substringBefore("/${FirestoreCollection.BOARD_LIST.collectionName}")
 
             when (
-                val result = createTagUseCase(
+                val result = upsertTagUseCase(
                     tag = tag,
                     tags = _tags.value.map { it.tag },
                     boardPath = boardRef.substringBeforeLast("/"),

@@ -34,6 +34,7 @@ class CreateTagDialog(
             false
 
         )
+    private var tag: Tag? = null
     private val tagName = MutableStateFlow("")
     private val tagColor = MutableStateFlow("")
     private var colorPickerAdapter: ColorPickerAdapter = ColorPickerAdapter { colorId ->
@@ -47,6 +48,7 @@ class CreateTagDialog(
     }
 
     fun setTag(tag: Tag) {
+        this.tag = tag
         binding.etName.setText(tag.name)
         colorPickerAdapter.selectColor(defaultTagColors.indexOf(tag.color))
         tagColor.value = tag.color
@@ -64,10 +66,8 @@ class CreateTagDialog(
             .setCancelable(false)
             .setPositiveButton("Done") { _, _ ->
                 onDoneClicked(
-                    Tag(
-                        name = tagName.value,
-                        color = tagColor.value,
-                    )
+                    tag?.copy(name = tagName.value, color = tagColor.value)
+                        ?: Tag(name = tagName.value, color = tagColor.value)
                 )
             }
             .setNegativeButton("Cancel") { dialog, _ ->
