@@ -14,6 +14,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.RecyclerView
 import com.example.kanbun.databinding.EditTagsBottomSheetBinding
 import com.example.kanbun.databinding.ItemEditTagBinding
+import com.example.kanbun.domain.model.Board
 import com.example.kanbun.domain.model.Tag
 import com.example.kanbun.ui.StateHandler
 import com.example.kanbun.ui.ViewState
@@ -29,12 +30,12 @@ class EditTagsBottomSheet : BottomSheetDialogFragment(), StateHandler {
     private val binding: EditTagsBottomSheetBinding get() = _binding!!
     private val viewModel: EditTagsViewModel by viewModels()
     private var editTagsAdapter: EditTagsAdapter? = null
-    private lateinit var tags: List<Tag>
+    private lateinit var board: Board
 
     companion object {
-        fun init(tags: List<Tag>): EditTagsBottomSheet {
+        fun init(board: Board): EditTagsBottomSheet {
             return EditTagsBottomSheet().apply {
-                this.tags = tags
+                this.board = board
             }
         }
     }
@@ -52,14 +53,14 @@ class EditTagsBottomSheet : BottomSheetDialogFragment(), StateHandler {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        Log.d("EditTags", "tags: $tags")
+        Log.d("EditTags", "tags: ${board.tags}")
         setUpTagsAdapter()
-        viewModel.setTags(tags)
+        viewModel.setTags(board.tags)
         collectState()
 
         binding.btnCreateTag.setOnClickListener {
-            val createTagDialog = CreateTagDialog(requireContext()) {
-                // create tag
+            val createTagDialog = CreateTagDialog(requireContext()) { tag ->
+                viewModel.createTag(tag, board)
             }
             createTagDialog.show()
         }
@@ -108,7 +109,7 @@ class EditTagsBottomSheet : BottomSheetDialogFragment(), StateHandler {
 
     override fun onDestroy() {
         super.onDestroy()
-        onClose(tags)
+        onClose(viewModel.editTagsState.value.tags)
     }
 
     private class EditTagsAdapter(
