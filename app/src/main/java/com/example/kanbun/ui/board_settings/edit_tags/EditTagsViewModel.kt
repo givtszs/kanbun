@@ -1,24 +1,14 @@
 package com.example.kanbun.ui.board_settings.edit_tags
 
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
-import com.example.kanbun.common.FirestoreCollection
-import com.example.kanbun.common.Result
-import com.example.kanbun.domain.model.Board
 import com.example.kanbun.domain.model.Tag
-import com.example.kanbun.domain.usecase.UpsertTagUseCase
 import com.example.kanbun.ui.ViewState
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.launch
-import javax.inject.Inject
+import java.util.UUID
 
-@HiltViewModel
-class EditTagsViewModel @Inject constructor(
-    private val createTagUseCase: UpsertTagUseCase,
-) : ViewModel() {
+class EditTagsViewModel : ViewModel() {
     private var _editTagsState = MutableStateFlow(ViewState.EditTagsViewState())
     val editTagsState: StateFlow<ViewState.EditTagsViewState> = _editTagsState
 
@@ -32,31 +22,19 @@ class EditTagsViewModel @Inject constructor(
         _editTagsState.update { it.copy(message = null) }
     }
 
-    fun upsertTag(tag: Tag, boardId: String, boardPath: String) {
-        viewModelScope.launch {
-            when (
-                val result = createTagUseCase(
-                    tag = tag,
-                    tags = _editTagsState.value.tags,
-                    boardPath = boardPath,
-                    boardId = boardId,
-                )
-            ) {
-                is Result.Success -> {
-                    val isTagUpdate = _editTagsState.value.tags.any { it.id == tag.id }
-                    if (isTagUpdate) {
-                        // update the list of tags
-                        setTags(_editTagsState.value.tags.filterNot { _tag -> _tag.id == tag.id } + tag)
-                    } else {
-                        _editTagsState.update {
-                            it.copy(tags = _editTagsState.value.tags + result.data)
-                        }
-                    }
-
+    fun upsertTag(tag: Tag) {
+        val isTagUpdate = _editTagsState.value.tags.any { it.id == tag.id }
+        if (isTagUpdate) {
+            // update the list of tags
+            setTags(_editTagsState.value.tags.filterNot { _tag -> _tag.id == tag.id } + tag)
+        } else {
+            val doesTagExist = _editTagsState.value.tags.any { it.name == tag.name }
+            if (!doesTagExist) {
+                _editTagsState.update {
+                    it.copy(tags = _editTagsState.value.tags + tag.copy(id = UUID.randomUUID().toString()))
                 }
-
-                is Result.Error -> _editTagsState.update { it.copy(message = result.message) }
-                Result.Loading -> {}
+            } else {
+                _editTagsState.update { it.copy(message = "Tag with the same name is already created") }
             }
         }
     }

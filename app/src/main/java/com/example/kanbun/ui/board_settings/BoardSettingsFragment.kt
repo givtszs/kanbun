@@ -24,6 +24,8 @@ import com.google.android.material.appbar.MaterialToolbar
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
+private const val TAG = "BoardSettingsFragment"
+
 class BoardSettingsFragment : BaseFragment(), StateHandler {
 
     private var _binding: FragmentBoardSettingsBinding? = null
@@ -73,32 +75,25 @@ class BoardSettingsFragment : BaseFragment(), StateHandler {
                 // compare only text fields, since tags and members updates are made in place
                 val newBoard = board.copy(
                     name = etName.text?.trim().toString(),
-                    description = etDescription.text?.trim().toString()
+                    description = etDescription.text?.trim().toString(),
+                    tags = viewModel.boardSettingsState.value.tags.map { it.tag }
                 )
 
                 if (newBoard == board) {
                     showToast("No updates")
                     navController.popBackStack()
-                }
-
-                viewModel.updateBoard(newBoard) {
-                    navController.popBackStack()
+                } else {
+                    viewModel.updateBoard(newBoard) {
+                        navController.popBackStack()
+                    }
                 }
             }
 
             btnEditTags.setOnClickListener {
-                // launch bottom sheet dialog
-                // TODO: Pass only board id and path
                 val editTagsDialog = EditTagsBottomSheet.init(
-                    tags = viewModel.boardSettingsState.value.tags.map { it.tag },
-                    boardId = board.id,
-                    boardPath = "${FirestoreCollection.WORKSPACES.collectionName}/${board.workspace.id}" +
-                            "/${FirestoreCollection.BOARDS.collectionName}"
+                    tags = viewModel.boardSettingsState.value.tags.map { it.tag }
                 )
                 editTagsDialog.onDismissCallback = { tags ->
-                    // update tags state
-                    Log.d("BoardSettingsFragment", "bottom sheet is closed: tags: $tags")
-                    // compareAndSet
                     viewModel.setTags(tags)
                 }
                 editTagsDialog.show(childFragmentManager, "edit_tags_dialog")

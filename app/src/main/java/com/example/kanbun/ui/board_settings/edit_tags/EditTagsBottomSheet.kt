@@ -15,34 +15,27 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.RecyclerView
 import com.example.kanbun.databinding.EditTagsBottomSheetBinding
 import com.example.kanbun.databinding.ItemEditTagBinding
-import com.example.kanbun.domain.model.Board
 import com.example.kanbun.domain.model.Tag
 import com.example.kanbun.ui.StateHandler
 import com.example.kanbun.ui.ViewState
 import com.example.kanbun.ui.create_tag_dialog.CreateTagDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
-import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 private const val TAG = "EditTags"
 
-@AndroidEntryPoint
 class EditTagsBottomSheet : BottomSheetDialogFragment(), StateHandler {
     private var _binding: EditTagsBottomSheetBinding? = null
     private val binding: EditTagsBottomSheetBinding get() = _binding!!
     private val viewModel: EditTagsViewModel by viewModels()
     private var editTagsAdapter: EditTagsAdapter? = null
     private lateinit var tags: List<Tag>
-    private lateinit var boardId: String
-    private lateinit var boardPath: String
 
     companion object {
-        fun init(tags: List<Tag>, boardId: String, boardPath: String): EditTagsBottomSheet {
+        fun init(tags: List<Tag>): EditTagsBottomSheet {
             return EditTagsBottomSheet().apply {
                 this.tags = tags
-                this.boardId = boardId
-                this.boardPath = boardPath
             }
         }
     }
@@ -67,7 +60,7 @@ class EditTagsBottomSheet : BottomSheetDialogFragment(), StateHandler {
 
         binding.btnCreateTag.setOnClickListener {
             val createTagDialog = CreateTagDialog(requireContext()) { tag ->
-                viewModel.upsertTag(tag, boardId, boardPath)
+                viewModel.upsertTag(tag)
             }
             createTagDialog.show()
         }
@@ -101,7 +94,7 @@ class EditTagsBottomSheet : BottomSheetDialogFragment(), StateHandler {
             // edit tag
             val tagEditor = CreateTagDialog(requireContext()) { tag ->
                 // update tag
-                viewModel.upsertTag(tag, boardId, boardPath)
+                viewModel.upsertTag(tag)
             }
             tagEditor.setTag(clickedTag)
             tagEditor.show()
