@@ -32,15 +32,14 @@ class EditTagsViewModel @Inject constructor(
         _editTagsState.update { it.copy(message = null) }
     }
 
-    fun upsertTag(tag: Tag, board: Board) {
+    fun upsertTag(tag: Tag, boardId: String, boardPath: String) {
         viewModelScope.launch {
             when (
                 val result = createTagUseCase(
                     tag = tag,
                     tags = _editTagsState.value.tags,
-                    boardPath = "${FirestoreCollection.WORKSPACES.collectionName}/${board.workspace.id}" +
-                            "/${FirestoreCollection.BOARDS.collectionName}",
-                    boardId = board.id,
+                    boardPath = boardPath,
+                    boardId = boardId,
                 )
             ) {
                 is Result.Success -> {

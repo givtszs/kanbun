@@ -11,6 +11,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.navArgs
 import com.example.kanbun.R
+import com.example.kanbun.common.FirestoreCollection
 import com.example.kanbun.databinding.FragmentBoardSettingsBinding
 import com.example.kanbun.domain.model.Board
 import com.example.kanbun.ui.BaseFragment
@@ -89,8 +90,10 @@ class BoardSettingsFragment : BaseFragment(), StateHandler {
                 // launch bottom sheet dialog
                 // TODO: Pass only board id and path
                 val editTagsDialog = EditTagsBottomSheet.init(
-                    viewModel.boardSettingsState.value.tags.map { it.tag },
-                    board
+                    tags = viewModel.boardSettingsState.value.tags.map { it.tag },
+                    boardId = board.id,
+                    boardPath = "${FirestoreCollection.WORKSPACES.collectionName}/${board.workspace.id}" +
+                            "/${FirestoreCollection.BOARDS.collectionName}"
                 )
                 editTagsDialog.onDismissCallback = { tags ->
                     // update tags state

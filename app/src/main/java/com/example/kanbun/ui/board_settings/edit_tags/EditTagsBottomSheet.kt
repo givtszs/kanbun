@@ -34,13 +34,15 @@ class EditTagsBottomSheet : BottomSheetDialogFragment(), StateHandler {
     private val viewModel: EditTagsViewModel by viewModels()
     private var editTagsAdapter: EditTagsAdapter? = null
     private lateinit var tags: List<Tag>
-    private lateinit var board: Board
+    private lateinit var boardId: String
+    private lateinit var boardPath: String
 
     companion object {
-        fun init(tags: List<Tag>, board: Board): EditTagsBottomSheet {
+        fun init(tags: List<Tag>, boardId: String, boardPath: String): EditTagsBottomSheet {
             return EditTagsBottomSheet().apply {
                 this.tags = tags
-                this.board = board
+                this.boardId = boardId
+                this.boardPath = boardPath
             }
         }
     }
@@ -65,7 +67,7 @@ class EditTagsBottomSheet : BottomSheetDialogFragment(), StateHandler {
 
         binding.btnCreateTag.setOnClickListener {
             val createTagDialog = CreateTagDialog(requireContext()) { tag ->
-                viewModel.upsertTag(tag, board)
+                viewModel.upsertTag(tag, boardId, boardPath)
             }
             createTagDialog.show()
         }
@@ -99,7 +101,7 @@ class EditTagsBottomSheet : BottomSheetDialogFragment(), StateHandler {
             // edit tag
             val tagEditor = CreateTagDialog(requireContext()) { tag ->
                 // update tag
-                viewModel.upsertTag(tag, board)
+                viewModel.upsertTag(tag, boardId, boardPath)
             }
             tagEditor.setTag(clickedTag)
             tagEditor.show()
