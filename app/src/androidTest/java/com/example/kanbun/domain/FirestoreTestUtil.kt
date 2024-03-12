@@ -143,5 +143,8 @@ class FirestoreTestUtil {
                 name = name,
                 color = color,
             )
+
+        const val black = "#000000"
+        const val white = "#FFFFFF"
     }
 }

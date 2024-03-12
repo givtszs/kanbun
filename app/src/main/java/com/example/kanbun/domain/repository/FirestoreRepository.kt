@@ -118,8 +118,16 @@ interface FirestoreRepository {
     suspend fun getTags(boardId: String, workspaceId: String): Result<List<Tag>>
 
     suspend fun getTaskTags(
-        boardId: String,
-        workspaceId: String,
-        tagIds: List<String>
+        taskId: String,
+        tagIds: List<String>,
+        boardListId: String,
+        boardListPath: String,
     ): Result<List<Tag>>
+
+    suspend fun updateTaskTags(
+        taskId: String,
+        tagIds: List<String>,
+        boardListId: String,
+        boardListPath: String
+    ): Result<Unit>
 }

@@ -695,16 +695,52 @@ class FirestoreRepositoryImpl @Inject constructor(
         }
 
     override suspend fun getTaskTags(
-        boardId: String,
-        workspaceId: String,
-        tagIds: List<String>
+        taskId: String,
+        tagIds: List<String>,
+        boardListId: String,
+        boardListPath: String,
     ): Result<List<Tag>> = runCatching {
-        val tagsResult = getTags(boardId, workspaceId)
-        if (tagsResult is Result.Error) {
-            throw tagsResult.e!!
+        val boardId = boardListPath
+            .substringAfter("${FirestoreCollection.BOARDS.collectionName}/")
+            .substringBefore("/${FirestoreCollection.BOARD_LIST.collectionName}")
+        val workspaceId = boardListPath
+            .substringAfter("${FirestoreCollection.WORKSPACES.collectionName}/")
+            .substringBefore("/${FirestoreCollection.BOARDS.collectionName}")
+
+        val result = getTags(boardId, workspaceId)
+        if (result is Result.Error) {
+            throw result.e!!
         }
 
-        val tags = (tagsResult as Result.Success).data
-        tags.filter { it.id in tagIds }
+        val tags = (result as Result.Success).data
+        val taskTags = tags.filter { it.id in tagIds }
+        val taskTagIds = taskTags.map { it.id }
+        Log.d(TAG, "getTaskTags: (old) tagsIds: $tagIds, (current) taskTagsIds: $taskTagIds")
+
+        // if the passed tagIds and the received taskTagIds are different, it means that some tags
+        // have been deleted from the board, so we need to update the task with only relevant tags.
+        if (tagIds != taskTagIds) {
+            Log.d(TAG, "getTaskTags: newTags: $taskTagIds")
+            updateTaskTags(
+                tagIds = taskTagIds,
+                taskId = taskId,
+                boardListId = boardListId,
+                boardListPath = boardListPath
+            )
+        }
+
+        taskTags
+    }
+
+    override suspend fun updateTaskTags(
+        taskId: String,
+        tagIds: List<String>,
+        boardListId: String,
+        boardListPath: String
+    ): Result<Unit> = runCatching {
+        firestore.collection(boardListPath)
+            .document(boardListId)
+            .update("tasks.$taskId.tags", tagIds)
+            .await()
     }
 }

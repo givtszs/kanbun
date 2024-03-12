@@ -679,13 +679,60 @@ class FirestoreRepositoryTest {
             tags = listOf(tag1.id, tag2.id)
         )
 
-        val result = repository.getTaskTags(board.id, workspaceId, task.tags)
+        val result = repository.getTaskTags(task.id, task.tags, boardList.id, boardList.path)
 
         assertThat(result).isInstanceOf(Result.Success::class.java)
 
         val resultTags = (result as Result.Success).data
 
         assertThat(resultTags.map { it.id }).isEqualTo(task.tags)
+    }
+
+    @Test
+    fun getTaskTags_getsUpdatedTaskTags() = runBlocking {
+        var board = createBoard("board1")
+        val boardList = createBoardList("list1", 0, board).run {
+            board = first
+            second
+        }
+        var task = createTask("task1", 0, boardList)
+        val tag1 = createTag("Tag 1", "#FFFFFF", board.id, board.workspace.id)
+        val tag2 = createTag("Tag 2", "#000000", board.id, board.workspace.id)
+        board = board.copy(tags = listOf(tag1, tag2))
+
+        // add tags to the task
+        task = task.copy(tags = listOf(tag1.id, tag2.id))
+        repository.updateTaskTags(task.id, task.tags, boardList.id, boardList.path)
+
+        // delete `tag2` from the board
+        val updatedTags = board.tags.filterNot { it.id == tag2.id }
+        repository.updateBoard(
+            board.copy(tags = updatedTags)
+        )
+
+        // get task tags
+        val result = repository.getTaskTags(task.id, task.tags, boardList.id, boardList.path)
+
+        assertThat(result).isInstanceOf(Result.Success::class.java)
+
+        val resultTags = (result as Result.Success).data
+
+        assertThat(resultTags).isEqualTo(updatedTags)
+    }
+
+    @Test
+    fun updateTaskTags_updatesTaskTagIdsList() = runBlocking {
+        val board = createBoard("board1")
+        val boardList = createBoardList("boardList1", 0, board).second
+        val task = createTask("task1", 0, boardList)
+        val tag1 = createTag("Tag1", FirestoreTestUtil.black, board.id, board.workspace.id)
+        val tag2 = createTag("Tag2", FirestoreTestUtil.white, board.id, board.workspace.id)
+
+        val taskTags = listOf(tag1.id, tag2.id)
+        // add a tag to the task
+        val result = repository.updateTaskTags(task.id, taskTags, boardList.id, boardList.path)
+
+        assertThat(result).isResultSuccess()
     }
 
     @Test

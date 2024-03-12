@@ -5,6 +5,8 @@ import android.util.Log
 import androidx.lifecycle.viewModelScope
 import com.example.kanbun.common.Result
 import com.example.kanbun.domain.model.BoardList
+import com.example.kanbun.domain.model.Tag
+import com.example.kanbun.domain.model.Task
 import com.example.kanbun.domain.repository.FirestoreRepository
 import com.example.kanbun.ui.BaseViewModel
 import com.example.kanbun.ui.ViewState
@@ -39,7 +41,10 @@ class TaskDetailsViewModel @Inject constructor(
     private var _isLoading = combine(
         _isLoadingAuthor, _isLoadingTags, _isLoadingMembers
     ) { isLoadingAuthor, isLoadingTags, isLoadingMembers ->
-        Log.d(TAG, "isLoadingAuthor: $isLoadingAuthor, isLoadingTags: $isLoadingTags, isLoadingMembers: $isLoadingMembers")
+        Log.d(
+            TAG,
+            "isLoadingAuthor: $isLoadingAuthor, isLoadingTags: $isLoadingTags, isLoadingMembers: $isLoadingMembers"
+        )
         !(!isLoadingAuthor && !isLoadingTags && !isLoadingMembers)
     }
 
@@ -55,7 +60,7 @@ class TaskDetailsViewModel @Inject constructor(
         )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), ViewState.TaskDetailsViewState())
 
-    private fun messageShown() {
+    fun messageShown() {
         _message.value = null
     }
 
@@ -79,24 +84,25 @@ class TaskDetailsViewModel @Inject constructor(
                     _message.value = result.message
                     _isLoadingAuthor.value = false
                 }
+
                 Result.Loading -> {}
             }
         }
     }
 
-    fun getTags(taskTags: List<String>, boardListPath: String) {
+    fun getTags(taskId: String, tagsIds: List<String>, boardListId: String, boardListPath: String) {
         viewModelScope.launch(Dispatchers.IO) {
-            val boardId = boardListPath.substringAfter("boards/").substringBefore("/lists")
-            val workspaceId = boardListPath.substringAfter("workspaces/").substringBefore("/boards")
-            when (val result = firestoreRepository.getTaskTags(boardId, workspaceId, taskTags)) {
+            when (val result = firestoreRepository.getTaskTags(taskId, tagsIds,  boardListId, boardListPath)) {
                 is Result.Success -> {
                     _tags.value = result.data.map { tag -> TagUi(tag, false) }
                     _isLoadingTags.value = false
                 }
+
                 is Result.Error -> {
                     _message.value = result.message
                     _isLoadingTags.value = false
                 }
+
                 Result.Loading -> {}
             }
         }
@@ -106,18 +112,19 @@ class TaskDetailsViewModel @Inject constructor(
         _isLoadingMembers.value = false
     }
 
-    fun deleteTask(taskPosition: Int, boardList: BoardList, navigateOnDelete: () -> Unit) = viewModelScope.launch {
-        when (
-            val result = firestoreRepository.deleteTaskAndRearrange(
-                listPath = boardList.path,
-                listId = boardList.id,
-                tasks = boardList.tasks,
-                from  = taskPosition
-            )
-        ) {
-            is Result.Success -> navigateOnDelete()
-            is Result.Error -> _message.value = result.message
-            Result.Loading -> {}
+    fun deleteTask(taskPosition: Int, boardList: BoardList, navigateOnDelete: () -> Unit) =
+        viewModelScope.launch {
+            when (
+                val result = firestoreRepository.deleteTaskAndRearrange(
+                    listPath = boardList.path,
+                    listId = boardList.id,
+                    tasks = boardList.tasks,
+                    from = taskPosition
+                )
+            ) {
+                is Result.Success -> navigateOnDelete()
+                is Result.Error -> _message.value = result.message
+                Result.Loading -> {}
+            }
         }
-    }
 }

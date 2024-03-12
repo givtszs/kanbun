@@ -23,6 +23,8 @@ import com.example.kanbun.common.DATE_TIME_FORMAT
 import com.example.kanbun.common.TaskAction
 import com.example.kanbun.common.convertTimestampToDateString
 import com.example.kanbun.databinding.FragmentTaskDetailsBinding
+import com.example.kanbun.domain.model.BoardList
+import com.example.kanbun.domain.model.Task
 import com.example.kanbun.ui.BaseFragment
 import com.example.kanbun.ui.StateHandler
 import com.example.kanbun.ui.ViewState
@@ -40,6 +42,8 @@ class TaskDetailsFragment : BaseFragment(), StateHandler {
     private val viewModel: TaskDetailsViewModel by viewModels()
     private val args: TaskDetailsFragmentArgs by navArgs()
     private var tagsAdapter: TagsAdapter? = null
+    private lateinit var task: Task
+    private lateinit var boardList: BoardList
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -52,6 +56,9 @@ class TaskDetailsFragment : BaseFragment(), StateHandler {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        task = args.task
+        boardList = args.boardList
+
         setUpActionBar(binding.topAppBar.toolbar)
         setUpOptionsMenu()
         loadSupplementaryInfo()
@@ -61,8 +68,13 @@ class TaskDetailsFragment : BaseFragment(), StateHandler {
     // TODO: Update this bullshit of a class to load the task details in a single repository request
 
     private fun loadSupplementaryInfo() {
-        viewModel.getAuthor(args.task.author)
-        viewModel.getTags(args.task.tags, args.boardList.path)
+        viewModel.getAuthor(task.author)
+        viewModel.getTags(
+            taskId = task.id,
+            tagsIds = task.tags,
+            boardListId = boardList.id,
+            boardListPath = boardList.path
+        )
         viewModel.getMembers()
     }
 
@@ -134,6 +146,11 @@ class TaskDetailsFragment : BaseFragment(), StateHandler {
                     rvMembers.visibility = View.GONE
                 }
                 tvMembersLabel.text = resources.getString(R.string.task_members, members.size)
+
+                message?.let {
+                    showToast(it)
+                    viewModel.messageShown()
+                }
             }
         }
     }
