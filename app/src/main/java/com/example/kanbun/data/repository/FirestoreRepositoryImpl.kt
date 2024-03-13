@@ -32,6 +32,8 @@ import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
+import com.google.firebase.functions.ktx.functions
+import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
@@ -115,12 +117,12 @@ class FirestoreRepositoryImpl @Inject constructor(
                 .await()
         }
 
-    private suspend fun deleteUserWorkspace(userId: String, workspaceId: String): Result<Unit> =
+    private fun deleteUserWorkspace(userId: String, workspaceId: String): Result<Unit> =
         runCatching {
             firestore.collection(FirestoreCollection.USERS.collectionName)
                 .document(userId)
                 .update("workspaces.$workspaceId", FieldValue.delete())
-                .await()
+//                .await()
         }
 
     override suspend fun createWorkspace(workspace: Workspace): Result<String> =
@@ -245,6 +247,33 @@ class FirestoreRepositoryImpl @Inject constructor(
                     deleteUserWorkspace(member.id, workspace.id)
                 }
             }
+    }
+
+    private fun recursiveDelete(path: String) {
+        val deleteFn = Firebase.functions.getHttpsCallable("recursiveDelete")
+        deleteFn.call(hashMapOf("path" to path))
+            .addOnSuccessListener {
+                Log.d(TAG, "deleteWorkspaceCloudFn: workspace deletion succeeded")
+            }
+            .addOnFailureListener {
+                Log.d(TAG, "deleteWorkspaceCloudFn: workspace deletion failed")
+                throw it
+            }
+    }
+
+    override fun deleteWorkspaceCloudFn(workspace: Workspace): Result<Unit> = runCatching {
+        val workspacePath = "${FirestoreCollection.WORKSPACES.collectionName}/${workspace.id}"
+        val boardsPath = "${FirestoreCollection.WORKSPACES.collectionName}/${workspace.id}/${FirestoreCollection.BOARDS.collectionName}"
+        // delete the workspace
+        recursiveDelete(workspacePath)
+
+        // delete the workspace boards
+        recursiveDelete(boardsPath)
+
+        // delete the reference to workspace from members
+        workspace.members.forEach { member ->
+            deleteUserWorkspace(member.id, workspace.id)
+        }
     }
 
     private suspend fun addBoardInfoToWorkspace(

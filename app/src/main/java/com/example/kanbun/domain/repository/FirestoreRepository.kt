@@ -42,6 +42,15 @@ interface FirestoreRepository {
 
     suspend fun deleteWorkspace(workspace: Workspace): Result<Unit>
 
+    /**
+     * Deletes the [workspace] using the deployed Cloud Function which recursively deletes all
+     * data in the document, including subcollections.
+     *
+     * @param workspace the workspace to delete
+     * @return [Result] the result of the function execution
+     */
+    fun deleteWorkspaceCloudFn(workspace: Workspace): Result<Unit>
+
     suspend fun createBoard(board: Board): Result<String>
 
     suspend fun getBoard(boardId: String, workspaceId: String): Result<Board>

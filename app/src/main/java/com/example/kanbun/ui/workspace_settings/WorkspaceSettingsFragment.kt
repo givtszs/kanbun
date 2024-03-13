@@ -104,10 +104,13 @@ class WorkspaceSettingsFragment : BaseFragment() {
         MaterialAlertDialogBuilder(requireContext())
             .setTitle("Delete ${workspace.name} workspace?")
             .setPositiveButton("Delete") { _, _ ->
-                lifecycleScope.launch {
-                    (requireActivity() as MainActivity).drawerAdapter?.prevSelectedWorkspaceId =
-                        null
-                    viewModel.deleteWorkspace(workspace)
+//                lifecycleScope.launch {
+//                    (requireActivity() as MainActivity).drawerAdapter?.prevSelectedWorkspaceId =
+//                        null
+//                    viewModel.deleteWorkspace(workspace)
+//                    navController.popBackStack()
+//                }
+                viewModel.deleteWorkspaceCloudFn(workspace) {
                     navController.popBackStack()
                 }
             }
