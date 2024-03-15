@@ -44,6 +44,11 @@ sealed class ViewState {
         val message: String? = null
     ) : ViewState()
 
+    data class WorkspaceSettingsViewState(
+        val isLoading: Boolean = false,
+        val members: List<Nothing> = emptyList(), // TODO: update generic type with the member model
+    ) : ViewState()
+
     data class BoardViewState(
         val board: Board = Board(),
         val lists: List<BoardList> = emptyList(),

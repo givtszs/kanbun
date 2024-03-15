@@ -30,6 +30,7 @@ class BoardSettingsViewModel @Inject constructor(
 
     fun deleteBoard(board: Board, onSuccess: () -> Unit) =
         viewModelScope.launch {
+            _boardSettingsState.update { it.copy(isLoading = true) }
             processResult(firestoreRepository.deleteBoard(board), onSuccess)
         }
 

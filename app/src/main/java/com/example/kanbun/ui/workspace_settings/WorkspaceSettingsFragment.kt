@@ -4,23 +4,29 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.view.isVisible
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.navArgs
 import com.example.kanbun.R
 import com.example.kanbun.common.getColor
 import com.example.kanbun.databinding.FragmentWorkspaceSettingsBinding
 import com.example.kanbun.domain.model.Workspace
 import com.example.kanbun.ui.BaseFragment
+import com.example.kanbun.ui.StateHandler
+import com.example.kanbun.ui.ViewState
 import com.example.kanbun.ui.main_activity.MainActivity
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
-class WorkspaceSettingsFragment : BaseFragment() {
+class WorkspaceSettingsFragment : BaseFragment(), StateHandler {
     private var _binding: FragmentWorkspaceSettingsBinding? = null
     private val binding: FragmentWorkspaceSettingsBinding get() = _binding!!
     private val viewModel: WorkspaceSettingsViewModel by viewModels()
@@ -41,6 +47,7 @@ class WorkspaceSettingsFragment : BaseFragment() {
         super.onViewCreated(view, savedInstanceState)
         setUpActionBar(binding.toolbar)
         setStatusBarColor(getColor(requireContext(), R.color.md_theme_light_surface))
+        collectState()
     }
 
     /**
@@ -97,6 +104,22 @@ class WorkspaceSettingsFragment : BaseFragment() {
             btnDeleteWorkspace.setOnClickListener {
                 buildConfirmationDialog()
             }
+        }
+    }
+
+    override fun collectState() {
+        lifecycleScope.launch {
+            lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.workspaceSettingsState.collectLatest {
+                    processState(it)
+                }
+            }
+        }
+    }
+
+    override fun processState(state: ViewState) {
+        with(state as ViewState.WorkspaceSettingsViewState) {
+            binding.loading.root.isVisible = isLoading
         }
     }
 
