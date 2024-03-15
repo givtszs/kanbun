@@ -249,7 +249,13 @@ class FirestoreRepositoryImpl @Inject constructor(
             }
     }
 
-    private fun recursiveDelete(path: String) {
+    /**
+     * Calls the Cloud Function to recursively delete a document or collection specified by the [path]
+     *
+     * @param path the path to the document/collection
+     * @throws Exception on failure
+     */
+    private suspend fun recursiveDelete(path: String) {
         val deleteFn = Firebase.functions.getHttpsCallable("recursiveDelete")
         deleteFn.call(hashMapOf("path" to path))
             .addOnSuccessListener {
@@ -259,18 +265,20 @@ class FirestoreRepositoryImpl @Inject constructor(
                 Log.d(TAG, "deleteWorkspaceCloudFn: workspace deletion failed")
                 throw it
             }
+            .await()
     }
 
-    override fun deleteWorkspaceCloudFn(workspace: Workspace): Result<Unit> = runCatching {
+    override suspend fun deleteWorkspaceCloudFn(workspace: Workspace): Result<Unit> = runCatching {
         val workspacePath = "${FirestoreCollection.WORKSPACES.collectionName}/${workspace.id}"
-        val boardsPath = "${FirestoreCollection.WORKSPACES.collectionName}/${workspace.id}/${FirestoreCollection.BOARDS.collectionName}"
+        val boardsPath =
+            "${FirestoreCollection.WORKSPACES.collectionName}/${workspace.id}/${FirestoreCollection.BOARDS.collectionName}"
         // delete the workspace
         recursiveDelete(workspacePath)
 
         // delete the workspace boards
         recursiveDelete(boardsPath)
 
-        // delete the reference to workspace from members
+        // delete the workspace reference from its members
         workspace.members.forEach { member ->
             deleteUserWorkspace(member.id, workspace.id)
         }
@@ -348,7 +356,7 @@ class FirestoreRepositoryImpl @Inject constructor(
             }
     }
 
-    private suspend fun deleteWorkspaceBoard(
+    private suspend fun deleteBoardFromWorkspace(
         workspaceId: String,
         boardId: String
     ) {
@@ -360,38 +368,16 @@ class FirestoreRepositoryImpl @Inject constructor(
 
     override suspend fun deleteBoard(
         board: Board
-    ): Result<Unit> {
-        fun deleteBoardList(listId: String, board: Board) {
-            firestore
-                .collection(
-                    "${FirestoreCollection.WORKSPACES.collectionName}/${board.workspace.id}" +
-                            "/${FirestoreCollection.BOARDS.collectionName}/${board.id}" +
-                            "/${FirestoreCollection.BOARD_LIST.collectionName}"
-                )
-                .document(listId)
-                .delete()
-        }
+    ): Result<Unit> = runCatching {
+        val boardRef = "${FirestoreCollection.WORKSPACES.collectionName}/${board.workspace.id}" +
+                "/${FirestoreCollection.BOARDS.collectionName}/${board.id}"
+        // delete board and its board lists
+        recursiveDelete(boardRef)
 
-        return runCatching {
-            firestore
-                .collection(
-                    "${FirestoreCollection.WORKSPACES.collectionName}/${board.workspace.id}" +
-                            "/${FirestoreCollection.BOARDS.collectionName}"
-                )
-                .document(board.id)
-                .delete()
-                .getResult {
-                    coroutineScope {
-                        board.lists.forEach { boardListId ->
-                            launch {
-                                deleteBoardList(boardListId, board)
-                            }
-                        }
-                    }
-                    deleteWorkspaceBoard(board.workspace.id, board.id)
-                }
-        }
+        // delete the board reference from the workspace it belongs to
+        deleteBoardFromWorkspace(board.workspace.id, board.id)
     }
+
 
     private suspend fun updateBoardsList(board: Board, boardListId: String): Result<Unit> =
         runCatching {

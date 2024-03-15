@@ -49,7 +49,7 @@ interface FirestoreRepository {
      * @param workspace the workspace to delete
      * @return [Result] the result of the function execution
      */
-    fun deleteWorkspaceCloudFn(workspace: Workspace): Result<Unit>
+    suspend fun deleteWorkspaceCloudFn(workspace: Workspace): Result<Unit>
 
     suspend fun createBoard(board: Board): Result<String>
 

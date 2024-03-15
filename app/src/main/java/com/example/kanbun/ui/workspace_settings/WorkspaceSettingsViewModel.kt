@@ -32,15 +32,15 @@ class WorkspaceSettingsViewModel @Inject constructor(
     }
 
     fun deleteWorkspaceCloudFn(workspace: Workspace, onSuccess: () -> Unit) {
-//        viewModelScope.launch {
-//        }
-        when (val result = firestoreRepository.deleteWorkspaceCloudFn(workspace)) {
-            is Result.Success -> {
-                onSuccess()
-            }
+        viewModelScope.launch {
+            when (val result = firestoreRepository.deleteWorkspaceCloudFn(workspace)) {
+                is Result.Success -> {
+                    onSuccess()
+                }
 
-            is Result.Error -> Log.e("WorkspaceSettingsViewModel", result.message, result.e)
-            is Result.Loading -> {}
+                is Result.Error -> Log.e("WorkspaceSettingsViewModel", result.message, result.e)
+                is Result.Loading -> {}
+            }
         }
     }
 }
