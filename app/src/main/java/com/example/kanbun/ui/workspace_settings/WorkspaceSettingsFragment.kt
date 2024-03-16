@@ -119,7 +119,8 @@ class WorkspaceSettingsFragment : BaseFragment(), StateHandler {
 
     override fun processState(state: ViewState) {
         with(state as ViewState.WorkspaceSettingsViewState) {
-            binding.loading.root.isVisible = isLoading
+//            binding.loading.root.isVisible = isLoading
+            binding.deletingState.isVisible = isLoading
         }
     }
 
