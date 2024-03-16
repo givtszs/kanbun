@@ -89,7 +89,6 @@ class UserBoardsFragment : BaseFragment(), StateHandler {
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentUserBoardsBinding.inflate(inflater, container, false)
-        viewModel.getCurrentWorkspace()
         activity = requireActivity() as MainActivity
         return binding.root
     }
@@ -102,6 +101,7 @@ class UserBoardsFragment : BaseFragment(), StateHandler {
         checkUserAuthState()
         setUpBoardsAdapter()
         collectState()
+        viewModel.getCurrentWorkspace()
     }
 
     override fun setUpListeners() {
@@ -161,38 +161,41 @@ class UserBoardsFragment : BaseFragment(), StateHandler {
                 )
             }
 
-            if (currentWorkspace != null) {
-                activity.drawerAdapter?.prevSelectedWorkspaceId = currentWorkspace.id
+            binding.apply {
+                rvBoards.isVisible = currentWorkspace != null
 
-                if (!isMenuProviderAdded) {
-                    createMenu()
-                    isMenuProviderAdded = true
-                }
+                if (currentWorkspace != null) {
+                    activity.drawerAdapter?.prevSelectedWorkspaceId = currentWorkspace.id
 
-                binding.apply {
+                    // create options menu
+                    if (!isMenuProviderAdded) {
+                        createMenu()
+                        isMenuProviderAdded = true
+                    }
+
                     topAppBar.toolbar.title = currentWorkspace.name
                     fabCreateBoard.visibility = View.VISIBLE
-                    rvBoards.visibility = View.VISIBLE
-                }
 
-                boardsAdapter?.setData(currentWorkspace.boards)
+                    boardsAdapter?.setData(currentWorkspace.boards)
 
-                if (currentWorkspace.boards.isEmpty()) {
-                    binding.tvTip.isVisible = true
-                    binding.tvTip.text = resources.getString(R.string.empty_workspace_tip)
+
+                    if (currentWorkspace.boards.isNotEmpty()) {
+                        tvTip.isVisible = false
+                    } else {
+                        tvTip.isVisible = true
+                        tvTip.text = resources.getString(R.string.empty_workspace_tip)
+                    }
                 } else {
-                    binding.tvTip.isVisible = false
-                }
-            } else {
-                binding.apply {
                     topAppBar.toolbar.title = resources.getString(R.string.boards)
                     topAppBar.toolbar.menu.clear()
+                    boardsAdapter?.clear()
+                    tvTi    p.isVisible = true
                     tvTip.text = resources.getString(R.string.workspace_selection_tip)
                     fabCreateBoard.visibility = View.GONE
                 }
-            }
 
-            binding.loading.root.isVisible = isLoading
+                loading.root.isVisible = isLoading
+            }
 
             message?.let {
                 showToast(it)

@@ -36,6 +36,11 @@ class BoardsAdapter(
         notifyDataSetChanged()
     }
 
+    // TODO: add `addBoard` method
+    fun clear() {
+        boards = emptyList()
+    }
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ItemBoardViewHolder {
         return ItemBoardViewHolder(
             ItemBoardBinding.inflate(LayoutInflater.from(parent.context), parent, false),

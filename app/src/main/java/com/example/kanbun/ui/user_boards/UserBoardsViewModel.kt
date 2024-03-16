@@ -129,6 +129,13 @@ class UserBoardsViewModel @Inject constructor(
         val workspaceId =
             dataStore.getPreferenceFirst(PreferenceDataStoreKeys.CURRENT_WORKSPACE_ID, "")
         Log.d("UserBoardsViewModel", "getCurrentWorkspace: $workspaceId")
+
+        if (workspaceId.isEmpty()) {
+            _currentWorkspace.value = null
+            _isLoading.value = false
+            return@launch
+        }
+
         selectWorkspace(workspaceId)
     }
 
