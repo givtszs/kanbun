@@ -169,7 +169,7 @@ class UserBoardsFragment : BaseFragment(), StateHandler {
 
                     // create options menu
                     if (!isMenuProviderAdded) {
-                        createMenu()
+                        createOptionsMenu()
                         isMenuProviderAdded = true
                     }
 
@@ -187,9 +187,10 @@ class UserBoardsFragment : BaseFragment(), StateHandler {
                     }
                 } else {
                     topAppBar.toolbar.title = resources.getString(R.string.boards)
-                    topAppBar.toolbar.menu.clear()
+//                    topAppBar.toolbar.menu.clear()
+                    removeOptionsMenu()
                     boardsAdapter?.clear()
-                    tvTi    p.isVisible = true
+                    tvTip.isVisible = true
                     tvTip.text = resources.getString(R.string.workspace_selection_tip)
                     fabCreateBoard.visibility = View.GONE
                 }
@@ -250,7 +251,7 @@ class UserBoardsFragment : BaseFragment(), StateHandler {
         }
     }
 
-    private fun createMenu() {
+    private fun createOptionsMenu() {
         activity.addMenuProvider(
             menuProvider,
             viewLifecycleOwner,
@@ -258,7 +259,7 @@ class UserBoardsFragment : BaseFragment(), StateHandler {
         )
     }
 
-    private fun removeMenu() {
+    private fun removeOptionsMenu() {
         activity.removeMenuProvider(menuProvider)
         isMenuProviderAdded = false
     }
@@ -336,7 +337,7 @@ class UserBoardsFragment : BaseFragment(), StateHandler {
 
     override fun onDestroyView() {
         super.onDestroyView()
-        removeMenu()
+        removeOptionsMenu()
         boardsAdapter = null
         _binding = null
     }

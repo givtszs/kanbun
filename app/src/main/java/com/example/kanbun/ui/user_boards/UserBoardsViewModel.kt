@@ -104,7 +104,7 @@ class UserBoardsViewModel @Inject constructor(
     }
 
     fun selectWorkspace(workspaceId: String) = viewModelScope.launch {
-//        _isLoading.value = true
+        _isLoading.value = true
         when (val result = firestoreRepository.getWorkspace(workspaceId)) {
             is Result.Success -> {
                 _currentWorkspace.value = result.data
