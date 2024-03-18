@@ -103,6 +103,7 @@ class UserBoardsViewModel @Inject constructor(
         }
     }
 
+    // TODO: Rename to `getWorkspace`
     fun selectWorkspace(workspaceId: String) = viewModelScope.launch {
         _isLoading.value = true
         when (val result = firestoreRepository.getWorkspace(workspaceId)) {
@@ -145,6 +146,7 @@ class UserBoardsViewModel @Inject constructor(
             return@launch
         }
 
+        // TODO: Wrap in the `when` expression to process the result
         firestoreRepository.createBoard(
             Board(
                 name = name,

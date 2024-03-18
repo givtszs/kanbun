@@ -49,7 +49,7 @@ interface FirestoreRepository {
      */
     suspend fun deleteWorkspace(workspace: Workspace): Result<Unit>
 
-    suspend fun createBoard(board: Board): Result<String>
+    suspend fun createBoard(board: Board): Result<Unit>
 
     suspend fun getBoard(boardId: String, workspaceId: String): Result<Board>
 

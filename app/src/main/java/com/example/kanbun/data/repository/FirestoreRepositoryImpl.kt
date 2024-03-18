@@ -283,7 +283,7 @@ class FirestoreRepositoryImpl @Inject constructor(
             .await()
     }
 
-    override suspend fun createBoard(board: Board): Result<String> = runCatching {
+    override suspend fun createBoard(board: Board): Result<Unit> = runCatching {
         val workspaceId = board.workspace.id
         firestore.collection("${FirestoreCollection.WORKSPACES.collectionName}/$workspaceId/${FirestoreCollection.BOARDS.collectionName}")
             .add(board.toFirestoreBoard())

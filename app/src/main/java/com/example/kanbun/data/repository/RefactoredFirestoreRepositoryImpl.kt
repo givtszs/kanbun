@@ -276,10 +276,11 @@ class RefactoredFirestoreRepositoryImpl @Inject constructor(
     }
 
     override suspend fun deleteWorkspace(workspace: Workspace): Result<Unit> = runCatching {
-        val workspacePath = "${FirestoreCollection.WORKSPACES.collectionName}/${workspace.id}"
-        val boardsPath =
-            "${FirestoreCollection.WORKSPACES.collectionName}/${workspace.id}/${FirestoreCollection.BOARDS.collectionName}"
         withContext(ioDispatcher) {
+            val workspacePath = "${FirestoreCollection.WORKSPACES.collectionName}/${workspace.id}"
+            val boardsPath =
+                "${FirestoreCollection.WORKSPACES.collectionName}/${workspace.id}/${FirestoreCollection.BOARDS.collectionName}"
+
             // delete the workspace
             recursiveDelete(workspacePath)
 
@@ -312,52 +313,65 @@ class RefactoredFirestoreRepositoryImpl @Inject constructor(
         }
     }
 
-    private suspend fun addBoardInfoToWorkspace(
+    override suspend fun createBoard(board: Board): Result<Unit> = runCatching {
+        withContext(ioDispatcher) {
+            val workspaceId = board.workspace.id
+
+            firestore.collection("${FirestoreCollection.WORKSPACES.collectionName}/$workspaceId/${FirestoreCollection.BOARDS.collectionName}")
+                .add(board.toFirestoreBoard())
+                .getResult {
+                    addBoardInfoToWorkspace(
+                        workspaceId,
+                        Workspace.BoardInfo(
+                            boardId = result.id,
+                            workspaceId = workspaceId,
+                            name = board.name,
+                            cover = board.cover
+                        )
+                    )
+                }
+        }
+    }
+
+    private fun addBoardInfoToWorkspace(
         workspaceId: String,
         boardInfo: Workspace.BoardInfo
-    ): Result<Unit> = runCatching {
+    ) {
         firestore.collection(FirestoreCollection.WORKSPACES.collectionName)
             .document(workspaceId)
             .update("boards.${boardInfo.boardId}", boardInfo.toFirestoreBoardInfo())
-            .await()
-    }
-
-    override suspend fun createBoard(board: Board): Result<String> = runCatching {
-        val workspaceId = board.workspace.id
-        firestore.collection("${FirestoreCollection.WORKSPACES.collectionName}/$workspaceId/${FirestoreCollection.BOARDS.collectionName}")
-            .add(board.toFirestoreBoard())
-            .getResult {
-                val workspaceUpdResult = addBoardInfoToWorkspace(
-                    workspaceId,
-                    Workspace.BoardInfo(
-                        boardId = result.id,
-                        workspaceId = workspaceId,
-                        name = board.name,
-                        cover = board.cover
-                    )
-                )
-
-                if (workspaceUpdResult is Result.Error) {
-                    throw workspaceUpdResult.e!!
-                }
-
-                result.id
-            }
     }
 
     override suspend fun getBoard(boardId: String, workspaceId: String): Result<Board> =
         runCatching {
-            val workspacePath = "${FirestoreCollection.WORKSPACES.collectionName}/$workspaceId"
-            firestore.collection("$workspacePath/${FirestoreCollection.BOARDS.collectionName}")
-                .document(boardId)
-                .get()
-                .getResult {
-                    result.toObject(FirestoreBoard::class.java)?.toBoard(boardId)
-                        ?: throw NullPointerException("Couldn't convert FirestoreBoard to Board since the value is null")
-                }
+            withContext(ioDispatcher) {
+                val workspacePath = "${FirestoreCollection.WORKSPACES.collectionName}/$workspaceId"
+                firestore.collection("$workspacePath/${FirestoreCollection.BOARDS.collectionName}")
+                    .document(boardId)
+                    .get()
+                    .getResult {
+                        result.toObject(FirestoreBoard::class.java)?.toBoard(boardId)
+                            ?: throw NullPointerException("Couldn't convert FirestoreBoard to Board since the value is null")
+                    }
+            }
         }
 
-    private suspend fun updateWorkspaceBoard(board: Board) {
+    override suspend fun updateBoard(board: Board): Result<Unit> = runCatching {
+        withContext(ioDispatcher) {
+            firestore
+                .collection(
+                    "${FirestoreCollection.WORKSPACES.collectionName}/${board.workspace.id}" +
+                            "/${FirestoreCollection.BOARDS.collectionName}"
+                )
+                .document(board.id)
+                .set(board.toFirestoreBoard())
+                .getResult {
+                    updateBoardInfoInWorkspace(board)
+                }
+        }
+    }
+
+    private fun updateBoardInfoInWorkspace(board: Board) {
         firestore
             .collection(FirestoreCollection.WORKSPACES.collectionName)
             .document(board.workspace.id)
@@ -368,20 +382,20 @@ class RefactoredFirestoreRepositoryImpl @Inject constructor(
                     "name" to board.name
                 )
             )
-            .await()
     }
 
-    override suspend fun updateBoard(board: Board): Result<Unit> = runCatching {
-        firestore
-            .collection(
-                "${FirestoreCollection.WORKSPACES.collectionName}/${board.workspace.id}" +
-                        "/${FirestoreCollection.BOARDS.collectionName}"
-            )
-            .document(board.id)
-            .set(board.toFirestoreBoard())
-            .getResult {
-                updateWorkspaceBoard(board)
-            }
+    override suspend fun deleteBoard(
+        board: Board
+    ): Result<Unit> = runCatching {
+        withContext(ioDispatcher) {
+            val boardRef = "${FirestoreCollection.WORKSPACES.collectionName}/${board.workspace.id}" +
+                    "/${FirestoreCollection.BOARDS.collectionName}/${board.id}"
+            // delete board and its task lists
+            recursiveDelete(boardRef)
+
+            // delete the board information from the workspace it belongs to
+            deleteBoardFromWorkspace(board.workspace.id, board.id)
+        }
     }
 
     private suspend fun deleteBoardFromWorkspace(
@@ -393,19 +407,6 @@ class RefactoredFirestoreRepositoryImpl @Inject constructor(
             .update("boards.${boardId}", FieldValue.delete())
             .await()
     }
-
-    override suspend fun deleteBoard(
-        board: Board
-    ): Result<Unit> = runCatching {
-        val boardRef = "${FirestoreCollection.WORKSPACES.collectionName}/${board.workspace.id}" +
-                "/${FirestoreCollection.BOARDS.collectionName}/${board.id}"
-        // delete board and its board lists
-        recursiveDelete(boardRef)
-
-        // delete the board reference from the workspace it belongs to
-        deleteBoardFromWorkspace(board.workspace.id, board.id)
-    }
-
 
     private suspend fun updateBoardsList(board: Board, boardListId: String): Result<Unit> =
         runCatching {
