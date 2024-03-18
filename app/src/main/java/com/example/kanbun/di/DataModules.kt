@@ -1,6 +1,7 @@
 package com.example.kanbun.di
 
 import com.example.kanbun.data.repository.FirestoreRepositoryImpl
+import com.example.kanbun.data.repository.RefactoredFirestoreRepositoryImpl
 import com.example.kanbun.domain.repository.FirestoreRepository
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
@@ -20,7 +21,7 @@ abstract class RepositoryModule {
     @Binds
     @Singleton
     abstract fun bindFirestoreRepository(
-        firestoreRepositoryImpl: FirestoreRepositoryImpl
+        firestoreRepositoryImpl: RefactoredFirestoreRepositoryImpl
     ): FirestoreRepository
 }
 

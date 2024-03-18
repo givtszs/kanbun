@@ -65,7 +65,7 @@ class TaskDetailsViewModel @Inject constructor(
     }
 
     fun getAuthor(userId: String) {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch {
             if (firebaseUser == null) {
                 _message.value = "The user is null"
                 return@launch
