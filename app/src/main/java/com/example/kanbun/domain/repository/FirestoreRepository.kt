@@ -30,7 +30,7 @@ interface FirestoreRepository {
 
     fun getUserStream(userId: String): Flow<User?>
 
-    suspend fun createWorkspace(workspace: Workspace): Result<String>
+    suspend fun createWorkspace(workspace: Workspace): Result<Unit>
 
     suspend fun getWorkspace(workspaceId: String): Result<Workspace>
 
@@ -40,16 +40,14 @@ interface FirestoreRepository {
 
     suspend fun inviteToWorkspace(workspace: Workspace, user: User): Result<Unit>
 
-    suspend fun deleteWorkspace(workspace: Workspace): Result<Unit>
-
     /**
      * Deletes the [workspace] using the deployed Cloud Function which recursively deletes all
-     * data in the document, including subcollections.
+     * data in the document, including sub collections.
      *
      * @param workspace the workspace to delete
-     * @return [Result] the result of the function execution
+     * @return the result of the function execution
      */
-    suspend fun deleteWorkspaceCloudFn(workspace: Workspace): Result<Unit>
+    suspend fun deleteWorkspace(workspace: Workspace): Result<Unit>
 
     suspend fun createBoard(board: Board): Result<String>
 

@@ -33,15 +33,10 @@ class WorkspaceSettingsViewModel @Inject constructor(
         }
     }
 
-    suspend fun deleteWorkspace(workspace: Workspace) {
-        firestoreRepository.deleteWorkspace(workspace)
-        dataStore.setPreference(PreferenceDataStoreKeys.CURRENT_WORKSPACE_ID, "")
-    }
-
     fun deleteWorkspaceCloudFn(workspace: Workspace, onSuccess: () -> Unit) {
         _workspaceSettingsState.update { it.copy(isLoading = true) }
         viewModelScope.launch {
-            when (val result = firestoreRepository.deleteWorkspaceCloudFn(workspace)) {
+            when (val result = firestoreRepository.deleteWorkspace(workspace)) {
                 is Result.Success ->  {
                     dataStore.setPreference(PreferenceDataStoreKeys.CURRENT_WORKSPACE_ID, "")
                     onSuccess()

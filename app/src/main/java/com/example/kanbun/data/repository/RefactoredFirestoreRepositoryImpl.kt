@@ -32,10 +32,14 @@ import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
+import com.google.firebase.functions.HttpsCallableResult
 import com.google.firebase.functions.ktx.functions
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
@@ -53,7 +57,7 @@ class RefactoredFirestoreRepositoryImpl @Inject constructor(
         await()
         if (!isSuccessful) {
             throw exception?.cause
-                ?: IllegalStateException("Firestore operation failed with unknown error.")
+                ?: IllegalStateException("Firestore operation failed with an unknown error.")
         }
         return onSuccess()
     }
@@ -80,7 +84,6 @@ class RefactoredFirestoreRepositoryImpl @Inject constructor(
                 }
         }
     }
-
 
     override fun getUserStream(userId: String): Flow<User?> = callbackFlow {
         var listener: ListenerRegistration? = null
@@ -110,55 +113,49 @@ class RefactoredFirestoreRepositoryImpl @Inject constructor(
         }
     }
 
+    override suspend fun createWorkspace(workspace: Workspace): Result<Unit> = runCatching {
+        withContext(ioDispatcher) {
+            firestore.collection(FirestoreCollection.WORKSPACES.collectionName)
+                .add(workspace.toFirestoreWorkspace())
+                .getResult {
+                    addWorkspaceInfoToUser(
+                        userId = workspace.owner,
+                        workspaceInfo = WorkspaceInfo(result.id, workspace.name)
+                    )
+                }
+        }
+    }
+
+    /**
+     * Adds the [workspace information][WorkspaceInfo] to the user's list of workspaces.
+     *
+     * @param userId the user id
+     * @param workspaceInfo the object containing the workspace information
+     */
     private suspend fun addWorkspaceInfoToUser(
         userId: String,
         workspaceInfo: WorkspaceInfo
-    ): Result<Unit> = runCatching {
+    ) {
         firestore.collection(FirestoreCollection.USERS.collectionName)
             .document(userId)
             .update("workspaces.${workspaceInfo.id}", workspaceInfo.name)
             .await()
     }
 
-    private fun deleteUserWorkspace(userId: String, workspaceId: String): Result<Unit> =
-        runCatching {
-            firestore.collection(FirestoreCollection.USERS.collectionName)
-                .document(userId)
-                .update("workspaces.$workspaceId", FieldValue.delete())
-//                .await()
-        }
-
-    override suspend fun createWorkspace(workspace: Workspace): Result<String> =
-        runCatching {
+    override suspend fun getWorkspace(workspaceId: String): Result<Workspace> = runCatching {
+        withContext(ioDispatcher) {
             firestore.collection(FirestoreCollection.WORKSPACES.collectionName)
-                .add(workspace.toFirestoreWorkspace())
+                .document(workspaceId)
+                .get()
                 .getResult {
-                    // add the newly create workspace into the user's workspaces
-                    val res = addWorkspaceInfoToUser(
-                        workspace.owner,
-                        WorkspaceInfo(result.id, workspace.name)
-                    )
+                    val firestoreWorkspace = result.toObject(FirestoreWorkspace::class.java)
+                        ?: throw NullPointerException("Couldn't convert FirestoreWorkspace to Workspace since the value is null")
 
-                    if (res is Result.Error) {
-                        throw res.e!!
-                    }
+                    Log.d(TAG, "$firestoreWorkspace")
 
-                    result.id
+                    firestoreWorkspace.toWorkspace(workspaceId)
                 }
         }
-
-    override suspend fun getWorkspace(workspaceId: String): Result<Workspace> = runCatching {
-        firestore.collection(FirestoreCollection.WORKSPACES.collectionName)
-            .document(workspaceId)
-            .get()
-            .getResult {
-                val firestoreWorkspace = result.toObject(FirestoreWorkspace::class.java)
-                    ?: throw NullPointerException("Couldn't convert FirestoreWorkspace to Workspace since the value is null")
-
-                Log.d(TAG, "$firestoreWorkspace")
-
-                firestoreWorkspace.toWorkspace(workspaceId)
-            }
     }
 
     override fun getWorkspaceStream(workspaceId: String): Flow<Workspace?> = callbackFlow {
@@ -171,7 +168,7 @@ class RefactoredFirestoreRepositoryImpl @Inject constructor(
                 .addSnapshotListener { docSnapshot, error ->
                     if (error != null) {
                         Log.d(TAG, "getWorkspaceStream: error occurred: ${error.message}")
-                        trySend(null)
+//                        trySend(null)
                         close(error)
                         return@addSnapshotListener
                     }
@@ -190,19 +187,36 @@ class RefactoredFirestoreRepositoryImpl @Inject constructor(
 
     override suspend fun updateWorkspaceName(workspace: Workspace, name: String): Result<Unit> =
         runCatching {
-            firestore.collection(FirestoreCollection.WORKSPACES.collectionName)
-                .document(workspace.id)
-                .update("name", name)
-                .getResult {
-                    // update workspace name for each user associated with current workspace
-                    workspace.members.forEach { member ->
-                        firestore.collection(FirestoreCollection.USERS.collectionName)
-                            .document(member.id)
-                            .update("workspaces.${workspace.id}", name)
-                            .await()
+            withContext(ioDispatcher) {
+                firestore.collection(FirestoreCollection.WORKSPACES.collectionName)
+                    .document(workspace.id)
+                    .update("name", name)
+                    .getResult {
+                        updateWorkspaceNameInUserWorkspaces(
+                            workspaceId = workspace.id,
+                            members = workspace.members,
+                            name = name
+                        )
                     }
-                }
+            }
         }
+
+    private suspend fun updateWorkspaceNameInUserWorkspaces(
+        workspaceId: String,
+        members: List<Workspace.WorkspaceMember>,
+        name: String
+    ) {
+        coroutineScope {
+            members.map { user ->
+                async {
+                    firestore.collection(FirestoreCollection.USERS.collectionName)
+                        .document(user.id)
+                        .update("workspaces.$workspaceId", name)
+                        .await()
+                }
+            }.awaitAll()
+        }
+    }
 
     private suspend fun addMemberToWorkspace(
         workspaceId: String,
@@ -219,7 +233,7 @@ class RefactoredFirestoreRepositoryImpl @Inject constructor(
         workspace: Workspace,
         user: User
     ): Result<Unit> = runCatching {
-        // update workspace members
+        /*// update workspace members
         val workspaceUpdResult = addMemberToWorkspace(
             workspace.id,
             user.id,
@@ -238,18 +252,9 @@ class RefactoredFirestoreRepositoryImpl @Inject constructor(
 
         if (userUpdateResult is Result.Error) {
             throw userUpdateResult.e!!
-        }
-    }
+        }*/
 
-    override suspend fun deleteWorkspace(workspace: Workspace): Result<Unit> = runCatching {
-        firestore.collection(FirestoreCollection.WORKSPACES.collectionName)
-            .document(workspace.id)
-            .delete()
-            .getResult {
-                workspace.members.forEach { member ->
-                    deleteUserWorkspace(member.id, workspace.id)
-                }
-            }
+        throw IllegalStateException("Not yet implemented")
     }
 
     /**
@@ -258,32 +263,52 @@ class RefactoredFirestoreRepositoryImpl @Inject constructor(
      * @param path the path to the document/collection
      * @throws Exception on failure
      */
-    private suspend fun recursiveDelete(path: String) {
+    private fun recursiveDelete(path: String): Task<HttpsCallableResult> {
         val deleteFn = Firebase.functions.getHttpsCallable("recursiveDelete")
-        deleteFn.call(hashMapOf("path" to path))
+        return deleteFn.call(hashMapOf("path" to path))
             .addOnSuccessListener {
-                Log.d(TAG, "deleteWorkspaceCloudFn: workspace deletion succeeded")
+                Log.d(TAG, "Deletion succeeded")
             }
             .addOnFailureListener {
-                Log.d(TAG, "deleteWorkspaceCloudFn: workspace deletion failed")
+                Log.d(TAG, "Deletion failed")
                 throw it
             }
-            .await()
     }
 
-    override suspend fun deleteWorkspaceCloudFn(workspace: Workspace): Result<Unit> = runCatching {
+    override suspend fun deleteWorkspace(workspace: Workspace): Result<Unit> = runCatching {
         val workspacePath = "${FirestoreCollection.WORKSPACES.collectionName}/${workspace.id}"
         val boardsPath =
             "${FirestoreCollection.WORKSPACES.collectionName}/${workspace.id}/${FirestoreCollection.BOARDS.collectionName}"
-        // delete the workspace
-        recursiveDelete(workspacePath)
+        withContext(ioDispatcher) {
+            // delete the workspace
+            recursiveDelete(workspacePath)
 
-        // delete the workspace boards
-        recursiveDelete(boardsPath)
+            // delete the workspace boards
+            recursiveDelete(boardsPath)
 
-        // delete the workspace reference from its members
-        workspace.members.forEach { member ->
-            deleteUserWorkspace(member.id, workspace.id)
+            deleteWorkspaceFromMembers(workspace.id, workspace.members)
+        }
+    }
+
+    /**
+     * Deletes the workspace information from its members.
+     *
+     * @param workspaceId the workspace id
+     * @param members the list of workspace members
+     */
+    private suspend fun deleteWorkspaceFromMembers(
+        workspaceId: String,
+        members: List<Workspace.WorkspaceMember>
+    ) {
+        coroutineScope {
+            members.map { user ->
+                async {
+                    firestore.collection(FirestoreCollection.USERS.collectionName)
+                        .document(user.id)
+                        .update("workspaces.$workspaceId", FieldValue.delete())
+                        .await()
+                }
+            }.awaitAll()
         }
     }
 

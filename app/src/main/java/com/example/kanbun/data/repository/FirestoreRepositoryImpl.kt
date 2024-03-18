@@ -125,7 +125,7 @@ class FirestoreRepositoryImpl @Inject constructor(
 //                .await()
         }
 
-    override suspend fun createWorkspace(workspace: Workspace): Result<String> =
+    override suspend fun createWorkspace(workspace: Workspace): Result<Unit> =
         runCatching {
             firestore.collection(FirestoreCollection.WORKSPACES.collectionName)
                 .add(workspace.toFirestoreWorkspace())
@@ -238,17 +238,6 @@ class FirestoreRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun deleteWorkspace(workspace: Workspace): Result<Unit> = runCatching {
-        firestore.collection(FirestoreCollection.WORKSPACES.collectionName)
-            .document(workspace.id)
-            .delete()
-            .getResult {
-                workspace.members.forEach { member ->
-                    deleteUserWorkspace(member.id, workspace.id)
-                }
-            }
-    }
-
     /**
      * Calls the Cloud Function to recursively delete a document or collection specified by the [path]
      *
@@ -268,7 +257,7 @@ class FirestoreRepositoryImpl @Inject constructor(
             .await()
     }
 
-    override suspend fun deleteWorkspaceCloudFn(workspace: Workspace): Result<Unit> = runCatching {
+    override suspend fun deleteWorkspace(workspace: Workspace): Result<Unit> = runCatching {
         val workspacePath = "${FirestoreCollection.WORKSPACES.collectionName}/${workspace.id}"
         val boardsPath =
             "${FirestoreCollection.WORKSPACES.collectionName}/${workspace.id}/${FirestoreCollection.BOARDS.collectionName}"
