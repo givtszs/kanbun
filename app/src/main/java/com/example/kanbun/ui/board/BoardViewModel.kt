@@ -193,12 +193,13 @@ class BoardViewModel @Inject constructor(
         to: Int
     ) = viewModelScope.launch {
         if (from != to && to != -1) {
+            // TODO: Move path creation to the repository
             val workspacePath =
                 "${FirestoreCollection.WORKSPACES.collectionName}/${_board.value.workspace.id}"
             val boardPath = "${FirestoreCollection.BOARDS.collectionName}/${_board.value.id}"
             val listsPath =
                 "$workspacePath/$boardPath/${FirestoreCollection.BOARD_LIST.collectionName}"
-            firestoreRepository.rearrangeBoardListsPositions(
+            firestoreRepository.rearrangeBoardLists(
                 listsPath,
                 boardLists,
                 from,

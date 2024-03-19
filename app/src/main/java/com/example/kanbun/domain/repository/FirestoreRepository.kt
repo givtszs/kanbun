@@ -57,9 +57,11 @@ interface FirestoreRepository {
 
     suspend fun deleteBoard(board: Board): Result<Unit>
 
-    suspend fun createBoardList(boardList: BoardList, board: Board): Result<String>
+    suspend fun createBoardList(boardList: BoardList, board: Board): Result<Unit>
 
     suspend fun getBoardList(boardListPath: String, boardListId: String): Result<BoardList>
+
+    fun getBoardListsStream(boardId: String, workspaceId: String): Flow<Result<List<BoardList>>>
 
     suspend fun updateBoardListName(
         newName: String,
@@ -74,7 +76,12 @@ interface FirestoreRepository {
         deleteAt: Int
     ): Result<Unit>
 
-    fun getBoardListsStream(boardId: String, workspaceId: String): Flow<Result<List<BoardList>>>
+    suspend fun rearrangeBoardLists(
+        boardListPath: String,
+        boardLists: List<BoardList>,
+        from: Int,
+        to: Int
+    ): Result<Unit>
 
     suspend fun createTask(
         task: Task,
@@ -106,13 +113,6 @@ interface FirestoreRepository {
         listId: String,
         tasks: List<Task>,
         task: Task,
-        to: Int
-    ): Result<Unit>
-
-    suspend fun rearrangeBoardListsPositions(
-        listsPath: String,
-        boardLists: List<BoardList>,
-        from: Int,
         to: Int
     ): Result<Unit>
 

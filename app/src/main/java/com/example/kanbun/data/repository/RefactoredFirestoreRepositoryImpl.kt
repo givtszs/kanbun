@@ -388,8 +388,9 @@ class RefactoredFirestoreRepositoryImpl @Inject constructor(
         board: Board
     ): Result<Unit> = runCatching {
         withContext(ioDispatcher) {
-            val boardRef = "${FirestoreCollection.WORKSPACES.collectionName}/${board.workspace.id}" +
-                    "/${FirestoreCollection.BOARDS.collectionName}/${board.id}"
+            val boardRef =
+                "${FirestoreCollection.WORKSPACES.collectionName}/${board.workspace.id}" +
+                        "/${FirestoreCollection.BOARDS.collectionName}/${board.id}"
             // delete board and its task lists
             recursiveDelete(boardRef)
 
@@ -408,96 +409,44 @@ class RefactoredFirestoreRepositoryImpl @Inject constructor(
             .await()
     }
 
-    private suspend fun updateBoardsList(board: Board, boardListId: String): Result<Unit> =
-        runCatching {
-            val workspacePath =
-                "${FirestoreCollection.WORKSPACES.collectionName}/${board.workspace.id}"
-            firestore.collection("$workspacePath/${FirestoreCollection.BOARDS.collectionName}")
-                .document(board.id)
-                .update("lists", board.lists + boardListId)
-                .await()
-        }
-
     override suspend fun createBoardList(
         boardList: BoardList,
         board: Board
-    ): Result<String> = runCatching {
+    ): Result<Unit> = runCatching {
+        withContext(ioDispatcher) {
+            val workspacePath =
+                "${FirestoreCollection.WORKSPACES.collectionName}/${board.workspace.id}"
+            val boardPath = "${FirestoreCollection.BOARDS.collectionName}/${board.id}"
+            firestore.collection("$workspacePath/$boardPath/${FirestoreCollection.BOARD_LIST.collectionName}")
+                .add(boardList.toFirestoreBoardList())
+                .getResult {
+                    updateBoardListsOfBoard(board, result.id)
+                }
+        }
+    }
+
+    private fun updateBoardListsOfBoard(board: Board, boardListId: String) {
         val workspacePath =
             "${FirestoreCollection.WORKSPACES.collectionName}/${board.workspace.id}"
-        val boardPath = "${FirestoreCollection.BOARDS.collectionName}/${board.id}"
-        firestore.collection("$workspacePath/$boardPath/${FirestoreCollection.BOARD_LIST.collectionName}")
-            .add(boardList.toFirestoreBoardList())
-            .getResult {
-                val updateResult = updateBoardsList(board, result.id)
-                if (updateResult is Result.Error) {
-                    throw updateResult.e!!
-                }
-
-                result.id
-            }
+        firestore.collection("$workspacePath/${FirestoreCollection.BOARDS.collectionName}")
+            .document(board.id)
+            .update("lists", board.lists + boardListId)
     }
 
     override suspend fun getBoardList(
         boardListPath: String,
         boardListId: String
     ): Result<BoardList> = runCatching {
-        firestore.collection(boardListPath)
-            .document(boardListId)
-            .get()
-            .getResult {
-                result.toObject(FirestoreBoardList::class.java)
-                    ?.toBoardList(boardListId, boardListPath)
-                    ?: throw NullPointerException("Couldn't convert FirestoreBoardList to BoardList since the value is null")
-            }
-    }
-
-    override suspend fun updateBoardListName(
-        newName: String,
-        boardListPath: String,
-        boardListId: String
-    ): Result<Unit> = runCatching {
-        firestore.collection(boardListPath)
-            .document(boardListId)
-            .update("name", newName)
-            .await()
-    }
-
-    private fun rearrangeBoardLists(position: Int, path: String, boardLists: List<BoardList>) {
-        val boardListCollectionRef = firestore.collection(path)
-        Log.d(TAG, "rearrangeBoardLists is called")
-        for (i in (position + 1)..<boardLists.size) {
-            Log.d(TAG, "rearrangeBoardLists: boardList: ${boardLists[i]}")
-            updateBoardListPosition(
-                collectionReference = boardListCollectionRef,
-                documentId = boardLists[i].id,
-                newPosition = boardLists[i].position.dec()
-            )
+        withContext(ioDispatcher) {
+            firestore.collection(boardListPath)
+                .document(boardListId)
+                .get()
+                .getResult {
+                    result.toObject(FirestoreBoardList::class.java)
+                        ?.toBoardList(boardListId, boardListPath)
+                        ?: throw NullPointerException("Couldn't convert FirestoreBoardList to BoardList since the value is null")
+                }
         }
-    }
-
-    override suspend fun deleteBoardListAndRearrange(
-        id: String,
-        path: String,
-        boardLists: List<BoardList>,
-        deleteAt: Int
-    ): Result<Unit> = runCatching {
-        firestore.collection(path)
-            .document(id)
-            .delete()
-            .getResult {
-                rearrangeBoardLists(deleteAt, path, boardLists)
-                deleteListFromBoard(path, id)
-            }
-    }
-
-    private fun deleteListFromBoard(boardListPath: String, boardListId: String) {
-        val boardRef = boardListPath.substringBefore("/lists")
-        val boardPath = boardRef.substringBeforeLast("/")
-        val boardId = boardRef.substringAfterLast("/")
-        firestore.collection(boardPath)
-            .document(boardId)
-            .update("lists", FieldValue.arrayRemove(boardListId))
-//            .await()
     }
 
     override fun getBoardListsStream(
@@ -533,6 +482,89 @@ class RefactoredFirestoreRepositoryImpl @Inject constructor(
         awaitClose {
             listener?.remove()
         }
+    }
+
+    override suspend fun updateBoardListName(
+        newName: String,
+        boardListPath: String,
+        boardListId: String
+    ): Result<Unit> = runCatching {
+        withContext(ioDispatcher) {
+            firestore.collection(boardListPath)
+                .document(boardListId)
+                .update("name", newName)
+        }
+    }
+
+    override suspend fun deleteBoardListAndRearrange(
+        id: String,
+        path: String,
+        boardLists: List<BoardList>,
+        deleteAt: Int
+    ): Result<Unit> = runCatching {
+        withContext(ioDispatcher) {
+            firestore.collection(path)
+                .document(id)
+                .delete()
+                .getResult {
+                    if (boardLists.size != 1) {
+                        rearrangeBoardLists(
+                            boardListPath = path,
+                            boardLists = boardLists,
+                            from = deleteAt,
+                            to = boardLists.size - 1
+                        )
+                    }
+                    deleteListFromBoard(path, id)
+                }
+        }
+    }
+
+    private fun deleteListFromBoard(boardListPath: String, boardListId: String) {
+        val boardRef = boardListPath.substringBefore("/lists")
+        val boardPath = boardRef.substringBeforeLast("/")
+        val boardId = boardRef.substringAfterLast("/")
+        firestore.collection(boardPath)
+            .document(boardId)
+            .update("lists", FieldValue.arrayRemove(boardListId))
+    }
+
+    override suspend fun rearrangeBoardLists(
+        boardListPath: String,
+        boardLists: List<BoardList>,
+        from: Int,
+        to: Int
+    ): Result<Unit> = runCatching {
+        val collectionRef = firestore.collection(boardListPath)
+
+        if (from < to) {
+            for (i in (from + 1)..to) {
+                val list = boardLists[i]
+                updateBoardListPosition(collectionRef, list.id, list.position.dec())
+            }
+
+        } else if (from > to) {
+            for (i in to..<from) {
+                val list = boardLists[i]
+                updateBoardListPosition(collectionRef, list.id, list.position.inc())
+            }
+        }
+
+        val listToMove = boardLists[from]
+        updateBoardListPosition(collectionRef, listToMove.id, to.toLong()) //.await()
+    }
+
+    private fun updateBoardListPosition(
+        collectionReference: CollectionReference,
+        documentId: String,
+        newPosition: Long
+    ) {
+        Log.d(
+            "ItemBoardListViewHolder", "FirestoreRepository#updateBoardListPosition: " +
+                    "docId: $documentId, newPos: $newPosition"
+        )
+        collectionReference.document(documentId)
+            .update("position", newPosition)
     }
 
     override suspend fun createTask(
@@ -670,47 +702,6 @@ class RefactoredFirestoreRepositoryImpl @Inject constructor(
         val updatesMap = insertAndRearrange(tasks, task, to)
         Log.d("ItemTaskViewHolder", "FirestoreRepository#insert: updates: $updatesMap")
         updateTasksPositions(listPath, listId, updatesMap)
-    }
-
-    private fun updateBoardListPosition(
-        collectionReference: CollectionReference,
-        documentId: String,
-        newPosition: Long
-    ): Task<Void> {
-        Log.d(
-            "ItemBoardListViewHolder", "FirestoreRepository#updateBoardListPosition: " +
-                    "docId: $documentId, newPos: $newPosition"
-        )
-        return collectionReference.document(documentId)
-            .update("position", newPosition)
-    }
-
-    override suspend fun rearrangeBoardListsPositions(
-        listsPath: String,
-        boardLists: List<BoardList>,
-        from: Int,
-        to: Int
-    ): Result<Unit> = runCatching {
-        // TODO: test speed of the function with and without `await()`
-        val collectionRef = firestore.collection(listsPath)
-
-        if (from < to) {
-            boardLists.forEach { list ->
-                if (list.position in (from + 1)..to) {
-                    updateBoardListPosition(collectionRef, list.id, list.position.dec())
-                }
-            }
-
-        } else if (from > to) {
-            boardLists.forEach { list ->
-                if (list.position in to..<from) {
-                    updateBoardListPosition(collectionRef, list.id, list.position.inc())
-                }
-            }
-        }
-
-        val listToMove = boardLists[from]
-        updateBoardListPosition(collectionRef, listToMove.id, to.toLong()).await()
     }
 
     override suspend fun upsertTag(

@@ -35,10 +35,8 @@ import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.functions.ktx.functions
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.channels.awaitClose
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import java.util.UUID
 import javax.inject.Inject
@@ -381,7 +379,7 @@ class FirestoreRepositoryImpl @Inject constructor(
     override suspend fun createBoardList(
         boardList: BoardList,
         board: Board
-    ): Result<String> = runCatching {
+    ): Result<Unit> = runCatching {
         val workspacePath =
             "${FirestoreCollection.WORKSPACES.collectionName}/${board.workspace.id}"
         val boardPath = "${FirestoreCollection.BOARDS.collectionName}/${board.id}"
@@ -392,8 +390,6 @@ class FirestoreRepositoryImpl @Inject constructor(
                 if (updateResult is Result.Error) {
                     throw updateResult.e!!
                 }
-
-                result.id
             }
     }
 
@@ -645,14 +641,14 @@ class FirestoreRepositoryImpl @Inject constructor(
             .update("position", newPosition)
     }
 
-    override suspend fun rearrangeBoardListsPositions(
-        listsPath: String,
+    override suspend fun rearrangeBoardLists(
+        boardListPath: String,
         boardLists: List<BoardList>,
         from: Int,
         to: Int
     ): Result<Unit> = runCatching {
         // TODO: test speed of the function with and without `await()`
-        val collectionRef = firestore.collection(listsPath)
+        val collectionRef = firestore.collection(boardListPath)
 
         if (from < to) {
             boardLists.forEach { list ->
