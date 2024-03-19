@@ -571,40 +571,55 @@ class RefactoredFirestoreRepositoryImpl @Inject constructor(
         task: com.example.kanbun.domain.model.Task,
         listId: String,
         listPath: String
-    ): Result<String> = runCatching {
-        val taskId = UUID.randomUUID().toString()
-        firestore
-            .collection(listPath)
-            .document(listId)
-            .update("tasks.${taskId}", task.toFirestoreTask())
-            .getResult { taskId }
+    ): Result<Unit> = runCatching {
+        withContext(ioDispatcher) {
+            val taskId = UUID.randomUUID().toString()
+            firestore.collection(listPath)
+                .document(listId)
+                .update("tasks.${taskId}", task.toFirestoreTask())
+                .await()
+        }
     }
 
     override suspend fun updateTask(
         task: com.example.kanbun.domain.model.Task,
         boardListPath: String,
         boardListId: String
-    ): Result<Unit> =
-        runCatching {
+    ): Result<Unit> = runCatching {
+        withContext(ioDispatcher) {
             firestore.collection(boardListPath)
                 .document(boardListId)
                 .update("tasks.${task.id}", task.toFirestoreTask())
-                .await()
         }
+    }
 
     override suspend fun deleteTask(
         task: com.example.kanbun.domain.model.Task,
         boardListPath: String,
         boardListId: String
-    ): Result<Unit> =
-        runCatching {
+    ): Result<Unit> = runCatching {
+        withContext(ioDispatcher) {
             firestore.collection(boardListPath)
                 .document(boardListId)
                 .update("tasks.${task.id}", FieldValue.delete())
-                .await()
         }
+    }
 
-    private fun rearrange(
+    override suspend fun rearrangeTasks(
+        listPath: String,
+        listId: String,
+        tasks: List<com.example.kanbun.domain.model.Task>,
+        from: Int,
+        to: Int
+    ): Result<Unit> = runCatching {
+        withContext(ioDispatcher) {
+            val updatesMap = getRearrangeUpdates(tasks, from, to)
+            Log.d("ItemTaskViewHolder", "FirestoreRepository#rearrange: updates: $updatesMap")
+            updateTasksPositions(listPath, listId, updatesMap)
+        }
+    }
+
+    private fun getRearrangeUpdates(
         tasks: List<com.example.kanbun.domain.model.Task>,
         from: Int,
         to: Int
@@ -619,9 +634,60 @@ class RefactoredFirestoreRepositoryImpl @Inject constructor(
                 updMap["tasks.${tasks[i].id}.position"] = tasks[i].position.inc()
             }
         }
-
         updMap["tasks.${tasks[from].id}.position"] = to.toLong()
+        return updMap
+    }
 
+    override suspend fun deleteTaskAndRearrange(
+        listPath: String,
+        listId: String,
+        tasks: List<com.example.kanbun.domain.model.Task>,
+        from: Int
+    ): Result<Unit> = runCatching {
+        withContext(ioDispatcher) {
+            val updatesMap = deleteAndRearrange(tasks, from)
+            Log.d("ItemTaskViewHolder", "FirestoreRepository#delete: updates: $updatesMap")
+            updateTasksPositions(listPath, listId, updatesMap)
+        }
+    }
+
+    private fun deleteAndRearrange(
+        tasks: List<com.example.kanbun.domain.model.Task>,
+        from: Int
+    ): Map<String, Any> {
+        val updMap = mutableMapOf<String, Any>()
+        for (i in (from + 1)..<tasks.size) {
+            updMap["tasks.${tasks[i].id}.position"] = tasks[i].position.dec()
+        }
+        updMap["tasks.${tasks[from].id}"] = FieldValue.delete()
+        return updMap
+    }
+
+    override suspend fun insertTaskAndRearrange(
+        listPath: String,
+        listId: String,
+        tasks: List<com.example.kanbun.domain.model.Task>,
+        task: com.example.kanbun.domain.model.Task,
+        to: Int
+    ): Result<Unit> = runCatching {
+        withContext(ioDispatcher) {
+            val updatesMap = insertAndRearrange(tasks, task, to)
+            Log.d("ItemTaskViewHolder", "FirestoreRepository#insert: updates: $updatesMap")
+            updateTasksPositions(listPath, listId, updatesMap)
+        }
+    }
+
+    private fun insertAndRearrange(
+        listToInsert: List<com.example.kanbun.domain.model.Task>,
+        task: com.example.kanbun.domain.model.Task,
+        to: Int
+    ): Map<String, Any> {
+        val updMap = mutableMapOf<String, Any>()
+        for (i in to..<listToInsert.size) {
+            updMap["tasks.${listToInsert[i].id}.position"] = listToInsert[i].position.inc()
+        }
+        val newTask = task.copy(position = to.toLong())
+        updMap["tasks.${task.id}"] = newTask.toFirestoreTask()
         return updMap
     }
 
@@ -634,74 +700,6 @@ class RefactoredFirestoreRepositoryImpl @Inject constructor(
             .document(listId)
             .update(updatesMap)
             .await()
-    }
-
-    override suspend fun rearrangeTasksPositions(
-        listPath: String,
-        listId: String,
-        tasks: List<com.example.kanbun.domain.model.Task>,
-        from: Int,
-        to: Int
-    ): Result<Unit> = runCatching {
-        val updatesMap = rearrange(tasks, from, to)
-        Log.d("ItemTaskViewHolder", "FirestoreRepository#rearrange: updates: $updatesMap")
-        updateTasksPositions(listPath, listId, updatesMap)
-    }
-
-    private fun deleteAndRearrange(
-        tasks: List<com.example.kanbun.domain.model.Task>,
-        from: Int
-    ): Map<String, Any> {
-        val updMap = mutableMapOf<String, Any>()
-
-        for (i in (from + 1)..<tasks.size) {
-            updMap["tasks.${tasks[i].id}.position"] = tasks[i].position.dec()
-        }
-
-        updMap["tasks.${tasks[from].id}"] = FieldValue.delete()
-
-        return updMap
-    }
-
-    override suspend fun deleteTaskAndRearrange(
-        listPath: String,
-        listId: String,
-        tasks: List<com.example.kanbun.domain.model.Task>,
-        from: Int
-    ): Result<Unit> = runCatching {
-        val updatesMap = deleteAndRearrange(tasks, from)
-        Log.d("ItemTaskViewHolder", "FirestoreRepository#delete: updates: $updatesMap")
-        updateTasksPositions(listPath, listId, updatesMap)
-    }
-
-    private fun insertAndRearrange(
-        listToInsert: List<com.example.kanbun.domain.model.Task>,
-        task: com.example.kanbun.domain.model.Task,
-        to: Int
-    ): Map<String, Any> {
-        val updMap = mutableMapOf<String, Any>()
-
-        for (i in to..<listToInsert.size) {
-            updMap["tasks.${listToInsert[i].id}.position"] = listToInsert[i].position.inc()
-        }
-
-        val newTask = task.copy(position = to.toLong())
-
-        updMap["tasks.${task.id}"] = newTask.toFirestoreTask()
-
-        return updMap
-    }
-
-    override suspend fun insertTaskAndRearrange(
-        listPath: String,
-        listId: String,
-        tasks: List<com.example.kanbun.domain.model.Task>,
-        task: com.example.kanbun.domain.model.Task,
-        to: Int
-    ): Result<Unit> = runCatching {
-        val updatesMap = insertAndRearrange(tasks, task, to)
-        Log.d("ItemTaskViewHolder", "FirestoreRepository#insert: updates: $updatesMap")
-        updateTasksPositions(listPath, listId, updatesMap)
     }
 
     override suspend fun upsertTag(

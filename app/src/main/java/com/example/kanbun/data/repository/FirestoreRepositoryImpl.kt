@@ -495,7 +495,7 @@ class FirestoreRepositoryImpl @Inject constructor(
         task: com.example.kanbun.domain.model.Task,
         listId: String,
         listPath: String
-    ): Result<String> = runCatching {
+    ): Result<Unit> = runCatching {
         val taskId = UUID.randomUUID().toString()
         firestore
             .collection(listPath)
@@ -560,7 +560,7 @@ class FirestoreRepositoryImpl @Inject constructor(
             .await()
     }
 
-    override suspend fun rearrangeTasksPositions(
+    override suspend fun rearrangeTasks(
         listPath: String,
         listId: String,
         tasks: List<com.example.kanbun.domain.model.Task>,

@@ -87,13 +87,13 @@ interface FirestoreRepository {
         task: Task,
         listId: String,
         listPath: String
-    ): Result<String>
+    ): Result<Unit>
 
     suspend fun updateTask(task: Task, boardListPath: String, boardListId: String): Result<Unit>
 
     suspend fun deleteTask(task: Task, boardListPath: String, boardListId: String): Result<Unit>
 
-    suspend fun rearrangeTasksPositions(
+    suspend fun rearrangeTasks(
         listPath: String,
         listId: String,
         tasks: List<Task>,

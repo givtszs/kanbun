@@ -138,7 +138,7 @@ class BoardViewModel @Inject constructor(
 
     fun rearrangeTasks(listPath: String, listId: String, tasks: List<Task>, from: Int, to: Int) =
         viewModelScope.launch {
-            firestoreRepository.rearrangeTasksPositions(
+            firestoreRepository.rearrangeTasks(
                 listPath = listPath,
                 listId = listId,
                 tasks = tasks,
