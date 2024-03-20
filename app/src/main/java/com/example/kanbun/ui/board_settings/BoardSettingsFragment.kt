@@ -117,9 +117,7 @@ class BoardSettingsFragment : BaseFragment(), StateHandler {
                 viewModel.messageShown()
             }
 
-            if (tags.isNotEmpty()) {
-                tagsAdapter?.tags = tags
-            }
+            tagsAdapter?.tags = tags
 
             binding.loading.root.isVisible = isLoading
         }

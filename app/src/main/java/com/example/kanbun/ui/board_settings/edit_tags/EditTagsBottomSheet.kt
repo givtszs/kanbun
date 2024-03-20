@@ -83,9 +83,7 @@ class EditTagsBottomSheet : BottomSheetDialogFragment(), StateHandler {
                 viewModel.messageShown()
             }
 
-            if (tags.isNotEmpty()) {
-                editTagsAdapter?.tags = tags
-            }
+            editTagsAdapter?.tags = tags
         }
     }
 

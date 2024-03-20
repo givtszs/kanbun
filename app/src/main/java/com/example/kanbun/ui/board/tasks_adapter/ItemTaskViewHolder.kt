@@ -130,13 +130,13 @@ class ItemTaskViewHolder(
     }
 
     private fun setUpTagsFlexbox(task: Task) {
-        if (task.tags.isEmpty()) {
+        val tags = loadTags(task.tags)
+        Log.d("ItemTaskViewHolder", "tags: $tags")
+
+        if (tags.isEmpty()) {
             binding.flexTags.isVisible = false
             return
         }
-
-        val tags = loadTags(task.tags)
-        Log.d("ItemTaskViewHolder", "tags: $tags")
 
         binding.apply {
             flexTags.isVisible = true

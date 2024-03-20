@@ -309,9 +309,9 @@ class BoardFragment : BaseFragment(), StateHandler {
     override fun processState(state: ViewState) {
         with(state as ViewState.BoardViewState) {
             boardListsAdapter?.setData(lists.sortedBy { it.position })
-            if (board.tags.isNotEmpty()) {
-                boardListsAdapter?.boardTags = board.tags
-            }
+            boardListsAdapter?.boardTags = board.tags
+//            if (board.tags.isNotEmpty()) {
+//            }
 
             binding.loading.root.isVisible = isLoading
 
