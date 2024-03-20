@@ -12,7 +12,10 @@ import com.example.kanbun.ui.ViewState
 import com.example.kanbun.ui.model.TagUi
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -23,8 +26,21 @@ class BoardSettingsViewModel @Inject constructor(
     private val createTagUseCase: UpsertTagUseCase,
     private val updateBoardUseCase: UpdateBoardUseCase
 ) : BaseViewModel() {
-    private var _boardSettingsState = MutableStateFlow(ViewState.BoardSettingsViewState())
-    val boardSettingsState: StateFlow<ViewState.BoardSettingsViewState> = _boardSettingsState
+    private var _tags = MutableStateFlow<List<Tag>>(emptyList())
+    private var _isLoading = MutableStateFlow(false)
+    private var _message = MutableStateFlow<String?>(null)
+    val boardSettingsState: StateFlow<ViewState.BoardSettingsViewState> =
+        combine(_tags, _isLoading, _message) { tags, isLoading, message ->
+            ViewState.BoardSettingsViewState(
+                tags = tags.map { TagUi(it, false) },
+                isLoading = isLoading,
+                message = message
+            )
+        }.stateIn(
+            viewModelScope,
+            SharingStarted.WhileSubscribed(),
+            ViewState.BoardSettingsViewState()
+        )
 
     fun init(tags: List<Tag>) {
         setTags(tags)
@@ -32,44 +48,31 @@ class BoardSettingsViewModel @Inject constructor(
 
     fun deleteBoard(board: Board, onSuccess: () -> Unit) =
         viewModelScope.launch {
-            _boardSettingsState.update { it.copy(isLoading = true) }
+            _isLoading.value = true
             processResult(firestoreRepository.deleteBoard(board), onSuccess)
         }
 
-    fun updateBoard(oldBoard: Board, newBoard: Board, onSuccess: () -> Unit) = viewModelScope.launch {
-        processResult(updateBoardUseCase(oldBoard, newBoard), onSuccess)
+    fun updateBoard(oldBoard: Board, newBoard: Board, onSuccess: () -> Unit) =
+        viewModelScope.launch {
+            processResult(updateBoardUseCase(oldBoard, newBoard), onSuccess)
 //        processResult(firestoreRepository.updateBoard(board), onSuccess)
-    }
+        }
 
     private fun <T : Any> processResult(result: Result<T>, onSuccess: () -> Unit) {
         when (result) {
             is Result.Success -> onSuccess()
-            is Result.Error -> _boardSettingsState.update {
-                it.copy(message = result.message)
-            }
-
+            is Result.Error -> _message.value = result.message
             Result.Loading -> {}
         }
     }
 
     fun messageShown() {
-        _boardSettingsState.update {
-            it.copy(message = null)
-        }
+        _message.value = null
     }
 
     fun setTags(tags: List<Tag>) {
-        if (!areTagsSame(
-            old = _boardSettingsState.value.tags.map { it.tag },
-            new = tags
-        )) {
-            _boardSettingsState.update {
-                it.copy(
-                    tags = tags.map { tag -> TagUi(tag, false) }
-                )
-            }
+        if ( _tags.value != tags) {
+            _tags.value = tags
         }
     }
-    
-    private fun areTagsSame(old: List<Tag>, new: List<Tag>): Boolean = old == new
 }
