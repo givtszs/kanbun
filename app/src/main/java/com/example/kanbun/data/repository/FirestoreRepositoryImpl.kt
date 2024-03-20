@@ -684,7 +684,7 @@ class FirestoreRepositoryImpl @Inject constructor(
                 }
         }
 
-    override suspend fun getTags(boardId: String, workspaceId: String): Result<List<Tag>> =
+    override suspend fun getAllTags(boardId: String, workspaceId: String): Result<List<Tag>> =
         runCatching {
             val boardRes = getBoard(boardId, workspaceId)
             if (boardRes is Result.Error) {
@@ -707,7 +707,7 @@ class FirestoreRepositoryImpl @Inject constructor(
             .substringAfter("${FirestoreCollection.WORKSPACES.collectionName}/")
             .substringBefore("/${FirestoreCollection.BOARDS.collectionName}")
 
-        val result = getTags(boardId, workspaceId)
+        val result = getAllTags(boardId, workspaceId)
         if (result is Result.Error) {
             throw result.e!!
         }

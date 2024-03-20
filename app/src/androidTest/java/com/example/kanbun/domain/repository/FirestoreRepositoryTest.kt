@@ -2,7 +2,6 @@ package com.example.kanbun.domain.repository
 
 import com.example.kanbun.common.FirestoreCollection
 import com.example.kanbun.common.Result
-import com.example.kanbun.common.defaultTagColors
 import com.example.kanbun.data.repository.FirestoreRepositoryImpl
 import com.example.kanbun.domain.FirestoreTestUtil
 import com.example.kanbun.domain.model.Board
@@ -644,7 +643,7 @@ class FirestoreRepositoryTest {
 
         assertThat(result).isResultSuccess()
 
-        val updTag = (repository.getTags(board.id, board.workspace.id) as Result.Success).data.first { it.id == tag.id }
+        val updTag = (repository.getAllTags(board.id, board.workspace.id) as Result.Success).data.first { it.id == tag.id }
 
         assertThat(updTag).isEqualTo(newTag)
     }
@@ -655,7 +654,7 @@ class FirestoreRepositoryTest {
         val tag1 = createTag("Tag1", "FF0000", board.id, board.workspace.id)
         val tag2 = createTag("Tag2", "FFA500", board.id, board.workspace.id)
 
-        val result = repository.getTags(board.id, board.workspace.id)
+        val result = repository.getAllTags(board.id, board.workspace.id)
 
         assertThat(result).isInstanceOf(Result.Success::class.java)
 

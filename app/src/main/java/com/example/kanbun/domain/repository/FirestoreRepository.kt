@@ -122,7 +122,14 @@ interface FirestoreRepository {
         boardPath: String
     ): Result<Tag>
 
-    suspend fun getTags(boardId: String, workspaceId: String): Result<List<Tag>>
+    /**
+     * Gets all tags for the specified board.
+     *
+     * @param boardId the board id
+     * @param workspaceId the workspace id that hosts the board
+     * @return the [Result] containing a list of fetched board tags
+     */
+    suspend fun getAllTags(boardId: String, workspaceId: String): Result<List<Tag>>
 
     suspend fun getTaskTags(
         taskId: String,

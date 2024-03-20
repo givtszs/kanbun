@@ -167,7 +167,7 @@ class CreateTaskViewModel @Inject constructor(
                 .substringBefore("/${FirestoreCollection.BOARDS.collectionName}")
 
         when (
-            val result = firestoreRepository.getTags(
+            val result = firestoreRepository.getAllTags(
                 boardId = boardRef.substringAfterLast("/"),
                 workspaceId = workspaceId
             )

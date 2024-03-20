@@ -706,8 +706,8 @@ class RefactoredFirestoreRepositoryImpl @Inject constructor(
         tag: Tag,
         boardId: String,
         boardPath: String,
-    ): Result<Tag> =
-        runCatching {
+    ): Result<Tag> = runCatching {
+        withContext(ioDispatcher) {
             val tagId = tag.id.ifEmpty { UUID.randomUUID().toString() }
             firestore.collection(boardPath)
                 .document(boardId)
@@ -716,15 +716,18 @@ class RefactoredFirestoreRepositoryImpl @Inject constructor(
                     tag.copy(id = tagId)
                 }
         }
+    }
 
-    override suspend fun getTags(boardId: String, workspaceId: String): Result<List<Tag>> =
+    override suspend fun getAllTags(boardId: String, workspaceId: String): Result<List<Tag>> =
         runCatching {
-            val boardRes = getBoard(boardId, workspaceId)
-            if (boardRes is Result.Error) {
-                throw boardRes.e!!
-            }
+            withContext(ioDispatcher) {
+                val boardRes = getBoard(boardId, workspaceId)
+                if (boardRes is Result.Error) {
+                    throw boardRes.e!!
+                }
 
-            (boardRes as Result.Success).data.tags.sortedBy { it.name }
+                (boardRes as Result.Success).data.tags.sortedBy { it.name }
+            }
         }
 
     override suspend fun getTaskTags(
@@ -733,36 +736,38 @@ class RefactoredFirestoreRepositoryImpl @Inject constructor(
         boardListId: String,
         boardListPath: String,
     ): Result<List<Tag>> = runCatching {
-        val boardId = boardListPath
-            .substringAfter("${FirestoreCollection.BOARDS.collectionName}/")
-            .substringBefore("/${FirestoreCollection.BOARD_LIST.collectionName}")
-        val workspaceId = boardListPath
-            .substringAfter("${FirestoreCollection.WORKSPACES.collectionName}/")
-            .substringBefore("/${FirestoreCollection.BOARDS.collectionName}")
+        withContext(ioDispatcher) {
+            val boardId = boardListPath
+                .substringAfter("${FirestoreCollection.BOARDS.collectionName}/")
+                .substringBefore("/${FirestoreCollection.BOARD_LIST.collectionName}")
+            val workspaceId = boardListPath
+                .substringAfter("${FirestoreCollection.WORKSPACES.collectionName}/")
+                .substringBefore("/${FirestoreCollection.BOARDS.collectionName}")
 
-        val result = getTags(boardId, workspaceId)
-        if (result is Result.Error) {
-            throw result.e!!
+            val result = getAllTags(boardId, workspaceId)
+            if (result is Result.Error) {
+                throw result.e!!
+            }
+
+            val tags = (result as Result.Success).data
+            val taskTags = tags.filter { it.id in tagIds }
+            val taskTagIds = taskTags.map { it.id }
+            Log.d(TAG, "getTaskTags: (old) tagsIds: $tagIds, (current) taskTagsIds: $taskTagIds")
+
+            // if the passed tagIds and the received taskTagIds are different, it means that some tags
+            // have been deleted from the board, so we need to update the task with only relevant tags.
+            if (tagIds != taskTagIds) {
+                Log.d(TAG, "getTaskTags: newTags: $taskTagIds")
+                updateTaskTags(
+                    tagIds = taskTagIds,
+                    taskId = taskId,
+                    boardListId = boardListId,
+                    boardListPath = boardListPath
+                )
+            }
+
+            taskTags
         }
-
-        val tags = (result as Result.Success).data
-        val taskTags = tags.filter { it.id in tagIds }
-        val taskTagIds = taskTags.map { it.id }
-        Log.d(TAG, "getTaskTags: (old) tagsIds: $tagIds, (current) taskTagsIds: $taskTagIds")
-
-        // if the passed tagIds and the received taskTagIds are different, it means that some tags
-        // have been deleted from the board, so we need to update the task with only relevant tags.
-        if (tagIds != taskTagIds) {
-            Log.d(TAG, "getTaskTags: newTags: $taskTagIds")
-            updateTaskTags(
-                tagIds = taskTagIds,
-                taskId = taskId,
-                boardListId = boardListId,
-                boardListPath = boardListPath
-            )
-        }
-
-        taskTags
     }
 
     override suspend fun updateTaskTags(
@@ -771,9 +776,11 @@ class RefactoredFirestoreRepositoryImpl @Inject constructor(
         boardListId: String,
         boardListPath: String
     ): Result<Unit> = runCatching {
-        firestore.collection(boardListPath)
-            .document(boardListId)
-            .update("tasks.$taskId.tags", tagIds)
-            .await()
+        withContext(ioDispatcher) {
+            firestore.collection(boardListPath)
+                .document(boardListId)
+                .update("tasks.$taskId.tags", tagIds)
+//                .await()
+        }
     }
 }
