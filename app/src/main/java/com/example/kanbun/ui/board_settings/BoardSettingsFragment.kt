@@ -82,7 +82,7 @@ class BoardSettingsFragment : BaseFragment(), StateHandler {
                     showToast("No updates")
                     navController.popBackStack()
                 } else {
-                    viewModel.updateBoard(newBoard) {
+                    viewModel.updateBoard(board, newBoard) {
                         navController.popBackStack()
                     }
                 }

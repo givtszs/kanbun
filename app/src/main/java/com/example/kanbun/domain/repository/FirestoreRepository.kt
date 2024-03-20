@@ -55,6 +55,8 @@ interface FirestoreRepository {
 
     suspend fun updateBoard(board: Board): Result<Unit>
 
+    suspend fun updateBoard(board: Board, updates: Map<String, Any>): Result<Unit>
+
     suspend fun deleteBoard(board: Board): Result<Unit>
 
     suspend fun createBoardList(boardList: BoardList, board: Board): Result<Unit>

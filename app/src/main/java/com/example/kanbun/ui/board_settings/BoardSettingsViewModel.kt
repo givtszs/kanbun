@@ -5,6 +5,7 @@ import com.example.kanbun.common.Result
 import com.example.kanbun.domain.model.Board
 import com.example.kanbun.domain.model.Tag
 import com.example.kanbun.domain.repository.FirestoreRepository
+import com.example.kanbun.domain.usecase.UpdateBoardUseCase
 import com.example.kanbun.domain.usecase.UpsertTagUseCase
 import com.example.kanbun.ui.BaseViewModel
 import com.example.kanbun.ui.ViewState
@@ -19,7 +20,8 @@ import javax.inject.Inject
 @HiltViewModel
 class BoardSettingsViewModel @Inject constructor(
     private val firestoreRepository: FirestoreRepository,
-    private val createTagUseCase: UpsertTagUseCase
+    private val createTagUseCase: UpsertTagUseCase,
+    private val updateBoardUseCase: UpdateBoardUseCase
 ) : BaseViewModel() {
     private var _boardSettingsState = MutableStateFlow(ViewState.BoardSettingsViewState())
     val boardSettingsState: StateFlow<ViewState.BoardSettingsViewState> = _boardSettingsState
@@ -34,8 +36,9 @@ class BoardSettingsViewModel @Inject constructor(
             processResult(firestoreRepository.deleteBoard(board), onSuccess)
         }
 
-    fun updateBoard(board: Board, onSuccess: () -> Unit) = viewModelScope.launch {
-        processResult(firestoreRepository.updateBoard(board), onSuccess)
+    fun updateBoard(oldBoard: Board, newBoard: Board, onSuccess: () -> Unit) = viewModelScope.launch {
+        processResult(updateBoardUseCase(oldBoard, newBoard), onSuccess)
+//        processResult(firestoreRepository.updateBoard(board), onSuccess)
     }
 
     private fun <T : Any> processResult(result: Result<T>, onSuccess: () -> Unit) {

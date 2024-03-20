@@ -743,4 +743,9 @@ class FirestoreRepositoryImpl @Inject constructor(
             .update("tasks.$taskId.tags", tagIds)
             .await()
     }
+
+    override suspend fun updateBoard(board: Board, updates: Map<String, Any>): Result<Unit> {
+//        TODO("Not yet implemented")
+        return Result.Error("Not yet implemented")
+    }
 }

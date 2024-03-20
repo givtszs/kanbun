@@ -371,6 +371,22 @@ class RefactoredFirestoreRepositoryImpl @Inject constructor(
         }
     }
 
+    override suspend fun updateBoard(board: Board, updates: Map<String, Any>): Result<Unit> =
+        runCatching {
+            withContext(ioDispatcher) {
+                firestore
+                    .collection(
+                        "${FirestoreCollection.WORKSPACES.collectionName}/${board.workspace.id}" +
+                                "/${FirestoreCollection.BOARDS.collectionName}"
+                    )
+                    .document(board.id)
+                    .update(updates)
+                    .getResult {
+                        updateBoardInfoInWorkspace(board)
+                    }
+            }
+        }
+
     private fun updateBoardInfoInWorkspace(board: Board) {
         firestore
             .collection(FirestoreCollection.WORKSPACES.collectionName)
