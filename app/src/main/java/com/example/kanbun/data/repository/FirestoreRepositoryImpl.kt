@@ -183,6 +183,13 @@ class FirestoreRepositoryImpl @Inject constructor(
         }
     }
 
+    override suspend fun updateWorkspace(
+        workspace: Workspace,
+        updates: Map<String, Any>
+    ): Result<Unit> {
+        return Result.Error("Not yet implemented")
+    }
+
     override suspend fun updateWorkspaceName(workspace: Workspace, name: String): Result<Unit> =
         runCatching {
             firestore.collection(FirestoreCollection.WORKSPACES.collectionName)

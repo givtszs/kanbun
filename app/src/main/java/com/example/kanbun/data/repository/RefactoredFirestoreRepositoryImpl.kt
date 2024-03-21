@@ -185,6 +185,26 @@ class RefactoredFirestoreRepositoryImpl @Inject constructor(
         }
     }
 
+    override suspend fun updateWorkspace(
+        workspace: Workspace,
+        updates: Map<String, Any>
+    ): Result<Unit> = runCatching {
+        withContext(ioDispatcher) {
+            firestore.collection(FirestoreCollection.WORKSPACES.collectionName)
+                .document(workspace.id)
+                .update(updates)
+                .getResult {
+                    if ("name" in updates.keys) {
+                        updateWorkspaceNameInUserWorkspaces(
+                            workspaceId = workspace.id,
+                            members = workspace.members,
+                            name = updates["name"] as String
+                        )
+                    }
+                }
+        }
+    }
+
     override suspend fun updateWorkspaceName(workspace: Workspace, name: String): Result<Unit> =
         runCatching {
             withContext(ioDispatcher) {
