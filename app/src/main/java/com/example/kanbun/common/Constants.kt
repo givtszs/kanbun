@@ -1,18 +1,13 @@
 package com.example.kanbun.common
 
-import com.example.kanbun.R
 import com.squareup.moshi.Moshi
 
-enum class FirestoreCollection(val collectionName: String) {
-    USERS("users"),
-    WORKSPACES("workspaces"),
-    BOARDS("boards"),
-    BOARD_LIST("lists");
-
-    companion object {
-        fun getReference(collection: FirestoreCollection, id: String?) =
-            "${collection.collectionName}/$id"
-    }
+object FirestoreCollection {
+    const val USERS = "users"
+    const val WORKSPACES = "workspaces"
+    const val BOARDS = "boards"
+    const val TASK_LISTS = "lists"
+    const val TASKS = "tasks"
 }
 
 enum class AuthProvider(val providerId: String) {

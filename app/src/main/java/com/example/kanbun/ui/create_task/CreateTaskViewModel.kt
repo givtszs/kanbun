@@ -148,7 +148,7 @@ class CreateTaskViewModel @Inject constructor(
     fun createTag(tag: Tag, boardListInfo: BoardListInfo) {
         viewModelScope.launch {
             val boardRef =
-                boardListInfo.path.substringBefore("/${FirestoreCollection.BOARD_LIST.collectionName}")
+                boardListInfo.path.substringBefore("/${FirestoreCollection.TASK_LISTS}")
 
             when (
                 val result = upsertTagUseCase(
@@ -169,10 +169,10 @@ class CreateTaskViewModel @Inject constructor(
     private suspend fun getTags(boardListInfo: BoardListInfo) {
         _isLoadingTags.value = true
         val boardRef =
-            boardListInfo.path.substringBefore("/${FirestoreCollection.BOARD_LIST.collectionName}")
+            boardListInfo.path.substringBefore("/${FirestoreCollection.TASK_LISTS}")
         val workspaceId =
-            boardRef.substringAfter("${FirestoreCollection.WORKSPACES.collectionName}/")
-                .substringBefore("/${FirestoreCollection.BOARDS.collectionName}")
+            boardRef.substringAfter("${FirestoreCollection.WORKSPACES}/")
+                .substringBefore("/${FirestoreCollection.BOARDS}")
 
         when (
             val result = firestoreRepository.getAllTags(

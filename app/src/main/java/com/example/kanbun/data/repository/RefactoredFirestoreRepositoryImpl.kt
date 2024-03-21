@@ -64,7 +64,7 @@ class RefactoredFirestoreRepositoryImpl @Inject constructor(
 
     override suspend fun createUser(user: User): Result<Unit> = runCatching {
         withContext(ioDispatcher) {
-            firestore.collection(FirestoreCollection.USERS.collectionName)
+            firestore.collection(FirestoreCollection.USERS)
                 .document(user.id)
                 .set(user.toFirestoreUser())
                 .await()
@@ -73,7 +73,7 @@ class RefactoredFirestoreRepositoryImpl @Inject constructor(
 
     override suspend fun getUser(userId: String): Result<User> = runCatching {
         withContext(ioDispatcher) {
-            firestore.collection(FirestoreCollection.USERS.collectionName)
+            firestore.collection(FirestoreCollection.USERS)
                 .document(userId)
                 .get()
                 .getResult {
@@ -90,7 +90,7 @@ class RefactoredFirestoreRepositoryImpl @Inject constructor(
         if (userId.isEmpty()) {
             trySend(null)
         } else {
-            listener = firestore.collection(FirestoreCollection.USERS.collectionName)
+            listener = firestore.collection(FirestoreCollection.USERS)
                 .document(userId)
                 .addSnapshotListener { documentSnapshot, exception ->
                     if (exception != null) {
@@ -115,7 +115,7 @@ class RefactoredFirestoreRepositoryImpl @Inject constructor(
 
     override suspend fun createWorkspace(workspace: Workspace): Result<Unit> = runCatching {
         withContext(ioDispatcher) {
-            firestore.collection(FirestoreCollection.WORKSPACES.collectionName)
+            firestore.collection(FirestoreCollection.WORKSPACES)
                 .add(workspace.toFirestoreWorkspace())
                 .getResult {
                     addWorkspaceInfoToUser(
@@ -136,7 +136,7 @@ class RefactoredFirestoreRepositoryImpl @Inject constructor(
         userId: String,
         workspaceInfo: WorkspaceInfo
     ) {
-        firestore.collection(FirestoreCollection.USERS.collectionName)
+        firestore.collection(FirestoreCollection.USERS)
             .document(userId)
             .update("workspaces.${workspaceInfo.id}", workspaceInfo.name)
             .await()
@@ -144,7 +144,7 @@ class RefactoredFirestoreRepositoryImpl @Inject constructor(
 
     override suspend fun getWorkspace(workspaceId: String): Result<Workspace> = runCatching {
         withContext(ioDispatcher) {
-            firestore.collection(FirestoreCollection.WORKSPACES.collectionName)
+            firestore.collection(FirestoreCollection.WORKSPACES)
                 .document(workspaceId)
                 .get()
                 .getResult {
@@ -163,7 +163,7 @@ class RefactoredFirestoreRepositoryImpl @Inject constructor(
         if (workspaceId.isEmpty()) {
             trySend(null)
         } else {
-            listener = firestore.collection(FirestoreCollection.WORKSPACES.collectionName)
+            listener = firestore.collection(FirestoreCollection.WORKSPACES)
                 .document(workspaceId)
                 .addSnapshotListener { docSnapshot, error ->
                     if (error != null) {
@@ -190,7 +190,7 @@ class RefactoredFirestoreRepositoryImpl @Inject constructor(
         updates: Map<String, Any>
     ): Result<Unit> = runCatching {
         withContext(ioDispatcher) {
-            firestore.collection(FirestoreCollection.WORKSPACES.collectionName)
+            firestore.collection(FirestoreCollection.WORKSPACES)
                 .document(workspace.id)
                 .update(updates)
                 .getResult {
@@ -208,7 +208,7 @@ class RefactoredFirestoreRepositoryImpl @Inject constructor(
     override suspend fun updateWorkspaceName(workspace: Workspace, name: String): Result<Unit> =
         runCatching {
             withContext(ioDispatcher) {
-                firestore.collection(FirestoreCollection.WORKSPACES.collectionName)
+                firestore.collection(FirestoreCollection.WORKSPACES)
                     .document(workspace.id)
                     .update("name", name)
                     .getResult {
@@ -229,7 +229,7 @@ class RefactoredFirestoreRepositoryImpl @Inject constructor(
         coroutineScope {
             members.map { user ->
                 async {
-                    firestore.collection(FirestoreCollection.USERS.collectionName)
+                    firestore.collection(FirestoreCollection.USERS)
                         .document(user.id)
                         .update("workspaces.$workspaceId", name)
                         .await()
@@ -243,7 +243,7 @@ class RefactoredFirestoreRepositoryImpl @Inject constructor(
         memberId: String,
         memberRole: WorkspaceRole
     ): Result<Unit> = runCatching {
-        firestore.collection(FirestoreCollection.WORKSPACES.collectionName)
+        firestore.collection(FirestoreCollection.WORKSPACES)
             .document(workspaceId)
             .update("members.$memberId", memberRole.roleName)
             .await()
@@ -297,9 +297,9 @@ class RefactoredFirestoreRepositoryImpl @Inject constructor(
 
     override suspend fun deleteWorkspace(workspace: Workspace): Result<Unit> = runCatching {
         withContext(ioDispatcher) {
-            val workspacePath = "${FirestoreCollection.WORKSPACES.collectionName}/${workspace.id}"
+            val workspacePath = "${FirestoreCollection.WORKSPACES}/${workspace.id}"
             val boardsPath =
-                "${FirestoreCollection.WORKSPACES.collectionName}/${workspace.id}/${FirestoreCollection.BOARDS.collectionName}"
+                "${FirestoreCollection.WORKSPACES}/${workspace.id}/${FirestoreCollection.BOARDS}"
 
             // delete the workspace
             recursiveDelete(workspacePath)
@@ -324,7 +324,7 @@ class RefactoredFirestoreRepositoryImpl @Inject constructor(
         coroutineScope {
             members.map { user ->
                 async {
-                    firestore.collection(FirestoreCollection.USERS.collectionName)
+                    firestore.collection(FirestoreCollection.USERS)
                         .document(user.id)
                         .update("workspaces.$workspaceId", FieldValue.delete())
                         .await()
@@ -337,7 +337,7 @@ class RefactoredFirestoreRepositoryImpl @Inject constructor(
         withContext(ioDispatcher) {
             val workspaceId = board.workspace.id
 
-            firestore.collection("${FirestoreCollection.WORKSPACES.collectionName}/$workspaceId/${FirestoreCollection.BOARDS.collectionName}")
+            firestore.collection("${FirestoreCollection.WORKSPACES}/$workspaceId/${FirestoreCollection.BOARDS}")
                 .add(board.toFirestoreBoard())
                 .getResult {
                     addBoardInfoToWorkspace(
@@ -357,7 +357,7 @@ class RefactoredFirestoreRepositoryImpl @Inject constructor(
         workspaceId: String,
         boardInfo: Workspace.BoardInfo
     ) {
-        firestore.collection(FirestoreCollection.WORKSPACES.collectionName)
+        firestore.collection(FirestoreCollection.WORKSPACES)
             .document(workspaceId)
             .update("boards.${boardInfo.boardId}", boardInfo.toFirestoreBoardInfo())
     }
@@ -365,8 +365,8 @@ class RefactoredFirestoreRepositoryImpl @Inject constructor(
     override suspend fun getBoard(boardId: String, workspaceId: String): Result<Board> =
         runCatching {
             withContext(ioDispatcher) {
-                val workspacePath = "${FirestoreCollection.WORKSPACES.collectionName}/$workspaceId"
-                firestore.collection("$workspacePath/${FirestoreCollection.BOARDS.collectionName}")
+                val workspacePath = "${FirestoreCollection.WORKSPACES}/$workspaceId"
+                firestore.collection("$workspacePath/${FirestoreCollection.BOARDS}")
                     .document(boardId)
                     .get()
                     .getResult {
@@ -381,8 +381,8 @@ class RefactoredFirestoreRepositoryImpl @Inject constructor(
             withContext(ioDispatcher) {
                 firestore
                     .collection(
-                        "${FirestoreCollection.WORKSPACES.collectionName}/${board.workspace.id}" +
-                                "/${FirestoreCollection.BOARDS.collectionName}"
+                        "${FirestoreCollection.WORKSPACES}/${board.workspace.id}" +
+                                "/${FirestoreCollection.BOARDS}"
                     )
                     .document(board.id)
                     .update(updates)
@@ -394,7 +394,7 @@ class RefactoredFirestoreRepositoryImpl @Inject constructor(
 
     private fun updateBoardInfoInWorkspace(board: Board) {
         firestore
-            .collection(FirestoreCollection.WORKSPACES.collectionName)
+            .collection(FirestoreCollection.WORKSPACES)
             .document(board.workspace.id)
             .update(
                 "boards.${board.id}",
@@ -410,8 +410,8 @@ class RefactoredFirestoreRepositoryImpl @Inject constructor(
     ): Result<Unit> = runCatching {
         withContext(ioDispatcher) {
             val boardRef =
-                "${FirestoreCollection.WORKSPACES.collectionName}/${board.workspace.id}" +
-                        "/${FirestoreCollection.BOARDS.collectionName}/${board.id}"
+                "${FirestoreCollection.WORKSPACES}/${board.workspace.id}" +
+                        "/${FirestoreCollection.BOARDS}/${board.id}"
             // delete board and its task lists
             recursiveDelete(boardRef)
 
@@ -424,7 +424,7 @@ class RefactoredFirestoreRepositoryImpl @Inject constructor(
         workspaceId: String,
         boardId: String
     ) {
-        firestore.collection(FirestoreCollection.WORKSPACES.collectionName)
+        firestore.collection(FirestoreCollection.WORKSPACES)
             .document(workspaceId)
             .update("boards.${boardId}", FieldValue.delete())
             .await()
@@ -436,9 +436,9 @@ class RefactoredFirestoreRepositoryImpl @Inject constructor(
     ): Result<Unit> = runCatching {
         withContext(ioDispatcher) {
             val workspacePath =
-                "${FirestoreCollection.WORKSPACES.collectionName}/${board.workspace.id}"
-            val boardPath = "${FirestoreCollection.BOARDS.collectionName}/${board.id}"
-            firestore.collection("$workspacePath/$boardPath/${FirestoreCollection.BOARD_LIST.collectionName}")
+                "${FirestoreCollection.WORKSPACES}/${board.workspace.id}"
+            val boardPath = "${FirestoreCollection.BOARDS}/${board.id}"
+            firestore.collection("$workspacePath/$boardPath/${FirestoreCollection.TASK_LISTS}")
                 .add(boardList.toFirestoreBoardList())
                 .getResult {
                     updateBoardListsOfBoard(board, result.id)
@@ -448,8 +448,8 @@ class RefactoredFirestoreRepositoryImpl @Inject constructor(
 
     private fun updateBoardListsOfBoard(board: Board, boardListId: String) {
         val workspacePath =
-            "${FirestoreCollection.WORKSPACES.collectionName}/${board.workspace.id}"
-        firestore.collection("$workspacePath/${FirestoreCollection.BOARDS.collectionName}")
+            "${FirestoreCollection.WORKSPACES}/${board.workspace.id}"
+        firestore.collection("$workspacePath/${FirestoreCollection.BOARDS}")
             .document(board.id)
             .update("lists", board.lists + boardListId)
     }
@@ -480,9 +480,9 @@ class RefactoredFirestoreRepositoryImpl @Inject constructor(
             trySend(Result.Loading)
         } else {
             val workspacePath =
-                "${FirestoreCollection.WORKSPACES.collectionName}/$workspaceId"
-            val boardPath = "${FirestoreCollection.BOARDS.collectionName}/$boardId"
-            val path = "$workspacePath/$boardPath/${FirestoreCollection.BOARD_LIST.collectionName}"
+                "${FirestoreCollection.WORKSPACES}/$workspaceId"
+            val boardPath = "${FirestoreCollection.BOARDS}/$boardId"
+            val path = "$workspacePath/$boardPath/${FirestoreCollection.TASK_LISTS}"
             listener = firestore
                 .collection(path)
                 .addSnapshotListener { querySnapshot, error ->
@@ -597,7 +597,7 @@ class RefactoredFirestoreRepositoryImpl @Inject constructor(
             val taskId = UUID.randomUUID().toString()
             firestore.collection(listPath)
                 .document(listId)
-                .update("tasks.${taskId}", task.toFirestoreTask())
+                .update("${FirestoreCollection.TASKS}.${taskId}", task.toFirestoreTask())
                 .await()
         }
     }
@@ -623,7 +623,7 @@ class RefactoredFirestoreRepositoryImpl @Inject constructor(
         withContext(ioDispatcher) {
             firestore.collection(boardListPath)
                 .document(boardListId)
-                .update("tasks.${task.id}", FieldValue.delete())
+                .update("${FirestoreCollection.TASKS}.${task.id}", FieldValue.delete())
         }
     }
 
@@ -649,14 +649,14 @@ class RefactoredFirestoreRepositoryImpl @Inject constructor(
         val updMap = mutableMapOf<String, Long>()
         if (from < to) {
             for (i in (from + 1)..to) {
-                updMap["tasks.${tasks[i].id}.position"] = tasks[i].position.dec()
+                updMap["${FirestoreCollection.TASKS}.${tasks[i].id}.position"] = tasks[i].position.dec()
             }
         } else {
             for (i in to..<from) {
-                updMap["tasks.${tasks[i].id}.position"] = tasks[i].position.inc()
+                updMap["${FirestoreCollection.TASKS}.${tasks[i].id}.position"] = tasks[i].position.inc()
             }
         }
-        updMap["tasks.${tasks[from].id}.position"] = to.toLong()
+        updMap["${FirestoreCollection.TASKS}.${tasks[from].id}.position"] = to.toLong()
         return updMap
     }
 
@@ -679,9 +679,9 @@ class RefactoredFirestoreRepositoryImpl @Inject constructor(
     ): Map<String, Any> {
         val updMap = mutableMapOf<String, Any>()
         for (i in (from + 1)..<tasks.size) {
-            updMap["tasks.${tasks[i].id}.position"] = tasks[i].position.dec()
+            updMap["${FirestoreCollection.TASKS}.${tasks[i].id}.position"] = tasks[i].position.dec()
         }
-        updMap["tasks.${tasks[from].id}"] = FieldValue.delete()
+        updMap["${FirestoreCollection.TASKS}.${tasks[from].id}"] = FieldValue.delete()
         return updMap
     }
 
@@ -706,10 +706,10 @@ class RefactoredFirestoreRepositoryImpl @Inject constructor(
     ): Map<String, Any> {
         val updMap = mutableMapOf<String, Any>()
         for (i in to..<listToInsert.size) {
-            updMap["tasks.${listToInsert[i].id}.position"] = listToInsert[i].position.inc()
+            updMap["${FirestoreCollection.TASKS}.${listToInsert[i].id}.position"] = listToInsert[i].position.inc()
         }
         val newTask = task.copy(position = to.toLong())
-        updMap["tasks.${task.id}"] = newTask.toFirestoreTask()
+        updMap["${FirestoreCollection.TASKS}.${task.id}"] = newTask.toFirestoreTask()
         return updMap
     }
 
@@ -760,11 +760,11 @@ class RefactoredFirestoreRepositoryImpl @Inject constructor(
     ): Result<List<Tag>> = runCatching {
         withContext(ioDispatcher) {
             val boardId = boardListPath
-                .substringAfter("${FirestoreCollection.BOARDS.collectionName}/")
-                .substringBefore("/${FirestoreCollection.BOARD_LIST.collectionName}")
+                .substringAfter("${FirestoreCollection.BOARDS}/")
+                .substringBefore("/${FirestoreCollection.TASK_LISTS}")
             val workspaceId = boardListPath
-                .substringAfter("${FirestoreCollection.WORKSPACES.collectionName}/")
-                .substringBefore("/${FirestoreCollection.BOARDS.collectionName}")
+                .substringAfter("${FirestoreCollection.WORKSPACES}/")
+                .substringBefore("/${FirestoreCollection.BOARDS}")
 
             val result = getAllTags(boardId, workspaceId)
             if (result is Result.Error) {
@@ -801,7 +801,7 @@ class RefactoredFirestoreRepositoryImpl @Inject constructor(
         withContext(ioDispatcher) {
             firestore.collection(boardListPath)
                 .document(boardListId)
-                .update("tasks.$taskId.tags", tagIds)
+                .update("${FirestoreCollection.TASKS}.$taskId.tags", tagIds)
 //                .await()
         }
     }

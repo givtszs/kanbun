@@ -102,9 +102,9 @@ class BoardViewModel @Inject constructor(
             boardList = BoardList(
                 name = listName,
                 position = _board.value.lists.size.toLong(),
-                path = "${FirestoreCollection.WORKSPACES.collectionName}/${board.workspace.id}" +
-                        "/${FirestoreCollection.BOARDS.collectionName}/${board.id}" +
-                        "/${FirestoreCollection.BOARD_LIST.collectionName}"
+                path = "${FirestoreCollection.WORKSPACES}/${board.workspace.id}" +
+                        "/${FirestoreCollection.BOARDS}/${board.id}" +
+                        "/${FirestoreCollection.TASK_LISTS}"
             ),
             board = _board.value
         )
@@ -195,10 +195,10 @@ class BoardViewModel @Inject constructor(
         if (from != to && to != -1) {
             // TODO: Move path creation to the repository
             val workspacePath =
-                "${FirestoreCollection.WORKSPACES.collectionName}/${_board.value.workspace.id}"
-            val boardPath = "${FirestoreCollection.BOARDS.collectionName}/${_board.value.id}"
+                "${FirestoreCollection.WORKSPACES}/${_board.value.workspace.id}"
+            val boardPath = "${FirestoreCollection.BOARDS}/${_board.value.id}"
             val listsPath =
-                "$workspacePath/$boardPath/${FirestoreCollection.BOARD_LIST.collectionName}"
+                "$workspacePath/$boardPath/${FirestoreCollection.TASK_LISTS}"
             firestoreRepository.rearrangeBoardLists(
                 listsPath,
                 boardLists,

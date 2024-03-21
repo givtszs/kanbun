@@ -1,6 +1,5 @@
 package com.example.kanbun.di
 
-import com.example.kanbun.data.repository.FirestoreRepositoryImpl
 import com.example.kanbun.data.repository.RefactoredFirestoreRepositoryImpl
 import com.example.kanbun.domain.repository.FirestoreRepository
 import com.google.firebase.auth.FirebaseAuth

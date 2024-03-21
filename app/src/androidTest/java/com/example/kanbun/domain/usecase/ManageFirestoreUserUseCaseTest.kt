@@ -2,12 +2,10 @@ package com.example.kanbun.domain.usecase
 
 import com.example.kanbun.common.AuthProvider
 import com.example.kanbun.common.Result
-import com.example.kanbun.data.repository.FirestoreRepositoryImpl
 import com.example.kanbun.domain.FirestoreTestUtil
 import com.example.kanbun.domain.repository.FirestoreRepository
 import com.google.common.truth.Truth.assertThat
 import com.google.firebase.auth.FirebaseUser
-import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Before
