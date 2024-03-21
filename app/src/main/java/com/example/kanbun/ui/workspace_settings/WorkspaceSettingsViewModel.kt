@@ -8,6 +8,7 @@ import com.example.kanbun.data.local.PreferenceDataStoreHelper
 import com.example.kanbun.data.local.PreferenceDataStoreKeys
 import com.example.kanbun.domain.model.Workspace
 import com.example.kanbun.domain.repository.FirestoreRepository
+import com.example.kanbun.domain.usecase.UpdateWorkspaceUseCase
 import com.example.kanbun.ui.ViewState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -19,17 +20,25 @@ import javax.inject.Inject
 @HiltViewModel
 class WorkspaceSettingsViewModel @Inject constructor(
     private val firestoreRepository: FirestoreRepository,
-    private val dataStore: PreferenceDataStoreHelper
+    private val dataStore: PreferenceDataStoreHelper,
+    private val updateWorkspaceUseCase: UpdateWorkspaceUseCase
 ) : ViewModel() {
 
     private var _workspaceSettingsState = MutableStateFlow(ViewState.WorkspaceSettingsViewState())
     val workspaceSettingsState: StateFlow<ViewState.WorkspaceSettingsViewState> = _workspaceSettingsState
 
-    suspend fun updateWorkspaceName(workspace: Workspace, newName: String): Pair<Boolean, String> {
-        return when (val result = firestoreRepository.updateWorkspaceName(workspace, newName)) {
-            is Result.Success -> Pair(true, "Workspace data has been updated")
-            is Result.Error -> Pair(false, result.message ?: "")
-            is Result.Loading -> Pair(false, "Loading...")
+    fun updateWorkspace(oldWorkspace: Workspace, newWorkspace: Workspace, onSuccess: () -> Unit) {
+        if (oldWorkspace == newWorkspace) {
+            onSuccess()
+            return
+        }
+
+        viewModelScope.launch {
+            when (val result = updateWorkspaceUseCase(oldWorkspace, newWorkspace)) {
+                is Result.Success -> onSuccess()
+                is Result.Error -> Log.d("WorkspaceSettingsViewModel", result.message, result.e)
+                is Result.Loading -> {}
+            }
         }
     }
 

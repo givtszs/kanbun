@@ -84,20 +84,15 @@ class WorkspaceSettingsFragment : BaseFragment(), StateHandler {
                     return@setOnClickListener
                 }
 
-                if (name == workspace.name) {
-                    navController.popBackStack()
-                }
-
-                lifecycleScope.launch {
-                    val updateResult = viewModel.updateWorkspaceName(
-                        workspace = workspace,
-                        newName = name
+                viewModel.updateWorkspace(
+                    oldWorkspace = workspace,
+                    newWorkspace = workspace.copy(
+                        name = name,
+                        // update members
                     )
-
-                    showToast(updateResult.second, context = requireActivity())
-                    if (updateResult.first) {
-                        navController.popBackStack()
-                    }
+                ) {
+                    showToast("Workspace settings have been updated", requireActivity())
+                    navController.popBackStack()
                 }
             }
 
