@@ -583,27 +583,15 @@ class RefactoredFirestoreRepositoryImpl @Inject constructor(
     }
 
     override suspend fun updateTask(
-        task: com.example.kanbun.domain.model.Task,
-        boardListPath: String,
-        boardListId: String
-    ): Result<Unit> = runCatching {
-        withContext(ioDispatcher) {
-            firestore.collection(boardListPath)
-                .document(boardListId)
-                .update("tasks.${task.id}", task.toFirestoreTask())
-        }
-    }
-
-    override suspend fun updateTask(
         taskId: String,
-        boardListPath: String,
         boardListId: String,
-        updates: Map<String, Any>
+        boardListPath: String,
+        updates: Map<String, Any?>
     ): Result<Unit> = runCatching {
         withContext(ioDispatcher) {
             firestore.collection(boardListPath)
                 .document(boardListId)
-                .update("tasks.$taskId", updates)
+                .update(updates)
         }
     }
 

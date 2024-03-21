@@ -9,6 +9,7 @@ import com.example.kanbun.domain.model.BoardListInfo
 import com.example.kanbun.domain.model.Tag
 import com.example.kanbun.domain.model.Task
 import com.example.kanbun.domain.repository.FirestoreRepository
+import com.example.kanbun.domain.usecase.UpdateTaskUseCase
 import com.example.kanbun.domain.usecase.UpsertTagUseCase
 import com.example.kanbun.ui.BaseViewModel
 import com.example.kanbun.ui.ViewState
@@ -27,8 +28,10 @@ private const val TAG = "CreateTaskViewModel"
 @HiltViewModel
 class CreateTaskViewModel @Inject constructor(
     private val firestoreRepository: FirestoreRepository,
-    private val upsertTagUseCase: UpsertTagUseCase
+    private val upsertTagUseCase: UpsertTagUseCase,
+    private val updateTaskUseCase: UpdateTaskUseCase
 ) : BaseViewModel() {
+
     private var _task = MutableStateFlow<Task?>(null)
     private var _tags =
         MutableStateFlow<List<TagUi>>(emptyList())
@@ -114,14 +117,18 @@ class CreateTaskViewModel @Inject constructor(
             )
             if (updatedTask == _task.value || updatedTask == null) {
                 _message.value = "No changes spotted"
+                onSuccessCallback()
                 return@launch
             } else {
                 _isUpsertingTask.value = true
-                when (val result = firestoreRepository.updateTask(
-                    updatedTask,
-                    boardListInfo.path,
-                    boardListInfo.id
-                )) {
+                when (
+                    val result = updateTaskUseCase(
+                        oldTask = _task.value!!,
+                        newTask = updatedTask,
+                        boardListId = boardListInfo.id,
+                        boardListPath = boardListInfo.path
+                    )
+                ) {
                     is Result.Success -> {
                         _isUpsertingTask.value = false
                         onSuccessCallback()
@@ -136,6 +143,7 @@ class CreateTaskViewModel @Inject constructor(
                 }
             }
         }
+
 
     fun createTag(tag: Tag, boardListInfo: BoardListInfo) {
         viewModelScope.launch {

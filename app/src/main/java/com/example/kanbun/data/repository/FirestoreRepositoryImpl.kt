@@ -491,18 +491,6 @@ class FirestoreRepositoryImpl @Inject constructor(
             .getResult { taskId }
     }
 
-    override suspend fun updateTask(
-        task: com.example.kanbun.domain.model.Task,
-        boardListPath: String,
-        boardListId: String
-    ): Result<Unit> =
-        runCatching {
-            firestore.collection(boardListPath)
-                .document(boardListId)
-                .update("tasks.${task.id}", task.toFirestoreTask())
-                .await()
-        }
-
     override suspend fun deleteTask(
         task: com.example.kanbun.domain.model.Task,
         boardListPath: String,
@@ -738,9 +726,9 @@ class FirestoreRepositoryImpl @Inject constructor(
 
     override suspend fun updateTask(
         taskId: String,
-        boardListPath: String,
         boardListId: String,
-        updates: Map<String, Any>
+        boardListPath: String,
+        updates: Map<String, Any?>
     ): Result<Unit> {
 //        TODO("Not yet implemented")
         return Result.Error("Not yet implemented")
