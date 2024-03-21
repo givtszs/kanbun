@@ -330,19 +330,6 @@ class FirestoreRepositoryImpl @Inject constructor(
             .await()
     }
 
-    override suspend fun updateBoard(board: Board): Result<Unit> = runCatching {
-        firestore
-            .collection(
-                "${FirestoreCollection.WORKSPACES.collectionName}/${board.workspace.id}" +
-                        "/${FirestoreCollection.BOARDS.collectionName}"
-            )
-            .document(board.id)
-            .set(board.toFirestoreBoard())
-            .getResult {
-                updateWorkspaceBoard(board)
-            }
-    }
-
     private suspend fun deleteBoardFromWorkspace(
         workspaceId: String,
         boardId: String

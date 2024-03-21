@@ -55,7 +55,6 @@ class BoardSettingsViewModel @Inject constructor(
     fun updateBoard(oldBoard: Board, newBoard: Board, onSuccess: () -> Unit) =
         viewModelScope.launch {
             processResult(updateBoardUseCase(oldBoard, newBoard), onSuccess)
-//        processResult(firestoreRepository.updateBoard(board), onSuccess)
         }
 
     private fun <T : Any> processResult(result: Result<T>, onSuccess: () -> Unit) {
