@@ -735,4 +735,14 @@ class FirestoreRepositoryImpl @Inject constructor(
 //        TODO("Not yet implemented")
         return Result.Error("Not yet implemented")
     }
+
+    override suspend fun updateTask(
+        taskId: String,
+        boardListPath: String,
+        boardListId: String,
+        updates: Map<String, Any>
+    ): Result<Unit> {
+//        TODO("Not yet implemented")
+        return Result.Error("Not yet implemented")
+    }
 }

@@ -594,6 +594,19 @@ class RefactoredFirestoreRepositoryImpl @Inject constructor(
         }
     }
 
+    override suspend fun updateTask(
+        taskId: String,
+        boardListPath: String,
+        boardListId: String,
+        updates: Map<String, Any>
+    ): Result<Unit> = runCatching {
+        withContext(ioDispatcher) {
+            firestore.collection(boardListPath)
+                .document(boardListId)
+                .update("tasks.$taskId", updates)
+        }
+    }
+
     override suspend fun deleteTask(
         task: com.example.kanbun.domain.model.Task,
         boardListPath: String,
