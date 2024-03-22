@@ -330,7 +330,7 @@ class FirestoreRepositoryImpl @Inject constructor(
         withContext(ioDispatcher) {
             val workspaceId = board.workspace.id
 
-            firestore.collection("${FirestoreCollection.WORKSPACES}/$workspaceId/${FirestoreCollection.BOARDS}")
+            firestore.collection(FirestoreCollection.getBoardsPath(board.workspace.id))
                 .add(board.toFirestoreBoard())
                 .getResult {
                     addBoardInfoToWorkspace(
@@ -358,8 +358,7 @@ class FirestoreRepositoryImpl @Inject constructor(
     override suspend fun getBoard(boardId: String, workspaceId: String): Result<Board> =
         runCatching {
             withContext(ioDispatcher) {
-                val workspacePath = "${FirestoreCollection.WORKSPACES}/$workspaceId"
-                firestore.collection("$workspacePath/${FirestoreCollection.BOARDS}")
+                firestore.collection(FirestoreCollection.getBoardsPath(workspaceId))
                     .document(boardId)
                     .get()
                     .getResult {
@@ -373,10 +372,7 @@ class FirestoreRepositoryImpl @Inject constructor(
         runCatching {
             withContext(ioDispatcher) {
                 firestore
-                    .collection(
-                        "${FirestoreCollection.WORKSPACES}/${board.workspace.id}" +
-                                "/${FirestoreCollection.BOARDS}"
-                    )
+                    .collection(FirestoreCollection.getBoardsPath(board.workspace.id))
                     .document(board.id)
                     .update(updates)
                     .getResult {
@@ -402,9 +398,8 @@ class FirestoreRepositoryImpl @Inject constructor(
         board: Board
     ): Result<Unit> = runCatching {
         withContext(ioDispatcher) {
-            val boardRef =
-                "${FirestoreCollection.WORKSPACES}/${board.workspace.id}" +
-                        "/${FirestoreCollection.BOARDS}/${board.id}"
+            val boardRef = FirestoreCollection.getBoardReference(board.id, board.workspace.id)
+
             // delete board and its task lists
             recursiveDelete(boardRef)
 
