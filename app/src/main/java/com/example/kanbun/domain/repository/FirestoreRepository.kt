@@ -36,9 +36,7 @@ interface FirestoreRepository {
 
     fun getWorkspaceStream(workspaceId: String): Flow<Workspace?>
 
-    suspend fun updateWorkspace(workspace: Workspace, updates: Map<String, Any>): Result<Unit>
-
-    suspend fun updateWorkspaceName(workspace: Workspace, name: String): Result<Unit>
+    suspend fun updateWorkspace(oldWorkspace: Workspace, newWorkspace: Workspace): Result<Unit>
 
     suspend fun inviteToWorkspace(workspace: Workspace, user: User): Result<Unit>
 

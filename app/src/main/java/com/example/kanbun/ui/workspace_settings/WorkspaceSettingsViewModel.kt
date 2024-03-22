@@ -8,7 +8,6 @@ import com.example.kanbun.data.local.PreferenceDataStoreHelper
 import com.example.kanbun.data.local.PreferenceDataStoreKeys
 import com.example.kanbun.domain.model.Workspace
 import com.example.kanbun.domain.repository.FirestoreRepository
-import com.example.kanbun.domain.usecase.UpdateWorkspaceUseCase
 import com.example.kanbun.ui.ViewState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -21,7 +20,6 @@ import javax.inject.Inject
 class WorkspaceSettingsViewModel @Inject constructor(
     private val firestoreRepository: FirestoreRepository,
     private val dataStore: PreferenceDataStoreHelper,
-    private val updateWorkspaceUseCase: UpdateWorkspaceUseCase
 ) : ViewModel() {
 
     private var _workspaceSettingsState = MutableStateFlow(ViewState.WorkspaceSettingsViewState())
@@ -34,7 +32,7 @@ class WorkspaceSettingsViewModel @Inject constructor(
         }
 
         viewModelScope.launch {
-            when (val result = updateWorkspaceUseCase(oldWorkspace, newWorkspace)) {
+            when (val result = firestoreRepository.updateWorkspace(oldWorkspace, newWorkspace)) {
                 is Result.Success -> onSuccess()
                 is Result.Error -> Log.d("WorkspaceSettingsViewModel", result.message, result.e)
                 is Result.Loading -> {}

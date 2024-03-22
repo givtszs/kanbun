@@ -41,7 +41,7 @@ class FirestoreRepositoryTest {
 
     @After
     fun tearDown() = runBlocking {
-     FirestoreTestUtil.deleteFirestoreData()
+        FirestoreTestUtil.deleteFirestoreData()
     }
 
     private fun Subject.isResultSuccess() = isInstanceOf(Result.Success::class.java)
@@ -170,24 +170,26 @@ class FirestoreRepositoryTest {
     fun updateWorkspace_newName_updatesWorkspaceName() = runBlocking {
         val user = createUser("user1")
         val workspace = createWorkspace(user.id, "test").first
-        val newName = "New Name"
-        val nameUpdate = mapOf("name" to newName)
-        val result = repository.updateWorkspace(workspace, nameUpdate)
+
+        val newWorkspace = workspace.copy(name = "New Name")
+        val result = repository.updateWorkspace(workspace, newWorkspace)
 
         assertThat(result).isInstanceOf(Result.Success::class.java)
 
         val resultUpdatedWorkspace = (repository.getWorkspace(workspace.id) as Result.Success).data
 
         // check the name has been updated
-        assertThat(resultUpdatedWorkspace.name).isEqualTo(newName)
+        assertThat(resultUpdatedWorkspace.name).isEqualTo(newWorkspace.name)
 
         val userUpdate = (repository.getUser(user.id) as Result.Success).data
 
         // check the workspace name has been updated for its members
-        assertThat(userUpdate.workspaces.first { it.id == workspace.id }.name).isEqualTo(newName)
+        assertThat(userUpdate.workspaces.first { it.id == workspace.id }.name).isEqualTo(
+            newWorkspace.name
+        )
     }
 
-//    @Test
+    //    @Test
 //    fun getWorkspaceStream_returnsWorkspaceChangesOvertime() = runBlocking {
 //        val user = createUser("user1")
 //        val workspace = createWorkspace(user.id, "Test").first

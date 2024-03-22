@@ -186,40 +186,33 @@ class FirestoreRepositoryImpl @Inject constructor(
     }
 
     override suspend fun updateWorkspace(
-        workspace: Workspace,
-        updates: Map<String, Any>
+        oldWorkspace: Workspace,
+        newWorkspace: Workspace
     ): Result<Unit> = runCatching {
         withContext(ioDispatcher) {
+            val workspaceUpdates = getWorkspaceUpdates(oldWorkspace, newWorkspace)
             firestore.collection(FirestoreCollection.WORKSPACES)
-                .document(workspace.id)
-                .update(updates)
+                .document(newWorkspace.id)
+                .update(workspaceUpdates)
                 .getResult {
-                    if ("name" in updates.keys) {
+                    if ("name" in workspaceUpdates.keys) {
                         updateWorkspaceNameInUserWorkspaces(
-                            workspaceId = workspace.id,
-                            members = workspace.members,
-                            name = updates["name"] as String
+                            workspaceId = newWorkspace.id,
+                            members = newWorkspace.members,
+                            name = workspaceUpdates["name"] as String
                         )
                     }
                 }
         }
     }
 
-    override suspend fun updateWorkspaceName(workspace: Workspace, name: String): Result<Unit> =
-        runCatching {
-            withContext(ioDispatcher) {
-                firestore.collection(FirestoreCollection.WORKSPACES)
-                    .document(workspace.id)
-                    .update("name", name)
-                    .getResult {
-                        updateWorkspaceNameInUserWorkspaces(
-                            workspaceId = workspace.id,
-                            members = workspace.members,
-                            name = name
-                        )
-                    }
-            }
+    private fun getWorkspaceUpdates(oldWorkspace: Workspace, newWorkspace: Workspace): Map<String, Any> {
+        val mapOfUpdates = mutableMapOf<String, Any>()
+        if (newWorkspace.name != oldWorkspace.name) {
+            mapOfUpdates["name"] = newWorkspace.name
         }
+        return mapOfUpdates
+    }
 
     private suspend fun updateWorkspaceNameInUserWorkspaces(
         workspaceId: String,
