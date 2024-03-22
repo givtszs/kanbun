@@ -47,7 +47,7 @@ import kotlinx.coroutines.withContext
 import java.util.UUID
 import javax.inject.Inject
 
-class RefactoredFirestoreRepositoryImpl @Inject constructor(
+class FirestoreRepositoryImpl @Inject constructor(
     private val firestore: FirebaseFirestore,
     private val ioDispatcher: CoroutineDispatcher
 ) : FirestoreRepository {

@@ -40,7 +40,7 @@ class UserBoardsViewModel @Inject constructor(
     private val firestoreRepository: FirestoreRepository,
     private val dataStore: PreferenceDataStoreHelper
 ) : BaseViewModel() {
-
+    // TODO: Make one-shot query to get the user's data
     private val _user =
         firestoreRepository.getUserStream(firebaseUser?.uid ?: "").distinctUntilChanged()
     private val _currentWorkspace = MutableStateFlow<Workspace?>(null)

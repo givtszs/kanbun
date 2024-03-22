@@ -2,11 +2,14 @@ package com.example.kanbun.domain.usecase
 
 import com.example.kanbun.common.AuthProvider
 import com.example.kanbun.common.Result
+import com.example.kanbun.data.repository.FirestoreRepositoryImpl
 import com.example.kanbun.domain.FirestoreTestUtil
 import com.example.kanbun.domain.repository.FirestoreRepository
 import com.google.common.truth.Truth.assertThat
 import com.google.firebase.auth.FirebaseUser
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -19,12 +22,14 @@ class ManageFirestoreUserUseCaseTest {
     private val auth = FirestoreTestUtil.auth
     private lateinit var user: FirebaseUser
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     @Before
     fun setUp() {
         registerUserUseCase = RegisterUserUseCase(auth)
 
         val firestore = FirestoreTestUtil.firestore
-        firestoreRepository = FirestoreRepositoryImpl(firestore)
+        val dispatcher = UnconfinedTestDispatcher()
+        firestoreRepository = FirestoreRepositoryImpl(firestore, dispatcher)
         manageFirestoreUserUseCase = ManageFirestoreUserUseCase(firestoreRepository)
 
         runBlocking {

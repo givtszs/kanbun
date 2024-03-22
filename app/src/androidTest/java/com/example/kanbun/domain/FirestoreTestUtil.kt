@@ -62,6 +62,10 @@ class FirestoreTestUtil {
             con.disconnect()
         }
 
+        const val testName = "IAmTest"
+        const val testEmail = "qatesteverything@gmail.com"
+        const val testPassword = "Qwerty123_"
+
         /* Test data */
         fun createUser(id: String): User {
             return User(
@@ -74,38 +78,6 @@ class FirestoreTestUtil {
                 cards = emptyList()
             )
         }
-
-        val userSample = User(
-            id = "test1",
-            email = "test@gmail.com",
-            name = "Test",
-            profilePicture = null, // TODO("Change to URL string")
-            authProvider = AuthProvider.GOOGLE,
-            workspaces = listOf(WorkspaceInfo("workspace1", "Test Workspace 1")),
-            cards = emptyList() // TODO("Change to list of cards or whatever")
-        )
-
-        const val testName = "IAmTest"
-        const val testEmail = "qatesteverything@gmail.com"
-        const val testPassword = "Qwerty123_"
-
-        val workspaceSample = Workspace(
-            name = "Test",
-            owner = FirestoreCollection.getReference(
-                FirestoreCollection.USERS,
-                userSample.id
-            ),
-            members = listOf(
-                Workspace.WorkspaceMember(
-                    FirestoreCollection.getReference(
-                        FirestoreCollection.USERS,
-                        userSample.id
-                    ),
-                    WorkspaceRole.ADMIN
-                )
-            ),
-            boards = emptyList()
-        )
 
         fun createWorkspace(userId: String, name: String): Workspace =
             Workspace(

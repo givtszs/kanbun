@@ -80,5 +80,6 @@ dependencies {
     androidTestImplementation("com.google.firebase:firebase-firestore")
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
+    androidTestImplementation(libs.kotlinx.coroutines.test)
     androidTestImplementation(libs.truth)
 }
