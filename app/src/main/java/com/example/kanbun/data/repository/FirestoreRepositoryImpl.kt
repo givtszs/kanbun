@@ -76,6 +76,7 @@ class FirestoreRepositoryImpl @Inject constructor(
             firestore.collection(FirestoreCollection.USERS)
                 .document(userId)
                 .get()
+                .addOnSuccessListener {  }
                 .getResult {
                     val firestoreUser = result.toObject(FirestoreUser::class.java)
                         ?: throw NullPointerException("Couldn't convert FirestoreUser to User since the value is null")
@@ -330,7 +331,8 @@ class FirestoreRepositoryImpl @Inject constructor(
         withContext(ioDispatcher) {
             val workspaceId = board.workspace.id
 
-            firestore.collection(FirestoreCollection.getBoardsPath(board.workspace.id))
+            firestore.collection(FirestoreCollection.WORKSPACES).document(board.workspace.id)
+                .collection(FirestoreCollection.BOARDS)
                 .add(board.toFirestoreBoard())
                 .getResult {
                     addBoardInfoToWorkspace(
@@ -358,8 +360,9 @@ class FirestoreRepositoryImpl @Inject constructor(
     override suspend fun getBoard(boardId: String, workspaceId: String): Result<Board> =
         runCatching {
             withContext(ioDispatcher) {
-                firestore.collection(FirestoreCollection.getBoardsPath(workspaceId))
-                    .document(boardId)
+                firestore
+                    .collection(FirestoreCollection.WORKSPACES).document(workspaceId)
+                    .collection(FirestoreCollection.BOARDS).document(boardId)
                     .get()
                     .getResult {
                         result.toObject(FirestoreBoard::class.java)?.toBoard(boardId)
@@ -371,9 +374,8 @@ class FirestoreRepositoryImpl @Inject constructor(
     override suspend fun updateBoard(board: Board, updates: Map<String, Any>): Result<Unit> =
         runCatching {
             withContext(ioDispatcher) {
-                firestore
-                    .collection(FirestoreCollection.getBoardsPath(board.workspace.id))
-                    .document(board.id)
+                firestore.collection(FirestoreCollection.WORKSPACES).document(board.workspace.id)
+                    .collection(FirestoreCollection.BOARDS).document(board.id)
                     .update(updates)
                     .getResult {
                         updateBoardInfoInWorkspace(board)
@@ -398,10 +400,11 @@ class FirestoreRepositoryImpl @Inject constructor(
         board: Board
     ): Result<Unit> = runCatching {
         withContext(ioDispatcher) {
-            val boardRef = FirestoreCollection.getBoardReference(board.id, board.workspace.id)
+            val boardRef = firestore.collection(FirestoreCollection.WORKSPACES).document()
+                .collection(FirestoreCollection.BOARDS).document(board.id)
 
             // delete board and its task lists
-            recursiveDelete(boardRef)
+            recursiveDelete(boardRef.toString())
 
             // delete the board information from the workspace it belongs to
             deleteBoardFromWorkspace(board.workspace.id, board.id)

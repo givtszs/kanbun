@@ -8,14 +8,6 @@ object FirestoreCollection {
     const val BOARDS = "boards"
     const val TASK_LISTS = "lists"
     const val TASKS = "tasks"
-
-    fun getBoardsPath(workspaceId: String): String {
-        return "$WORKSPACES/$workspaceId/$BOARDS"
-    }
-
-    fun getBoardReference(boardId:String, workspaceId: String): String {
-        return "$WORKSPACES/$workspaceId/$BOARDS/$boardId"
-    }
 }
 
 enum class AuthProvider(val providerId: String) {
