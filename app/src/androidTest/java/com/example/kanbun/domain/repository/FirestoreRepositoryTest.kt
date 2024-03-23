@@ -1,27 +1,17 @@
 package com.example.kanbun.domain.repository
 
-import com.example.kanbun.common.FirestoreCollection
 import com.example.kanbun.common.Result
 import com.example.kanbun.data.repository.FirestoreRepositoryImpl
 import com.example.kanbun.domain.FirestoreTestUtil
 import com.example.kanbun.domain.model.Board
-import com.example.kanbun.domain.model.BoardList
-import com.example.kanbun.domain.model.Tag
-import com.example.kanbun.domain.model.Task
 import com.example.kanbun.domain.model.User
 import com.example.kanbun.domain.model.Workspace
 import com.example.kanbun.domain.model.WorkspaceInfo
 import com.google.common.truth.Subject
 import com.google.common.truth.Truth.assertThat
-import com.google.firebase.firestore.FieldValue
-import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.tasks.await
-import kotlinx.coroutines.test.TestDispatcher
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import org.junit.After
 import org.junit.Before
@@ -269,7 +259,11 @@ class FirestoreRepositoryTest {
     fun getBoard_validBoardIdAndWorkspaceId_returnsBoard() = runBlocking {
         val user = createUser("user1")
         val workspace = createWorkspace(user.id, "Workspace")
-        var board = FirestoreTestUtil.createBoard(user.id, WorkspaceInfo(workspace.id, workspace.name), "Board").also {
+        var board = FirestoreTestUtil.createBoard(
+            user.id,
+            WorkspaceInfo(workspace.id, workspace.name),
+            "Board"
+        ).also {
             repository.createBoard(it)
         }
         val boardId = (repository.getWorkspace(workspace.id) as Result.Success).data.boards.first {
@@ -302,23 +296,60 @@ class FirestoreRepositoryTest {
         assertThat(result).isResultError()
     }
 
-    //    @Test
-//    fun updateBoard_updatesBoardValues() = runBlocking {
-//        val board = createBoard("board1")
-//        val newBoard =
-//            FirestoreTestUtil.createBoard(board.owner, board.workspace, "Updated name").run {
-//                copy(id = board.id)
-//            }
-//        val result = repository.updateBoard(newBoard)
-//
-//        assertThat(result).isResultSuccess()
-//
-//        val updBoard =
-//            (repository.getBoard(newBoard.id, newBoard.workspace.id) as Result.Success).data
-//
-//        assertThat(updBoard).isEqualTo(newBoard)
-//    }
-//
+    @Test
+    fun updateBoard_validNewName_updatesBoardName() = runBlocking {
+        val board = createBoard("Board")
+        val newBoard = board.copy(name = "New Name")
+        val result = repository.updateBoard(board, newBoard)
+
+        assertThat(result).isResultSuccess()
+
+        val boardUpdate =
+            (repository.getBoard(newBoard.id, newBoard.workspace.id) as Result.Success).data
+
+        assertThat(boardUpdate.name).isEqualTo(newBoard.name)
+
+        val workspaceUpdate = (repository.getWorkspace(board.workspace.id) as Result.Success).data
+
+        assertThat(workspaceUpdate.boards.any { it.name == newBoard.name }).isTrue()
+    }
+
+    @Test
+    fun updateBoard_emptyNewName_keepsPreviousName() = runBlocking {
+        val board = createBoard("Board")
+        val newBoard = board.copy(name = "")
+        val result = repository.updateBoard(board, newBoard)
+
+        assertThat(result).isResultSuccess()
+
+        val boardUpdate =
+            (repository.getBoard(newBoard.id, newBoard.workspace.id) as Result.Success).data
+
+        assertThat(boardUpdate.name).isEqualTo(board.name)
+
+        val workspaceUpdate = (repository.getWorkspace(board.workspace.id) as Result.Success).data
+
+        assertThat(workspaceUpdate.boards.any { it.name == board.name }).isTrue()
+    }
+
+    @Test
+    fun updateBoard_validNewNameNewDescription_updatesBoardValues() = runBlocking {
+        val board = createBoard("Board")
+        val newBoard = board.copy(name = "New Name", description = "New Description")
+        val result = repository.updateBoard(board, newBoard)
+
+        assertThat(result).isResultSuccess()
+
+        val boardUpdate =
+            (repository.getBoard(newBoard.id, newBoard.workspace.id) as Result.Success).data
+
+        assertThat(boardUpdate).isEqualTo(newBoard)
+
+        val workspaceUpdate = (repository.getWorkspace(board.workspace.id) as Result.Success).data
+
+        assertThat(workspaceUpdate.boards.any { it.name == newBoard.name }).isTrue()
+    }
+
     @Test
     fun deleteBoard_boardObj_deletesBoard() = runBlocking {
         val user = createUser("user1")
@@ -328,11 +359,13 @@ class FirestoreRepositoryTest {
 
         assertThat(result).isResultSuccess()
 
-        val updWorkspace = (repository.getWorkspace(board.workspace.id) as Result.Success).data
+        val workspaceUpdate = (repository.getWorkspace(board.workspace.id) as Result.Success).data
 
-        assertThat(updWorkspace.boards.any { it.boardId == board.id }).isFalse()
+        assertThat(workspaceUpdate.boards.any { it.boardId == board.id }).isFalse()
     }
-////
+
+
+    ////
 //    @Test
 //    fun createBoardList_createsDocumentInTheListsSubcollection() = runBlocking {
 //        val user = FirestoreTestUtil.createUser("user").also {
@@ -801,12 +834,12 @@ class FirestoreRepositoryTest {
             board
         }
     }
-//
-////    private suspend fun createBoard(name: String): Board {
-////        val user = createUser("user1")
-////        val workspace = createWorkspace(user.id, "workspace")
-////        return createBoard(user.id, WorkspaceInfo(workspace.id, workspace.name), name)
-////    }
+
+    private suspend fun createBoard(name: String): Board {
+        val user = createUser("user1")
+        val workspace = createWorkspace(user.id, "workspace")
+        return createBoard(user.id, workspace.id, workspace.name, name)
+    }
 //
 //    private suspend fun createBoardList(
 //        name: String,

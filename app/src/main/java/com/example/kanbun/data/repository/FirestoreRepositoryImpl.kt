@@ -11,6 +11,7 @@ import com.example.kanbun.common.toFirestoreBoard
 import com.example.kanbun.common.toFirestoreBoardInfo
 import com.example.kanbun.common.toFirestoreBoardList
 import com.example.kanbun.common.toFirestoreTag
+import com.example.kanbun.common.toFirestoreTags
 import com.example.kanbun.common.toFirestoreTask
 import com.example.kanbun.common.toFirestoreUser
 import com.example.kanbun.common.toFirestoreWorkspace
@@ -76,7 +77,7 @@ class FirestoreRepositoryImpl @Inject constructor(
             firestore.collection(FirestoreCollection.USERS)
                 .document(userId)
                 .get()
-                .addOnSuccessListener {  }
+                .addOnSuccessListener { }
                 .getResult {
                     val firestoreUser = result.toObject(FirestoreUser::class.java)
                         ?: throw NullPointerException("Couldn't convert FirestoreUser to User since the value is null")
@@ -207,7 +208,10 @@ class FirestoreRepositoryImpl @Inject constructor(
         }
     }
 
-    private fun getWorkspaceUpdates(oldWorkspace: Workspace, newWorkspace: Workspace): Map<String, Any> {
+    private fun getWorkspaceUpdates(
+        oldWorkspace: Workspace,
+        newWorkspace: Workspace
+    ): Map<String, Any> {
         val mapOfUpdates = mutableMapOf<String, Any>()
         if (newWorkspace.name != oldWorkspace.name) {
             mapOfUpdates["name"] = newWorkspace.name
@@ -371,17 +375,35 @@ class FirestoreRepositoryImpl @Inject constructor(
             }
         }
 
-    override suspend fun updateBoard(board: Board, updates: Map<String, Any>): Result<Unit> =
+    override suspend fun updateBoard(oldBoard: Board, newBoard: Board): Result<Unit> =
         runCatching {
             withContext(ioDispatcher) {
-                firestore.collection(FirestoreCollection.WORKSPACES).document(board.workspace.id)
-                    .collection(FirestoreCollection.BOARDS).document(board.id)
-                    .update(updates)
+                val boardUpdates = getBoardUpdates(oldBoard, newBoard)
+                firestore.collection(FirestoreCollection.WORKSPACES).document(newBoard.workspace.id)
+                    .collection(FirestoreCollection.BOARDS).document(newBoard.id)
+                    .update(boardUpdates)
                     .getResult {
-                        updateBoardInfoInWorkspace(board)
+                        if (newBoard.name.isNotEmpty()) {
+                            updateBoardInfoInWorkspace(newBoard)
+                        }
                     }
             }
         }
+
+    private fun getBoardUpdates(oldBoard: Board, newBoard: Board): Map<String, Any> {
+        val mapOfUpdates = mutableMapOf<String, Any>()
+        if (newBoard.name != oldBoard.name) {
+            mapOfUpdates["name"] = newBoard.name.ifEmpty { oldBoard.name }
+        }
+        if (newBoard.description != oldBoard.description) {
+            mapOfUpdates["description"] = newBoard.description
+        }
+        if (newBoard.tags != oldBoard.tags) {
+            mapOfUpdates["tags"] = newBoard.tags.toFirestoreTags()
+        }
+        return mapOfUpdates
+    }
+
 
     private fun updateBoardInfoInWorkspace(board: Board) {
         firestore
