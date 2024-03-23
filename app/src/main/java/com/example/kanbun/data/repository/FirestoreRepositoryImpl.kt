@@ -37,12 +37,11 @@ import com.google.firebase.functions.HttpsCallableResult
 import com.google.firebase.functions.ktx.functions
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.awaitClose
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 import java.util.UUID
@@ -68,7 +67,6 @@ class FirestoreRepositoryImpl @Inject constructor(
             firestore.collection(FirestoreCollection.USERS)
                 .document(user.id)
                 .set(user.toFirestoreUser())
-                .await()
         }
     }
 
@@ -134,14 +132,13 @@ class FirestoreRepositoryImpl @Inject constructor(
      * @param userId the user id
      * @param workspaceInfo the object containing the workspace information
      */
-    private suspend fun addWorkspaceInfoToUser(
+    private fun addWorkspaceInfoToUser(
         userId: String,
         workspaceInfo: WorkspaceInfo
     ) {
         firestore.collection(FirestoreCollection.USERS)
             .document(userId)
             .update("workspaces.${workspaceInfo.id}", workspaceInfo.name)
-            .await()
     }
 
     override suspend fun getWorkspace(workspaceId: String): Result<Workspace> = runCatching {
@@ -197,8 +194,9 @@ class FirestoreRepositoryImpl @Inject constructor(
                 .document(newWorkspace.id)
                 .update(workspaceUpdates)
                 .getResult {
-                    if ("name" in workspaceUpdates.keys) {
+                    if ("name" in workspaceUpdates) {
                         updateWorkspaceNameInUserWorkspaces(
+                            scope = this@withContext,
                             workspaceId = newWorkspace.id,
                             members = newWorkspace.members,
                             name = workspaceUpdates["name"] as String
@@ -219,20 +217,18 @@ class FirestoreRepositoryImpl @Inject constructor(
         return mapOfUpdates
     }
 
-    private suspend fun updateWorkspaceNameInUserWorkspaces(
+    private fun updateWorkspaceNameInUserWorkspaces(
         workspaceId: String,
         members: List<Workspace.WorkspaceMember>,
-        name: String
+        name: String,
+        scope: CoroutineScope
     ) {
-        coroutineScope {
-            members.map { user ->
-                async {
-                    firestore.collection(FirestoreCollection.USERS)
-                        .document(user.id)
-                        .update("workspaces.$workspaceId", name)
-                        .await()
-                }
-            }.awaitAll()
+        members.map { user ->
+            scope.launch {
+                firestore.collection(FirestoreCollection.USERS)
+                    .document(user.id)
+                    .update("workspaces.$workspaceId", name)
+            }
         }
     }
 
@@ -305,7 +301,7 @@ class FirestoreRepositoryImpl @Inject constructor(
             // delete the workspace boards
             recursiveDelete(boardsPath)
 
-            deleteWorkspaceFromMembers(workspace.id, workspace.members)
+            deleteWorkspaceFromMembers(workspace.id, workspace.members, scope = this@withContext)
         }
     }
 
@@ -315,19 +311,17 @@ class FirestoreRepositoryImpl @Inject constructor(
      * @param workspaceId the workspace id
      * @param members the list of workspace members
      */
-    private suspend fun deleteWorkspaceFromMembers(
+    private fun deleteWorkspaceFromMembers(
         workspaceId: String,
-        members: List<Workspace.WorkspaceMember>
+        members: List<Workspace.WorkspaceMember>,
+        scope: CoroutineScope
     ) {
-        coroutineScope {
-            members.map { user ->
-                async {
-                    firestore.collection(FirestoreCollection.USERS)
-                        .document(user.id)
-                        .update("workspaces.$workspaceId", FieldValue.delete())
-                        .await()
-                }
-            }.awaitAll()
+        members.map { user ->
+            scope.launch {
+                firestore.collection(FirestoreCollection.USERS)
+                    .document(user.id)
+                    .update("workspaces.$workspaceId", FieldValue.delete())
+            }
         }
     }
 
