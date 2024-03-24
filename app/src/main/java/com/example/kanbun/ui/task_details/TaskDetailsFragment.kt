@@ -70,8 +70,7 @@ class TaskDetailsFragment : BaseFragment(), StateHandler {
     private fun loadSupplementaryInfo() {
         viewModel.getAuthor(task.author)
         viewModel.getTags(
-            taskId = task.id,
-            tagsIds = task.tags,
+            task = task,
             boardListId = boardList.id,
             boardListPath = boardList.path
         )

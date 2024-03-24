@@ -90,9 +90,9 @@ class TaskDetailsViewModel @Inject constructor(
         }
     }
 
-    fun getTags(taskId: String, tagsIds: List<String>, boardListId: String, boardListPath: String) {
+    fun getTags(task: Task, boardListId: String, boardListPath: String) {
         viewModelScope.launch(Dispatchers.IO) {
-            when (val result = firestoreRepository.getTaskTags(taskId, tagsIds,  boardListId, boardListPath)) {
+            when (val result = firestoreRepository.getTaskTags(task,  boardListId, boardListPath)) {
                 is Result.Success -> {
                     _tags.value = result.data.map { tag -> TagUi(tag, false) }
                     _isLoadingTags.value = false

@@ -6,6 +6,7 @@ import com.example.kanbun.data.repository.FirestoreRepositoryImpl
 import com.example.kanbun.domain.FirestoreTestUtil
 import com.example.kanbun.domain.model.Board
 import com.example.kanbun.domain.model.BoardList
+import com.example.kanbun.domain.model.Tag
 import com.example.kanbun.domain.model.Task
 import com.example.kanbun.domain.model.User
 import com.example.kanbun.domain.model.Workspace
@@ -94,6 +95,7 @@ class FirestoreRepositoryTest {
 
         assertThat(data1).isEqualTo(user)
 
+        // update user's name
         val newName = "New name"
         user = user.copy(name = newName)
         repository.createUser(user)
@@ -117,7 +119,7 @@ class FirestoreRepositoryTest {
     }
 
     @Test
-    fun createWorkspace_workspaceObj_addsWorkspaceToFirestore() = runBlocking {
+    fun createWorkspace_addsWorkspaceToFirestore() = runBlocking {
         val user = createUser("user1")
         val workspace = FirestoreTestUtil.createWorkspace(user.id, "Test")
         val createResult = repository.createWorkspace(workspace)
@@ -136,12 +138,14 @@ class FirestoreRepositoryTest {
         var workspace = FirestoreTestUtil.createWorkspace(user.id, "Workspace").also {
             repository.createWorkspace(it)
         }
+
+        // get the created workspace id
         val workspaceId = (repository.getUser(user.id) as Result.Success).data
             .workspaces.first { it.name == workspace.name }.id
         workspace = workspace.copy(id = workspaceId)
         val result = repository.getWorkspace(workspaceId)
 
-        assertThat(result).isInstanceOf(Result.Success::class.java)
+        assertThat(result).isResultSuccess()
 
         val resultWorkspace = (result as Result.Success).data
 
@@ -165,7 +169,6 @@ class FirestoreRepositoryTest {
     fun updateWorkspace_newName_updatesWorkspaceName() = runBlocking {
         val user = createUser("user1")
         val workspace = createWorkspace(user.id, "test")
-
         val newWorkspace = workspace.copy(name = "New Name")
         val result = repository.updateWorkspace(workspace, newWorkspace)
 
@@ -236,11 +239,12 @@ class FirestoreRepositoryTest {
 
         val userUpdate = (repository.getUser(user.id) as Result.Success).data
 
+        // check that workspace was deleted in its members
         assertThat(userUpdate.workspaces.any { it.id == workspace.id }).isFalse()
     }
 
     @Test
-    fun createBoard_boardObj_addsBoardEntryInFirestore() = runBlocking {
+    fun createBoard_addsBoardEntryInFirestore() = runBlocking {
         val user = createUser("user1")
         val workspace = createWorkspace(user.id, "workspace1")
         val board = FirestoreTestUtil.createBoard(
@@ -255,6 +259,7 @@ class FirestoreRepositoryTest {
 
         val workspaceUpdate = (repository.getWorkspace(workspace.id) as Result.Success).data
 
+        // check created board was added to the hosting workspace
         assertThat(workspaceUpdate.boards).isNotEmpty()
         assertThat(workspaceUpdate.boards.any { it.name == board.name }).isTrue()
     }
@@ -270,11 +275,12 @@ class FirestoreRepositoryTest {
         ).also {
             repository.createBoard(it)
         }
+
+        // get the created board id
         val boardId = (repository.getWorkspace(workspace.id) as Result.Success).data.boards.first {
             it.name == board.name
         }.boardId
         board = board.copy(id = boardId)
-
         val result = repository.getBoard(board.id, board.workspace.id)
 
         assertThat(result).isResultSuccess()
@@ -301,7 +307,7 @@ class FirestoreRepositoryTest {
     }
 
     @Test
-    fun updateBoard_validNewName_updatesBoardName() = runBlocking {
+    fun updateBoard_newName_updatesBoardName() = runBlocking {
         val board = createBoard("Board")
         val newBoard = board.copy(name = "New Name")
         val result = repository.updateBoard(board, newBoard)
@@ -311,15 +317,17 @@ class FirestoreRepositoryTest {
         val boardUpdate =
             (repository.getBoard(newBoard.id, newBoard.workspace.id) as Result.Success).data
 
+        // check the board name has been updated
         assertThat(boardUpdate.name).isEqualTo(newBoard.name)
 
         val workspaceUpdate = (repository.getWorkspace(board.workspace.id) as Result.Success).data
 
+        // check the board name has been updated in the hosting workspace
         assertThat(workspaceUpdate.boards.any { it.name == newBoard.name }).isTrue()
     }
 
     @Test
-    fun updateBoard_validNewNameNewDescription_updatesBoardValues() = runBlocking {
+    fun updateBoard_newNameNewDescription_updatesBoardValues() = runBlocking {
         val board = createBoard("Board")
         val newBoard = board.copy(name = "New Name", description = "New Description")
         val result = repository.updateBoard(board, newBoard)
@@ -329,6 +337,7 @@ class FirestoreRepositoryTest {
         val boardUpdate =
             (repository.getBoard(newBoard.id, newBoard.workspace.id) as Result.Success).data
 
+        // check the board name and description were updated
         assertThat(boardUpdate).isEqualTo(newBoard)
 
         val workspaceUpdate = (repository.getWorkspace(board.workspace.id) as Result.Success).data
@@ -337,7 +346,7 @@ class FirestoreRepositoryTest {
     }
 
     @Test
-    fun deleteBoard_boardObj_deletesBoard() = runBlocking {
+    fun deleteBoard_deletesBoard() = runBlocking {
         val user = createUser("user1")
         val workspace = createWorkspace(user.id, "Workspace")
         val board = createBoard(user.id, workspace.id, workspace.name, "Board")
@@ -347,6 +356,7 @@ class FirestoreRepositoryTest {
 
         val workspaceUpdate = (repository.getWorkspace(board.workspace.id) as Result.Success).data
 
+        // check the board has been deleted from the hosting workspace
         assertThat(workspaceUpdate.boards.any { it.boardId == board.id }).isFalse()
     }
 
@@ -683,7 +693,6 @@ class FirestoreRepositoryTest {
         val task2Update = boardList2Update.tasks.first { it.id == task2.id }
         val task3Update = boardList2Update.tasks.first { it.id == task3.id }
 
-
         assertThat(task1Update.position).isEqualTo(task3.position)
         assertThat(task2Update.position).isEqualTo(task2.position)
         assertThat(task3Update.position).isEqualTo(task3.position.inc())
@@ -731,117 +740,108 @@ class FirestoreRepositoryTest {
         assertThat(taskUpdate.description).isEqualTo(newTask.description)
     }
 
-//
-//    @Test
-//    fun createTag_createsNewTag() = runBlocking {
-//        val user = createUser("user1")
-//        val workspace = createWorkspace(user.id, "workspace")
-//        val board = createBoard(user.id, WorkspaceInfo(workspace.id, workspace.name), "board")
-//        val tag = FirestoreTestUtil.createTag("tag1", "#000000")
-//
-//        val result = repository.upsertTag(
-//            tag,
-//            board.id,
-//            boardPath = "${FirestoreCollection.WORKSPACES.collectionName}/${workspace.id}" +
-//                    "/${FirestoreCollection.BOARDS.collectionName}"
-//        )
-//
-//        assertThat(result).isInstanceOf(Result.Success::class.java)
-//    }
-//
-//    @Test
-//    fun upsertTag_updatesExistingTag() = runBlocking {
-//        val board = createBoard("board1")
-//        val tag = createTag("Test", "#000000", board.id, board.workspace.id)
-//
-//        val newTag = tag.copy(name = "Test 1")
-//        val result = repository.upsertTag(
-//            newTag,
-//            board.id,
-//            "${FirestoreCollection.WORKSPACES.collectionName}/${board.workspace.id}" +
-//                    "/${FirestoreCollection.BOARDS.collectionName}"
-//        )
-//
-//        assertThat(result).isResultSuccess()
-//
-//        val updTag = (repository.getAllTags(
-//            board.id,
-//            board.workspace.id
-//        ) as Result.Success).data.first { it.id == tag.id }
-//
-//        assertThat(updTag).isEqualTo(newTag)
-//    }
-//
-//    @Test
-//    fun getTags_getsListOfTags() = runBlocking {
-//        val board = createBoard("board1")
-//        val tag1 = createTag("Tag1", "FF0000", board.id, board.workspace.id)
-//        val tag2 = createTag("Tag2", "FFA500", board.id, board.workspace.id)
-//
-//        val result = repository.getAllTags(board.id, board.workspace.id)
-//
-//        assertThat(result).isInstanceOf(Result.Success::class.java)
-//
-//        val resTags = (result as Result.Success).data
-//
-//        assertThat(resTags).isEqualTo(listOf(tag1, tag2).sortedBy { it.name })
-//    }
-//
-//    @Test
-//    fun getTaskTags_getsTagsForTheTask() = runBlocking {
-//        var board = createBoard("board1")
-//        val workspaceId = board.workspace.id
-//        val boardList = createBoardList("list1", 0, board).run {
-//            board = first
-//            second
-//        }
-//        var task = createTask("task1", 0, boardList)
-//        val tag1 = createTag("Tag 1", "#FFFFFF", board.id, workspaceId)
-//        val tag2 = createTag("Tag 2", "#000000", board.id, workspaceId)
-//        task = task.copy(
-//            tags = listOf(tag1.id, tag2.id)
-//        )
-//
-//        val result = repository.getTaskTags(task.id, task.tags, boardList.id, boardList.path)
-//
-//        assertThat(result).isInstanceOf(Result.Success::class.java)
-//
-//        val resultTags = (result as Result.Success).data
-//
-//        assertThat(resultTags.map { it.id }).isEqualTo(task.tags)
-//    }
-//
-//    @Test
-//    fun getTaskTags_getsUpdatedTaskTags() = runBlocking {
-//        var board = createBoard("board1")
-//        val boardList = createBoardList("list1", 0, board).run {
-//            board = first
-//            second
-//        }
-//        var task = createTask("task1", 0, boardList)
-//        val tag1 = createTag("Tag 1", "#FFFFFF", board.id, board.workspace.id)
-//        val tag2 = createTag("Tag 2", "#000000", board.id, board.workspace.id)
-//        board = board.copy(tags = listOf(tag1, tag2))
-//
-//        // add tags to the task
-//        task = task.copy(tags = listOf(tag1.id, tag2.id))
-//        repository.updateTaskTags(task.id, task.tags, boardList.id, boardList.path)
-//
-//        // delete `tag2` from the board
-//        val updatedTags = board.tags.filterNot { it.id == tag2.id }
-//        repository.updateBoard(
-//            board.copy(tags = updatedTags)
-//        )
-//
-//        // get task tags
-//        val result = repository.getTaskTags(task.id, task.tags, boardList.id, boardList.path)
-//
-//        assertThat(result).isInstanceOf(Result.Success::class.java)
-//
-//        val resultTags = (result as Result.Success).data
-//
-//        assertThat(resultTags).isEqualTo(updatedTags)
-//    }
+
+    @Test
+    fun upsertTag_createsNewTag() = runBlocking {
+        val board = createBoard("Board")
+        val tag = FirestoreTestUtil.createTag("tag1", "#000000")
+        val result = repository.upsertTag(
+            tag,
+            board.id,
+            boardPath = "${FirestoreCollection.WORKSPACES}/${board.workspace.id}" +
+                    "/${FirestoreCollection.BOARDS}"
+        )
+
+        assertThat(result).isResultSuccess()
+
+        val boardUpdate = (repository.getBoard(board.id, board.workspace.id) as Result.Success).data
+
+        assertThat(boardUpdate.tags).isNotEmpty()
+        assertThat(boardUpdate.tags.any { it.name == tag.name }).isTrue()
+    }
+
+    @Test
+    fun upsertTag_newNameNewColor_updatesExistingTag() = runBlocking {
+        val board = createBoard("Board")
+        val tag = createTag("Tag 1", "#000000", board)
+        val newTag = tag.copy(name = "New Tag", color = "#FFFFFFF")
+        val result = repository.upsertTag(
+            tag = newTag,
+            boardId = board.id,
+            boardPath= "${FirestoreCollection.WORKSPACES}/${board.workspace.id}" +
+                    "/${FirestoreCollection.BOARDS}"
+        )
+
+        assertThat(result).isResultSuccess()
+
+        val boardUpdate = (repository.getBoard(board.id, board.workspace.id) as Result.Success).data
+        val tagUpdate = boardUpdate.tags.first { it.id == tag.id }
+
+        assertThat(tagUpdate.name).isEqualTo(newTag.name)
+        assertThat(tagUpdate.color).isEqualTo(newTag.color)
+    }
+
+    @Test
+    fun getTags_getsListOfAllTagsInBoard() = runBlocking {
+        val board = createBoard("board1")
+        val tag1 = createTag("Tag1", "#FF0000", board)
+        val tag2 = createTag("Tag2", "#FFA500", board)
+        val result = repository.getAllTags(board.id, board.workspace.id)
+
+        assertThat(result).isResultSuccess()
+
+        val resTags = (result as Result.Success).data
+
+        assertThat(resTags).isNotEmpty()
+        assertThat(resTags).isEqualTo(listOf(tag1, tag2).sortedBy { it.name })
+    }
+
+    @Test
+    fun getTaskTags_getsTagsForTheTask() = runBlocking {
+        val board = createBoard("board1")
+        val boardList = createBoardList("list1", 0, board)
+        val task = createTask("task1", 0, boardList)
+        val tag1 = createTag("Tag 1", "#FFFFFF", board)
+        val tag2 = createTag("Tag 2", "#000000", board)
+
+        // add tags to the task
+        val newTask = task.copy(tags = listOf(tag1.id, tag2.id))
+        repository.updateTask(task, newTask, boardList.id, boardList.path)
+        val result = repository.getTaskTags(newTask, boardList.id, boardList.path)
+
+        assertThat(result).isResultSuccess()
+
+        val resultTags = (result as Result.Success).data
+
+        assertThat(resultTags).isNotEmpty()
+        assertThat(resultTags.map { it.id }).isEqualTo(newTask.tags)
+    }
+
+    @Test
+    fun getTaskTags_getsOnlyRelevantTaskTags() = runBlocking {
+        val board = createBoard("board1")
+        val boardList = createBoardList("list1", 0, board)
+        val task = createTask("task1", 0, boardList)
+        val tag1 = createTag("Tag 1", "#FFFFFF", board)
+        val tag2 = createTag("Tag 2", "#000000", board)
+
+        // add tags to the task
+        val newTask = task.copy(tags = listOf(tag1.id, tag2.id))
+        repository.updateTask(task, newTask, boardList.id, boardList.path)
+
+        // delete `tag2` from the board
+        val newBoard = board.copy(tags = listOf(tag1))
+        repository.updateBoard(board, newBoard)
+
+        // get task tags
+        val result = repository.getTaskTags(newTask, boardList.id, boardList.path)
+
+        assertThat(result).isResultSuccess()
+
+        val resultTags = (result as Result.Success).data
+
+        assertThat(resultTags).isEqualTo(newBoard.tags)
+    }
 //
 //    @Test
 //    fun updateTaskTags_updatesTaskTagIdsList() = runBlocking {
@@ -931,17 +931,16 @@ class FirestoreRepositoryTest {
             boardListUpd.tasks.first { it.position == position }
         }
     }
-//
-//    private suspend fun createTag(
-//        name: String,
-//        color: String,
-//        boardId: String,
-//        workspaceId: String
-//    ): Tag {
-//        val boardPath = "${FirestoreCollection.WORKSPACES.collectionName}/$workspaceId" +
-//                "/${FirestoreCollection.BOARDS.collectionName}"
-//        return FirestoreTestUtil.createTag(name, color).run {
-//            (repository.upsertTag(this, boardId, boardPath) as Result.Success).data
-//        }
-//    }
+
+    private suspend fun createTag(
+        name: String,
+        color: String,
+        board: Board
+    ): Tag {
+        val boardPath = "${FirestoreCollection.WORKSPACES}/${board.workspace.id}" +
+                "/${FirestoreCollection.BOARDS}"
+        return FirestoreTestUtil.createTag(name, color).run {
+            (repository.upsertTag(this, board.id, boardPath) as Result.Success).data
+        }
+    }
 }
