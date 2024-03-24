@@ -73,7 +73,13 @@ class BoardSettingsFragment : BaseFragment(), StateHandler {
             btnSave.setOnClickListener {
                 // compare only text fields, since tags and members updates are made in place
                 val newBoard = board.copy(
-                    name = etName.text?.trim().toString(),
+                    name = etName.text?.trim().toString().ifEmpty {
+                        tfName.apply {
+                            error = "Workspace name can't be empty"
+                            isErrorEnabled = true
+                        }
+                        return@setOnClickListener
+                    },
                     description = etDescription.text?.trim().toString(),
                     tags = viewModel.boardSettingsState.value.tags.map { it.tag }
                 )

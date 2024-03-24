@@ -387,7 +387,7 @@ class FirestoreRepositoryImpl @Inject constructor(
     private fun getBoardUpdates(oldBoard: Board, newBoard: Board): Map<String, Any> {
         val mapOfUpdates = mutableMapOf<String, Any>()
         if (newBoard.name != oldBoard.name) {
-            mapOfUpdates["name"] = newBoard.name.ifEmpty { oldBoard.name }
+            mapOfUpdates["name"] = newBoard.name
         }
         if (newBoard.description != oldBoard.description) {
             mapOfUpdates["description"] = newBoard.description
@@ -442,10 +442,9 @@ class FirestoreRepositoryImpl @Inject constructor(
         board: Board
     ): Result<Unit> = runCatching {
         withContext(ioDispatcher) {
-            val workspacePath =
-                "${FirestoreCollection.WORKSPACES}/${board.workspace.id}"
-            val boardPath = "${FirestoreCollection.BOARDS}/${board.id}"
-            firestore.collection("$workspacePath/$boardPath/${FirestoreCollection.TASK_LISTS}")
+            firestore.collection(FirestoreCollection.WORKSPACES).document(board.workspace.id)
+                .collection(FirestoreCollection.BOARDS).document(board.id)
+                .collection(FirestoreCollection.TASK_LISTS)
                 .add(boardList.toFirestoreBoardList())
                 .getResult {
                     updateBoardListsOfBoard(board, result.id)
@@ -454,9 +453,8 @@ class FirestoreRepositoryImpl @Inject constructor(
     }
 
     private fun updateBoardListsOfBoard(board: Board, boardListId: String) {
-        val workspacePath =
-            "${FirestoreCollection.WORKSPACES}/${board.workspace.id}"
-        firestore.collection("$workspacePath/${FirestoreCollection.BOARDS}")
+        firestore.collection(FirestoreCollection.WORKSPACES).document(board.workspace.id)
+            .collection(FirestoreCollection.BOARDS)
             .document(board.id)
             .update("lists", board.lists + boardListId)
     }
@@ -490,8 +488,9 @@ class FirestoreRepositoryImpl @Inject constructor(
                 "${FirestoreCollection.WORKSPACES}/$workspaceId"
             val boardPath = "${FirestoreCollection.BOARDS}/$boardId"
             val path = "$workspacePath/$boardPath/${FirestoreCollection.TASK_LISTS}"
-            listener = firestore
-                .collection(path)
+            listener = firestore.collection(FirestoreCollection.WORKSPACES).document(workspaceId)
+                .collection(FirestoreCollection.BOARDS).document(boardId)
+                .collection(FirestoreCollection.TASK_LISTS)
                 .addSnapshotListener { querySnapshot, error ->
                     trySend(Result.Loading)
                     querySnapshot?.let {
