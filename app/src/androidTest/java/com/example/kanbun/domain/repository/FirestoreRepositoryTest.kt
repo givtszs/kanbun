@@ -689,13 +689,47 @@ class FirestoreRepositoryTest {
         assertThat(task3Update.position).isEqualTo(task3.position.inc())
 
     }
-//
-//    @Test
-//    fun updateTask_newName_updatesTaskName() = runBlocking {
-//        val boardList = createBoardList("List 1", 0)
-//        val task = createTask("Task", 0, boardList)
-//        val result = repository.updateTask()
-//    }
+
+    @Test
+    fun updateTask_newName_updatesTaskName() = runBlocking {
+        val boardList = createBoardList("List 1", 0)
+        val task = createTask("Task", 0, boardList)
+        val newTask = task.copy(name = "New name")
+        val result = repository.updateTask(
+            oldTask = task,
+            newTask = newTask,
+            boardListId = boardList.id,
+            boardListPath = boardList.path
+        )
+
+        assertThat(result).isResultSuccess()
+
+        val boardListUpdate = (repository.getBoardList(boardList.path, boardList.id) as Result.Success).data
+        val taskUpdate = boardListUpdate.tasks.first { it.id == task.id }
+
+        assertThat(taskUpdate.name).isEqualTo(newTask.name)
+    }
+
+    @Test
+    fun updateTask_newNameNewDescription_updatesTaskNameAndDescription() = runBlocking {
+        val boardList = createBoardList("List 1", 0)
+        val task = createTask("Task", 0, boardList)
+        val newTask = task.copy(name = "New name", description = "New Description")
+        val result = repository.updateTask(
+            oldTask = task,
+            newTask = newTask,
+            boardListId = boardList.id,
+            boardListPath = boardList.path
+        )
+
+        assertThat(result).isResultSuccess()
+
+        val boardListUpdate = (repository.getBoardList(boardList.path, boardList.id) as Result.Success).data
+        val taskUpdate = boardListUpdate.tasks.first { it.id == task.id }
+
+        assertThat(taskUpdate.name).isEqualTo(newTask.name)
+        assertThat(taskUpdate.description).isEqualTo(newTask.description)
+    }
 
 //
 //    @Test

@@ -90,10 +90,10 @@ interface FirestoreRepository {
     ): Result<Unit>
 
     suspend fun updateTask(
-        taskId: String,
+        oldTask: Task,
+        newTask: Task,
         boardListId: String,
         boardListPath: String,
-        updates: Map<String, Any?>
     ): Result<Unit>
 
     suspend fun deleteTask(task: Task, boardListPath: String, boardListId: String): Result<Unit>

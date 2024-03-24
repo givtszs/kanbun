@@ -609,16 +609,41 @@ class FirestoreRepositoryImpl @Inject constructor(
     }
 
     override suspend fun updateTask(
-        taskId: String,
+        oldTask: com.example.kanbun.domain.model.Task,
+        newTask: com.example.kanbun.domain.model.Task,
         boardListId: String,
-        boardListPath: String,
-        updates: Map<String, Any?>
+        boardListPath: String
     ): Result<Unit> = runCatching {
         withContext(ioDispatcher) {
+            val taskUpdates = getTaskUpdates(oldTask, newTask)
             firestore.collection(boardListPath)
                 .document(boardListId)
-                .update(updates)
+                .update(taskUpdates)
         }
+    }
+
+    private fun getTaskUpdates(
+        oldTask: com.example.kanbun.domain.model.Task,
+        newTask: com.example.kanbun.domain.model.Task
+    ): Map<String, Any?> {
+        val mapOfUpdates = mutableMapOf<String, Any?>()
+        val taskId = newTask.id
+        if (newTask.name != oldTask.name) {
+            mapOfUpdates["${FirestoreCollection.TASKS}.$taskId.name"] = newTask.name
+        }
+        if (newTask.description != oldTask.description) {
+            mapOfUpdates["${FirestoreCollection.TASKS}.$taskId.description"] = newTask.description
+        }
+        if (newTask.dateStarts != oldTask.dateStarts) {
+            mapOfUpdates["${FirestoreCollection.TASKS}.$taskId.dateStarts"] = newTask.dateStarts
+        }
+        if (newTask.dateEnds != oldTask.dateEnds) {
+            mapOfUpdates["${FirestoreCollection.TASKS}.$taskId.dateEnds"] = newTask.dateEnds
+        }
+        if (newTask.tags != oldTask.tags) {
+            mapOfUpdates["${FirestoreCollection.TASKS}.$taskId.tags"] = newTask.tags
+        }
+        return mapOfUpdates
     }
 
     override suspend fun deleteTask(
@@ -655,11 +680,13 @@ class FirestoreRepositoryImpl @Inject constructor(
         val updMap = mutableMapOf<String, Long>()
         if (from < to) {
             for (i in (from + 1)..to) {
-                updMap["${FirestoreCollection.TASKS}.${tasks[i].id}.position"] = tasks[i].position.dec()
+                updMap["${FirestoreCollection.TASKS}.${tasks[i].id}.position"] =
+                    tasks[i].position.dec()
             }
         } else {
             for (i in to..<from) {
-                updMap["${FirestoreCollection.TASKS}.${tasks[i].id}.position"] = tasks[i].position.inc()
+                updMap["${FirestoreCollection.TASKS}.${tasks[i].id}.position"] =
+                    tasks[i].position.inc()
             }
         }
         updMap["${FirestoreCollection.TASKS}.${tasks[from].id}.position"] = to.toLong()
@@ -712,7 +739,8 @@ class FirestoreRepositoryImpl @Inject constructor(
     ): Map<String, Any> {
         val updMap = mutableMapOf<String, Any>()
         for (i in to..<listToInsert.size) {
-            updMap["${FirestoreCollection.TASKS}.${listToInsert[i].id}.position"] = listToInsert[i].position.inc()
+            updMap["${FirestoreCollection.TASKS}.${listToInsert[i].id}.position"] =
+                listToInsert[i].position.inc()
         }
         val newTask = task.copy(position = to.toLong())
         updMap["${FirestoreCollection.TASKS}.${task.id}"] = newTask.toFirestoreTask()
