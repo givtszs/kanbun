@@ -57,7 +57,6 @@ class BoardSettingsViewModel @Inject constructor(
         when (result) {
             is Result.Success -> onSuccess()
             is Result.Error -> _message.value = result.message
-            Result.Loading -> {}
         }
     }
 

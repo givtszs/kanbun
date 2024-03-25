@@ -102,8 +102,6 @@ class CreateTaskViewModel @Inject constructor(
                     _isUpsertingTask.value = false
                     _message.value = result.message
                 }
-
-                Result.Loading -> {}
             }
         }
 
@@ -136,8 +134,6 @@ class CreateTaskViewModel @Inject constructor(
                         _isUpsertingTask.value = false
                         _message.value = result.message
                     }
-
-                    Result.Loading -> {}
                 }
             }
         }
@@ -158,7 +154,6 @@ class CreateTaskViewModel @Inject constructor(
             ) {
                 is Result.Success -> _tags.value = _tags.value + TagUi(result.data, false)
                 is Result.Error -> _message.value = result.message
-                Result.Loading -> _isLoadingTags.value = true
             }
         }
     }
@@ -187,8 +182,6 @@ class CreateTaskViewModel @Inject constructor(
                 _message.value = result.message
                 _isLoadingTags.value = false
             }
-
-            Result.Loading -> _isLoadingTags.value = true
         }
     }
 }

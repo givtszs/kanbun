@@ -35,7 +35,6 @@ class WorkspaceSettingsViewModel @Inject constructor(
             when (val result = firestoreRepository.updateWorkspace(oldWorkspace, newWorkspace)) {
                 is Result.Success -> onSuccess()
                 is Result.Error -> Log.d("WorkspaceSettingsViewModel", result.message, result.e)
-                is Result.Loading -> {}
             }
         }
     }
@@ -49,7 +48,6 @@ class WorkspaceSettingsViewModel @Inject constructor(
                     onSuccess()
                 }
                 is Result.Error -> Log.e("WorkspaceSettingsViewModel", result.message, result.e)
-                is Result.Loading -> {}
             }
         }
     }

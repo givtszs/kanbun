@@ -73,7 +73,6 @@ class BoardViewModel @Inject constructor(
                         _message.value = result.message
                         _isLoading.value = false
                     }
-                    is Result.Loading -> { _isLoading.value = true }
                 }
             }
         }
@@ -89,7 +88,6 @@ class BoardViewModel @Inject constructor(
                     getBoardLists(firestoreRepository.getBoardListsStream(board.id, board.workspace.id))
                 }
                 is Result.Error -> _message.value = result.message
-                is Result.Loading -> _isLoading.value = true
             }
         }
     }
@@ -126,10 +124,6 @@ class BoardViewModel @Inject constructor(
                 is Result.Error -> {
                     _message.value = result.message
                     return@launch
-                }
-
-                Result.Loading -> {
-                    ""
                 }
             }
         )

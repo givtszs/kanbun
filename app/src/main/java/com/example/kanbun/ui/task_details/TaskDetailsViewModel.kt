@@ -84,8 +84,6 @@ class TaskDetailsViewModel @Inject constructor(
                     _message.value = result.message
                     _isLoadingAuthor.value = false
                 }
-
-                Result.Loading -> {}
             }
         }
     }
@@ -102,8 +100,6 @@ class TaskDetailsViewModel @Inject constructor(
                     _message.value = result.message
                     _isLoadingTags.value = false
                 }
-
-                Result.Loading -> {}
             }
         }
     }
@@ -124,7 +120,6 @@ class TaskDetailsViewModel @Inject constructor(
             ) {
                 is Result.Success -> navigateOnDelete()
                 is Result.Error -> _message.value = result.message
-                Result.Loading -> {}
             }
         }
 }

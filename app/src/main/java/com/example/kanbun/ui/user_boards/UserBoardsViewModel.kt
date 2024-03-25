@@ -99,7 +99,6 @@ class UserBoardsViewModel @Inject constructor(
         when (val result = firestoreRepository.createWorkspace(workspace)) {
             is Result.Success -> _message.value = ToastMessage.WORKSPACE_CREATED
             is Result.Error -> _message.value = result.message
-            is Result.Loading -> _isLoading.value = true
         }
     }
 
@@ -121,8 +120,6 @@ class UserBoardsViewModel @Inject constructor(
                 _isLoading.value = false
                 _currentWorkspace.value = null
             }
-
-            is Result.Loading -> _isLoading.value = true
         }
     }
 

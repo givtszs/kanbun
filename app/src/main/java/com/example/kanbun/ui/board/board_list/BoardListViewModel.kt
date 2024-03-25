@@ -24,7 +24,6 @@ class BoardListViewModel @Inject constructor(
         when (val result = firestoreRepository.updateBoardListName(newName, boardListPath, boardListId)) {
             is Result.Success -> onSuccess()
             is Result.Error -> Log.d("BoardListViewModel", "${result.message}")
-            Result.Loading -> {}
         }
 
     }
@@ -42,7 +41,6 @@ class BoardListViewModel @Inject constructor(
         )) {
             is Result.Success -> onSuccess()
             is Result.Error -> {}
-            Result.Loading -> {}
         }
 
     }
