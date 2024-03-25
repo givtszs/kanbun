@@ -57,18 +57,23 @@ class BoardViewModel @Inject constructor(
     private fun getBoardLists(flow: Flow<Result<List<BoardList>>>) {
         viewModelScope.launch {
             flow.collectLatest { result ->
+                Log.d(TAG, "getBoardLists: result: $result")
                 when (result) {
                     is Result.Success -> {
-                        if (_boardLists != result.data) {
+                        if (_boardLists.value != result.data) {
                             _board.update {
                                 it.copy(lists = result.data.map { boardList -> boardList.id })
                             }
                         }
                         _boardLists.value = result.data
+                        _isLoading.value = false
                     }
 
-                    is Result.Error -> _message.value = result.message
-                    is Result.Loading -> {}
+                    is Result.Error -> {
+                        _message.value = result.message
+                        _isLoading.value = false
+                    }
+                    is Result.Loading -> { _isLoading.value = true }
                 }
             }
         }
@@ -76,6 +81,7 @@ class BoardViewModel @Inject constructor(
 
     fun getBoard(boardId: String, workspaceId: String) {
         viewModelScope.launch {
+            _isLoading.value = true
             when (val result = firestoreRepository.getBoard(boardId, workspaceId)) {
                 is Result.Success -> {
                     val board = result.data

@@ -162,7 +162,7 @@ class BoardFragment : BaseFragment(), StateHandler {
                 }
 
                 override fun loadingComplete() {
-                    viewModel.stopLoading()
+//                    viewModel.stopLoading()
                 }
             }
         )
@@ -312,7 +312,7 @@ class BoardFragment : BaseFragment(), StateHandler {
             boardListsAdapter?.boardTags = board.tags
 //            if (board.tags.isNotEmpty()) {
 //            }
-
+            Log.d(TAG, "processState: isLoading: $isLoading")
             binding.loading.root.isVisible = isLoading
 
             message?.let {

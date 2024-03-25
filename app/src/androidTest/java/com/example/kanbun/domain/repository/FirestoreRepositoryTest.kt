@@ -474,18 +474,19 @@ class FirestoreRepositoryTest {
     fun getBoardListStream_returnsBoardsListDataChangesOverTime() = runBlocking {
         val board = createBoard("Board")
         val boardList = createBoardList("List 1", 0, board)
-        val boardListFlow = repository.getBoardListsStream(board.id, board.workspace.id).take(2)
-        val results = mutableListOf<Result<List<BoardList>>>()
-        boardListFlow.collect {
-            results.add(it)
-        }
+        val boardListFlow = repository.getBoardListsStream(board.id, board.workspace.id)
+        var result = boardListFlow.first()
 
-        assertThat(results.first()).isInstanceOf(Result.Loading::class.java)
-        assertThat(results[1]).isResultSuccess()
+        assertThat(result).isResultSuccess()
 
-        val resultData = (results[1] as Result.Success).data.first()
+        val newName = "New Name"
+        repository.updateBoardListName(newName, boardList.path, boardList.id)
+        result = boardListFlow.first()
 
-        assertThat(resultData).isEqualTo(boardList)
+        assertThat(result).isResultSuccess()
+
+        val boardListsUpdate = (result as Result.Success).data
+        assertThat(boardListsUpdate.any { it.name == newName}).isTrue()
     }
 
     @Test
