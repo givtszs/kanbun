@@ -423,18 +423,17 @@ class FirestoreRepositoryImpl @Inject constructor(
             recursiveDelete(boardRef.toString())
 
             // delete the board information from the workspace it belongs to
-            deleteBoardFromWorkspace(board.workspace.id, board.id)
+            deleteBoardInfoFromWorkspace(board.workspace.id, board.id)
         }
     }
 
-    private suspend fun deleteBoardFromWorkspace(
+    private fun deleteBoardInfoFromWorkspace(
         workspaceId: String,
         boardId: String
     ) {
         firestore.collection(FirestoreCollection.WORKSPACES)
             .document(workspaceId)
             .update("boards.${boardId}", FieldValue.delete())
-            .await()
     }
 
     override suspend fun createBoardList(
