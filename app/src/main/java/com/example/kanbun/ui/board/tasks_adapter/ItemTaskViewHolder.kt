@@ -490,6 +490,7 @@ class ItemTaskViewHolder(
                             "containedDropZone: $containedDropZone"
                 )
 
+                // TODO: inspect whether this double checks is required, or isNewAdapter check is enough
                 if (isNewAdapter || containedDropZone) {
                     Log.d(
                         "ItemTaskViewHolder",
@@ -501,6 +502,7 @@ class ItemTaskViewHolder(
                         dragItem,
                         draggedTaskPrevPosition
                     )
+                    tempRemovedTask = null
                 } else {
                     Log.d(
                         "ItemTaskViewHolder",
