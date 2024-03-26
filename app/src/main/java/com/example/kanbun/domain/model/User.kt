@@ -4,6 +4,7 @@ import com.example.kanbun.common.AuthProvider
 
 data class User(
     val id: String,
+    val tag: String,
     val email: String,
     val name: String?,
     val profilePicture: String?,

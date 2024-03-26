@@ -14,9 +14,12 @@ import com.example.kanbun.domain.model.User
 import com.example.kanbun.domain.model.Workspace
 import com.example.kanbun.domain.model.WorkspaceInfo
 import com.google.firebase.auth.FirebaseUser
+import java.util.UUID
+import kotlin.random.Random
 
 fun User.toFirestoreUser(): FirestoreUser =
     FirestoreUser(
+        tag = tag,
         email = email,
         name = name,
         profilePicture = profilePicture,
@@ -33,6 +36,7 @@ fun List<WorkspaceInfo>.toFirestoreWorkspaces(): Map<String, String> =
 fun FirestoreUser.toUser(userId: String): User =
     User(
         id = userId,
+        tag = tag,
         email = email,
         name = name,
         profilePicture = profilePicture,
@@ -50,6 +54,7 @@ fun FirebaseUser.toUser(provider: AuthProvider): User {
     val data = providerData.first { it.providerId == provider.providerId }
     return User(
         id = uid,
+        tag = generateUserTag(),
         email = data.email!!,
         name = data.displayName,
         profilePicture = data.photoUrl?.toString(),
@@ -58,6 +63,8 @@ fun FirebaseUser.toUser(provider: AuthProvider): User {
         cards = emptyList()
     )
 }
+
+private fun generateUserTag(): String = "user_" + UUID.randomUUID().toString().substringBefore('-')
 
 fun Workspace.toFirestoreWorkspace(): FirestoreWorkspace =
     FirestoreWorkspace(
