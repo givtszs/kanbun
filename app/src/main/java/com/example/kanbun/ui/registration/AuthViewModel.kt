@@ -27,7 +27,7 @@ import javax.inject.Inject
 @HiltViewModel
 open class AuthViewModel @Inject constructor(
     private val registerUserUseCase: RegisterUserUseCase,
-    private val  manageFirestoreUserUseCase: ManageFirestoreUserUseCase,
+    private val manageFirestoreUserUseCase: ManageFirestoreUserUseCase,
     private val connectivityChecker: ConnectivityChecker
 ) : ViewModel() {
     protected val _authState = MutableStateFlow(ViewState.AuthState())
@@ -58,19 +58,12 @@ open class AuthViewModel @Inject constructor(
             return
         }
 
-        if (message.lowercase().contains("name")) {
-            _authState.update { it.copy(nameError = message) }
-            return
-        }
-
-        if (message.lowercase().contains("email")) {
-            _authState.update { it.copy(emailError = message) }
-            return
-        }
-
-        if (message.lowercase().contains("password")) {
-            _authState.update { it.copy(passwordError = message) }
-            return
+        val messageLowercase = message.lowercase()
+        when {
+            messageLowercase.contains("name") -> _authState.update { it.copy(nameError = message) }
+            messageLowercase.contains("email") ->  _authState.update { it.copy(emailError = message) }
+            messageLowercase.contains("password") ->  _authState.update { it.copy(passwordError = message) }
+            else -> _authState.update { it.copy(message = message) }
         }
     }
 
@@ -116,37 +109,39 @@ open class AuthViewModel @Inject constructor(
      * @param accountId see [GoogleSignInAccount.getIdToken].
      * @param successCallback callback executed upon successful authentication.
      */
-    fun authWithGoogle(accountId: String?, successCallback: suspend (FirebaseUser) -> Unit) = viewModelScope.launch {
-        if (!connectivityChecker.hasInternetConnection()) {
-            notifyNoInternet()
-            return@launch
-        }
-
-        when (val result = registerUserUseCase.authWithGoogle(accountId)) {
-            is Result.Success -> {
-                successCallback(result.data)
+    fun authWithGoogle(accountId: String?, successCallback: suspend (FirebaseUser) -> Unit) =
+        viewModelScope.launch {
+            if (!connectivityChecker.hasInternetConnection()) {
+                notifyNoInternet()
+                return@launch
             }
 
-            is Result.Error -> showMessage(result.message)
+            when (val result = registerUserUseCase.authWithGoogle(accountId)) {
+                is Result.Success -> {
+                    successCallback(result.data)
+                }
+
+                is Result.Error -> showMessage(result.message)
+            }
         }
-    }
 
     /**
      * Initiates GitHub authentication and handles the result.
      * @param activity host activity.
      * @param successCallback callback executed upon successful authentication.
      */
-    fun authWithGitHub(activity: Activity, successCallback: suspend (FirebaseUser) -> Unit) = viewModelScope.launch {
-        if (!connectivityChecker.hasInternetConnection()) {
-            notifyNoInternet()
-        }
-
-        when (val result = registerUserUseCase.authWithGitHub(activity)) {
-            is Result.Success -> {
-                successCallback(result.data)
+    fun authWithGitHub(activity: Activity, successCallback: suspend (FirebaseUser) -> Unit) =
+        viewModelScope.launch {
+            if (!connectivityChecker.hasInternetConnection()) {
+                notifyNoInternet()
             }
 
-            is Result.Error -> showMessage(result.message)
+            when (val result = registerUserUseCase.authWithGitHub(activity)) {
+                is Result.Success -> {
+                    successCallback(result.data)
+                }
+
+                is Result.Error -> showMessage(result.message)
+            }
         }
-    }
 }
