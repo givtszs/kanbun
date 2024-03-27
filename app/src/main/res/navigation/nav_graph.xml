@@ -151,7 +151,7 @@
     <fragment
         android:id="@+id/boardSettingsFragment"
         android:name="com.example.kanbun.ui.board_settings.BoardSettingsFragment"
-        android:label="BoardSettingsFragment"
+        android:label="@string/board_settings"
         tools:layout="@layout/fragment_board_settings" >
         <argument
             android:name="board"

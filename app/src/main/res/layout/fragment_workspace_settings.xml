@@ -16,10 +16,10 @@
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            app:title="@string/workspace_settings"
-            app:navigationIcon="@drawable/ic_close_outlined_24"
             android:background="@color/md_theme_light_background"
-            android:minHeight="?attr/actionBarSize">
+            android:minHeight="?attr/actionBarSize"
+            app:navigationIcon="@drawable/ic_close_outlined_24"
+            app:title="@string/workspace_settings">
 
             <Button
                 android:id="@+id/btnSave"
@@ -37,67 +37,141 @@
         </com.google.android.material.appbar.MaterialToolbar>
     </com.google.android.material.appbar.AppBarLayout>
 
-    <TextView
-        android:id="@+id/tvWorkspaceNameHint"
-        style="@style/TextAppearance.Material3.TitleSmall"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="24dp"
-        android:layout_marginTop="16dp"
-        android:text="@string/workspace_name_hint"
-        android:textColor="@color/md_theme_light_onSurfaceVariant"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/topAppBar" />
 
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/tfName"
-        style="?attr/textInputFilledStyle"
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginHorizontal="24dp"
-        android:layout_marginTop="8dp"
-        app:layout_constraintTop_toBottomOf="@id/tvWorkspaceNameHint">
-
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/etName"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:backgroundTint="@color/md_theme_light_surface" />
-    </com.google.android.material.textfield.TextInputLayout>
-
-    <!-- Workspace members recycler view -->
-
-    <Button
-        android:id="@+id/btnDeleteWorkspace"
-        style="@style/Widget.Material3.Button.TextButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="24dp"
-        android:layout_marginTop="28dp"
-        android:text="@string/delete_workspace"
-        android:textColor="@color/dark_red"
+        android:layout_height="0dp"
+        android:paddingHorizontal="16dp"
+        android:paddingVertical="8dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tfName" />
+        app:layout_constraintTop_toBottomOf="@id/topAppBar"
+        app:layout_constraintVertical_bias="0.0">
+
+        <!--        <TextView-->
+        <!--            android:id="@+id/tvWorkspaceNameHint"-->
+        <!--            style="@style/TextAppearance.Material3.TitleSmall"-->
+        <!--            android:layout_width="wrap_content"-->
+        <!--            android:layout_height="wrap_content"-->
+        <!--            android:layout_marginTop="16dp"-->
+        <!--            android:text="@string/workspace_name_hint"-->
+        <!--            android:textColor="@color/md_theme_light_onSurfaceVariant"-->
+        <!--            android:textSize="18sp"-->
+        <!--            app:layout_constraintStart_toStartOf="parent"-->
+        <!--            app:layout_constraintTop_toTopOf="parent" />-->
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/tfName"
+            style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/hint_name" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <TextView
+            android:id="@+id/tvAddMembers"
+            style="?textAppearanceTitleMedium"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:labelFor="@id/etSearchMembers"
+            android:text="@string/add_members"
+            android:textSize="18sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tfName" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnViewAllMembers"
+            style="@style/Widget.Material3.Button.TextButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:minWidth="0dp"
+            android:paddingHorizontal="0dp"
+            android:text="@string/action_view_all"
+            android:textColor="@color/black"
+            app:layout_constraintBaseline_toBaselineOf="@id/tvAddMembers"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <Button
+            android:id="@+id/btnDeleteWorkspace"
+            style="@style/Widget.Material3.Button.TextButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="40dp"
+            android:minWidth="0dp"
+            android:paddingHorizontal="0dp"
+            android:text="@string/delete_workspace"
+            android:textColor="@color/dark_red"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/rvMembers" />
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/tfSearchMembers"
+            style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            app:endIconDrawable="@drawable/ic_search_24"
+            app:endIconMode="custom"
+            app:layout_constraintTop_toBottomOf="@id/tvAddMembers">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etSearchMembers"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/search_members" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvMembers"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:clipToPadding="false"
+            android:orientation="horizontal"
+            android:visibility="gone"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+            app:layout_constraintTop_toBottomOf="@id/tfSearchMembers"
+            tools:listitem="@layout/item_member_chip" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvFoundUsers"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tfSearchMembers"
+            tools:listitem="@layout/item_user_search_result" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
     <FrameLayout
         android:id="@+id/deletingState"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:visibility="gone">
 
         <include
             android:id="@+id/loading"
-            android:visibility="visible"
             layout="@layout/loading_state_dimmed"
             android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+            android:layout_height="match_parent"
+            android:visibility="visible" />
 
         <TextView
-            android:layout_gravity="center"
-            android:layout_marginTop="80dp"
             android:id="@+id/tvDeleting"
             style="?attr/textAppearanceHeadline5"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginTop="80dp"
             android:text="Deleting..." />
 
     </FrameLayout>
