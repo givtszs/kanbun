@@ -31,7 +31,12 @@ class WorkspaceSettingsViewModel @Inject constructor(
     private var _message = MutableStateFlow<String?>(null)
     private var _isLoading = MutableStateFlow(false)
     val workspaceSettingsState: StateFlow<ViewState.WorkspaceSettingsViewState> =
-        combine(_members, _foundUsers, _message, _isLoading) { members, foundUsers, message, isLoading ->
+        combine(
+            _members,
+            _foundUsers,
+            _message,
+            _isLoading
+        ) { members, foundUsers, message, isLoading ->
             ViewState.WorkspaceSettingsViewState(
                 members = members,
                 foundUsers = foundUsers,
@@ -43,6 +48,20 @@ class WorkspaceSettingsViewModel @Inject constructor(
             SharingStarted.WhileSubscribed(),
             ViewState.WorkspaceSettingsViewState()
         )
+
+    fun init(members: List<Workspace.WorkspaceMember>) {
+        viewModelScope.launch {
+            val fetchedMembers = mutableListOf<User>()
+            members.forEach { member ->
+                when (val result = firestoreRepository.getUser(member.id)) {
+                    is Result.Success -> fetchedMembers.add(result.data)
+                    is Result.Error -> _message.value = result.message
+                }
+            }
+            _members.value = fetchedMembers
+            Log.d("WorkspaceSettingsViewModel", "init: ${_members.value}")
+        }
+    }
 
     fun updateWorkspace(oldWorkspace: Workspace, newWorkspace: Workspace, onSuccess: () -> Unit) {
         if (oldWorkspace == newWorkspace) {
@@ -62,10 +81,11 @@ class WorkspaceSettingsViewModel @Inject constructor(
         _isLoading.value = true
         viewModelScope.launch {
             when (val result = firestoreRepository.deleteWorkspace(workspace)) {
-                is Result.Success ->  {
+                is Result.Success -> {
                     dataStore.setPreference(PreferenceDataStoreKeys.CURRENT_WORKSPACE_ID, "")
                     onSuccess()
                 }
+
                 is Result.Error -> Log.e("WorkspaceSettingsViewModel", result.message, result.e)
             }
         }
@@ -80,6 +100,10 @@ class WorkspaceSettingsViewModel @Inject constructor(
 
     fun resetFoundUsers() {
         _foundUsers.value = null
+    }
+
+    fun removeMember(member: User) {
+        _members.update { _member -> _member.filterNot { it == member } }
     }
 
     fun messageShown() {

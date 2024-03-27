@@ -21,11 +21,11 @@ import com.example.kanbun.ui.StateHandler
 import com.example.kanbun.ui.ViewState
 import com.example.kanbun.ui.main_activity.MainActivity
 import com.example.kanbun.ui.workspace_settings.adapters.SearchUsersAdapter
+import com.example.kanbun.ui.workspace_settings.adapters.WorkspaceMembersAdapter
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
@@ -39,6 +39,7 @@ class WorkspaceSettingsFragment : BaseFragment(), StateHandler {
     private val args: WorkspaceSettingsFragmentArgs by navArgs()
     private lateinit var workspace: Workspace
     private var searchUsersAdapter: SearchUsersAdapter? = null
+    private var workspaceMembersAdapter: WorkspaceMembersAdapter? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -53,8 +54,9 @@ class WorkspaceSettingsFragment : BaseFragment(), StateHandler {
         workspace = args.workspace
         super.onViewCreated(view, savedInstanceState)
         setUpActionBar(binding.toolbar)
-        setUpSearchUsersAdapter()
+        setUpAdapters()
         setStatusBarColor(getColor(requireContext(), R.color.md_theme_light_surface))
+        viewModel.init(workspace.members)
         collectState()
     }
 
@@ -135,6 +137,7 @@ class WorkspaceSettingsFragment : BaseFragment(), StateHandler {
     override fun processState(state: ViewState) {
         with(state as ViewState.WorkspaceSettingsViewState) {
             binding.apply {
+                loading.root.isVisible = isLoading
                 deletingState.isVisible = isLoading
                 message?.let {
                     showToast(it)
@@ -142,19 +145,24 @@ class WorkspaceSettingsFragment : BaseFragment(), StateHandler {
                 }
 
                 rvFoundUsers.isVisible = foundUsers != null
-
                 foundUsers?.let { users ->
                     searchUsersAdapter?.users = users
                 }
-            }
-//            binding.loading.root.isVisible = isLoading
 
+                searchUsersAdapter?.workspaceMembers = members.map { it.id }
+                workspaceMembersAdapter?.members = members
+            }
         }
     }
 
-    private fun setUpSearchUsersAdapter() {
-        searchUsersAdapter = SearchUsersAdapter { showToast("Clicked on ${it.tag}") }
+    private fun setUpAdapters() {
+        searchUsersAdapter = SearchUsersAdapter(workspace.members.map { it.id }) { showToast("Clicked on ${it.tag}") }
         binding.rvFoundUsers.adapter = searchUsersAdapter
+
+        workspaceMembersAdapter = WorkspaceMembersAdapter(ownerId = workspace.owner) { member ->
+            viewModel.removeMember(member)
+        }
+        binding.rvMembers.adapter = workspaceMembersAdapter
     }
 
     private fun buildConfirmationDialog() {
@@ -174,6 +182,7 @@ class WorkspaceSettingsFragment : BaseFragment(), StateHandler {
     override fun onDestroyView() {
         super.onDestroyView()
         searchUsersAdapter = null
+        workspaceMembersAdapter = null
         _binding = null
     }
 }
