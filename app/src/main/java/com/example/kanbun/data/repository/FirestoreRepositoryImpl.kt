@@ -113,6 +113,23 @@ class FirestoreRepositoryImpl @Inject constructor(
         }
     }
 
+    override suspend fun findUsersByTag(tag: String): Result<List<User>> = runCatching{
+        withContext(ioDispatcher) {
+            firestore.collection(FirestoreCollection.USERS)
+                .whereGreaterThanOrEqualTo("tag", tag)
+                .whereLessThanOrEqualTo("tag", tag + '\uf8ff')
+                .get()
+                .getResult {
+                    val users = this.result.documents.map { document ->
+                        document.toObject(FirestoreUser::class.java)?.toUser(document.id)
+                            ?: throw NullPointerException("Couldn't convert FirestoreUser to User since the value is null")
+                    }
+                    Log.d(TAG, "findUsersByTag: $users")
+                    users
+                }
+        }
+    }
+
     override suspend fun createWorkspace(workspace: Workspace): Result<Unit> = runCatching {
         withContext(ioDispatcher) {
             firestore.collection(FirestoreCollection.WORKSPACES)

@@ -119,6 +119,44 @@ class FirestoreRepositoryTest {
     }
 
     @Test
+    fun findUsersByTag_getsListOfUsersMatchingTag() = runBlocking {
+        val user1 = createUser("user1", "test08953")
+        val user2 = createUser("user2", "user_00002174")
+        val user3 = createUser("user3", "johndoe")
+        val user4 = createUser("user4", "john_boe")
+        val user5 = createUser("user5", "user")
+        val user6 = createUser("user6", "userr")
+        var tag = "john"
+        var result = repository.findUsersByTag(tag)
+
+        assertThat(result).isResultSuccess()
+        var resultData = (result as Result.Success).data
+        assertThat(resultData.size).isEqualTo(2)
+        assertThat(resultData).containsExactlyElementsIn(listOf(user3, user4))
+
+        tag = "user"
+        result = repository.findUsersByTag(tag)
+
+        assertThat(result).isResultSuccess()
+        resultData = (result as Result.Success).data
+        assertThat(resultData.size).isEqualTo(3)
+        assertThat(resultData).containsExactlyElementsIn(listOf(user2, user5, user6))
+
+        tag = user1.tag
+        result = repository.findUsersByTag(tag)
+        assertThat(result).isResultSuccess()
+        resultData = (result as Result.Success).data
+        assertThat(resultData.size).isEqualTo(1)
+        assertThat(resultData.first()).isEqualTo(user1)
+
+        tag = "Alex"
+        result = repository.findUsersByTag(tag)
+        assertThat(result).isResultSuccess()
+        resultData = (result as Result.Success).data
+        assertThat(resultData).isEmpty()
+    }
+
+    @Test
     fun createWorkspace_addsWorkspaceToFirestore() = runBlocking {
         val user = createUser("user1")
         val workspace = FirestoreTestUtil.createWorkspace(user.id, "Test")
@@ -859,8 +897,8 @@ class FirestoreRepositoryTest {
 //        assertThat(result).isResultSuccess()
 //    }
 
-    private suspend fun createUser(userId: String): User {
-        return FirestoreTestUtil.createUser(userId).run {
+    private suspend fun createUser(userId: String, userTag: String = ""): User {
+        return FirestoreTestUtil.createUser(userId, userTag).run {
             repository.createUser(this)
             this
         }

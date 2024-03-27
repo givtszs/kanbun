@@ -19,6 +19,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.net.HttpURLConnection
 import java.net.URL
+import java.util.UUID
 
 class FirestoreTestUtil {
     companion object {
@@ -67,9 +68,12 @@ class FirestoreTestUtil {
         const val testPassword = "Qwerty123_"
 
         /* Test data */
-        fun createUser(id: String): User {
+        fun createUser(id: String, tag: String = ""): User {
             return User(
                 id = id,
+                tag = tag.ifEmpty {
+                    "user_" + UUID.randomUUID().toString().substringBefore('-')
+                },
                 email = "$id@mail.co",
                 name = "Test",
                 profilePicture = null,
