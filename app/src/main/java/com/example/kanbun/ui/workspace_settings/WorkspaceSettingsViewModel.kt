@@ -6,12 +6,16 @@ import androidx.lifecycle.viewModelScope
 import com.example.kanbun.common.Result
 import com.example.kanbun.data.local.PreferenceDataStoreHelper
 import com.example.kanbun.data.local.PreferenceDataStoreKeys
+import com.example.kanbun.domain.model.User
 import com.example.kanbun.domain.model.Workspace
 import com.example.kanbun.domain.repository.FirestoreRepository
 import com.example.kanbun.ui.ViewState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -22,8 +26,23 @@ class WorkspaceSettingsViewModel @Inject constructor(
     private val dataStore: PreferenceDataStoreHelper,
 ) : ViewModel() {
 
-    private var _workspaceSettingsState = MutableStateFlow(ViewState.WorkspaceSettingsViewState())
-    val workspaceSettingsState: StateFlow<ViewState.WorkspaceSettingsViewState> = _workspaceSettingsState
+    private var _members = MutableStateFlow<List<User>>(emptyList())
+    private var _foundUsers = MutableStateFlow<List<User>?>(null)
+    private var _message = MutableStateFlow<String?>(null)
+    private var _isLoading = MutableStateFlow(false)
+    val workspaceSettingsState: StateFlow<ViewState.WorkspaceSettingsViewState> =
+        combine(_members, _foundUsers, _message, _isLoading) { members, foundUsers, message, isLoading ->
+            ViewState.WorkspaceSettingsViewState(
+                members = members,
+                foundUsers = foundUsers,
+                message = message,
+                isLoading = isLoading
+            )
+        }.stateIn(
+            viewModelScope,
+            SharingStarted.WhileSubscribed(),
+            ViewState.WorkspaceSettingsViewState()
+        )
 
     fun updateWorkspace(oldWorkspace: Workspace, newWorkspace: Workspace, onSuccess: () -> Unit) {
         if (oldWorkspace == newWorkspace) {
@@ -40,7 +59,7 @@ class WorkspaceSettingsViewModel @Inject constructor(
     }
 
     fun deleteWorkspaceCloudFn(workspace: Workspace, onSuccess: () -> Unit) {
-        _workspaceSettingsState.update { it.copy(isLoading = true) }
+        _isLoading.value = true
         viewModelScope.launch {
             when (val result = firestoreRepository.deleteWorkspace(workspace)) {
                 is Result.Success ->  {
@@ -50,5 +69,20 @@ class WorkspaceSettingsViewModel @Inject constructor(
                 is Result.Error -> Log.e("WorkspaceSettingsViewModel", result.message, result.e)
             }
         }
+    }
+
+    fun searchUser(tag: String) = viewModelScope.launch {
+        when (val result = firestoreRepository.findUsersByTag(tag)) {
+            is Result.Success -> _foundUsers.value = result.data
+            is Result.Error -> _message.value = result.message
+        }
+    }
+
+    fun resetFoundUsers() {
+        _foundUsers.value = null
+    }
+
+    fun messageShown() {
+        _message.value = null
     }
 }

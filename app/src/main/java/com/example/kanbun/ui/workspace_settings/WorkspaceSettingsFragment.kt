@@ -1,6 +1,7 @@
 package com.example.kanbun.ui.workspace_settings
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -22,11 +23,15 @@ import com.example.kanbun.ui.main_activity.MainActivity
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class WorkspaceSettingsFragment : BaseFragment(), StateHandler {
+    private val TAG = "WorkspaceSettingsFragment"
+
     private var _binding: FragmentWorkspaceSettingsBinding? = null
     private val binding: FragmentWorkspaceSettingsBinding get() = _binding!!
     private val viewModel: WorkspaceSettingsViewModel by viewModels()
@@ -74,6 +79,17 @@ class WorkspaceSettingsFragment : BaseFragment(), StateHandler {
                 }
             }
 
+            var searchJob: Job? = null
+            etSearchUser.doOnTextChanged { text, _, _, _ ->
+                searchJob?.cancel()
+                if (!text.isNullOrEmpty() && text.length >= 3) {
+                    Log.d(TAG, "searchUser: $text")
+                    searchJob = viewModel.searchUser(text.toString())
+                } else {
+                    viewModel.resetFoundUsers()
+                }
+            }
+
             btnSave.setOnClickListener {
                 val name = tfName.editText?.text?.trim().toString()
                 if (name.isEmpty()) {
@@ -114,8 +130,20 @@ class WorkspaceSettingsFragment : BaseFragment(), StateHandler {
 
     override fun processState(state: ViewState) {
         with(state as ViewState.WorkspaceSettingsViewState) {
+            binding.apply {
+                deletingState.isVisible = isLoading
+                message?.let {
+                    showToast(it)
+                    viewModel.messageShown()
+                }
+
+                foundUsers?.let { users ->
+                    showToast("Found ${users.size} users: $users")
+                    viewModel.messageShown()
+                }
+            }
 //            binding.loading.root.isVisible = isLoading
-            binding.deletingState.isVisible = isLoading
+
         }
     }
 
@@ -123,12 +151,6 @@ class WorkspaceSettingsFragment : BaseFragment(), StateHandler {
         MaterialAlertDialogBuilder(requireContext())
             .setTitle("Delete ${workspace.name} workspace?")
             .setPositiveButton("Delete") { _, _ ->
-//                lifecycleScope.launch {
-//                    (requireActivity() as MainActivity).drawerAdapter?.prevSelectedWorkspaceId =
-//                        null
-//                    viewModel.deleteWorkspace(workspace)
-//                    navController.popBackStack()
-//                }
                 viewModel.deleteWorkspaceCloudFn(workspace) {
                     navController.popBackStack()
                 }
