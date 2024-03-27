@@ -20,6 +20,7 @@ import com.example.kanbun.ui.BaseFragment
 import com.example.kanbun.ui.StateHandler
 import com.example.kanbun.ui.ViewState
 import com.example.kanbun.ui.main_activity.MainActivity
+import com.example.kanbun.ui.workspace_settings.adapters.SearchUsersAdapter
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import dagger.hilt.android.AndroidEntryPoint
@@ -37,6 +38,7 @@ class WorkspaceSettingsFragment : BaseFragment(), StateHandler {
     private val viewModel: WorkspaceSettingsViewModel by viewModels()
     private val args: WorkspaceSettingsFragmentArgs by navArgs()
     private lateinit var workspace: Workspace
+    private var searchUsersAdapter: SearchUsersAdapter? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -51,6 +53,7 @@ class WorkspaceSettingsFragment : BaseFragment(), StateHandler {
         workspace = args.workspace
         super.onViewCreated(view, savedInstanceState)
         setUpActionBar(binding.toolbar)
+        setUpSearchUsersAdapter()
         setStatusBarColor(getColor(requireContext(), R.color.md_theme_light_surface))
         collectState()
     }
@@ -86,6 +89,7 @@ class WorkspaceSettingsFragment : BaseFragment(), StateHandler {
                     Log.d(TAG, "searchUser: $text")
                     searchJob = viewModel.searchUser(text.toString())
                 } else {
+                    Log.d(TAG, "searchUser: call resetFoundUsers")
                     viewModel.resetFoundUsers()
                 }
             }
@@ -137,14 +141,20 @@ class WorkspaceSettingsFragment : BaseFragment(), StateHandler {
                     viewModel.messageShown()
                 }
 
+                rvFoundUsers.isVisible = foundUsers != null
+
                 foundUsers?.let { users ->
-                    showToast("Found ${users.size} users: $users")
-                    viewModel.messageShown()
+                    searchUsersAdapter?.users = users
                 }
             }
 //            binding.loading.root.isVisible = isLoading
 
         }
+    }
+
+    private fun setUpSearchUsersAdapter() {
+        searchUsersAdapter = SearchUsersAdapter { showToast("Clicked on ${it.tag}") }
+        binding.rvFoundUsers.adapter = searchUsersAdapter
     }
 
     private fun buildConfirmationDialog() {
@@ -163,6 +173,7 @@ class WorkspaceSettingsFragment : BaseFragment(), StateHandler {
 
     override fun onDestroyView() {
         super.onDestroyView()
+        searchUsersAdapter = null
         _binding = null
     }
 }

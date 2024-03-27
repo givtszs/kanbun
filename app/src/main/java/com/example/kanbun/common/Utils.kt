@@ -2,9 +2,11 @@ package com.example.kanbun.common
 
 import android.content.Context
 import android.util.Log
+import android.widget.ImageView
 import androidx.annotation.ColorRes
 import androidx.core.content.ContextCompat
-import java.lang.IllegalArgumentException
+import com.bumptech.glide.Glide
+import com.example.kanbun.R
 import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.Locale
@@ -30,4 +32,11 @@ fun convertTimestampToDateString(format: String, timestamp: Long?): String = try
         .format(timestamp).toString()
 } catch (e: IllegalArgumentException) {
     "dd/mm/yyyy, hh:mm"
+}
+
+fun loadUserProfilePicture(context: Context, pictureUrl: String?, view: ImageView) {
+    Glide.with(context)
+        .load(pictureUrl)
+        .placeholder(R.drawable.ic_launcher_background)
+        .into(view)
 }
