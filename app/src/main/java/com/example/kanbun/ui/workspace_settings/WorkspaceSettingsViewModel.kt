@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.kanbun.common.Result
+import com.example.kanbun.common.WorkspaceRole
 import com.example.kanbun.data.local.PreferenceDataStoreHelper
 import com.example.kanbun.data.local.PreferenceDataStoreKeys
 import com.example.kanbun.domain.model.User
@@ -25,7 +26,10 @@ class WorkspaceSettingsViewModel @Inject constructor(
     private val firestoreRepository: FirestoreRepository,
     private val dataStore: PreferenceDataStoreHelper,
 ) : ViewModel() {
+    // preserves the list of workspace members of type WorkspaceMember
+    var workspaceMembers = MutableStateFlow<List<Workspace.WorkspaceMember>>(emptyList())
 
+    // holds the list of workspace members of type User to display on the UI
     private var _members = MutableStateFlow<List<User>>(emptyList())
     private var _foundUsers = MutableStateFlow<List<User>?>(null)
     private var _message = MutableStateFlow<String?>(null)
@@ -50,6 +54,7 @@ class WorkspaceSettingsViewModel @Inject constructor(
         )
 
     fun init(members: List<Workspace.WorkspaceMember>) {
+        workspaceMembers.value = members
         viewModelScope.launch {
             val fetchedMembers = mutableListOf<User>()
             members.forEach { member ->
@@ -102,8 +107,21 @@ class WorkspaceSettingsViewModel @Inject constructor(
         _foundUsers.value = null
     }
 
+    fun addMember(user: User) {
+        if (!_members.value.contains(user)) {
+            _members.update { it + user }
+            workspaceMembers.update {
+                it + Workspace.WorkspaceMember(
+                    id = user.id,
+                    role = WorkspaceRole.MEMBER
+                )
+            }
+        }
+    }
+
     fun removeMember(member: User) {
         _members.update { _member -> _member.filterNot { it == member } }
+        workspaceMembers.update { _member -> _member.filterNot { it.id == member.id } }
     }
 
     fun messageShown() {

@@ -4,12 +4,14 @@ import android.util.Log
 import com.example.kanbun.common.FirestoreCollection
 import com.example.kanbun.common.Result
 import com.example.kanbun.common.WorkspaceRole
+import com.example.kanbun.common.WorkspaceType
 import com.example.kanbun.common.runCatching
 import com.example.kanbun.common.toBoard
 import com.example.kanbun.common.toBoardList
 import com.example.kanbun.common.toFirestoreBoard
 import com.example.kanbun.common.toFirestoreBoardInfo
 import com.example.kanbun.common.toFirestoreBoardList
+import com.example.kanbun.common.toFirestoreMembers
 import com.example.kanbun.common.toFirestoreTag
 import com.example.kanbun.common.toFirestoreTags
 import com.example.kanbun.common.toFirestoreTask
@@ -79,7 +81,7 @@ class FirestoreRepositoryImpl @Inject constructor(
                 .getResult {
                     val firestoreUser = result.toObject(FirestoreUser::class.java)
                         ?: throw NullPointerException("Couldn't convert FirestoreUser to User since the value is null")
-
+                    Log.d(TAG, "getUser: firestoreUser: $firestoreUser")
                     firestoreUser.toUser(userId)
                 }
         }
@@ -113,7 +115,7 @@ class FirestoreRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun findUsersByTag(tag: String): Result<List<User>> = runCatching{
+    override suspend fun findUsersByTag(tag: String): Result<List<User>> = runCatching {
         withContext(ioDispatcher) {
             firestore.collection(FirestoreCollection.USERS)
                 .whereGreaterThanOrEqualTo("tag", tag)
@@ -151,11 +153,23 @@ class FirestoreRepositoryImpl @Inject constructor(
      */
     private fun addWorkspaceInfoToUser(
         userId: String,
-        workspaceInfo: WorkspaceInfo
+        workspaceInfo: WorkspaceInfo,
+        isSharedWorkspace: Boolean = false
+    ) {
+        val fieldName =
+            if (!isSharedWorkspace) WorkspaceType.USER_WORKSPACE else WorkspaceType.SHARED_WORKSPACE
+        firestore.collection(FirestoreCollection.USERS)
+            .document(userId)
+            .update("$fieldName.${workspaceInfo.id}", workspaceInfo.name)
+    }
+
+    private fun deleteWorkspaceInfoFromUser(
+        userId: String,
+        workspaceId: String
     ) {
         firestore.collection(FirestoreCollection.USERS)
             .document(userId)
-            .update("workspaces.${workspaceInfo.id}", workspaceInfo.name)
+            .update("${WorkspaceType.SHARED_WORKSPACE}.$workspaceId", FieldValue.delete())
     }
 
     override suspend fun getWorkspace(workspaceId: String): Result<Workspace> = runCatching {
@@ -219,6 +233,29 @@ class FirestoreRepositoryImpl @Inject constructor(
                             name = workspaceUpdates["name"] as String
                         )
                     }
+
+                    if ("members" in workspaceUpdates) {
+                        val oldMembersIds = oldWorkspace.members.map { it.id }
+                        val newMembersIds = newWorkspace.members.map { it.id }
+                        if (oldMembersIds != newMembersIds) {
+                            val membersToAdd = newMembersIds.filterNot { it in oldMembersIds }
+                            membersToAdd.forEach { memberId ->
+                                addWorkspaceInfoToUser(
+                                    userId = memberId,
+                                    workspaceInfo = WorkspaceInfo(
+                                        id = newWorkspace.id,
+                                        name = newWorkspace.name
+                                    ),
+                                    isSharedWorkspace = true
+                                )
+                            }
+
+                            val membersToDelete = oldMembersIds.filterNot { it in newMembersIds }
+                            membersToDelete.forEach {
+                                deleteWorkspaceInfoFromUser(it, newWorkspace.id)
+                            }
+                        }
+                    }
                 }
         }
     }
@@ -230,6 +267,9 @@ class FirestoreRepositoryImpl @Inject constructor(
         val mapOfUpdates = mutableMapOf<String, Any>()
         if (newWorkspace.name != oldWorkspace.name) {
             mapOfUpdates["name"] = newWorkspace.name
+        }
+        if (newWorkspace.members != oldWorkspace.members) {
+            mapOfUpdates["members"] = newWorkspace.members.toFirestoreMembers()
         }
         return mapOfUpdates
     }
@@ -249,43 +289,31 @@ class FirestoreRepositoryImpl @Inject constructor(
         }
     }
 
-    private suspend fun addMemberToWorkspace(
+    private fun addMemberToWorkspace(
         workspaceId: String,
         memberId: String,
-        memberRole: WorkspaceRole
     ): Result<Unit> = runCatching {
         firestore.collection(FirestoreCollection.WORKSPACES)
             .document(workspaceId)
-            .update("members.$memberId", memberRole.roleName)
-            .await()
+            .update("members.$memberId", WorkspaceRole.MEMBER.roleName)
     }
 
     override suspend fun inviteToWorkspace(
         workspace: Workspace,
         user: User
     ): Result<Unit> = runCatching {
-        /*// update workspace members
-        val workspaceUpdResult = addMemberToWorkspace(
+        // update workspace members
+        addMemberToWorkspace(
             workspace.id,
-            user.id,
-            WorkspaceRole.MEMBER
+            user.id
         )
-
-        if (workspaceUpdResult is Result.Error) {
-            throw workspaceUpdResult.e!!
-        }
 
         // update user's workspaces
-        val userUpdateResult = addWorkspaceInfoToUser(
-            user.id,
-            WorkspaceInfo(workspace.id, workspace.name)
+        addWorkspaceInfoToUser(
+            userId = user.id,
+            workspaceInfo = WorkspaceInfo(workspace.id, workspace.name),
+            isSharedWorkspace = true
         )
-
-        if (userUpdateResult is Result.Error) {
-            throw userUpdateResult.e!!
-        }*/
-
-        throw IllegalStateException("Not yet implemented")
     }
 
     /**
@@ -817,7 +845,10 @@ class FirestoreRepositoryImpl @Inject constructor(
             val tags = (result as Result.Success).data
             val taskTags = tags.filter { it.id in task.tags }
             val taskTagIds = taskTags.map { it.id }
-            Log.d(TAG, "getTaskTags: (old) tagsIds: ${task.tags}, (current) taskTagsIds: $taskTagIds")
+            Log.d(
+                TAG,
+                "getTaskTags: (old) tagsIds: ${task.tags}, (current) taskTagsIds: $taskTagIds"
+            )
 
             // if the task.tags and the received taskTagIds are different, it means that some tags
             // have been deleted from the board, so we need to update the task with the relevant tags.

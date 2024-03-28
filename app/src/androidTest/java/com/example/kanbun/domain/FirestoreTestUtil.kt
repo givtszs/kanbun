@@ -79,6 +79,7 @@ class FirestoreTestUtil {
                 profilePicture = null,
                 authProvider = AuthProvider.GOOGLE,
                 workspaces = emptyList(),
+                sharedWorkspaces = emptyList(),
                 cards = emptyList()
             )
         }

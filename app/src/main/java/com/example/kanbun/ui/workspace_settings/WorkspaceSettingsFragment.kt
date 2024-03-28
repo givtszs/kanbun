@@ -110,7 +110,7 @@ class WorkspaceSettingsFragment : BaseFragment(), StateHandler {
                     oldWorkspace = workspace,
                     newWorkspace = workspace.copy(
                         name = name,
-                        // update members
+                        members = viewModel.workspaceMembers.value
                     )
                 ) {
                     showToast("Workspace settings have been updated", requireActivity())
@@ -149,6 +149,7 @@ class WorkspaceSettingsFragment : BaseFragment(), StateHandler {
                     searchUsersAdapter?.users = users
                 }
 
+                Log.d(TAG, "processState: members: $members")
                 searchUsersAdapter?.workspaceMembers = members.map { it.id }
                 workspaceMembersAdapter?.members = members
             }
@@ -156,7 +157,12 @@ class WorkspaceSettingsFragment : BaseFragment(), StateHandler {
     }
 
     private fun setUpAdapters() {
-        searchUsersAdapter = SearchUsersAdapter(workspace.members.map { it.id }) { showToast("Clicked on ${it.tag}") }
+        searchUsersAdapter = SearchUsersAdapter(workspace.members.map { it.id }) { user ->
+            showToast("Clicked on ${user.tag}")
+            if (user.id != workspace.owner) {
+                viewModel.addMember(user)
+            }
+        }
         binding.rvFoundUsers.adapter = searchUsersAdapter
 
         workspaceMembersAdapter = WorkspaceMembersAdapter(ownerId = workspace.owner) { member ->

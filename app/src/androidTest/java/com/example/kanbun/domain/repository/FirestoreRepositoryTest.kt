@@ -2,6 +2,7 @@ package com.example.kanbun.domain.repository
 
 import com.example.kanbun.common.FirestoreCollection
 import com.example.kanbun.common.Result
+import com.example.kanbun.common.WorkspaceRole
 import com.example.kanbun.data.repository.FirestoreRepositoryImpl
 import com.example.kanbun.domain.FirestoreTestUtil
 import com.example.kanbun.domain.model.Board
@@ -36,7 +37,7 @@ class FirestoreRepositoryTest {
 
     @After
     fun tearDown() = runBlocking {
-        FirestoreTestUtil.deleteFirestoreData()
+//        FirestoreTestUtil.deleteFirestoreData()
     }
 
     private fun Subject.isResultSuccess() = isInstanceOf(Result.Success::class.java)
@@ -247,25 +248,27 @@ class FirestoreRepositoryTest {
     }
 
 
-//    @Test
-//    fun inviteToWorkspace_addsUserIntoWorkspaceMembers_addsWorkspaceIntoUserWorkspaces() =
-//        runBlocking {
-//            val user1 = FirestoreTestUtil.createUser("user1")
-//            repository.createUser(user1)
-//
-//            val user2 = FirestoreTestUtil.createUser("user2")
-//            repository.createUser(user2)
-//
-//            var workspace = FirestoreTestUtil.createWorkspace(user1.id, "Test")
-//            workspace =
-//                (repository.createWorkspace(workspace) as Result.Success).data.run {
-//                    workspace.copy(id = this)
-//                }
-//
-//            val result = repository.inviteToWorkspace(workspace, user2)
-//
-//            assertThat(result).isInstanceOf(Result.Success::class.java)
-//        }
+    @Test
+    fun inviteToWorkspace_addsUserIntoWorkspaceMembers_addsWorkspaceIntoUserWorkspaces() =
+        runBlocking {
+            val user1 = createUser("user1")
+            val user2 = createUser("user2")
+            val workspace = createWorkspace(user1.id, "Workspace")
+            val result = repository.inviteToWorkspace(workspace, user2)
+
+            assertThat(result).isResultSuccess()
+
+            // verify user2 has `workspace`
+            val user2Update = (repository.getUser(user2.id) as Result.Success).data
+
+            assertThat(user2Update.sharedWorkspaces.any { it.id == workspace.id }).isTrue()
+
+            // verify workspace members field has `user2`
+            val workspaceUpdate = (repository.getWorkspace(workspace.id) as Result.Success).data
+
+            assertThat(workspaceUpdate.members.any { it.id == user2.id }).isTrue()
+            assertThat(workspaceUpdate.members.first { it.id == user2.id }.role).isEqualTo(WorkspaceRole.MEMBER)
+        }
 
     @Test
     fun deleteWorkspace_deletesWorkspace(): Unit = runBlocking {

@@ -25,6 +25,7 @@ fun User.toFirestoreUser(): FirestoreUser =
         profilePicture = profilePicture,
         authProvider = authProvider.providerId,
         workspaces = workspaces.toFirestoreWorkspaces(),
+        sharedWorkspaces = sharedWorkspaces.toFirestoreWorkspaces(),
         cards = cards
     )
 
@@ -47,6 +48,12 @@ fun FirestoreUser.toUser(userId: String): User =
                 name = entry.value
             )
         },
+        sharedWorkspaces = sharedWorkspaces.map { entry ->
+            WorkspaceInfo(
+                id = entry.key,
+                name = entry.value
+            )
+        },
         cards = cards
     )
 
@@ -60,6 +67,7 @@ fun FirebaseUser.toUser(provider: AuthProvider): User {
         profilePicture = data.photoUrl?.toString(),
         authProvider = provider,
         workspaces = emptyList(),
+        sharedWorkspaces = emptyList(),
         cards = emptyList()
     )
 }

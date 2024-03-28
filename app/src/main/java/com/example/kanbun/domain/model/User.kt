@@ -10,5 +10,6 @@ data class User(
     val profilePicture: String?,
     val authProvider: AuthProvider,
     val workspaces: List<WorkspaceInfo>,
+    val sharedWorkspaces: List<WorkspaceInfo>,
     val cards: List<String>
 )

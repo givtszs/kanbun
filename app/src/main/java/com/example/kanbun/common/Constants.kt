@@ -34,6 +34,11 @@ object ToastMessage {
     const val WORKSPACE_CREATED = "Workspace has been created"
 }
 
+object WorkspaceType {
+    const val USER_WORKSPACE = "workspaces"
+    const val SHARED_WORKSPACE = "sharedWorkspaces"
+}
+
 enum class TaskAction {
     ACTION_CREATE,
     ACTION_EDIT

@@ -7,5 +7,6 @@ data class FirestoreUser(
     val profilePicture: String? = null,
     val authProvider: String = "",
     val workspaces: Map<String, String> = emptyMap(),
+    val sharedWorkspaces: Map<String, String> = emptyMap(),
     val cards: List<String> = emptyList()
 )
