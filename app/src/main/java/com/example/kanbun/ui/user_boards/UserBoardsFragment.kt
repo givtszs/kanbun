@@ -108,8 +108,8 @@ class UserBoardsFragment : BaseFragment(), StateHandler {
         // set up drawers listeners
         activity.apply {
             activityMainBinding.headerLayout.btnSignOut.setOnClickListener {
-                lifecycleScope.launch {
-                    viewModel.signOutUser(requireContext())
+                viewModel.signOutUser(requireContext()) {
+                    drawerAdapter?.prevSelectedWorkspaceId = null
                     navController.navigate(R.id.registrationPromptFragment)
                 }
             }
@@ -146,19 +146,28 @@ class UserBoardsFragment : BaseFragment(), StateHandler {
 
     override fun processState(state: ViewState) {
         with(state as ViewState.UserBoardsViewState) {
-            Log.d(TAG, "State: $this")
-            user?.let {
-                setUpDrawer(it)
-                activity.drawerAdapter?.setData(
-                    it.workspaces.map { userWorkspace ->
-                        DrawerAdapter.DrawerWorkspace(
-                            userWorkspace,
-                            userWorkspace.id == currentWorkspace?.id
-                        )
-                    }.sortedBy { drawerWorkspace ->
-                        drawerWorkspace.workspace.name
-                    }
-                )
+//            Log.d(TAG, "State: $this")
+            user?.let { _user ->
+                setUpDrawer(_user)
+                Log.d(TAG, "processState: userWorkspaces: ${_user.workspaces}")
+                activity.drawerAdapter?.userWorkspaces = _user.workspaces.map { workspace ->
+                    DrawerAdapter.DrawerWorkspace(
+                        workspace,
+                        workspace.id == currentWorkspace?.id
+                    )
+                }.sortedBy { drawerWorkspace ->
+                    drawerWorkspace.workspace.name
+                }
+
+                Log.d(TAG, "processState: sharedWorkspaces: ${_user.sharedWorkspaces}")
+                activity.drawerAdapter?.sharedWorkspaces = _user.sharedWorkspaces.map { workspace ->
+                    DrawerAdapter.DrawerWorkspace(
+                        workspace,
+                        workspace.id == currentWorkspace?.id
+                    )
+                }.sortedBy { drawerWorkspace ->
+                    drawerWorkspace.workspace.name
+                }
             }
 
             binding.apply {

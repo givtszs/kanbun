@@ -22,6 +22,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -71,17 +72,20 @@ class UserBoardsViewModel @Inject constructor(
         firebaseUser?.reload()?.await()
     }
 
-    suspend fun signOutUser(context: Context) {
-        Firebase.auth.signOut()
-        val signInOptions = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-            .requestIdToken("723106455668-7apee9lsea93gpi66cjkoiom258i30e2.apps.googleusercontent.com")
-            .requestEmail()
-            .requestProfile()
-            .build()
+    fun signOutUser(context: Context, onSuccess: () -> Unit) {
+        viewModelScope.launch {
+            Firebase.auth.signOut()
+            val signInOptions = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestIdToken("723106455668-7apee9lsea93gpi66cjkoiom258i30e2.apps.googleusercontent.com")
+                .requestEmail()
+                .requestProfile()
+                .build()
 
-        val signInClient = GoogleSignIn.getClient(context, signInOptions)
-        signInClient.signOut()
-        dataStore.removePreference(PreferenceDataStoreKeys.CURRENT_WORKSPACE_ID)
+            val signInClient = GoogleSignIn.getClient(context, signInOptions)
+            signInClient.signOut()
+            dataStore.removePreference(PreferenceDataStoreKeys.CURRENT_WORKSPACE_ID)
+            onSuccess()
+        }
     }
 
     fun createWorkspace(name: String, user: User) = viewModelScope.launch {

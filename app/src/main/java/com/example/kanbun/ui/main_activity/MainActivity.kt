@@ -85,7 +85,7 @@ class MainActivity : AppCompatActivity() {
             tvEmail.text = "awesome@email.com"
         }
 
-        drawerAdapter = DrawerAdapter(this)
+        drawerAdapter = DrawerAdapter()
 
         activityMainBinding.navRecyclerView.adapter = drawerAdapter
     }
