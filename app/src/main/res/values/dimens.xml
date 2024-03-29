@@ -8,4 +8,5 @@
     <dimen name="alert_dialog_edit_text_horizontal_margin">16dp</dimen>
     <dimen name="board_list_menu_option_height">52dp</dimen>
     <dimen name="bottom_sheet_corners_radius">16dp</dimen>
+    <dimen name="drawer_headline_top_margin">16dp</dimen>
 </resources>

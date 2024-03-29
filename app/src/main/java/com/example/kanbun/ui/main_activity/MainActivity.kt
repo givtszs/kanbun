@@ -3,6 +3,7 @@ package com.example.kanbun.ui.main_activity
 import android.os.Bundle
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.isVisible
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
@@ -20,7 +21,8 @@ class MainActivity : AppCompatActivity() {
     private lateinit var navController: NavController
     lateinit var appBarConfiguration: AppBarConfiguration
 
-    var drawerAdapter: DrawerAdapter? = null
+    var userWorkspacesAdapter: DrawerAdapter? = null
+    var sharedWorkspacesAdapter: DrawerAdapter? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -79,15 +81,29 @@ class MainActivity : AppCompatActivity() {
 
     private fun setUpNavView() {
         // set up header layout
-        activityMainBinding.headerLayout.apply {
+        activityMainBinding.drawerContent.headerLayout.apply {
             ivProfilePicture.setImageResource(R.drawable.ic_launcher_background)
             tvName.text = "Awesome Name"
             tvEmail.text = "awesome@email.com"
         }
 
-        drawerAdapter = DrawerAdapter()
+        activityMainBinding.drawerContent.apply {
+            userWorkspacesAdapter = DrawerAdapter()
+            rvUserWorkspaces.adapter = userWorkspacesAdapter
 
-        activityMainBinding.navRecyclerView.adapter = drawerAdapter
+            sharedWorkspacesAdapter = DrawerAdapter()
+            rvSharedWorkspaces.adapter = sharedWorkspacesAdapter
+
+            userWorkspacesHeadline.tvHeadline.text = resources.getString(R.string.user_workspaces_headline)
+            userWorkspacesHeadline.btnRecyclerViewToggle.setOnClickListener {
+                rvUserWorkspaces.isVisible = !rvUserWorkspaces.isVisible
+            }
+            sharedWorkspacesHeadline.tvHeadline.text = resources.getString(R.string.shared_workspaces_headline)
+            sharedWorkspacesHeadline.btnRecyclerViewToggle.setOnClickListener {
+                rvSharedWorkspaces.isVisible = !rvSharedWorkspaces.isVisible
+            }
+        }
+
     }
 
     override fun onSupportNavigateUp(): Boolean {
@@ -97,6 +113,6 @@ class MainActivity : AppCompatActivity() {
     override fun onDestroy() {
         super.onDestroy()
         _binding = null
-        drawerAdapter = null
+        userWorkspacesAdapter = null
     }
 }

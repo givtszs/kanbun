@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:scrollbars="none"
+    android:background="@color/md_theme_light_surface">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <include
+            android:id="@+id/headerLayout"
+            layout="@layout/drawer_header"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <include
+            android:id="@+id/userWorkspacesHeadline"
+            layout="@layout/drawer_headline"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@id/headerLayout" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvUserWorkspaces"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingHorizontal="12dp"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+            app:layout_constraintTop_toBottomOf="@id/userWorkspacesHeadline"
+            tools:layout_editor_absoluteX="-49dp"
+            tools:listitem="@layout/item_workspace" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnCreateWorkspace"
+            style="@style/Widget.Material3.Button.TextButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="Create workspace"
+            app:icon="@drawable/ic_add_24"
+            app:iconGravity="textStart"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/rvUserWorkspaces" />
+
+        <include
+            android:id="@+id/sharedWorkspacesHeadline"
+            layout="@layout/drawer_headline"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@id/btnCreateWorkspace" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvSharedWorkspaces"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingHorizontal="12dp"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+            app:layout_constraintTop_toBottomOf="@id/sharedWorkspacesHeadline"
+            tools:listitem="@layout/item_workspace" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</ScrollView>

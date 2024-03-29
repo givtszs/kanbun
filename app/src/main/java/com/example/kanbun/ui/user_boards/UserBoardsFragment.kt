@@ -107,14 +107,19 @@ class UserBoardsFragment : BaseFragment(), StateHandler {
     override fun setUpListeners() {
         // set up drawers listeners
         activity.apply {
-            activityMainBinding.headerLayout.btnSignOut.setOnClickListener {
+            activityMainBinding.drawerContent.headerLayout.btnSignOut.setOnClickListener {
                 viewModel.signOutUser(requireContext()) {
-                    drawerAdapter?.prevSelectedWorkspaceId = null
+                    DrawerAdapter.prevSelectedWorkspaceId = null
                     navController.navigate(R.id.registrationPromptFragment)
                 }
             }
 
-            drawerAdapter?.onItemClickCallback = { workspaceId ->
+            userWorkspacesAdapter?.onItemClickCallback = { workspaceId ->
+                viewModel.selectWorkspace(workspaceId)
+                activityMainBinding.drawerLayout.closeDrawer(GravityCompat.START)
+            }
+
+            sharedWorkspacesAdapter?.onItemClickCallback = { workspaceId ->
                 viewModel.selectWorkspace(workspaceId)
                 activityMainBinding.drawerLayout.closeDrawer(GravityCompat.START)
             }
@@ -150,7 +155,7 @@ class UserBoardsFragment : BaseFragment(), StateHandler {
             user?.let { _user ->
                 setUpDrawer(_user)
                 Log.d(TAG, "processState: userWorkspaces: ${_user.workspaces}")
-                activity.drawerAdapter?.userWorkspaces = _user.workspaces.map { workspace ->
+                activity.userWorkspacesAdapter?.workspaces = _user.workspaces.map { workspace ->
                     DrawerAdapter.DrawerWorkspace(
                         workspace,
                         workspace.id == currentWorkspace?.id
@@ -160,7 +165,7 @@ class UserBoardsFragment : BaseFragment(), StateHandler {
                 }
 
                 Log.d(TAG, "processState: sharedWorkspaces: ${_user.sharedWorkspaces}")
-                activity.drawerAdapter?.sharedWorkspaces = _user.sharedWorkspaces.map { workspace ->
+                activity.sharedWorkspacesAdapter?.workspaces = _user.sharedWorkspaces.map { workspace ->
                     DrawerAdapter.DrawerWorkspace(
                         workspace,
                         workspace.id == currentWorkspace?.id
@@ -174,7 +179,7 @@ class UserBoardsFragment : BaseFragment(), StateHandler {
                 rvBoards.isVisible = currentWorkspace != null
 
                 if (currentWorkspace != null) {
-                    activity.drawerAdapter?.prevSelectedWorkspaceId = currentWorkspace.id
+                    DrawerAdapter.prevSelectedWorkspaceId = currentWorkspace.id
 
                     // create options menu
                     if (!isMenuProviderAdded) {
@@ -245,7 +250,7 @@ class UserBoardsFragment : BaseFragment(), StateHandler {
     private fun setUpDrawer(user: User) {
         with(activity) {
             // set up header layout
-            activityMainBinding.headerLayout.apply {
+            activityMainBinding.drawerContent.headerLayout.apply {
                 tvName.text = user.name
                 tvEmail.text = user.email
                 Glide.with(requireContext())
@@ -254,7 +259,7 @@ class UserBoardsFragment : BaseFragment(), StateHandler {
                     .into(ivProfilePicture)
             }
 
-            activityMainBinding.btnCreateWorkspace.setOnClickListener {
+            activityMainBinding.drawerContent.btnCreateWorkspace.setOnClickListener {
                 buildWorkspaceCreationDialog(user)
             }
         }
