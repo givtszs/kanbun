@@ -4,8 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:scrollbars="none"
-    android:background="@color/md_theme_light_surface">
+    android:background="@color/md_theme_light_surface"
+    android:scrollbars="none">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
@@ -30,10 +30,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:paddingHorizontal="12dp"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
             app:layout_constraintTop_toBottomOf="@id/userWorkspacesHeadline"
-            tools:layout_editor_absoluteX="-49dp"
             tools:listitem="@layout/item_workspace" />
 
         <com.google.android.material.button.MaterialButton
@@ -41,8 +39,9 @@
             style="@style/Widget.Material3.Button.TextButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
             android:text="Create workspace"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
             app:icon="@drawable/ic_add_24"
             app:iconGravity="textStart"
             app:layout_constraintStart_toStartOf="parent"
@@ -60,9 +59,24 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:paddingHorizontal="12dp"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
             app:layout_constraintTop_toBottomOf="@id/sharedWorkspacesHeadline"
             tools:listitem="@layout/item_workspace" />
+
+        <include
+            android:id="@+id/separator1"
+            layout="@layout/separator_horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/separator_horizontal_height"
+            android:layout_marginTop="8dp"
+            app:layout_constraintTop_toBottomOf="@id/rvSharedWorkspaces" />
+
+        <include
+            android:id="@+id/sharedBoards"
+            layout="@layout/item_workspace"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/item_workspace_height"
+            android:layout_marginTop="8dp"
+            app:layout_constraintTop_toBottomOf="@id/separator1" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </ScrollView>

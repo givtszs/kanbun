@@ -26,6 +26,7 @@
     <string name="inbox">Inbox</string>
     <string name="user_workspaces_headline">My workspaces</string>
     <string name="shared_workspaces_headline">Shared workspaces</string>
+    <string name="shared_boards_headline">Shared boards</string>
     <string name="workspace_settings">Workspace settings</string>
     <string name="workspace_name_hint">Workspace name</string>
     <string name="delete_workspace">Delete workspace</string>
