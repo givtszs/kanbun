@@ -4,6 +4,7 @@ import android.content.Context
 import android.util.Log
 import androidx.lifecycle.viewModelScope
 import com.example.kanbun.common.BoardRole
+import com.example.kanbun.common.DrawerItem
 import com.example.kanbun.common.Result
 import com.example.kanbun.common.ToastMessage
 import com.example.kanbun.common.WorkspaceRole
@@ -109,6 +110,17 @@ class UserBoardsViewModel @Inject constructor(
     // TODO: Rename to `getWorkspace`
     fun selectWorkspace(workspaceId: String) = viewModelScope.launch {
         _isLoading.value = true
+
+        if (workspaceId == DrawerItem.SHARED_BOARDS) {
+            _currentWorkspace.value = Workspace(id = DrawerItem.SHARED_BOARDS, name = "Shared boards")
+            dataStore.setPreference(
+                PreferenceDataStoreKeys.CURRENT_WORKSPACE_ID,
+                DrawerItem.SHARED_BOARDS
+            )
+            _isLoading.value = false
+            return@launch
+        }
+
         when (val result = firestoreRepository.getWorkspace(workspaceId)) {
             is Result.Success -> {
                 _currentWorkspace.value = result.data

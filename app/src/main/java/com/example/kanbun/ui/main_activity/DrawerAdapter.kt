@@ -13,6 +13,7 @@ class DrawerAdapter : RecyclerView.Adapter<DrawerAdapter.ItemWorkspaceViewHolder
     companion object {
         private const val TAG = "DrawerAdapter"
         var prevSelectedWorkspaceId: String? = null
+        var onItemClickCallback: ((String) -> Unit) = {}
     }
 
     var workspaces: List<DrawerWorkspace> = emptyList()
@@ -23,9 +24,6 @@ class DrawerAdapter : RecyclerView.Adapter<DrawerAdapter.ItemWorkspaceViewHolder
                 Log.d(TAG, "userWorkspaces: $field")
             }
         }
-
-
-    var onItemClickCallback: ((String) -> Unit)? = null
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ItemWorkspaceViewHolder {
         return ItemWorkspaceViewHolder(
@@ -51,41 +49,17 @@ class DrawerAdapter : RecyclerView.Adapter<DrawerAdapter.ItemWorkspaceViewHolder
             binding.apply {
                 tvName.text = item.workspace.name
 
-                if (item.isSelected) {
-                    constraintLayout.setBackgroundColor(
-                        getColor(
-                            itemView.context,
-                            R.color.md_theme_light_secondaryContainer
-                        )
-                    )
-                    tvName.setTextColor(
-                        getColor(
-                            itemView.context,
-                            R.color.md_theme_light_onSecondaryContainer
-                        )
-                    )
-                    ivLeadingIcon.isSelected = true
-                } else {
-                    constraintLayout.setBackgroundColor(
-                        getColor(
-                            itemView.context,
-                            R.color.md_theme_light_surface
-                        )
-                    )
-                    tvName.setTextColor(
-                        getColor(
-                            itemView.context,
-                            R.color.md_theme_light_onSurfaceVariant
-                        )
-                    )
-                    ivLeadingIcon.isSelected = false
+                with(item.isSelected) {
+                    cardBackground.isSelected = this
+                    tvName.isSelected = this
+                    ivLeadingIcon.isSelected = this
                 }
 
-                root.setOnClickListener {
+                card.setOnClickListener {
                     if (item.workspace.id != prevSelectedWorkspaceId) {
                         Log.d(TAG, "Selected workspace: $item")
                         // close the drawer
-                        onItemClickCallback?.invoke(item.workspace.id)
+                        onItemClickCallback.invoke(item.workspace.id)
                         prevSelectedWorkspaceId = item.workspace.id
                     }
                 }

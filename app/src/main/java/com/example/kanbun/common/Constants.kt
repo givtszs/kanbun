@@ -51,6 +51,10 @@ const val DATE_FORMAT = "dd MMM yyyy"
 const val TIME_FORMAT = "HH:mm"
 const val DATE_TIME_FORMAT = "dd MMM yyyy, HH:mm"
 
+object DrawerItem {
+    const val SHARED_BOARDS = "shared_boards"
+}
+
 val defaultTagColors = listOf(
     "#FF0000", // red
     "#FFA500", // orange

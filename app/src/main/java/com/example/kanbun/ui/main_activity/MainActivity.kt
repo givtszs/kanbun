@@ -11,6 +11,7 @@ import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupWithNavController
 import com.example.kanbun.R
+import com.example.kanbun.common.DrawerItem
 import com.example.kanbun.databinding.ActivityMainBinding
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -23,6 +24,13 @@ class MainActivity : AppCompatActivity() {
 
     var userWorkspacesAdapter: DrawerAdapter? = null
     var sharedWorkspacesAdapter: DrawerAdapter? = null
+    var isSharedBoardsSelected: Boolean? = null
+        set(value) {
+            field = value
+            activityMainBinding.drawerContent.sharedBoards.cardBackground.isSelected = field == true
+            activityMainBinding.drawerContent.sharedBoards.tvName.isSelected = field == true
+            activityMainBinding.drawerContent.sharedBoards.ivLeadingIcon.isSelected = field == true
+        }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -83,6 +91,7 @@ class MainActivity : AppCompatActivity() {
         // set up header layout
         activityMainBinding.drawerContent.headerLayout.apply {
             ivProfilePicture.setImageResource(R.drawable.ic_launcher_background)
+            // TODO: Check why do I even have this
             tvName.text = "Awesome Name"
             tvEmail.text = "awesome@email.com"
         }
@@ -102,8 +111,13 @@ class MainActivity : AppCompatActivity() {
             sharedWorkspacesHeadline.btnRecyclerViewToggle.setOnClickListener {
                 rvSharedWorkspaces.isVisible = !rvSharedWorkspaces.isVisible
             }
-        }
 
+            sharedBoards.card.setOnClickListener {
+                DrawerAdapter.onItemClickCallback(DrawerItem.SHARED_BOARDS)
+            }
+            sharedBoards.tvName.text = resources.getString(R.string.shared_boards_headline)
+            sharedBoards.ivLeadingIcon.setImageResource(R.drawable.ic_kanban_board_selector)
+        }
     }
 
     override fun onSupportNavigateUp(): Boolean {

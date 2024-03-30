@@ -24,6 +24,7 @@ import androidx.recyclerview.widget.GridLayoutManager
 import com.bumptech.glide.Glide
 import com.example.kanbun.R
 import com.example.kanbun.common.AuthProvider
+import com.example.kanbun.common.DrawerItem
 import com.example.kanbun.common.RECYCLERVIEW_BOARDS_COLUMNS
 import com.example.kanbun.common.getColor
 import com.example.kanbun.databinding.FragmentUserBoardsBinding
@@ -114,12 +115,7 @@ class UserBoardsFragment : BaseFragment(), StateHandler {
                 }
             }
 
-            userWorkspacesAdapter?.onItemClickCallback = { workspaceId ->
-                viewModel.selectWorkspace(workspaceId)
-                activityMainBinding.drawerLayout.closeDrawer(GravityCompat.START)
-            }
-
-            sharedWorkspacesAdapter?.onItemClickCallback = { workspaceId ->
+            DrawerAdapter.onItemClickCallback = { workspaceId ->
                 viewModel.selectWorkspace(workspaceId)
                 activityMainBinding.drawerLayout.closeDrawer(GravityCompat.START)
             }
@@ -165,51 +161,48 @@ class UserBoardsFragment : BaseFragment(), StateHandler {
                 }
 
                 Log.d(TAG, "processState: sharedWorkspaces: ${_user.sharedWorkspaces}")
-                activity.sharedWorkspacesAdapter?.workspaces = _user.sharedWorkspaces.map { workspace ->
-                    DrawerAdapter.DrawerWorkspace(
-                        workspace,
-                        workspace.id == currentWorkspace?.id
-                    )
-                }.sortedBy { drawerWorkspace ->
-                    drawerWorkspace.workspace.name
-                }
+                activity.sharedWorkspacesAdapter?.workspaces =
+                    _user.sharedWorkspaces.map { workspace ->
+                        DrawerAdapter.DrawerWorkspace(
+                            workspace,
+                            workspace.id == currentWorkspace?.id
+                        )
+                    }.sortedBy { drawerWorkspace ->
+                        drawerWorkspace.workspace.name
+                    }
             }
 
             binding.apply {
+                loading.root.isVisible = isLoading
                 rvBoards.isVisible = currentWorkspace != null
+                fabCreateBoard.isVisible = currentWorkspace?.id != DrawerItem.SHARED_BOARDS
+                activity.isSharedBoardsSelected = currentWorkspace?.id == DrawerItem.SHARED_BOARDS
+                tvTip.isVisible = currentWorkspace?.boards?.isEmpty() == true
+                topAppBar.toolbar.title = currentWorkspace?.name ?: resources.getString(R.string.boards)
 
-                if (currentWorkspace != null) {
-                    DrawerAdapter.prevSelectedWorkspaceId = currentWorkspace.id
-
-                    // create options menu
-                    if (!isMenuProviderAdded) {
-                        createOptionsMenu()
-                        isMenuProviderAdded = true
-                    }
-
-                    topAppBar.toolbar.title = currentWorkspace.name
-                    fabCreateBoard.visibility = View.VISIBLE
-
-                    boardsAdapter?.setData(currentWorkspace.boards)
-
-
-                    if (currentWorkspace.boards.isNotEmpty()) {
-                        tvTip.isVisible = false
-                    } else {
-                        tvTip.isVisible = true
-                        tvTip.text = resources.getString(R.string.empty_workspace_tip)
-                    }
-                } else {
-                    topAppBar.toolbar.title = resources.getString(R.string.boards)
-//                    topAppBar.toolbar.menu.clear()
+                // create options menu
+                if (!isMenuProviderAdded && currentWorkspace?.id != DrawerItem.SHARED_BOARDS) {
+                    createOptionsMenu()
+                    isMenuProviderAdded = true
+                } else if (currentWorkspace == null || currentWorkspace.id == DrawerItem.SHARED_BOARDS) {
                     removeOptionsMenu()
-                    boardsAdapter?.clear()
-                    tvTip.isVisible = true
-                    tvTip.text = resources.getString(R.string.workspace_selection_tip)
-                    fabCreateBoard.visibility = View.GONE
                 }
 
-                loading.root.isVisible = isLoading
+                if (currentWorkspace != null) {
+                    boardsAdapter?.setData(currentWorkspace.boards)
+                    DrawerAdapter.prevSelectedWorkspaceId = currentWorkspace.id
+
+                    if (currentWorkspace.boards.isEmpty()) {
+                        tvTip.text = if (currentWorkspace.id != DrawerItem.SHARED_BOARDS) {
+                            resources.getString(R.string.empty_workspace_tip)
+                        } else {
+                            "Shared boards will appear here"
+                        }
+                    }
+                } else {
+                    boardsAdapter?.clear()
+                    tvTip.text = resources.getString(R.string.workspace_selection_tip)
+                }
             }
 
             message?.let {
