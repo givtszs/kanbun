@@ -88,7 +88,10 @@ sealed class ViewState {
     data class BoardSettingsViewState(
         val isLoading: Boolean = false,
         val message: String? = null,
-        val tags: List<TagUi> = emptyList()
+        val tags: List<TagUi> = emptyList(),
+        val boardMembers: List<User> = emptyList(),
+//        val workspaceMembers: List<User> = emptyList(),
+        val foundUsers: List<User>? = null
     ) : ViewState()
 
     data class EditTagsViewState(

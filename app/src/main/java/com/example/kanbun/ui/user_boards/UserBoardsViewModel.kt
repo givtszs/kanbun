@@ -112,7 +112,11 @@ class UserBoardsViewModel @Inject constructor(
         _isLoading.value = true
 
         if (workspaceId == DrawerItem.SHARED_BOARDS) {
-            _currentWorkspace.value = Workspace(id = DrawerItem.SHARED_BOARDS, name = "Shared boards")
+            _currentWorkspace.value = Workspace(
+                id = DrawerItem.SHARED_BOARDS,
+                name = "Shared boards",
+                boards = emptyList()
+            )
             dataStore.setPreference(
                 PreferenceDataStoreKeys.CURRENT_WORKSPACE_ID,
                 DrawerItem.SHARED_BOARDS

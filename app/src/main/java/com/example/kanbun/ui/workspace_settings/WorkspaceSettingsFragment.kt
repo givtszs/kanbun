@@ -20,8 +20,8 @@ import com.example.kanbun.ui.BaseFragment
 import com.example.kanbun.ui.StateHandler
 import com.example.kanbun.ui.ViewState
 import com.example.kanbun.ui.main_activity.MainActivity
-import com.example.kanbun.ui.workspace_settings.adapters.SearchUsersAdapter
-import com.example.kanbun.ui.workspace_settings.adapters.WorkspaceMembersAdapter
+import com.example.kanbun.ui.manage_members.SearchUsersAdapter
+import com.example.kanbun.ui.manage_members.MembersAdapter
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import dagger.hilt.android.AndroidEntryPoint
@@ -39,7 +39,7 @@ class WorkspaceSettingsFragment : BaseFragment(), StateHandler {
     private val args: WorkspaceSettingsFragmentArgs by navArgs()
     private lateinit var workspace: Workspace
     private var searchUsersAdapter: SearchUsersAdapter? = null
-    private var workspaceMembersAdapter: WorkspaceMembersAdapter? = null
+    private var workspaceMembersAdapter: MembersAdapter? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -165,7 +165,7 @@ class WorkspaceSettingsFragment : BaseFragment(), StateHandler {
         }
         binding.rvFoundUsers.adapter = searchUsersAdapter
 
-        workspaceMembersAdapter = WorkspaceMembersAdapter(ownerId = workspace.owner) { member ->
+        workspaceMembersAdapter = MembersAdapter(ownerId = workspace.owner) { member ->
             viewModel.removeMember(member)
         }
         binding.rvMembers.adapter = workspaceMembersAdapter

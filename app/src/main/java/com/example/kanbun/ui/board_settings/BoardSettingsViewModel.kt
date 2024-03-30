@@ -1,11 +1,14 @@
 package com.example.kanbun.ui.board_settings
 
+import android.util.Log
 import androidx.lifecycle.viewModelScope
+import com.example.kanbun.common.BoardRole
 import com.example.kanbun.common.Result
 import com.example.kanbun.domain.model.Board
 import com.example.kanbun.domain.model.Tag
+import com.example.kanbun.domain.model.User
 import com.example.kanbun.domain.repository.FirestoreRepository
-import com.example.kanbun.domain.usecase.UpsertTagUseCase
+import com.example.kanbun.domain.usecase.SearchUserUseCase
 import com.example.kanbun.ui.BaseViewModel
 import com.example.kanbun.ui.ViewState
 import com.example.kanbun.ui.model.TagUi
@@ -15,22 +18,43 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class BoardSettingsViewModel @Inject constructor(
-    private val firestoreRepository: FirestoreRepository
+    private val firestoreRepository: FirestoreRepository,
+    private val searchUserUseCase: SearchUserUseCase
 ) : BaseViewModel() {
-    private var _tags = MutableStateFlow<List<Tag>>(emptyList())
+    companion object {
+        private const val TAG = "BoardSettingsViewModel"
+    }
+
+    // preserves the list of workspace members of type WorkspaceMember
+    var boardMembers = MutableStateFlow<List<Board.BoardMember>>(emptyList())
     private var _isLoading = MutableStateFlow(false)
+
     private var _message = MutableStateFlow<String?>(null)
+    private var _tags = MutableStateFlow<List<Tag>>(emptyList())
+    private var _boardMembers = MutableStateFlow<List<User>>(emptyList())
+    private var _workspaceMembers = MutableStateFlow<List<User>>(emptyList())
+    private var _foundUsers = MutableStateFlow<List<User>?>(null)
+
     val boardSettingsState: StateFlow<ViewState.BoardSettingsViewState> =
-        combine(_tags, _isLoading, _message) { tags, isLoading, message ->
+        combine(
+            _isLoading,
+            _message,
+            _tags,
+            _boardMembers,
+            _foundUsers
+        ) { isLoading, message, tags, boardMembers, foundUsers ->
             ViewState.BoardSettingsViewState(
-                tags = tags.map { TagUi(it, false) },
                 isLoading = isLoading,
-                message = message
+                message = message,
+                tags = tags.map { TagUi(it, false) },
+                boardMembers = boardMembers,
+                foundUsers = foundUsers
             )
         }.stateIn(
             viewModelScope,
@@ -38,8 +62,48 @@ class BoardSettingsViewModel @Inject constructor(
             ViewState.BoardSettingsViewState()
         )
 
-    fun init(tags: List<Tag>) {
+    fun init(tags: List<Tag>, members: List<Board.BoardMember>, workspaceId: String) {
         setTags(tags)
+        boardMembers.value = members
+        fetchBoardMembers(members)
+        fetchWorkspaceMembers(workspaceId)
+    }
+
+    private fun fetchBoardMembers(members: List<Board.BoardMember>) {
+        viewModelScope.launch {
+            val fetchedMembers = mutableListOf<User>()
+            members.forEach { member ->
+                when (val result = firestoreRepository.getUser(member.id)) {
+                    is Result.Success -> fetchedMembers.add(result.data)
+                    is Result.Error -> _message.value = result.message
+                }
+            }
+            _boardMembers.value = fetchedMembers
+            Log.d(TAG, "init: ${_boardMembers.value}")
+        }
+    }
+
+    private fun fetchWorkspaceMembers(workspaceId: String) {
+        viewModelScope.launch {
+            val fetchedMembers = mutableListOf<User>()
+            when (val resultWorkspace = firestoreRepository.getWorkspace(workspaceId)) {
+                is Result.Success -> {
+                    val workspace = resultWorkspace.data
+                    workspace.members.forEach { member ->
+                        when (val resultUser = firestoreRepository.getUser(member.id)) {
+                            is Result.Success -> fetchedMembers.add(resultUser.data)
+                            is Result.Error -> _message.value = resultUser.message
+                        }
+                    }
+                }
+
+                is Result.Error -> _message.value = resultWorkspace.message
+            }
+
+
+            _workspaceMembers.value = fetchedMembers
+            Log.d(TAG, "init: ${_boardMembers.value}")
+        }
     }
 
     fun deleteBoard(board: Board, onSuccess: () -> Unit) =
@@ -65,8 +129,37 @@ class BoardSettingsViewModel @Inject constructor(
     }
 
     fun setTags(tags: List<Tag>) {
-        if ( _tags.value != tags) {
+        if (_tags.value != tags) {
             _tags.value = tags
         }
     }
+
+    fun searchUser(tag: String) = viewModelScope.launch {
+        when (val result = searchUserUseCase(tag)) {
+            is Result.Success -> _foundUsers.value = result.data
+            is Result.Error -> _message.value = result.message
+        }
+    }
+
+    fun resetFoundUsers(clear: Boolean = false) {
+        _foundUsers.value = if (clear) null else _workspaceMembers.value
+    }
+
+    fun addMember(user: User) {
+        if (!_boardMembers.value.contains(user)) {
+            _boardMembers.update { it + user }
+            boardMembers.update {
+                it + Board.BoardMember(
+                    id = user.id,
+                    role = BoardRole.MEMBER
+                )
+            }
+        }
+    }
+
+    fun removeMember(member: User) {
+        _boardMembers.update { _member -> _member.filterNot { it == member } }
+        boardMembers.update { _member -> _member.filterNot { it.id == member.id } }
+    }
+
 }

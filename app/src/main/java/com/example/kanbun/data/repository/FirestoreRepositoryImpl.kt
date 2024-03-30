@@ -11,6 +11,7 @@ import com.example.kanbun.common.toBoardList
 import com.example.kanbun.common.toFirestoreBoard
 import com.example.kanbun.common.toFirestoreBoardInfo
 import com.example.kanbun.common.toFirestoreBoardList
+import com.example.kanbun.common.toFirestoreBoardMembers
 import com.example.kanbun.common.toFirestoreMembers
 import com.example.kanbun.common.toFirestoreTag
 import com.example.kanbun.common.toFirestoreTags
@@ -425,6 +426,26 @@ class FirestoreRepositoryImpl @Inject constructor(
                         if (newBoard.name.isNotEmpty()) {
                             updateBoardInfoInWorkspace(newBoard)
                         }
+
+                        if ("members" in boardUpdates) {
+                            val oldMembersIds = oldBoard.members.map { it.id }
+                            val newMembersIds = newBoard.members.map { it.id }
+                            if (oldMembersIds != newMembersIds) {
+                                val membersToAdd = newMembersIds.filterNot { it in oldMembersIds }
+                                membersToAdd.forEach { memberId ->
+                                    addBoardToUser(
+                                        userId = memberId,
+                                        boardId = newBoard.id
+                                    )
+                                }
+
+                                val membersToDelete = oldMembersIds.filterNot { it in newMembersIds }
+                                membersToDelete.forEach {
+                                    deleteSharedBoardFromUser(it, newBoard.id)
+                                }
+                            }
+                        }
+
                     }
             }
         }
@@ -440,9 +461,23 @@ class FirestoreRepositoryImpl @Inject constructor(
         if (newBoard.tags != oldBoard.tags) {
             mapOfUpdates["tags"] = newBoard.tags.toFirestoreTags()
         }
+        if (newBoard.members != oldBoard.members) {
+            mapOfUpdates["members"] = newBoard.members.toFirestoreBoardMembers()
+        }
         return mapOfUpdates
     }
 
+    private fun addBoardToUser(userId: String, boardId: String) {
+        firestore.collection(FirestoreCollection.USERS)
+            .document(userId)
+            .update("sharedBoards", FieldValue.arrayUnion(boardId))
+    }
+
+    private fun deleteSharedBoardFromUser(userId: String, boardId: String) {
+        firestore.collection(FirestoreCollection.USERS)
+            .document(userId)
+            .update("sharedBoards", FieldValue.arrayRemove(boardId))
+    }
 
     private fun updateBoardInfoInWorkspace(board: Board) {
         firestore

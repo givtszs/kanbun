@@ -1,7 +1,6 @@
-package com.example.kanbun.ui.workspace_settings.adapters
+package com.example.kanbun.ui.manage_members
 
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
@@ -9,10 +8,10 @@ import com.example.kanbun.common.loadUserProfilePicture
 import com.example.kanbun.databinding.ItemMemberChipBinding
 import com.example.kanbun.domain.model.User
 
-class WorkspaceMembersAdapter(
+class MembersAdapter(
     val ownerId: String,
     private val onRemoveClicked: (User) -> Unit
-) : RecyclerView.Adapter<WorkspaceMembersAdapter.WorkspaceMemberViewHolder>() {
+) : RecyclerView.Adapter<MembersAdapter.MemberViewHolder>() {
 
     var members: List<User> = emptyList()
         set(value) {
@@ -20,8 +19,8 @@ class WorkspaceMembersAdapter(
             notifyDataSetChanged()
         }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): WorkspaceMemberViewHolder {
-        return WorkspaceMemberViewHolder(
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MemberViewHolder {
+        return MemberViewHolder(
             binding = ItemMemberChipBinding.inflate(
                 LayoutInflater.from(parent.context),
                 parent,
@@ -33,13 +32,13 @@ class WorkspaceMembersAdapter(
         }
     }
 
-    override fun onBindViewHolder(holder: WorkspaceMemberViewHolder, position: Int) {
+    override fun onBindViewHolder(holder: MemberViewHolder, position: Int) {
         holder.bind(members[position])
     }
 
     override fun getItemCount(): Int = members.size
 
-    class WorkspaceMemberViewHolder(
+    class MemberViewHolder(
         val ownerId: String,
         val binding: ItemMemberChipBinding,
         private val clickAtPosition: (Int) -> Unit

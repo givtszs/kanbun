@@ -26,6 +26,7 @@ fun User.toFirestoreUser(): FirestoreUser =
         authProvider = authProvider.providerId,
         workspaces = workspaces.toFirestoreWorkspaces(),
         sharedWorkspaces = sharedWorkspaces.toFirestoreWorkspaces(),
+        sharedBoards = sharedBoards,
         cards = cards
     )
 
@@ -54,6 +55,7 @@ fun FirestoreUser.toUser(userId: String): User =
                 name = entry.value
             )
         },
+        sharedBoards = sharedBoards,
         cards = cards
     )
 
@@ -68,6 +70,7 @@ fun FirebaseUser.toUser(provider: AuthProvider): User {
         authProvider = provider,
         workspaces = emptyList(),
         sharedWorkspaces = emptyList(),
+        sharedBoards = emptyList(),
         cards = emptyList()
     )
 }

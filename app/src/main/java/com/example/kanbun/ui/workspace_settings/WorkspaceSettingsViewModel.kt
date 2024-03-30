@@ -10,6 +10,7 @@ import com.example.kanbun.data.local.PreferenceDataStoreKeys
 import com.example.kanbun.domain.model.User
 import com.example.kanbun.domain.model.Workspace
 import com.example.kanbun.domain.repository.FirestoreRepository
+import com.example.kanbun.domain.usecase.SearchUserUseCase
 import com.example.kanbun.ui.ViewState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -24,6 +25,7 @@ import javax.inject.Inject
 @HiltViewModel
 class WorkspaceSettingsViewModel @Inject constructor(
     private val firestoreRepository: FirestoreRepository,
+    private val searchUserUseCase: SearchUserUseCase,
     private val dataStore: PreferenceDataStoreHelper,
 ) : ViewModel() {
     // preserves the list of workspace members of type WorkspaceMember
@@ -97,7 +99,7 @@ class WorkspaceSettingsViewModel @Inject constructor(
     }
 
     fun searchUser(tag: String) = viewModelScope.launch {
-        when (val result = firestoreRepository.findUsersByTag(tag)) {
+        when (val result = searchUserUseCase(tag)) {
             is Result.Success -> _foundUsers.value = result.data
             is Result.Error -> _message.value = result.message
         }

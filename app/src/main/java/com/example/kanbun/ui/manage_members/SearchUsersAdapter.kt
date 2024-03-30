@@ -1,4 +1,4 @@
-package com.example.kanbun.ui.workspace_settings.adapters
+package com.example.kanbun.ui.manage_members
 
 import android.util.Log
 import android.view.LayoutInflater
@@ -9,7 +9,6 @@ import com.example.kanbun.R
 import com.example.kanbun.common.loadUserProfilePicture
 import com.example.kanbun.databinding.ItemUserSearchResultBinding
 import com.example.kanbun.domain.model.User
-import com.example.kanbun.domain.model.Workspace
 
 class SearchUsersAdapter(
     var workspaceMembers: List<String>,

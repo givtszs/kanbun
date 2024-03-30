@@ -1,10 +1,12 @@
 package com.example.kanbun.ui.board_settings
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.view.isVisible
+import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -19,7 +21,10 @@ import com.example.kanbun.ui.ViewState
 import com.example.kanbun.ui.board.common_adapters.TagsAdapter
 import com.example.kanbun.ui.board_settings.edit_tags.EditTagsBottomSheet
 import com.example.kanbun.ui.main_activity.MainActivity
+import com.example.kanbun.ui.manage_members.SearchUsersAdapter
+import com.example.kanbun.ui.manage_members.MembersAdapter
 import com.google.android.material.appbar.MaterialToolbar
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
@@ -33,6 +38,8 @@ class BoardSettingsFragment : BaseFragment(), StateHandler {
     private lateinit var board: Board
     private val viewModel: BoardSettingsViewModel by viewModels()
     private var tagsAdapter: TagsAdapter? = null
+    private var searchUsersAdapter: SearchUsersAdapter? = null
+    private var boardMembersAdapter: MembersAdapter? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -48,7 +55,8 @@ class BoardSettingsFragment : BaseFragment(), StateHandler {
         super.onViewCreated(view, savedInstanceState)
         setUpActionBar(binding.toolbar)
         setUpTagsAdapter()
-        viewModel.init(board.tags)
+        setUpAdapters()
+        viewModel.init(board.tags, board.members, board.workspace.id)
         collectState()
     }
 
@@ -63,6 +71,25 @@ class BoardSettingsFragment : BaseFragment(), StateHandler {
         binding.apply {
             etName.setText(board.name)
             etDescription.setText(board.description)
+
+            var searchJob: Job? = null
+            etSearchUser.setOnFocusChangeListener { view, isFocused ->
+                if (isFocused && etSearchUser.text?.isEmpty() == true) {
+                    viewModel.resetFoundUsers()
+                } else if (!isFocused) {
+                    viewModel.resetFoundUsers(true)
+                }
+            }
+            etSearchUser.doOnTextChanged { text, _, _, _ ->
+                searchJob?.cancel()
+                if (!text.isNullOrEmpty() && text.length >= 3) {
+                    Log.d(TAG, "searchUsers: $text")
+                    searchJob = viewModel.searchUser(text.toString())
+                } else {
+                    Log.d(TAG, "searchUser: call resetFoundUsers")
+                    viewModel.resetFoundUsers()
+                }
+            }
 
             btnDeleteBoard.setOnClickListener {
                 viewModel.deleteBoard(board) {
@@ -81,7 +108,8 @@ class BoardSettingsFragment : BaseFragment(), StateHandler {
                         return@setOnClickListener
                     },
                     description = etDescription.text?.trim().toString(),
-                    tags = viewModel.boardSettingsState.value.tags.map { it.tag }
+                    tags = viewModel.boardSettingsState.value.tags.map { it.tag },
+                    members = viewModel.boardMembers.value
                 )
 
                 if (newBoard == board) {
@@ -106,6 +134,21 @@ class BoardSettingsFragment : BaseFragment(), StateHandler {
         }
     }
 
+    private fun setUpAdapters() {
+        searchUsersAdapter = SearchUsersAdapter(board.members.map { it.id }) { user ->
+            showToast("Clicked on ${user.tag}")
+            if (user.id != board.owner) {
+                viewModel.addMember(user)
+            }
+        }
+        binding.rvFoundUsers.adapter = searchUsersAdapter
+
+        boardMembersAdapter = MembersAdapter(ownerId = board.owner) { member ->
+            viewModel.removeMember(member)
+        }
+        binding.rvMembers.adapter = boardMembersAdapter
+    }
+
     override fun collectState() {
         lifecycleScope.launch {
             lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -118,14 +161,23 @@ class BoardSettingsFragment : BaseFragment(), StateHandler {
 
     override fun processState(state: ViewState) {
         with(state as ViewState.BoardSettingsViewState) {
-            message?.let {
-                showToast(it)
-                viewModel.messageShown()
+            binding.apply {
+                tagsAdapter?.tags = tags
+                loading.root.isVisible = isLoading
+                message?.let {
+                    showToast(it)
+                    viewModel.messageShown()
+                }
+
+                rvFoundUsers.isVisible = foundUsers != null
+                foundUsers?.let { users ->
+                    searchUsersAdapter?.users = users
+                }
+
+                Log.d(TAG, "processState: members: $boardMembers")
+                searchUsersAdapter?.workspaceMembers = boardMembers.map { it.id }
+                boardMembersAdapter?.members = boardMembers
             }
-
-            tagsAdapter?.tags = tags
-
-            binding.loading.root.isVisible = isLoading
         }
     }
 
@@ -138,5 +190,7 @@ class BoardSettingsFragment : BaseFragment(), StateHandler {
         super.onDestroyView()
         _binding = null
         tagsAdapter = null
+        searchUsersAdapter = null
+        boardMembersAdapter = null
     }
 }
