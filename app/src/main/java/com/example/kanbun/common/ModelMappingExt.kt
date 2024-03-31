@@ -70,7 +70,7 @@ fun FirebaseUser.toUser(provider: AuthProvider): User {
         authProvider = provider,
         workspaces = emptyList(),
         sharedWorkspaces = emptyList(),
-        sharedBoards = emptyList(),
+        sharedBoards = emptyMap(),
         cards = emptyList()
     )
 }

@@ -11,6 +11,6 @@ data class User(
     val authProvider: AuthProvider,
     val workspaces: List<WorkspaceInfo>,
     val sharedWorkspaces: List<WorkspaceInfo>,
-    val sharedBoards: List<String>,
+    val sharedBoards: Map<String, String>,
     val cards: List<String>
 )
