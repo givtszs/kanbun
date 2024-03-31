@@ -3,6 +3,9 @@ package com.example.kanbun.ui.user_boards
 import android.content.Context
 import android.util.Log
 import androidx.lifecycle.viewModelScope
+import androidx.navigation.NavController
+import com.example.kanbun.R
+import com.example.kanbun.common.AuthProvider
 import com.example.kanbun.common.BoardRole
 import com.example.kanbun.common.DrawerItem
 import com.example.kanbun.common.Result
@@ -43,8 +46,9 @@ class UserBoardsViewModel @Inject constructor(
     private val dataStore: PreferenceDataStoreHelper
 ) : BaseViewModel() {
     // TODO: Make one-shot query to get the user's data
-    private val _user =
-        firestoreRepository.getUserStream(firebaseUser?.uid ?: "").distinctUntilChanged()
+//    private val _user =
+//        firestoreRepository.getUserStream(firebaseUser?.uid ?: "").distinctUntilChanged()
+    private var _user = MutableStateFlow<User?>(null)
     private val _currentWorkspace = MutableStateFlow<Workspace?>(null)
     private val _isLoading = MutableStateFlow(true)
     private val _message = MutableStateFlow<String?>(null)
@@ -60,17 +64,72 @@ class UserBoardsViewModel @Inject constructor(
         )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), ViewState.UserBoardsViewState())
 
-    fun messageShown() {
-        _message.value = null
+    fun init(
+        navController: NavController
+    ) {
+        viewModelScope.launch {
+            // reload FirebaseUser instance
+            updateUser()
+            if (firebaseUser == null) {
+                _isLoading.value = false
+                _message.value = "Firebase user is null"
+                navController.navigate(R.id.action_userBoardsFragment_to_registrationPromptFragment)
+                return@launch
+            }
+
+
+            val userInfo = firebaseUser.providerData.first { it.providerId != "firebase" }
+
+            Log.d(
+                TAG,
+                "provider: ${userInfo.providerId}, isEmailVerified: ${userInfo.isEmailVerified}"
+            )
+
+
+            if (userInfo.providerId == AuthProvider.EMAIL.providerId && !firebaseUser.isEmailVerified) {
+                _message.value = "Complete registration by signing in with ${userInfo.providerId} and verifying your email"
+                navController.navigate(UserBoardsFragmentDirections.actionUserBoardsFragmentToRegistrationPromptFragment())
+                return@launch
+            }
+
+            getUser()
+            getCurrentWorkspace()
+        }
     }
 
-    suspend fun updateUser() {
+
+    private suspend fun getUser() {
+        when (val result = firestoreRepository.getUser(firebaseUser!!.uid)) {
+            is Result.Success -> _user.value = result.data
+            is Result.Error -> _message.value = result.message
+        }
+    }
+
+    private suspend fun updateUser() {
         if (!connectivityChecker.hasInternetConnection()) {
             _message.value = ToastMessage.NO_NETWORK_CONNECTION
             return
         }
 
         firebaseUser?.reload()?.await()
+    }
+
+    private suspend fun getCurrentWorkspace() {
+        val workspaceId =
+            dataStore.getPreferenceFirst(PreferenceDataStoreKeys.CURRENT_WORKSPACE_ID, "")
+        Log.d("UserBoardsViewModel", "getCurrentWorkspace: $workspaceId")
+
+        if (workspaceId.isEmpty()) {
+            _currentWorkspace.value = null
+            _isLoading.value = false
+            return
+        }
+
+        selectWorkspace(workspaceId)
+    }
+
+    fun messageShown() {
+        _message.value = null
     }
 
     fun signOutUser(context: Context, onSuccess: () -> Unit) {
@@ -107,20 +166,23 @@ class UserBoardsViewModel @Inject constructor(
         }
     }
 
-    // TODO: Rename to `getWorkspace`
-    fun selectWorkspace(workspaceId: String) = viewModelScope.launch {
+    fun selectWorkspace(workspaceId: String, isPreferenceSaved: Boolean = true) = viewModelScope.launch {
         _isLoading.value = true
 
         if (workspaceId == DrawerItem.SHARED_BOARDS) {
+            val sharedBoards = getSharedBoards()
             _currentWorkspace.value = Workspace(
                 id = DrawerItem.SHARED_BOARDS,
                 name = "Shared boards",
-                boards = emptyList()
+                boards = sharedBoards
             )
-            dataStore.setPreference(
-                PreferenceDataStoreKeys.CURRENT_WORKSPACE_ID,
-                DrawerItem.SHARED_BOARDS
-            )
+            Log.d(TAG, "_currentWorkspace: ${_currentWorkspace.value}")
+            if (!isPreferenceSaved) {
+                dataStore.setPreference(
+                    PreferenceDataStoreKeys.CURRENT_WORKSPACE_ID,
+                    DrawerItem.SHARED_BOARDS
+                )
+            }
             _isLoading.value = false
             return@launch
         }
@@ -129,10 +191,12 @@ class UserBoardsViewModel @Inject constructor(
             is Result.Success -> {
                 _currentWorkspace.value = result.data
                 _isLoading.value = false
-                dataStore.setPreference(
-                    PreferenceDataStoreKeys.CURRENT_WORKSPACE_ID,
-                    result.data.id
-                )
+                if (!isPreferenceSaved) {
+                    dataStore.setPreference(
+                        PreferenceDataStoreKeys.CURRENT_WORKSPACE_ID,
+                        result.data.id
+                    )
+                }
             }
 
             is Result.Error -> {
@@ -143,19 +207,25 @@ class UserBoardsViewModel @Inject constructor(
         }
     }
 
-    fun getCurrentWorkspace() = viewModelScope.launch {
-        val workspaceId =
-            dataStore.getPreferenceFirst(PreferenceDataStoreKeys.CURRENT_WORKSPACE_ID, "")
-        Log.d("UserBoardsViewModel", "getCurrentWorkspace: $workspaceId")
+    private suspend fun getSharedBoards(): List<Workspace.BoardInfo> {
+        return when (val result = firestoreRepository.getSharedBoards(_user.value?.sharedBoards ?: emptyMap())) {
+            is Result.Success -> result.data.map { board ->
+                Workspace.BoardInfo(
+                    boardId = board.id,
+                    workspaceId = board.workspace.id,
+                    name = board.name,
+                    cover = board.cover
+                )
+            }
 
-        if (workspaceId.isEmpty()) {
-            _currentWorkspace.value = null
-            _isLoading.value = false
-            return@launch
+            is Result.Error -> {
+                _message.value = result.message
+                emptyList()
+            }
         }
-
-        selectWorkspace(workspaceId)
     }
+
+
 
     fun createBoard(name: String, userId: String, workspace: Workspace) = viewModelScope.launch {
         if (_currentWorkspace.value?.boards?.any { it.name == name } == true) {

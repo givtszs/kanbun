@@ -99,10 +99,9 @@ class UserBoardsFragment : BaseFragment(), StateHandler {
         setUpActionBar(binding.topAppBar.toolbar)
         setStatusBarColor(getColor(requireContext(), R.color.md_theme_light_surface))
         addOnBackPressedAction { requireActivity().finish() }
-        checkUserAuthState()
+        viewModel.init(navController)
         setUpBoardsAdapter()
         collectState()
-        viewModel.getCurrentWorkspace()
     }
 
     override fun setUpListeners() {
@@ -116,7 +115,7 @@ class UserBoardsFragment : BaseFragment(), StateHandler {
             }
 
             DrawerAdapter.onItemClickCallback = { workspaceId ->
-                viewModel.selectWorkspace(workspaceId)
+                viewModel.selectWorkspace(workspaceId, false)
                 activityMainBinding.drawerLayout.closeDrawer(GravityCompat.START)
             }
         }
@@ -189,6 +188,7 @@ class UserBoardsFragment : BaseFragment(), StateHandler {
                 }
 
                 if (currentWorkspace != null) {
+                    Log.d(TAG, "currentWorkspace: $currentWorkspace")
                     boardsAdapter?.setData(currentWorkspace.boards)
                     DrawerAdapter.prevSelectedWorkspaceId = currentWorkspace.id
 
@@ -208,34 +208,6 @@ class UserBoardsFragment : BaseFragment(), StateHandler {
             message?.let {
                 showToast(it)
                 viewModel.messageShown()
-            }
-        }
-    }
-
-    private fun checkUserAuthState() {
-        lifecycleScope.launch {
-            viewLifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                // reload FirebaseUser instance
-                viewModel.updateUser()
-                val userInfo =
-                    viewModel.firebaseUser?.providerData?.first { it.providerId != "firebase" }
-
-                Log.d(
-                    TAG,
-                    "provider: ${userInfo?.providerId}, isEmailVerified: ${userInfo?.isEmailVerified}"
-                )
-
-                if (viewModel.firebaseUser == null) {
-                    navController.navigate(R.id.action_userBoardsFragment_to_registrationPromptFragment)
-                }
-
-                if (userInfo?.providerId == AuthProvider.EMAIL.providerId && viewModel.firebaseUser?.isEmailVerified == false) {
-                    showToast(
-                        message = "Complete registration by signing in with ${userInfo.providerId} and verifying your email",
-                        context = requireActivity()
-                    )
-                    navController.navigate(UserBoardsFragmentDirections.actionUserBoardsFragmentToRegistrationPromptFragment())
-                }
             }
         }
     }
