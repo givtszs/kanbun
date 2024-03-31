@@ -41,6 +41,8 @@ import com.google.firebase.functions.ktx.functions
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
@@ -435,7 +437,8 @@ class FirestoreRepositoryImpl @Inject constructor(
                                 membersToAdd.forEach { memberId ->
                                     addBoardToUser(
                                         userId = memberId,
-                                        boardId = newBoard.id
+                                        boardId = newBoard.id,
+                                        workspaceId = newBoard.workspace.id
                                     )
                                 }
 
@@ -467,16 +470,16 @@ class FirestoreRepositoryImpl @Inject constructor(
         return mapOfUpdates
     }
 
-    private fun addBoardToUser(userId: String, boardId: String) {
+    private fun addBoardToUser(userId: String, boardId: String, workspaceId: String) {
         firestore.collection(FirestoreCollection.USERS)
             .document(userId)
-            .update("sharedBoards", FieldValue.arrayUnion(boardId))
+            .update("sharedBoards.$boardId", workspaceId)
     }
 
     private fun deleteSharedBoardFromUser(userId: String, boardId: String) {
         firestore.collection(FirestoreCollection.USERS)
             .document(userId)
-            .update("sharedBoards", FieldValue.arrayRemove(boardId))
+            .update("sharedBoards.$boardId", FieldValue.delete())
     }
 
     private fun updateBoardInfoInWorkspace(board: Board) {
@@ -899,5 +902,39 @@ class FirestoreRepositoryImpl @Inject constructor(
 
             taskTags
         }
+    }
+
+    override suspend fun getMembers(userIds: List<String>): Result<List<User>> = runCatching {
+        val members = mutableListOf<User>()
+        val fetchedUsers  = withContext(ioDispatcher) {
+            userIds.map { id ->
+                async {
+                    getUser(id)
+                }
+            }
+        }.awaitAll()
+        fetchedUsers.forEach { result ->
+            if (result is Result.Success) {
+                members.add(result.data)
+            }
+        }
+        members
+    }
+
+    override suspend fun getSharedBoards(sharedBoards: Map<String, String>): Result<List<Board>> = runCatching {
+        val boards = mutableListOf<Board>()
+        val fetchedBoards = withContext(ioDispatcher) {
+            sharedBoards.map { entry ->
+                async {
+                    getBoard(boardId = entry.key, workspaceId = entry.value)
+                }
+            }
+        }.awaitAll()
+        fetchedBoards.forEach { boardResult ->
+            if (boardResult is Result.Success) {
+                boards.add(boardResult.data)
+            }
+        }
+        boards
     }
 }

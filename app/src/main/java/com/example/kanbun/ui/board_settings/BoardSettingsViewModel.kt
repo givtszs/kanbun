@@ -71,15 +71,10 @@ class BoardSettingsViewModel @Inject constructor(
 
     private fun fetchBoardMembers(members: List<Board.BoardMember>) {
         viewModelScope.launch {
-            val fetchedMembers = mutableListOf<User>()
-            members.forEach { member ->
-                when (val result = firestoreRepository.getUser(member.id)) {
-                    is Result.Success -> fetchedMembers.add(result.data)
-                    is Result.Error -> _message.value = result.message
-                }
+            when (val result = firestoreRepository.getMembers(members.map { it.id })) {
+                is Result.Success -> _boardMembers.value = result.data
+                is Result.Error -> _message.value = result.message
             }
-            _boardMembers.value = fetchedMembers
-            Log.d(TAG, "init: ${_boardMembers.value}")
         }
     }
 
@@ -89,20 +84,18 @@ class BoardSettingsViewModel @Inject constructor(
             when (val resultWorkspace = firestoreRepository.getWorkspace(workspaceId)) {
                 is Result.Success -> {
                     val workspace = resultWorkspace.data
-                    workspace.members.forEach { member ->
-                        when (val resultUser = firestoreRepository.getUser(member.id)) {
-                            is Result.Success -> fetchedMembers.add(resultUser.data)
-                            is Result.Error -> _message.value = resultUser.message
-                        }
+                    when (val resultMembers =
+                        firestoreRepository.getMembers(workspace.members.map { it.id })
+                    ) {
+                        is Result.Success -> _workspaceMembers.value = resultMembers.data
+                        is Result.Error -> _message.value = resultMembers.message
                     }
                 }
 
                 is Result.Error -> _message.value = resultWorkspace.message
             }
 
-
             _workspaceMembers.value = fetchedMembers
-            Log.d(TAG, "init: ${_boardMembers.value}")
         }
     }
 

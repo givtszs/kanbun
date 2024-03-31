@@ -56,17 +56,16 @@ class WorkspaceSettingsViewModel @Inject constructor(
         )
 
     fun init(members: List<Workspace.WorkspaceMember>) {
-        workspaceMembers.value = members
+        fetchMembers(members)
+    }
+
+    private fun fetchMembers(members: List<Workspace.WorkspaceMember>) {
         viewModelScope.launch {
-            val fetchedMembers = mutableListOf<User>()
-            members.forEach { member ->
-                when (val result = firestoreRepository.getUser(member.id)) {
-                    is Result.Success -> fetchedMembers.add(result.data)
-                    is Result.Error -> _message.value = result.message
-                }
+            when (val result = firestoreRepository.getMembers(members.map { it.id })
+            ) {
+                is Result.Success -> _members.value = result.data
+                is Result.Error -> _message.value = result.message
             }
-            _members.value = fetchedMembers
-            Log.d("WorkspaceSettingsViewModel", "init: ${_members.value}")
         }
     }
 

@@ -143,4 +143,8 @@ interface FirestoreRepository {
         boardListId: String,
         boardListPath: String,
     ): Result<List<Tag>>
+
+    suspend fun getMembers(userIds: List<String>): Result<List<User>>
+
+    suspend fun getSharedBoards(sharedBoards: Map<String, String>): Result<List<Board>>
 }
