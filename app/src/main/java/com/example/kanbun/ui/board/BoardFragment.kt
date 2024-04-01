@@ -16,6 +16,7 @@ import androidx.core.view.MenuHost
 import androidx.core.view.MenuProvider
 import androidx.core.view.isVisible
 import androidx.core.widget.doOnTextChanged
+import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -41,6 +42,7 @@ import com.example.kanbun.ui.board.board_list.ItemBoardListViewHolder
 import com.example.kanbun.ui.board.tasks_adapter.TasksAdapter
 import com.example.kanbun.ui.model.DragAndDropListItem
 import com.example.kanbun.ui.model.DragAndDropTaskItem
+import com.example.kanbun.ui.shared.BoardMembersViewModel
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Job
@@ -54,7 +56,8 @@ private const val TAG = "BoardFragment"
 class BoardFragment : BaseFragment(), StateHandler {
     private var _binding: FragmentBoardBinding? = null
     private val binding: FragmentBoardBinding get() = _binding!!
-    private val viewModel: BoardViewModel by viewModels()
+    private val boardViewModel: BoardViewModel by viewModels()
+    private val membersViewModel: BoardMembersViewModel by activityViewModels()
     private val args: BoardFragmentArgs by navArgs()
     private lateinit var boardInfo: Workspace.BoardInfo
     private var boardListsAdapter: BoardListsAdapter? = null
@@ -79,7 +82,7 @@ class BoardFragment : BaseFragment(), StateHandler {
         setUpBoardListsAdapter()
         setUpMenu()
         collectState()
-        viewModel.getBoard(boardInfo.boardId, boardInfo.workspaceId)
+        boardViewModel.getBoard(boardInfo.boardId, boardInfo.workspaceId)
     }
 
     override fun setUpListeners() {
@@ -179,12 +182,12 @@ class BoardFragment : BaseFragment(), StateHandler {
             dragItem: DragAndDropTaskItem,
             position: Int
         ) {
-            viewModel.deleteAndInsert(adapter, dragItem, position)
+            boardViewModel.deleteAndInsert(adapter, dragItem, position)
         }
 
         override fun dropToMove(adapter: TasksAdapter, from: Int, to: Int) {
             if (from != to && to != -1) {
-                viewModel.rearrangeTasks(
+                boardViewModel.rearrangeTasks(
                     listPath = adapter.listInfo.path,
                     listId = adapter.listInfo.id,
                     tasks = adapter.tasks,
@@ -206,7 +209,7 @@ class BoardFragment : BaseFragment(), StateHandler {
             val dragItem = moshi.adapter(DragAndDropListItem::class.java).fromJson(data)
 
             dragItem?.let {
-                viewModel.rearrangeLists(
+                boardViewModel.rearrangeLists(
                     boardLists = boardListAdapter.lists,
                     from = dragItem.initPosition,
                     to = ItemBoardListViewHolder.oldPosition
@@ -222,7 +225,7 @@ class BoardFragment : BaseFragment(), StateHandler {
             dialogTitle = "Create list",
             editTextHint = "Enter a new list name",
             createCallback = { name ->
-                viewModel.createBoardList(name)
+                boardViewModel.createBoardList(name)
             }
         )
     }
@@ -232,7 +235,7 @@ class BoardFragment : BaseFragment(), StateHandler {
             dialogTitle = "Create task",
             editTextHint = "Enter a new task name",
             createCallback = { name ->
-                viewModel.createTask(name, boardList)
+                boardViewModel.createTask(name, boardList)
             }
         )
     }
@@ -282,7 +285,7 @@ class BoardFragment : BaseFragment(), StateHandler {
                         R.id.menu_item_settings -> {
                             navController.navigate(
                                 BoardFragmentDirections.actionBoardFragmentToBoardSettingsFragment(
-                                    viewModel.boardState.value.board
+                                    boardViewModel.boardState.value.board
                                 )
                             )
                             true
@@ -299,7 +302,7 @@ class BoardFragment : BaseFragment(), StateHandler {
         lifecycleScope.launch {
             // TODO("Change Lifecycle.State to RESUMED if somethings is wrong")
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.boardState.collectLatest {
+                boardViewModel.boardState.collectLatest {
                     processState(it)
                 }
             }
@@ -317,7 +320,12 @@ class BoardFragment : BaseFragment(), StateHandler {
 
             message?.let {
                 showToast(it)
-                viewModel.messageShown()
+                boardViewModel.messageShown()
+            }
+
+            if (board.id.isNotEmpty() && !boardViewModel.areBoardMembersFetched) {
+                membersViewModel.getBoardMembers(board.members.map { it.id })
+                boardViewModel.areBoardMembersFetched = true
             }
         }
     }
