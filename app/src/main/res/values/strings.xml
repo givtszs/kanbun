@@ -58,6 +58,7 @@
     <string name="create_new_tag">Create new tag</string>
     <string name="edit_task">Edit task</string>
     <string name="save">Save</string>
+    <string name="cancel">Cancel</string>
     <string name="hint_new_tag">Enter tag name</string>
     <string name="select_tag_color">Select tag color</string>
     <string name="date">Date</string>
@@ -72,9 +73,6 @@
     <string name="board_settings">Board settings"</string>
     <string name="create_tag">Create tag</string>
     <string name="user_tag">\@%s</string>
-    <string name="workspace_members">Workspace members</string>
-    <string name="board_members">Board members</string>
-    <string name="task_members">Task members</string>
-    <string name="role_admin">Admin</string>
+    <string name="members">Members</string>
     <string name="workspace_role_admin_description">Admins can create, edit and delete workspaces and manage their members</string>
 </resources>

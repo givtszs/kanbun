@@ -22,6 +22,7 @@ import com.example.kanbun.ui.ViewState
 import com.example.kanbun.ui.main_activity.MainActivity
 import com.example.kanbun.ui.manage_members.SearchUsersAdapter
 import com.example.kanbun.ui.manage_members.MembersAdapter
+import com.example.kanbun.ui.members.MembersBottomSheet
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import dagger.hilt.android.AndroidEntryPoint
@@ -120,6 +121,11 @@ class WorkspaceSettingsFragment : BaseFragment(), StateHandler {
 
             btnDeleteWorkspace.setOnClickListener {
                 buildConfirmationDialog()
+            }
+
+            btnViewAllMembers.setOnClickListener {
+                val membersBottomSheet = MembersBottomSheet.init()
+                membersBottomSheet.show(childFragmentManager, "workspace_members")
             }
         }
     }
