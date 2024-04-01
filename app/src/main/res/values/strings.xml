@@ -37,7 +37,7 @@
     <string name="create_board_list">Create list</string>
     <string name="created_by">Created by: %s</string>
     <string name="tags_label">Tags</string>
-    <string name="task_members">Members (%d)</string>
+    <string name="task_members_count">Members (%d)</string>
     <string name="date_starts_label">Starts</string>
     <string name="date_ends_label">Ends</string>
     <string name="date_starts">Starts %s</string>
@@ -72,4 +72,9 @@
     <string name="board_settings">Board settings"</string>
     <string name="create_tag">Create tag</string>
     <string name="user_tag">\@%s</string>
+    <string name="workspace_members">Workspace members</string>
+    <string name="board_members">Board members</string>
+    <string name="task_members">Task members</string>
+    <string name="role_admin">Admin</string>
+    <string name="workspace_role_admin_description">Admins can create, edit and delete workspaces and manage their members</string>
 </resources>

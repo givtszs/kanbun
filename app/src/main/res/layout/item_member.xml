@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="70dp"
+    app:cardCornerRadius="0dp"
+    app:strokeWidth="0dp">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:paddingHorizontal="12dp">
+
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/ivProfilePicture"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.App.CircleImageView"
+            tools:src="@tools:sample/avatars" />
+
+        <TextView
+            android:id="@+id/tvName"
+            style="?textAppearanceSearchResultTitle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="8dp"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:textStyle="normal"
+            app:layout_constraintEnd_toStartOf="@id/tfRole"
+            app:layout_constraintStart_toEndOf="@id/ivProfilePicture"
+            app:layout_constraintTop_toTopOf="@id/ivProfilePicture"
+            tools:text="Name sample" />
+
+        <TextView
+            android:id="@+id/tvTag"
+            style="?textAppearanceBodyLarge"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:textSize="14sp"
+            app:layout_constraintBottom_toBottomOf="@id/ivProfilePicture"
+            app:layout_constraintEnd_toEndOf="@id/tvName"
+            app:layout_constraintStart_toStartOf="@id/tvName"
+            tools:text="\@user0000" />
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/tfRole"
+            style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+            android:layout_width="100dp"
+            app:boxStrokeWidth="0dp"
+            android:layout_height="wrap_content"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <AutoCompleteTextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Role"
+                android:inputType="none" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</com.google.android.material.card.MaterialCardView>

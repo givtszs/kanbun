@@ -144,7 +144,7 @@ class TaskDetailsFragment : BaseFragment(), StateHandler {
                     tvNoMembers.visibility = View.VISIBLE
                     rvMembers.visibility = View.GONE
                 }
-                tvMembersLabel.text = resources.getString(R.string.task_members, members.size)
+                tvMembersLabel.text = resources.getString(R.string.task_members_count, members.size)
 
                 message?.let {
                     showToast(it)
