@@ -9,7 +9,7 @@ import com.example.kanbun.databinding.ItemMemberChipBinding
 import com.example.kanbun.domain.model.User
 
 class MembersAdapter(
-    val ownerId: String,
+    val ownerId: String? = null,
     private val onRemoveClicked: (User) -> Unit
 ) : RecyclerView.Adapter<MembersAdapter.MemberViewHolder>() {
 
@@ -39,7 +39,7 @@ class MembersAdapter(
     override fun getItemCount(): Int = members.size
 
     class MemberViewHolder(
-        val ownerId: String,
+        val ownerId: String?,
         val binding: ItemMemberChipBinding,
         private val clickAtPosition: (Int) -> Unit
     ) : RecyclerView.ViewHolder(binding.root) {

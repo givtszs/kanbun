@@ -5,9 +5,11 @@ import androidx.lifecycle.viewModelScope
 import com.example.kanbun.common.FirestoreCollection
 import com.example.kanbun.common.Result
 import com.example.kanbun.common.TaskAction
+import com.example.kanbun.common.combine
 import com.example.kanbun.domain.model.BoardListInfo
 import com.example.kanbun.domain.model.Tag
 import com.example.kanbun.domain.model.Task
+import com.example.kanbun.domain.model.User
 import com.example.kanbun.domain.repository.FirestoreRepository
 import com.example.kanbun.domain.usecase.UpsertTagUseCase
 import com.example.kanbun.ui.BaseViewModel
@@ -19,6 +21,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -49,18 +52,24 @@ class CreateTaskViewModel @Inject constructor(
         )
     }
 
+    private var _taskMembers = MutableStateFlow<List<User>>(emptyList())
+    private var _foundUsers = MutableStateFlow<List<User>?>(null)
+    private var _boardMembers = MutableStateFlow<List<User>>(emptyList())
+
     val createTaskState: StateFlow<ViewState.CreateTaskViewState> = combine(
-        _task, _tags, _message, _loadingManager
-    ) { task, tags, message, loadingManager ->
+        _task, _tags, _message, _loadingManager, _taskMembers, _foundUsers
+    ) { task, tags, message, loadingManager, taskMembers, foundUsers ->
         ViewState.CreateTaskViewState(
             task = task,
             tags = tags,
             message = message,
-            loadingManager = loadingManager
+            loadingManager = loadingManager,
+            taskMembers = taskMembers,
+            foundUsers = foundUsers
         )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), ViewState.CreateTaskViewState())
 
-    fun init(task: Task?, boardListInfo: BoardListInfo, taskAction: TaskAction) {
+    fun init(task: Task?, boardListInfo: BoardListInfo, taskAction: TaskAction, boardMembers: List<User>) {
         if (task == null) {
             _message.value = "Task is null"
         }
@@ -76,8 +85,13 @@ class CreateTaskViewModel @Inject constructor(
             }
         }
 
-
         // init members list
+        _boardMembers.value = boardMembers
+        Log.d(TAG, "boardMembers: ${_boardMembers.value}")
+        task?.let {
+            _taskMembers.value = boardMembers.filter { member -> member.id in it.members }
+        }
+        Log.d(TAG, "taskMembers: ${_taskMembers.value}")
     }
 
     fun messageShown() {
@@ -183,5 +197,24 @@ class CreateTaskViewModel @Inject constructor(
                 _isLoadingTags.value = false
             }
         }
+    }
+
+    fun searchUser(tag: String) {
+        _foundUsers.value = _boardMembers.value.filter { it.tag.contains(tag) }
+        Log.d(TAG, "searchUser: foundUsers: ${_foundUsers.value}")
+    }
+
+    fun resetFoundUsers(clear: Boolean = false) {
+        _foundUsers.value = if (clear) null else _boardMembers.value
+    }
+
+    fun addMember(user: User) {
+        if (!_taskMembers.value.contains(user)) {
+            _taskMembers.update { it + user }
+        }
+    }
+
+    fun removeMember(member: User) {
+        _taskMembers.update { _member -> _member.filterNot { it == member } }
     }
 }

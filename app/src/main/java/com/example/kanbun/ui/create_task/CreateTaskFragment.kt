@@ -10,6 +10,7 @@ import android.widget.AutoCompleteTextView
 import androidx.core.view.isVisible
 import androidx.core.widget.doAfterTextChanged
 import androidx.core.widget.doOnTextChanged
+import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -24,11 +25,15 @@ import com.example.kanbun.common.convertTimestampToDateString
 import com.example.kanbun.databinding.AlertDialogDatetimePickerBinding
 import com.example.kanbun.databinding.FragmentCreateTaskBinding
 import com.example.kanbun.domain.model.BoardListInfo
+import com.example.kanbun.domain.model.Task
 import com.example.kanbun.ui.BaseFragment
 import com.example.kanbun.ui.StateHandler
 import com.example.kanbun.ui.ViewState
 import com.example.kanbun.ui.board.common_adapters.TagsAdapter
 import com.example.kanbun.ui.create_tag_dialog.CreateTagDialog
+import com.example.kanbun.ui.manage_members.MembersAdapter
+import com.example.kanbun.ui.manage_members.SearchUsersAdapter
+import com.example.kanbun.ui.shared.BoardMembersViewModel
 import com.google.android.material.datepicker.CalendarConstraints
 import com.google.android.material.datepicker.DateValidatorPointForward
 import com.google.android.material.datepicker.MaterialDatePicker
@@ -48,7 +53,8 @@ private const val TAG = "CreateTaskFragment"
 class CreateTaskFragment : BaseFragment(), StateHandler {
     private var _binding: FragmentCreateTaskBinding? = null
     private val binding: FragmentCreateTaskBinding get() = _binding!!
-    private val viewModel: CreateTaskViewModel by viewModels()
+    private val createTaskViewModel: CreateTaskViewModel by viewModels()
+    private val boardMembersViewModel: BoardMembersViewModel by activityViewModels()
     private val args: CreateTaskFragmentArgs by navArgs()
     private val boardListInfo: BoardListInfo by lazy {
         BoardListInfo(args.boardList.id, args.boardList.path)
@@ -56,6 +62,8 @@ class CreateTaskFragment : BaseFragment(), StateHandler {
 
     //    private var alertBinding: AlertDialogCreateTagBinding? = null
     private var tagsAdapter: TagsAdapter? = null
+    private var searchUsersAdapter: SearchUsersAdapter? = null
+    private var taskMembersAdapter: MembersAdapter? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -77,8 +85,14 @@ class CreateTaskFragment : BaseFragment(), StateHandler {
                 setUpActionBar(binding.topAppBar.toolbar, "Edit task")
             }
         }
-        viewModel.init(args.task, boardListInfo, args.actionType)
+        createTaskViewModel.init(
+            args.task,
+            boardListInfo,
+            args.actionType,
+            boardMembersViewModel.boardMembers
+        )
         setUpTagsAdapter()
+        setUpAdapters()
         collectState()
     }
 
@@ -91,25 +105,8 @@ class CreateTaskFragment : BaseFragment(), StateHandler {
                 // TODO: Extract the `updatedTask` into a separate method if the code is similar for both creation and update
                 TaskAction.ACTION_CREATE -> {
                     btnCreateTask.setOnClickListener {
-                        val updatedTask = task.copy(
-                            name = etName.text?.trim().toString(),
-                            description = etDescription.text?.trim().toString(),
-                            author = viewModel.firebaseUser!!.uid,
-                            tags = viewModel.createTaskState.value.tags
-                                .filter { it.isSelected }
-                                .map { it.tag.id },
-                            dateStarts = convertDateStringToTimestamp(
-                                DATE_TIME_FORMAT,
-                                tvDateStarts.text.toString()
-                            ),
-                            dateEnds = convertDateStringToTimestamp(
-                                DATE_TIME_FORMAT,
-                                tvDateEnds.text.toString()
-                            )
-                        )
-
-                        viewModel.createTask(
-                            updatedTask,
+                        createTaskViewModel.createTask(
+                            getUpdatedTask(task),
                             boardListInfo
                         ) {
                             navController.popBackStack()
@@ -124,23 +121,8 @@ class CreateTaskFragment : BaseFragment(), StateHandler {
                     with(btnCreateTask) {
                         isEnabled = true
                         setOnClickListener {
-                            val updatedTask = task.copy(
-                                name = etName.text?.trim().toString(),
-                                description = etDescription.text?.trim().toString(),
-                                tags = viewModel.createTaskState.value.tags
-                                    .filter { it.isSelected }
-                                    .map { it.tag.id },
-                                dateStarts = convertDateStringToTimestamp(
-                                    DATE_TIME_FORMAT,
-                                    tvDateStarts.text.toString()
-                                ),
-                                dateEnds = convertDateStringToTimestamp(
-                                    DATE_TIME_FORMAT,
-                                    tvDateEnds.text.toString()
-                                )
-                            )
-
-                            viewModel.editTask(updatedTask, boardListInfo) {
+                            val updatedTask = getUpdatedTask(task)
+                            createTaskViewModel.editTask(updatedTask, boardListInfo) {
                                 navController.navigate(
                                     CreateTaskFragmentDirections.actionCreateTaskFragmentToTaskDetailsFragment(
                                         task = updatedTask,
@@ -158,10 +140,28 @@ class CreateTaskFragment : BaseFragment(), StateHandler {
                 btnCreateTask.isEnabled = !text.isNullOrEmpty()
             }
 
+            etSearchMembers.setOnFocusChangeListener { _, isFocused ->
+                if (isFocused && etSearchMembers.text?.isEmpty() == true) {
+                    createTaskViewModel.resetFoundUsers()
+                } else if (!isFocused) {
+                    createTaskViewModel.resetFoundUsers(true)
+                }
+            }
+
+            etSearchMembers.doOnTextChanged { text, _, _, _ ->
+                if (!text.isNullOrEmpty() && text.length >= 3) {
+                    Log.d(TAG, "searchUser: $text")
+                    createTaskViewModel.searchUser(text.toString())
+                } else {
+                    Log.d(TAG, "searchUser: call resetFoundUsers")
+                    createTaskViewModel.resetFoundUsers()
+                }
+            }
+
             tvCreateTag.setOnClickListener {
 //                buildCreateTagDialog()
                 val createTagDialog = CreateTagDialog(requireContext()) { tag ->
-                    viewModel.createTag(tag, boardListInfo)
+                    createTaskViewModel.createTag(tag, boardListInfo)
                 }
                 createTagDialog.show()
             }
@@ -192,6 +192,26 @@ class CreateTaskFragment : BaseFragment(), StateHandler {
                 }
             }
         }
+    }
+
+    private fun getUpdatedTask(task: Task): Task {
+        return task.copy(
+            name = binding.etName.text?.trim().toString(),
+            description = binding.etDescription.text?.trim().toString(),
+            author = createTaskViewModel.firebaseUser!!.uid,
+            tags = createTaskViewModel.createTaskState.value.tags
+                .filter { it.isSelected }
+                .map { it.tag.id },
+            dateStarts = convertDateStringToTimestamp(
+                DATE_TIME_FORMAT,
+                binding.tvDateStarts.text.toString()
+            ),
+            dateEnds = convertDateStringToTimestamp(
+                DATE_TIME_FORMAT,
+                binding.tvDateEnds.text.toString()
+            ),
+            members = createTaskViewModel.createTaskState.value.taskMembers.map { it.id }
+        )
     }
 
     // TODO: Remove the commented code if it's not needed
@@ -387,7 +407,7 @@ class CreateTaskFragment : BaseFragment(), StateHandler {
     override fun collectState() {
         lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.createTaskState.collectLatest {
+                createTaskViewModel.createTaskState.collectLatest {
                     processState(it)
                 }
             }
@@ -420,15 +440,36 @@ class CreateTaskFragment : BaseFragment(), StateHandler {
 
                 message?.let {
                     showToast(it)
-                    viewModel.messageShown()
+                    createTaskViewModel.messageShown()
                 }
+
+                rvFoundUsers.isVisible = foundUsers != null
+                foundUsers?.let { users ->
+                    searchUsersAdapter?.users = users
+                }
+
+                searchUsersAdapter?.workspaceMembers = taskMembers.map { it.id }
+                taskMembersAdapter?.members = taskMembers
             }
 
             message?.let {
                 showToast(it)
-                viewModel.messageShown()
+                createTaskViewModel.messageShown()
             }
         }
+    }
+
+    private fun setUpAdapters() {
+        searchUsersAdapter = SearchUsersAdapter(args.task.members) { user ->
+            showToast("Clicked on ${user.tag}")
+            createTaskViewModel.addMember(user)
+        }
+        binding.rvFoundUsers.adapter = searchUsersAdapter
+
+        taskMembersAdapter = MembersAdapter() { member ->
+            createTaskViewModel.removeMember(member)
+        }
+        binding.rvMembers.adapter = taskMembersAdapter
     }
 
     private fun setUpTagsAdapter() {
@@ -438,8 +479,9 @@ class CreateTaskFragment : BaseFragment(), StateHandler {
 
     override fun onDestroyView() {
         super.onDestroyView()
-//        alertBinding = null
         tagsAdapter = null
+        searchUsersAdapter = null
+        taskMembersAdapter = null
         _binding = null
     }
 }

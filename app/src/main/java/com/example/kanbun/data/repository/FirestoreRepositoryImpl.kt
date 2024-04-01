@@ -719,6 +719,9 @@ class FirestoreRepositoryImpl @Inject constructor(
         if (newTask.tags != oldTask.tags) {
             mapOfUpdates["${FirestoreCollection.TASKS}.$taskId.tags"] = newTask.tags
         }
+        if (newTask.members != oldTask.members) {
+            mapOfUpdates["${FirestoreCollection.TASKS}.$taskId.members"] = newTask.members
+        }
         return mapOfUpdates
     }
 
