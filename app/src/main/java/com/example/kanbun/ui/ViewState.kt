@@ -93,7 +93,7 @@ sealed class ViewState {
         val isLoading: Boolean = false,
         val message: String? = null,
         val tags: List<TagUi> = emptyList(),
-        val boardMembers: List<User> = emptyList(),
+        val boardMembers: List<Member> = emptyList(),
         val foundUsers: List<User>? = null
     ) : ViewState()
 

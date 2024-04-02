@@ -30,26 +30,16 @@ sealed class Role(val name: String, val description: String) {
         data object Member : Board("Member", "Description of the Workspace Member role")
     }
 }
-//
-//val workspaceRoles = listOf(
-//    ItemRole(WorkspaceRole.ADMIN.roleName, WorkspaceRole.ADMIN.roleDescription),
-//    ItemRole(WorkspaceRole.MEMBER.roleName, WorkspaceRole.MEMBER.roleDescription),
+
+//val boardRoles = listOf(
+//    ItemRole(BoardRole.ADMIN.roleName, BoardRole.ADMIN.roleDescription),
+//    ItemRole(BoardRole.MEMBER.roleName, BoardRole.ADMIN.roleDescription),
 //)
-
-val boardRoles = listOf(
-    ItemRole(BoardRole.ADMIN.roleName, BoardRole.ADMIN.roleDescription),
-    ItemRole(BoardRole.MEMBER.roleName, BoardRole.ADMIN.roleDescription),
-)
-
-//enum class WorkspaceRole(val roleName: String, val roleDescription: String) {
+//
+//enum class BoardRole(val roleName: String, val roleDescription: String) {
 //    ADMIN("Admin", "Description of the role"),
 //    MEMBER("Member", "Description of the role")
 //}
-
-enum class BoardRole(val roleName: String, val roleDescription: String) {
-    ADMIN("Admin", "Description of the role"),
-    MEMBER("Member", "Description of the role")
-}
 
 object ToastMessage {
     const val NO_NETWORK_CONNECTION = "No Internet connection"

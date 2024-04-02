@@ -6,7 +6,6 @@ import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
 import com.example.kanbun.R
 import com.example.kanbun.common.AuthProvider
-import com.example.kanbun.common.BoardRole
 import com.example.kanbun.common.DrawerItem
 import com.example.kanbun.common.Result
 import com.example.kanbun.common.Role
@@ -237,7 +236,7 @@ class UserBoardsViewModel @Inject constructor(
                 name = name,
                 owner = userId,
                 workspace = WorkspaceInfo(workspace.id, workspace.name),
-                members = listOf(Board.BoardMember(id = userId, role = BoardRole.ADMIN))
+                members = listOf(Board.BoardMember(id = userId, role = Role.Board.Admin))
             ),
         )
         selectWorkspace(workspace.id)

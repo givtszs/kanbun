@@ -1,8 +1,9 @@
 package com.example.kanbun.domain.model
 
 import android.os.Parcelable
-import com.example.kanbun.common.BoardRole
+import com.example.kanbun.common.Role
 import kotlinx.parcelize.Parcelize
+import kotlinx.parcelize.RawValue
 
 @Parcelize
 data class Board(
@@ -20,6 +21,6 @@ data class Board(
     @Parcelize
     data class BoardMember(
         val id: String,
-        val role: BoardRole
+        val role: @RawValue Role.Board
     ) : Parcelable
 }

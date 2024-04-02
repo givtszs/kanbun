@@ -13,6 +13,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.navArgs
 import com.example.kanbun.R
+import com.example.kanbun.common.Role
 import com.example.kanbun.databinding.FragmentBoardSettingsBinding
 import com.example.kanbun.domain.model.Board
 import com.example.kanbun.ui.BaseFragment
@@ -21,8 +22,8 @@ import com.example.kanbun.ui.ViewState
 import com.example.kanbun.ui.board.common_adapters.TagsAdapter
 import com.example.kanbun.ui.board_settings.edit_tags.EditTagsBottomSheet
 import com.example.kanbun.ui.main_activity.MainActivity
-import com.example.kanbun.ui.manage_members.SearchUsersAdapter
 import com.example.kanbun.ui.manage_members.MembersAdapter
+import com.example.kanbun.ui.manage_members.SearchUsersAdapter
 import com.google.android.material.appbar.MaterialToolbar
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collectLatest
@@ -109,7 +110,9 @@ class BoardSettingsFragment : BaseFragment(), StateHandler {
                     },
                     description = etDescription.text?.trim().toString(),
                     tags = viewModel.boardSettingsState.value.tags.map { it.tag },
-                    members = viewModel.boardMembers.value
+                    members = viewModel.boardSettingsState.value.boardMembers.map { member ->
+                        Board.BoardMember(id = member.user.id, role = member.role as Role.Board)
+                    }
                 )
 
                 if (newBoard == board) {
@@ -177,7 +180,7 @@ class BoardSettingsFragment : BaseFragment(), StateHandler {
 
                 Log.d(TAG, "processState: members: $boardMembers")
 //                searchUsersAdapter?.members = boardMembers.map { it.id }
-                boardMembersAdapter?.members = boardMembers
+                boardMembersAdapter?.members = boardMembers.map { it.user }
             }
         }
     }

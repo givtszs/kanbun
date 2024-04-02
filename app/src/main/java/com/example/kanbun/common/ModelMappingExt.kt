@@ -15,7 +15,6 @@ import com.example.kanbun.domain.model.Workspace
 import com.example.kanbun.domain.model.WorkspaceInfo
 import com.google.firebase.auth.FirebaseUser
 import java.util.UUID
-import kotlin.random.Random
 
 fun User.toFirestoreUser(): FirestoreUser =
     FirestoreUser(
@@ -148,7 +147,7 @@ fun List<Tag>.toFirestoreTags(): Map<String, FirestoreTag> =
 
 fun List<Board.BoardMember>.toFirestoreBoardMembers() =
     associate { member ->
-        member.id to member.role.roleName
+        member.id to member.role.name
     }
 
 fun FirestoreBoard.toBoard(boardId: String): Board =
@@ -165,7 +164,8 @@ fun FirestoreBoard.toBoard(boardId: String): Board =
         members = members.map { entry ->
             Board.BoardMember(
                 id = entry.key,
-                role = BoardRole.entries.first { it.roleName == entry.value })
+                role = if (entry.value == Role.Board.Admin.name) Role.Board.Admin else Role.Board.Member
+            )
         },
         lists = lists,
         tags = tags.toTags()

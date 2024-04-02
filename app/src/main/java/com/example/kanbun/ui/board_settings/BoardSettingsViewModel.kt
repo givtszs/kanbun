@@ -1,9 +1,8 @@
 package com.example.kanbun.ui.board_settings
 
-import android.util.Log
 import androidx.lifecycle.viewModelScope
-import com.example.kanbun.common.BoardRole
 import com.example.kanbun.common.Result
+import com.example.kanbun.common.Role
 import com.example.kanbun.domain.model.Board
 import com.example.kanbun.domain.model.Tag
 import com.example.kanbun.domain.model.User
@@ -11,6 +10,7 @@ import com.example.kanbun.domain.repository.FirestoreRepository
 import com.example.kanbun.domain.usecase.SearchUserUseCase
 import com.example.kanbun.ui.BaseViewModel
 import com.example.kanbun.ui.ViewState
+import com.example.kanbun.ui.model.Member
 import com.example.kanbun.ui.model.TagUi
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -32,13 +32,12 @@ class BoardSettingsViewModel @Inject constructor(
     }
 
     // preserves the list of workspace members of type WorkspaceMember
-    var boardMembers = MutableStateFlow<List<Board.BoardMember>>(emptyList())
-    private var _isLoading = MutableStateFlow(false)
+    private var _workspaceMembers = MutableStateFlow<List<User>>(emptyList())
 
+    private var _isLoading = MutableStateFlow(false)
     private var _message = MutableStateFlow<String?>(null)
     private var _tags = MutableStateFlow<List<Tag>>(emptyList())
-    private var _boardMembers = MutableStateFlow<List<User>>(emptyList())
-    private var _workspaceMembers = MutableStateFlow<List<User>>(emptyList())
+    private var _boardMembers = MutableStateFlow<List<Member>>(emptyList())
     private var _foundUsers = MutableStateFlow<List<User>?>(null)
 
     val boardSettingsState: StateFlow<ViewState.BoardSettingsViewState> =
@@ -64,15 +63,23 @@ class BoardSettingsViewModel @Inject constructor(
 
     fun init(tags: List<Tag>, members: List<Board.BoardMember>, workspaceId: String) {
         setTags(tags)
-        boardMembers.value = members
         fetchBoardMembers(members)
+        // TODO: Use the shared view model with workspace members in the BoardSettingsFragment instead of fetching the data
         fetchWorkspaceMembers(workspaceId)
     }
 
     private fun fetchBoardMembers(members: List<Board.BoardMember>) {
         viewModelScope.launch {
             when (val result = firestoreRepository.getMembers(members.map { it.id })) {
-                is Result.Success -> _boardMembers.value = result.data
+                is Result.Success -> {
+                    val membersById = members.associateBy { it.id }
+                    _boardMembers.value = result.data.map { user ->
+                        Member(
+                            user = user,
+                            role = membersById[user.id]?.role ?: Role.Board.Member
+                        )
+                    }
+                }
                 is Result.Error -> _message.value = result.message
             }
         }
@@ -139,20 +146,13 @@ class BoardSettingsViewModel @Inject constructor(
     }
 
     fun addMember(user: User) {
-        if (!_boardMembers.value.contains(user)) {
-            _boardMembers.update { it + user }
-            boardMembers.update {
-                it + Board.BoardMember(
-                    id = user.id,
-                    role = BoardRole.MEMBER
-                )
-            }
+        if (!_boardMembers.value.any { it.user.id == user.id } ) {
+            _boardMembers.update { it + Member(user, Role.Board.Member) }
         }
     }
 
     fun removeMember(member: User) {
-        _boardMembers.update { _member -> _member.filterNot { it == member } }
-        boardMembers.update { _member -> _member.filterNot { it.id == member.id } }
+        _boardMembers.update { _member -> _member.filterNot { it.user.id == member.id } }
     }
 
 }
