@@ -24,6 +24,7 @@ import com.example.kanbun.ui.board_settings.edit_tags.EditTagsBottomSheet
 import com.example.kanbun.ui.main_activity.MainActivity
 import com.example.kanbun.ui.manage_members.MembersAdapter
 import com.example.kanbun.ui.manage_members.SearchUsersAdapter
+import com.example.kanbun.ui.members.MembersBottomSheet
 import com.google.android.material.appbar.MaterialToolbar
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collectLatest
@@ -133,6 +134,14 @@ class BoardSettingsFragment : BaseFragment(), StateHandler {
                     viewModel.setTags(tags)
                 }
                 editTagsDialog.show(childFragmentManager, "edit_tags_dialog")
+            }
+
+            btnViewAllMembers.setOnClickListener {
+                val membersBottomSheet =
+                    MembersBottomSheet.init(viewModel.boardSettingsState.value.boardMembers) { members ->
+                        viewModel.setMembers(members)
+                    }
+                membersBottomSheet.show(childFragmentManager, "workspace_members")
             }
         }
     }

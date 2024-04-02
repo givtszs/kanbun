@@ -155,4 +155,8 @@ class BoardSettingsViewModel @Inject constructor(
         _boardMembers.update { _member -> _member.filterNot { it.user.id == member.id } }
     }
 
+    fun setMembers(members: List<Member>) {
+        _boardMembers.value = members
+    }
+
 }
