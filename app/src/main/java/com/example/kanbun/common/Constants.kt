@@ -2,6 +2,7 @@ package com.example.kanbun.common
 
 import com.example.kanbun.ui.model.ItemRole
 import com.squareup.moshi.Moshi
+import kotlinx.parcelize.RawValue
 
 object FirestoreCollection {
     const val USERS = "users"
@@ -17,25 +18,38 @@ enum class AuthProvider(val providerId: String) {
     GITHUB("github.com")
 }
 
-enum class WorkspaceRole(val roleName: String, val roleDescription: String) {
-    ADMIN("Admin", "Description of the role"),
-    MEMBER("Member", "Description of the role")
-}
+sealed class Role(val name: String, val description: String) {
 
-val workspaceRoles = listOf(
-    ItemRole(WorkspaceRole.ADMIN.roleName, WorkspaceRole.ADMIN.roleDescription),
-    ItemRole(WorkspaceRole.MEMBER.roleName, WorkspaceRole.MEMBER.roleDescription),
-)
+     sealed class Workspace(roleName: String, roleDescription: String) : Role(roleName, roleDescription) {
+         data object Admin : Workspace("Admin", "Description of the Workspace Admin role")
+         data object Member : Workspace("Member", "Description of the Workspace Member role")
+     }
 
-enum class BoardRole(val roleName: String, val roleDescription: String) {
-    ADMIN("Admin", "Description of the role"),
-    MEMBER("Member", "Description of the role")
+    sealed class Board(roleName: String, roleDescription: String) : Role(roleName, roleDescription) {
+        data object Admin : Board("Admin", "Description of the Board Admin role")
+        data object Member : Board("Member", "Description of the Workspace Member role")
+    }
 }
+//
+//val workspaceRoles = listOf(
+//    ItemRole(WorkspaceRole.ADMIN.roleName, WorkspaceRole.ADMIN.roleDescription),
+//    ItemRole(WorkspaceRole.MEMBER.roleName, WorkspaceRole.MEMBER.roleDescription),
+//)
 
 val boardRoles = listOf(
     ItemRole(BoardRole.ADMIN.roleName, BoardRole.ADMIN.roleDescription),
     ItemRole(BoardRole.MEMBER.roleName, BoardRole.ADMIN.roleDescription),
 )
+
+//enum class WorkspaceRole(val roleName: String, val roleDescription: String) {
+//    ADMIN("Admin", "Description of the role"),
+//    MEMBER("Member", "Description of the role")
+//}
+
+enum class BoardRole(val roleName: String, val roleDescription: String) {
+    ADMIN("Admin", "Description of the role"),
+    MEMBER("Member", "Description of the role")
+}
 
 object ToastMessage {
     const val NO_NETWORK_CONNECTION = "No Internet connection"

@@ -9,8 +9,8 @@ import com.example.kanbun.common.AuthProvider
 import com.example.kanbun.common.BoardRole
 import com.example.kanbun.common.DrawerItem
 import com.example.kanbun.common.Result
+import com.example.kanbun.common.Role
 import com.example.kanbun.common.ToastMessage
-import com.example.kanbun.common.WorkspaceRole
 import com.example.kanbun.data.local.PreferenceDataStoreHelper
 import com.example.kanbun.data.local.PreferenceDataStoreKeys
 import com.example.kanbun.domain.model.Board
@@ -26,12 +26,10 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
@@ -157,7 +155,7 @@ class UserBoardsViewModel @Inject constructor(
         val workspace = Workspace(
             name = name,
             owner = user.id,
-            members = listOf(Workspace.WorkspaceMember(user.id, WorkspaceRole.ADMIN)),
+            members = listOf(Workspace.WorkspaceMember(user.id, Role.Workspace.Admin)),
         )
 
         when (val result = firestoreRepository.createWorkspace(workspace)) {

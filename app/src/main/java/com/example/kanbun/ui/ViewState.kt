@@ -46,8 +46,8 @@ sealed class ViewState {
         val message: String? = null
     ) : ViewState()
 
-    data class WorkspaceSettingsViewState<T>(
-        val members: List<Member<T>> = emptyList(),
+    data class WorkspaceSettingsViewState(
+        val members: List<Member> = emptyList(),
         val foundUsers: List<UserSearchResult>? = null,
         val isLoading: Boolean = false,
         val message: String? = null

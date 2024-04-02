@@ -3,7 +3,7 @@ package com.example.kanbun.data.repository
 import android.util.Log
 import com.example.kanbun.common.FirestoreCollection
 import com.example.kanbun.common.Result
-import com.example.kanbun.common.WorkspaceRole
+import com.example.kanbun.common.Role
 import com.example.kanbun.common.WorkspaceType
 import com.example.kanbun.common.runCatching
 import com.example.kanbun.common.toBoard
@@ -298,7 +298,7 @@ class FirestoreRepositoryImpl @Inject constructor(
     ): Result<Unit> = runCatching {
         firestore.collection(FirestoreCollection.WORKSPACES)
             .document(workspaceId)
-            .update("members.$memberId", WorkspaceRole.MEMBER.roleName)
+            .update("members.$memberId", Role.Workspace.Member.name)
     }
 
     override suspend fun inviteToWorkspace(

@@ -4,7 +4,7 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.kanbun.common.Result
-import com.example.kanbun.common.WorkspaceRole
+import com.example.kanbun.common.Role
 import com.example.kanbun.data.local.PreferenceDataStoreHelper
 import com.example.kanbun.data.local.PreferenceDataStoreKeys
 import com.example.kanbun.domain.model.User
@@ -35,11 +35,11 @@ class WorkspaceSettingsViewModel @Inject constructor(
     }
 
     // holds the list of workspace members of type User to display on the UI
-    private var _members = MutableStateFlow<List<Member<WorkspaceRole>>>(emptyList())
+    private var _members = MutableStateFlow<List<Member>>(emptyList())
     private var _foundUsers = MutableStateFlow<List<UserSearchResult>?>(null)
     private var _message = MutableStateFlow<String?>(null)
     private var _isLoading = MutableStateFlow(false)
-    val workspaceSettingsState: StateFlow<ViewState.WorkspaceSettingsViewState<WorkspaceRole>> =
+    val workspaceSettingsState: StateFlow<ViewState.WorkspaceSettingsViewState> =
         combine(
             _members,
             _foundUsers,
@@ -71,7 +71,7 @@ class WorkspaceSettingsViewModel @Inject constructor(
                     _members.value = result.data.map { user ->
                         Member(
                             user = user,
-                            role = membersById[user.id]?.role ?: WorkspaceRole.MEMBER
+                            role = membersById[user.id]?.role ?: Role.Workspace.Member
                         )
                     }
                 }
@@ -123,7 +123,7 @@ class WorkspaceSettingsViewModel @Inject constructor(
 
     fun addMember(user: User) {
         if (!_members.value.any { it.user.id == user.id }) {
-            _members.update { it + Member(user, WorkspaceRole.MEMBER) }
+            _members.update { it + Member(user, Role.Workspace.Member) }
 
         }
     }
@@ -133,6 +133,12 @@ class WorkspaceSettingsViewModel @Inject constructor(
             it.filterNot { _member ->
                 _member.user.id == member.id
             }
+        }
+    }
+
+    fun setMembers(members: List<Member>) {
+        if (members != _members.value) {
+            _members.value = members.sortedBy { it.user.name }
         }
     }
 

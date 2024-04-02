@@ -2,7 +2,7 @@ package com.example.kanbun.domain.repository
 
 import com.example.kanbun.common.FirestoreCollection
 import com.example.kanbun.common.Result
-import com.example.kanbun.common.WorkspaceRole
+import com.example.kanbun.common.Role
 import com.example.kanbun.data.repository.FirestoreRepositoryImpl
 import com.example.kanbun.domain.FirestoreTestUtil
 import com.example.kanbun.domain.model.Board
@@ -16,7 +16,6 @@ import com.google.common.truth.Subject
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import org.junit.After
@@ -267,7 +266,7 @@ class FirestoreRepositoryTest {
             val workspaceUpdate = (repository.getWorkspace(workspace.id) as Result.Success).data
 
             assertThat(workspaceUpdate.members.any { it.id == user2.id }).isTrue()
-            assertThat(workspaceUpdate.members.first { it.id == user2.id }.role).isEqualTo(WorkspaceRole.MEMBER)
+            assertThat(workspaceUpdate.members.first { it.id == user2.id }.role).isEqualTo(Role.Workspace.Member)
         }
 
     @Test

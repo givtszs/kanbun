@@ -26,12 +26,13 @@
 
         <TextView
             android:id="@+id/tvName"
-            style="?textAppearanceSearchResultTitle"
+            style="?textAppearanceBodyLarge"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="8dp"
             android:ellipsize="end"
             android:maxLines="1"
+            android:layout_marginTop="2dp"
             android:textStyle="normal"
             app:layout_constraintEnd_toStartOf="@id/tfRole"
             app:layout_constraintStart_toEndOf="@id/ivProfilePicture"
@@ -40,12 +41,12 @@
 
         <TextView
             android:id="@+id/tvTag"
-            style="?textAppearanceBodyLarge"
+            style="?textAppearanceBody2"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:ellipsize="end"
             android:maxLines="1"
-            android:textSize="14sp"
+            android:layout_marginBottom="2dp"
             app:layout_constraintBottom_toBottomOf="@id/ivProfilePicture"
             app:layout_constraintEnd_toEndOf="@id/tvName"
             app:layout_constraintStart_toStartOf="@id/tvName"
@@ -63,7 +64,7 @@
             app:layout_constraintTop_toTopOf="parent">
 
             <AutoCompleteTextView
-                android:layout_width="match_parent"
+                android:layout_width="140dp"
                 android:layout_height="wrap_content"
                 android:hint="Role"
                 android:inputType="none" />

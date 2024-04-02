@@ -13,6 +13,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.navArgs
 import com.example.kanbun.R
+import com.example.kanbun.common.Role
 import com.example.kanbun.common.getColor
 import com.example.kanbun.databinding.FragmentWorkspaceSettingsBinding
 import com.example.kanbun.domain.model.Workspace
@@ -113,7 +114,10 @@ class WorkspaceSettingsFragment : BaseFragment(), StateHandler {
                     newWorkspace = workspace.copy(
                         name = name,
                         members = viewModel.workspaceSettingsState.value.members.map {
-                            Workspace.WorkspaceMember(id = it.user.id, role = it.role)
+                            Workspace.WorkspaceMember(
+                                id = it.user.id,
+                                role = it.role as Role.Workspace
+                            )
                         }
                     )
                 ) {
@@ -127,9 +131,10 @@ class WorkspaceSettingsFragment : BaseFragment(), StateHandler {
             }
 
             btnViewAllMembers.setOnClickListener {
-                val membersBottomSheet = MembersBottomSheet.init(
-                    members = viewModel.workspaceSettingsState.value.members
-                )
+                val membersBottomSheet =
+                    MembersBottomSheet.init(viewModel.workspaceSettingsState.value.members) { members ->
+                        viewModel.setMembers(members)
+                    }
                 membersBottomSheet.show(childFragmentManager, "workspace_members")
             }
         }
@@ -146,7 +151,7 @@ class WorkspaceSettingsFragment : BaseFragment(), StateHandler {
     }
 
     override fun processState(state: ViewState) {
-        with(state as ViewState.WorkspaceSettingsViewState<*>) {
+        with(state as ViewState.WorkspaceSettingsViewState) {
             binding.apply {
                 loading.root.isVisible = isLoading
                 deletingState.isVisible = isLoading
