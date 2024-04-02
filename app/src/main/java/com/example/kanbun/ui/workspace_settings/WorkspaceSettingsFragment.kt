@@ -22,7 +22,9 @@ import com.example.kanbun.ui.ViewState
 import com.example.kanbun.ui.main_activity.MainActivity
 import com.example.kanbun.ui.manage_members.SearchUsersAdapter
 import com.example.kanbun.ui.manage_members.MembersAdapter
+import com.example.kanbun.ui.members.MembersBottomSheet
 import com.google.android.material.appbar.MaterialToolbar
+import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Job
@@ -125,10 +127,10 @@ class WorkspaceSettingsFragment : BaseFragment(), StateHandler {
             }
 
             btnViewAllMembers.setOnClickListener {
-//                val membersBottomSheet = MembersBottomSheet.init(
-//
-//                )
-//                membersBottomSheet.show(childFragmentManager, "workspace_members")
+                val membersBottomSheet = MembersBottomSheet.init(
+                    members = viewModel.workspaceSettingsState.value.members
+                )
+                membersBottomSheet.show(childFragmentManager, "workspace_members")
             }
         }
     }

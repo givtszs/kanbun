@@ -1,5 +1,6 @@
 package com.example.kanbun.common
 
+import com.example.kanbun.ui.model.ItemRole
 import com.squareup.moshi.Moshi
 
 object FirestoreCollection {
@@ -16,15 +17,25 @@ enum class AuthProvider(val providerId: String) {
     GITHUB("github.com")
 }
 
-enum class WorkspaceRole(val roleName: String) {
-    ADMIN("Admin"),
-    MEMBER("Member")
+enum class WorkspaceRole(val roleName: String, val roleDescription: String) {
+    ADMIN("Admin", "Description of the role"),
+    MEMBER("Member", "Description of the role")
 }
 
-enum class BoardRole(val roleName: String) {
-    ADMIN("Admin"),
-    MEMBER("Member")
+val workspaceRoles = listOf(
+    ItemRole(WorkspaceRole.ADMIN.roleName, WorkspaceRole.ADMIN.roleDescription),
+    ItemRole(WorkspaceRole.MEMBER.roleName, WorkspaceRole.MEMBER.roleDescription),
+)
+
+enum class BoardRole(val roleName: String, val roleDescription: String) {
+    ADMIN("Admin", "Description of the role"),
+    MEMBER("Member", "Description of the role")
 }
+
+val boardRoles = listOf(
+    ItemRole(BoardRole.ADMIN.roleName, BoardRole.ADMIN.roleDescription),
+    ItemRole(BoardRole.MEMBER.roleName, BoardRole.ADMIN.roleDescription),
+)
 
 object ToastMessage {
     const val NO_NETWORK_CONNECTION = "No Internet connection"
