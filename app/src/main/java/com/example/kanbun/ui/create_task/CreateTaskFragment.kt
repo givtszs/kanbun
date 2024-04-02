@@ -445,10 +445,11 @@ class CreateTaskFragment : BaseFragment(), StateHandler {
 
                 rvFoundUsers.isVisible = foundUsers != null
                 foundUsers?.let { users ->
-                    searchUsersAdapter?.users = users
+                    // TODO: DON'T FORGET TO UPDATE ME!!!
+//                    searchUsersAdapter?.users = users
                 }
 
-                searchUsersAdapter?.workspaceMembers = taskMembers.map { it.id }
+//                searchUsersAdapter?.workspaceMembers = taskMembers.map { it.id }
                 taskMembersAdapter?.members = taskMembers
             }
 
@@ -460,7 +461,7 @@ class CreateTaskFragment : BaseFragment(), StateHandler {
     }
 
     private fun setUpAdapters() {
-        searchUsersAdapter = SearchUsersAdapter(args.task.members) { user ->
+        searchUsersAdapter = SearchUsersAdapter { user ->
             showToast("Clicked on ${user.tag}")
             createTaskViewModel.addMember(user)
         }

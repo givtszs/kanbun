@@ -22,7 +22,6 @@ import com.example.kanbun.ui.ViewState
 import com.example.kanbun.ui.main_activity.MainActivity
 import com.example.kanbun.ui.manage_members.SearchUsersAdapter
 import com.example.kanbun.ui.manage_members.MembersAdapter
-import com.example.kanbun.ui.members.MembersBottomSheet
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import dagger.hilt.android.AndroidEntryPoint
@@ -111,7 +110,9 @@ class WorkspaceSettingsFragment : BaseFragment(), StateHandler {
                     oldWorkspace = workspace,
                     newWorkspace = workspace.copy(
                         name = name,
-                        members = viewModel.workspaceMembers.value
+                        members = viewModel.workspaceSettingsState.value.members.map {
+                            Workspace.WorkspaceMember(id = it.user.id, role = it.role)
+                        }
                     )
                 ) {
                     showToast("Workspace settings have been updated", requireActivity())
@@ -124,8 +125,10 @@ class WorkspaceSettingsFragment : BaseFragment(), StateHandler {
             }
 
             btnViewAllMembers.setOnClickListener {
-                val membersBottomSheet = MembersBottomSheet.init()
-                membersBottomSheet.show(childFragmentManager, "workspace_members")
+//                val membersBottomSheet = MembersBottomSheet.init(
+//
+//                )
+//                membersBottomSheet.show(childFragmentManager, "workspace_members")
             }
         }
     }
@@ -141,7 +144,7 @@ class WorkspaceSettingsFragment : BaseFragment(), StateHandler {
     }
 
     override fun processState(state: ViewState) {
-        with(state as ViewState.WorkspaceSettingsViewState) {
+        with(state as ViewState.WorkspaceSettingsViewState<*>) {
             binding.apply {
                 loading.root.isVisible = isLoading
                 deletingState.isVisible = isLoading
@@ -154,16 +157,13 @@ class WorkspaceSettingsFragment : BaseFragment(), StateHandler {
                 foundUsers?.let { users ->
                     searchUsersAdapter?.users = users
                 }
-
-                Log.d(TAG, "processState: members: $members")
-                searchUsersAdapter?.workspaceMembers = members.map { it.id }
-                workspaceMembersAdapter?.members = members
+                workspaceMembersAdapter?.members = members.map { it.user }
             }
         }
     }
 
     private fun setUpAdapters() {
-        searchUsersAdapter = SearchUsersAdapter(workspace.members.map { it.id }) { user ->
+        searchUsersAdapter = SearchUsersAdapter { user ->
             showToast("Clicked on ${user.tag}")
             if (user.id != workspace.owner) {
                 viewModel.addMember(user)

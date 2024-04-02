@@ -15,8 +15,10 @@ class MembersAdapter(
 
     var members: List<User> = emptyList()
         set(value) {
-            field = value
-            notifyDataSetChanged()
+            if (field != value) {
+                field = value
+                notifyDataSetChanged()
+            }
         }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MemberViewHolder {

@@ -9,18 +9,20 @@ import com.example.kanbun.R
 import com.example.kanbun.common.loadUserProfilePicture
 import com.example.kanbun.databinding.ItemUserSearchResultBinding
 import com.example.kanbun.domain.model.User
+import com.example.kanbun.ui.model.UserSearchResult
 
 class SearchUsersAdapter(
-    var workspaceMembers: List<String>,
     private val onItemClicked: (User) -> Unit
 ) : RecyclerView.Adapter<SearchUsersAdapter.ItemFoundUserViewHolder>() {
     private val TAG = "SearchUsersAdapter"
 
-    var users: List<User> = emptyList()
+    var users: List<UserSearchResult> = emptyList()
         set(value) {
-            field = value
-            notifyDataSetChanged()
-            Log.d(TAG, "setUsers: $value")
+            if (field != value) {
+                field = value
+                notifyDataSetChanged()
+                Log.d(TAG, "setUsers: $value")
+            }
         }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ItemFoundUserViewHolder {
@@ -31,15 +33,15 @@ class SearchUsersAdapter(
                 false
             )
         ) { position ->
-            onItemClicked(users[position])
+            onItemClicked(users[position].user)
         }
     }
 
     override fun onBindViewHolder(holder: ItemFoundUserViewHolder, position: Int) {
         val user = users[position]
         holder.bind(
-            user = user,
-            isAdded = workspaceMembers.contains(user.id)
+            user = user.user,
+            isAdded = user.isAdded
         )
     }
 
@@ -53,6 +55,9 @@ class SearchUsersAdapter(
         init {
             binding.root.setOnClickListener {
                 clickAtPosition(adapterPosition)
+                if (!binding.ivIconAdded.isVisible) {
+                    binding.ivIconAdded.isVisible = true
+                }
             }
         }
 

@@ -12,6 +12,8 @@ import com.example.kanbun.domain.model.Workspace
 import com.example.kanbun.domain.repository.FirestoreRepository
 import com.example.kanbun.domain.usecase.SearchUserUseCase
 import com.example.kanbun.ui.ViewState
+import com.example.kanbun.ui.model.Member
+import com.example.kanbun.ui.model.UserSearchResult
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -28,15 +30,16 @@ class WorkspaceSettingsViewModel @Inject constructor(
     private val searchUserUseCase: SearchUserUseCase,
     private val dataStore: PreferenceDataStoreHelper,
 ) : ViewModel() {
-    // preserves the list of workspace members of type WorkspaceMember
-    var workspaceMembers = MutableStateFlow<List<Workspace.WorkspaceMember>>(emptyList())
+    companion object {
+        private const val TAG = "WorkspaceSettingsViewModel"
+    }
 
     // holds the list of workspace members of type User to display on the UI
-    private var _members = MutableStateFlow<List<User>>(emptyList())
-    private var _foundUsers = MutableStateFlow<List<User>?>(null)
+    private var _members = MutableStateFlow<List<Member<WorkspaceRole>>>(emptyList())
+    private var _foundUsers = MutableStateFlow<List<UserSearchResult>?>(null)
     private var _message = MutableStateFlow<String?>(null)
     private var _isLoading = MutableStateFlow(false)
-    val workspaceSettingsState: StateFlow<ViewState.WorkspaceSettingsViewState> =
+    val workspaceSettingsState: StateFlow<ViewState.WorkspaceSettingsViewState<WorkspaceRole>> =
         combine(
             _members,
             _foundUsers,
@@ -55,15 +58,23 @@ class WorkspaceSettingsViewModel @Inject constructor(
             ViewState.WorkspaceSettingsViewState()
         )
 
-    fun init(members: List<Workspace.WorkspaceMember>) {
-        fetchMembers(members)
+    fun init(workspaceMembers: List<Workspace.WorkspaceMember>) {
+        fetchMembers(workspaceMembers)
     }
 
     private fun fetchMembers(members: List<Workspace.WorkspaceMember>) {
         viewModelScope.launch {
             when (val result = firestoreRepository.getMembers(members.map { it.id })
             ) {
-                is Result.Success -> _members.value = result.data
+                is Result.Success -> {
+                    val membersById = members.associateBy { it.id }
+                    _members.value = result.data.map { user ->
+                        Member(
+                            user = user,
+                            role = membersById[user.id]?.role ?: WorkspaceRole.MEMBER
+                        )
+                    }
+                }
                 is Result.Error -> _message.value = result.message
             }
         }
@@ -99,7 +110,9 @@ class WorkspaceSettingsViewModel @Inject constructor(
 
     fun searchUser(tag: String) = viewModelScope.launch {
         when (val result = searchUserUseCase(tag)) {
-            is Result.Success -> _foundUsers.value = result.data
+            is Result.Success -> _foundUsers.value = result.data.map { user ->
+                UserSearchResult(user, _members.value.any { it.user.id == user.id })
+            }
             is Result.Error -> _message.value = result.message
         }
     }
@@ -109,20 +122,18 @@ class WorkspaceSettingsViewModel @Inject constructor(
     }
 
     fun addMember(user: User) {
-        if (!_members.value.contains(user)) {
-            _members.update { it + user }
-            workspaceMembers.update {
-                it + Workspace.WorkspaceMember(
-                    id = user.id,
-                    role = WorkspaceRole.MEMBER
-                )
-            }
+        if (!_members.value.any { it.user.id == user.id }) {
+            _members.update { it + Member(user, WorkspaceRole.MEMBER) }
+
         }
     }
 
     fun removeMember(member: User) {
-        _members.update { _member -> _member.filterNot { it == member } }
-        workspaceMembers.update { _member -> _member.filterNot { it.id == member.id } }
+        _members.update {
+            it.filterNot { _member ->
+                _member.user.id == member.id
+            }
+        }
     }
 
     fun messageShown() {

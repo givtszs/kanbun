@@ -6,7 +6,9 @@ import com.example.kanbun.domain.model.Tag
 import com.example.kanbun.domain.model.Task
 import com.example.kanbun.domain.model.User
 import com.example.kanbun.domain.model.Workspace
+import com.example.kanbun.ui.model.Member
 import com.example.kanbun.ui.model.TagUi
+import com.example.kanbun.ui.model.UserSearchResult
 import com.google.android.material.textfield.TextInputLayout
 
 sealed class ViewState {
@@ -44,9 +46,9 @@ sealed class ViewState {
         val message: String? = null
     ) : ViewState()
 
-    data class WorkspaceSettingsViewState(
-        val members: List<User> = emptyList(),
-        val foundUsers: List<User>? = null,
+    data class WorkspaceSettingsViewState<T>(
+        val members: List<Member<T>> = emptyList(),
+        val foundUsers: List<UserSearchResult>? = null,
         val isLoading: Boolean = false,
         val message: String? = null
     ) : ViewState()

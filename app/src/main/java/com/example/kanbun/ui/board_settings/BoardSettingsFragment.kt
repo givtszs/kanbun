@@ -135,7 +135,7 @@ class BoardSettingsFragment : BaseFragment(), StateHandler {
     }
 
     private fun setUpAdapters() {
-        searchUsersAdapter = SearchUsersAdapter(board.members.map { it.id }) { user ->
+        searchUsersAdapter = SearchUsersAdapter() { user ->
             showToast("Clicked on ${user.tag}")
             if (user.id != board.owner) {
                 viewModel.addMember(user)
@@ -171,11 +171,12 @@ class BoardSettingsFragment : BaseFragment(), StateHandler {
 
                 rvFoundUsers.isVisible = foundUsers != null
                 foundUsers?.let { users ->
-                    searchUsersAdapter?.users = users
+                    // TODO: DON'T FORGET TO UPDATE ME!!!
+//                    searchUsersAdapter?.users = users
                 }
 
                 Log.d(TAG, "processState: members: $boardMembers")
-                searchUsersAdapter?.workspaceMembers = boardMembers.map { it.id }
+//                searchUsersAdapter?.members = boardMembers.map { it.id }
                 boardMembersAdapter?.members = boardMembers
             }
         }
