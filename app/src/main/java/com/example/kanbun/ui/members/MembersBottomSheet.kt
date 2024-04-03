@@ -3,6 +3,11 @@ package com.example.kanbun.ui.members
 import android.app.Dialog
 import android.content.Context
 import android.content.DialogInterface
+import android.graphics.Canvas
+import android.graphics.Paint
+import android.graphics.PorterDuff
+import android.graphics.PorterDuffXfermode
+import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -11,9 +16,13 @@ import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
 import android.widget.TextView
+import androidx.core.content.ContextCompat
+import androidx.recyclerview.widget.DividerItemDecoration
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import com.example.kanbun.R
 import com.example.kanbun.common.Role
+import com.example.kanbun.common.getColor
 import com.example.kanbun.common.loadUserProfilePicture
 import com.example.kanbun.databinding.FragmentViewAllMembersBinding
 import com.example.kanbun.databinding.ItemMemberBinding
@@ -24,7 +33,7 @@ import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 class MembersBottomSheet private constructor() : BottomSheetDialogFragment() {
     private var _binding: FragmentViewAllMembersBinding? = null
     private val binding: FragmentViewAllMembersBinding get() = _binding!!
-    private lateinit var members: List<Member>
+    private lateinit var members: MutableList<Member>
     private lateinit var onDismissCallback: (List<Member>) -> Unit
     private var membersAdapter: AllMembersAdapter? = null
     private var saveOnDismiss = true
@@ -32,9 +41,12 @@ class MembersBottomSheet private constructor() : BottomSheetDialogFragment() {
     companion object {
         private const val TAG = "MembersBottomSheet"
 
-        fun  init(members: List<Member>, onDismissCallback: (List<Member>) -> Unit): MembersBottomSheet {
+        fun init(
+            members: List<Member>,
+            onDismissCallback: (List<Member>) -> Unit
+        ): MembersBottomSheet {
             return MembersBottomSheet().apply {
-                this.members = members
+                this.members = members.toMutableList()
                 this.onDismissCallback = onDismissCallback
             }
         }
@@ -64,18 +76,32 @@ class MembersBottomSheet private constructor() : BottomSheetDialogFragment() {
 
     private fun setUpAdapter() {
         membersAdapter = AllMembersAdapter(
+            members.toMutableList(),
             onRoleChanged = { member, role ->
-                 updateMemberRole(
-                     member.copy(role = role)
-                 )
+                updateMemberRole(
+                    member.copy(role = role)
+                )
             }
         )
-        membersAdapter?.members = this@MembersBottomSheet.members
+        val swipeHandler = object : SwipeToDeleteCallback(requireContext()) {
+            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+                membersAdapter?.removeItemAt(viewHolder.adapterPosition) { member ->
+                    members.remove(member)
+                }
+            }
+        }
+        ItemTouchHelper(swipeHandler).attachToRecyclerView(binding.rvMembers)
+        binding.rvMembers.addItemDecoration(
+            DividerItemDecoration(
+                requireContext(),
+                DividerItemDecoration.VERTICAL
+            )
+        )
         binding.rvMembers.adapter = membersAdapter
     }
 
-    private fun  updateMemberRole(member: Member) {
-        members = members.filterNot { it.user.id == member.user.id } + member
+    private fun updateMemberRole(member: Member) {
+        members = (members.map { if (it.user.id != member.user.id) it else member }).toMutableList()
         Log.d(TAG, "updateMemberRole: $members")
     }
 
@@ -94,15 +120,15 @@ class MembersBottomSheet private constructor() : BottomSheetDialogFragment() {
 }
 
 private class AllMembersAdapter(
+    private val members: MutableList<Member>,
     private val onRoleChanged: (Member, Role) -> Unit
 ) : RecyclerView.Adapter<AllMembersAdapter.ItemMemberViewHolder>() {
-    var members: List<Member> = emptyList()
-        set(value) {
-            if (field != value) {
-                field = value
-                notifyDataSetChanged()
-            }
-        }
+
+    fun removeItemAt(position: Int, removeCallback: (Member) -> Unit) {
+        removeCallback(members[position])
+        members.removeAt(position)
+        notifyItemRemoved(position)
+    }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ItemMemberViewHolder {
         return ItemMemberViewHolder(
@@ -132,7 +158,7 @@ private class AllMembersAdapter(
 
         private lateinit var rolesAdapter: RolesAdapter
 
-        fun  bind(member: Member) {
+        fun bind(member: Member) {
             binding.apply {
                 tvName.text = member.user.name
                 tvTag.text = itemView.context.resources.getString(
@@ -150,8 +176,12 @@ private class AllMembersAdapter(
                     return@apply
                 }
 
-                val (memberRole, roles) = when(member.role) {
-                    is Role.Workspace -> member.role.name to listOf(Role.Workspace.Admin, Role.Workspace.Member)
+                val (memberRole, roles) = when (member.role) {
+                    is Role.Workspace -> member.role.name to listOf(
+                        Role.Workspace.Admin,
+                        Role.Workspace.Member
+                    )
+
                     is Role.Board -> member.role.name to listOf(Role.Board.Admin, Role.Board.Member)
                 }
 
@@ -173,6 +203,85 @@ private class AllMembersAdapter(
                 }
             }
         }
+    }
+}
+
+private abstract class SwipeToDeleteCallback(
+    val context: Context
+) : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
+    private val clearPaint = Paint().apply { xfermode = PorterDuffXfermode(PorterDuff.Mode.CLEAR) }
+    private val background = ColorDrawable()
+    private val backgroundColor = getColor(context, R.color.red)
+    private val iconDelete =
+        ContextCompat.getDrawable(context, R.drawable.ic_delete_outlined_24).also {
+            it?.setTint(getColor(context, R.color.white))
+        }
+
+    override fun onMove(
+        recyclerView: RecyclerView,
+        viewHolder: RecyclerView.ViewHolder,
+        target: RecyclerView.ViewHolder
+    ): Boolean {
+        return false
+    }
+
+    override fun onChildDraw(
+        c: Canvas,
+        recyclerView: RecyclerView,
+        viewHolder: RecyclerView.ViewHolder,
+        dX: Float,
+        dY: Float,
+        actionState: Int,
+        isCurrentlyActive: Boolean
+    ) {
+        val itemView = viewHolder.itemView
+        val itemHeight = itemView.bottom - itemView.top // check why not to use itemView.height?
+        val isCanceled = dX == 0f && !isCurrentlyActive
+        Log.d(
+            "ItemMemberViewHolder", "onChildDraw: itemView dimensions:    " +
+                    "left: ${itemView.left}, top: ${itemView.top}, right: ${itemView.right}, bottom: ${itemView.bottom}"
+        )
+        Log.d("ItemMemberViewHolder", "onChildDraw: dx: $dX")
+
+        if (isCanceled) {
+            clearCanvas(
+                canvas = c,
+                left = itemView.right + dX,
+                top = itemView.top.toFloat(),
+                right = itemView.right.toFloat(),
+                bottom = itemView.bottom.toFloat()
+            )
+            super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive)
+            return
+        }
+
+        // draw the red delete background
+        background.color = backgroundColor
+        background.setBounds(
+            itemView.right + dX.toInt(),
+            itemView.top,
+            itemView.right,
+            itemView.bottom
+        )
+        background.draw(c)
+
+        // calculate the position of the delete icon
+        iconDelete?.let { icon ->
+            val marginHorizontal = (itemHeight - icon.intrinsicHeight) / 2
+            val iconLeft = itemView.right - marginHorizontal - icon.intrinsicWidth
+            val iconTop = itemView.top + (itemHeight - icon.intrinsicHeight) / 2
+            val iconRight = itemView.right - marginHorizontal
+            val iconBottom = iconTop + icon.intrinsicHeight
+            // draw the delete icon
+            iconDelete.setBounds(iconLeft, iconTop, iconRight, iconBottom)
+            iconDelete.draw(c)
+        }
+
+        super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive)
+    }
+
+    private fun clearCanvas(canvas: Canvas, left: Float, top: Float, right: Float, bottom: Float) {
+        canvas.drawRect(left, top, right, bottom, clearPaint)
     }
 }
 
@@ -199,7 +308,8 @@ private class RolesAdapter(
         val role = getItem(position)
         role?.let {
             view?.findViewById<TextView>(R.id.tvRoleName)?.text = it.name
-            view?.findViewById<TextView>(R.id.tvRoleDescription)?.text = context.getString(it.description)
+            view?.findViewById<TextView>(R.id.tvRoleDescription)?.text =
+                context.getString(it.description)
         }
 
         // the view must have already been initialized if null
