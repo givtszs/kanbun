@@ -26,6 +26,7 @@ import com.example.kanbun.common.getColor
 import com.example.kanbun.common.loadUserProfilePicture
 import com.example.kanbun.databinding.FragmentViewAllMembersBinding
 import com.example.kanbun.databinding.ItemMemberBinding
+import com.example.kanbun.ui.main_activity.MainActivity
 import com.example.kanbun.ui.model.Member
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
@@ -75,28 +76,36 @@ class MembersBottomSheet private constructor() : BottomSheetDialogFragment() {
     }
 
     private fun setUpAdapter() {
+        val currentUserRole = members.find { it.user.id == MainActivity.firebaseUser?.uid }?.role
+        Log.d(TAG, "currentUserRole: $currentUserRole")
+        if (currentUserRole == Role.Workspace.Admin || currentUserRole == Role.Board.Admin) {
+            val swipeHandler = object : SwipeToDeleteCallback(requireContext()) {
+                override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+                    membersAdapter?.removeItemAt(viewHolder.adapterPosition) { member ->
+                        members.remove(member)
+                    }
+                }
+            }
+            ItemTouchHelper(swipeHandler).attachToRecyclerView(binding.rvMembers)
+        }
+
         membersAdapter = AllMembersAdapter(
             members.toMutableList(),
+            isCurrentUserAdmin = currentUserRole == Role.Workspace.Admin || currentUserRole == Role.Board.Admin,
             onRoleChanged = { member, role ->
                 updateMemberRole(
                     member.copy(role = role)
                 )
             }
         )
-        val swipeHandler = object : SwipeToDeleteCallback(requireContext()) {
-            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-                membersAdapter?.removeItemAt(viewHolder.adapterPosition) { member ->
-                    members.remove(member)
-                }
-            }
-        }
-        ItemTouchHelper(swipeHandler).attachToRecyclerView(binding.rvMembers)
+
         binding.rvMembers.addItemDecoration(
             DividerItemDecoration(
                 requireContext(),
                 DividerItemDecoration.VERTICAL
             )
         )
+
         binding.rvMembers.adapter = membersAdapter
     }
 
@@ -121,6 +130,7 @@ class MembersBottomSheet private constructor() : BottomSheetDialogFragment() {
 
 private class AllMembersAdapter(
     private val members: MutableList<Member>,
+    private val isCurrentUserAdmin: Boolean,
     private val onRoleChanged: (Member, Role) -> Unit
 ) : RecyclerView.Adapter<AllMembersAdapter.ItemMemberViewHolder>() {
 
@@ -136,7 +146,8 @@ private class AllMembersAdapter(
                 LayoutInflater.from(parent.context),
                 parent,
                 false
-            )
+            ),
+            isCurrentUserAdmin
         ) { position, role ->
             onRoleChanged(members[position], role)
         }
@@ -150,6 +161,7 @@ private class AllMembersAdapter(
 
     class ItemMemberViewHolder(
         val binding: ItemMemberBinding,
+        val isUserAdmin: Boolean,
         val onRoleChanged: (Int, Role) -> Unit
     ) : RecyclerView.ViewHolder(binding.root) {
         companion object {
@@ -171,6 +183,7 @@ private class AllMembersAdapter(
                     view = ivProfilePicture
                 )
 
+                tfRole.isEnabled = isUserAdmin
                 if (member.role == null) {
                     tfRole.visibility = View.GONE
                     return@apply
@@ -185,21 +198,24 @@ private class AllMembersAdapter(
                     is Role.Board -> member.role.name to listOf(Role.Board.Admin, Role.Board.Member)
                 }
 
-                rolesAdapter = RolesAdapter(itemView.context, roles)
                 val dropDownMenu = (tfRole.editText as? AutoCompleteTextView)
                 dropDownMenu?.apply {
-                    setAdapter(rolesAdapter)
                     setText(memberRole, false)
-                    setOnItemClickListener { _, _, position, _ ->
-                        rolesAdapter.getItem(position)?.let { role ->
-                            Log.d(TAG, "onItemSelectedListener: $role")
-                            onRoleChanged(adapterPosition, role)
+                    if (isUserAdmin) {
+                        rolesAdapter = RolesAdapter(itemView.context, roles)
+                        setAdapter(rolesAdapter)
+                        setOnItemClickListener { _, _, position, _ ->
+                            rolesAdapter.getItem(position)?.let { role ->
+                                Log.d(TAG, "onItemSelectedListener: $role")
+                                onRoleChanged(adapterPosition, role)
+                            }
+                        }
+
+                        setOnDismissListener {
+                            clearFocus()
                         }
                     }
 
-                    setOnDismissListener {
-                        clearFocus()
-                    }
                 }
             }
         }
@@ -216,6 +232,15 @@ private abstract class SwipeToDeleteCallback(
         ContextCompat.getDrawable(context, R.drawable.ic_delete_outlined_24).also {
             it?.setTint(getColor(context, R.color.white))
         }
+
+    override fun getMovementFlags(
+        recyclerView: RecyclerView,
+        viewHolder: RecyclerView.ViewHolder
+    ): Int {
+        // this code suggests that the first element is always an owner thus preventing it from being swiped
+        if (viewHolder.adapterPosition == 0) return 0
+        return super.getMovementFlags(recyclerView, viewHolder)
+    }
 
     override fun onMove(
         recyclerView: RecyclerView,

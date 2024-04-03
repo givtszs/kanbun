@@ -13,10 +13,19 @@ import androidx.navigation.ui.setupWithNavController
 import com.example.kanbun.R
 import com.example.kanbun.common.DrawerItem
 import com.example.kanbun.databinding.ActivityMainBinding
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.auth
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
+    companion object {
+        // TODO: Update on user re sign in
+        val firebaseUser = Firebase.auth.currentUser
+    }
+
     private var _binding: ActivityMainBinding? = null
     val activityMainBinding: ActivityMainBinding get() = _binding!!
     private lateinit var navController: NavController

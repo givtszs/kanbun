@@ -58,23 +58,31 @@ class WorkspaceSettingsViewModel @Inject constructor(
             ViewState.WorkspaceSettingsViewState()
         )
 
-    fun init(workspaceMembers: List<Workspace.WorkspaceMember>) {
-        fetchMembers(workspaceMembers)
+    fun init(ownerId: String, workspaceMembers: List<Workspace.WorkspaceMember>) {
+        fetchMembers(ownerId, workspaceMembers)
     }
 
-    private fun fetchMembers(members: List<Workspace.WorkspaceMember>) {
+    private fun fetchMembers(ownerId: String, members: List<Workspace.WorkspaceMember>) {
         viewModelScope.launch {
             when (val result = firestoreRepository.getMembers(members.map { it.id })
             ) {
                 is Result.Success -> {
                     val membersById = members.associateBy { it.id }
-                    _members.value = result.data.map { user ->
-                        Member(
-                            user = user,
-                            role = membersById[user.id]?.role ?: Role.Workspace.Member
-                        )
+                    val fetchedMembers = result.data.map { user ->
+                        val role = membersById[user.id]?.role ?: Role.Workspace.Member
+                        Member(user = user, role = role)
                     }
+                    val owner = fetchedMembers.find { it.user.id == ownerId }
+
+                    _members.value = if (owner != null) {
+                        val ownerMember = owner.copy(role = Role.Workspace.Admin)
+                        listOf(ownerMember) + fetchedMembers.filterNot { it.user.id == ownerId }
+                    } else {
+                        fetchedMembers
+                    }
+                    Log.d(TAG, "members: ${_members.value}")
                 }
+
                 is Result.Error -> _message.value = result.message
             }
         }
@@ -113,6 +121,7 @@ class WorkspaceSettingsViewModel @Inject constructor(
             is Result.Success -> _foundUsers.value = result.data.map { user ->
                 UserSearchResult(user, _members.value.any { it.user.id == user.id })
             }
+
             is Result.Error -> _message.value = result.message
         }
     }
