@@ -66,7 +66,7 @@ sealed class ViewState {
         val loadingManager: LoadingManager = LoadingManager(), // TODO: Change to the single isLoading property
         val message: String? = null,
         val taskMembers: List<User> = emptyList(),
-        val foundUsers: List<User>? = null
+        val foundUsers: List<UserSearchResult>? = null
     ) : ViewState() {
         data class LoadingManager(
             val isScreenLoading: Boolean = false,

@@ -141,11 +141,11 @@ class CreateTaskFragment : BaseFragment(), StateHandler {
             }
 
             etSearchMembers.setOnFocusChangeListener { _, isFocused ->
-                if (isFocused && etSearchMembers.text?.isEmpty() == true) {
-                    createTaskViewModel.resetFoundUsers()
-                } else if (!isFocused) {
-                    createTaskViewModel.resetFoundUsers(true)
-                }
+//                if (isFocused) {
+//                    createTaskViewModel.resetFoundUsers()
+//                } else {
+//                }
+                createTaskViewModel.resetFoundUsers(!isFocused)
             }
 
             etSearchMembers.doOnTextChanged { text, _, _, _ ->
@@ -446,10 +446,8 @@ class CreateTaskFragment : BaseFragment(), StateHandler {
                 rvFoundUsers.isVisible = foundUsers != null
                 foundUsers?.let { users ->
                     // TODO: DON'T FORGET TO UPDATE ME!!!
-//                    searchUsersAdapter?.users = users
+                    searchUsersAdapter?.users = users
                 }
-
-//                searchUsersAdapter?.workspaceMembers = taskMembers.map { it.id }
                 taskMembersAdapter?.members = taskMembers
             }
 

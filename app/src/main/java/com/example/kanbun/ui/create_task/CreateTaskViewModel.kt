@@ -14,7 +14,9 @@ import com.example.kanbun.domain.repository.FirestoreRepository
 import com.example.kanbun.domain.usecase.UpsertTagUseCase
 import com.example.kanbun.ui.BaseViewModel
 import com.example.kanbun.ui.ViewState
+import com.example.kanbun.ui.model.Member
 import com.example.kanbun.ui.model.TagUi
+import com.example.kanbun.ui.model.UserSearchResult
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -52,9 +54,9 @@ class CreateTaskViewModel @Inject constructor(
         )
     }
 
-    private var _taskMembers = MutableStateFlow<List<User>>(emptyList())
-    private var _foundUsers = MutableStateFlow<List<User>?>(null)
     private var _boardMembers = MutableStateFlow<List<User>>(emptyList())
+    private var _taskMembers = MutableStateFlow<List<User>>(emptyList())
+    private var _foundUsers = MutableStateFlow<List<UserSearchResult>?>(null)
 
     val createTaskState: StateFlow<ViewState.CreateTaskViewState> = combine(
         _task, _tags, _message, _loadingManager, _taskMembers, _foundUsers
@@ -69,28 +71,31 @@ class CreateTaskViewModel @Inject constructor(
         )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), ViewState.CreateTaskViewState())
 
-    fun init(task: Task?, boardListInfo: BoardListInfo, taskAction: TaskAction, boardMembers: List<User>) {
+    fun init(
+        task: Task?,
+        boardListInfo: BoardListInfo,
+        taskAction: TaskAction,
+        boardMembers: List<User>
+    ) {
         if (task == null) {
             _message.value = "Task is null"
+            return
         }
 
         _task.value = task
-
         viewModelScope.launch {
             // init tag list
             getTags(boardListInfo)
 
             if (taskAction == TaskAction.ACTION_EDIT) {
-                _tags.value.filter { it.tag.id in task!!.tags }.forEach { it.isSelected = true }
+                _tags.value.filter { it.tag.id in task.tags }.forEach { it.isSelected = true }
             }
         }
 
         // init members list
         _boardMembers.value = boardMembers
         Log.d(TAG, "boardMembers: ${_boardMembers.value}")
-        task?.let {
-            _taskMembers.value = boardMembers.filter { member -> member.id in it.members }
-        }
+        _taskMembers.value = boardMembers.filter { member -> member.id in task.members }
         Log.d(TAG, "taskMembers: ${_taskMembers.value}")
     }
 
@@ -200,12 +205,22 @@ class CreateTaskViewModel @Inject constructor(
     }
 
     fun searchUser(tag: String) {
-        _foundUsers.value = _boardMembers.value.filter { it.tag.contains(tag) }
+        _foundUsers.value = _boardMembers.value.filter { it.tag.contains(tag) }.map { user ->
+            UserSearchResult(
+                user,
+                _taskMembers.value.any { it.id == user.id }
+            )
+        }
         Log.d(TAG, "searchUser: foundUsers: ${_foundUsers.value}")
     }
 
     fun resetFoundUsers(clear: Boolean = false) {
-        _foundUsers.value = if (clear) null else _boardMembers.value
+        _foundUsers.value = if (clear) null else _boardMembers.value.map { user ->
+            UserSearchResult(
+                user,
+                _taskMembers.value.any { it.id == user.id }
+            )
+        }
     }
 
     fun addMember(user: User) {
