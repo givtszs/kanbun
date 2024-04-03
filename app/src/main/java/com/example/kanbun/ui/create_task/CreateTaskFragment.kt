@@ -33,6 +33,8 @@ import com.example.kanbun.ui.board.common_adapters.TagsAdapter
 import com.example.kanbun.ui.create_tag_dialog.CreateTagDialog
 import com.example.kanbun.ui.manage_members.MembersAdapter
 import com.example.kanbun.ui.manage_members.SearchUsersAdapter
+import com.example.kanbun.ui.members.MembersBottomSheet
+import com.example.kanbun.ui.model.Member
 import com.example.kanbun.ui.shared.BoardMembersViewModel
 import com.google.android.material.datepicker.CalendarConstraints
 import com.google.android.material.datepicker.DateValidatorPointForward
@@ -190,6 +192,18 @@ class CreateTaskFragment : BaseFragment(), StateHandler {
                         buildDateTimePickerDialog(binding.tvDateEnds)
                     }
                 }
+            }
+
+            btnViewAllMembers.setOnClickListener {
+                val membersBottomSheet =
+                    MembersBottomSheet.init(
+                        createTaskViewModel.createTaskState.value.taskMembers.map { user ->
+                            Member(user, null)
+                        }
+                    ) { members ->
+//                        createTaskViewModel.setMembers(members)
+                    }
+                membersBottomSheet.show(childFragmentManager, "workspace_members")
             }
         }
     }

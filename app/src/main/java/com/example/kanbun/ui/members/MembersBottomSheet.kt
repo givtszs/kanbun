@@ -135,12 +135,20 @@ private class AllMembersAdapter(
         fun  bind(member: Member) {
             binding.apply {
                 tvName.text = member.user.name
-                tvTag.text = member.user.tag
+                tvTag.text = itemView.context.resources.getString(
+                    R.string.user_tag,
+                    member.user.tag
+                )
                 loadUserProfilePicture(
                     context = itemView.context,
                     pictureUrl = member.user.profilePicture,
                     view = ivProfilePicture
                 )
+
+                if (member.role == null) {
+                    tfRole.visibility = View.GONE
+                    return@apply
+                }
 
                 val (memberRole, roles) = when(member.role) {
                     is Role.Workspace -> member.role.name to listOf(Role.Workspace.Admin, Role.Workspace.Member)

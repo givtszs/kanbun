@@ -5,5 +5,5 @@ import com.example.kanbun.domain.model.User
 
 data class Member(
     val user: User,
-    val role: Role
+    val role: Role?
 )
