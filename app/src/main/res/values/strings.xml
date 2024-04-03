@@ -74,6 +74,9 @@
     <string name="create_tag">Create tag</string>
     <string name="user_tag">\@%s</string>
     <string name="members">Members</string>
-    <string name="workspace_role_admin_description">Admins can create, edit and delete workspaces and manage their members</string>
+    <string name="workspace_role_admin_description">Can create, edit and delete workspaces and their boards</string>
+    <string name="workspace_role_member_description">Members can view and edit only workspace visible boards</string>
+    <string name="board_role_admin_description">Can create, edit and delete lists and tasks, edit board settings, invite and remove members.</string>
+    <string name="board_role_member_description">Can create and edit lists and own tasks, invite other members to the board.</string>
     <string name="item_role">%s\n%s</string>
 </resources>

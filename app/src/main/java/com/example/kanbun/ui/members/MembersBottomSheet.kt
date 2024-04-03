@@ -177,7 +177,7 @@ private class AllMembersAdapter(
 }
 
 private class RolesAdapter(
-    context: Context,
+    private val context: Context,
     roles: List<Role>
 ) : ArrayAdapter<Role>(context, 0, roles) {
 
@@ -199,7 +199,7 @@ private class RolesAdapter(
         val role = getItem(position)
         role?.let {
             view?.findViewById<TextView>(R.id.tvRoleName)?.text = it.name
-            view?.findViewById<TextView>(R.id.tvRoleDescription)?.text = it.description
+            view?.findViewById<TextView>(R.id.tvRoleDescription)?.text = context.getString(it.description)
         }
 
         // the view must have already been initialized if null

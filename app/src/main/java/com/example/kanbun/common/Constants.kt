@@ -1,8 +1,8 @@
 package com.example.kanbun.common
 
-import com.example.kanbun.ui.model.ItemRole
+import androidx.annotation.StringRes
+import com.example.kanbun.R
 import com.squareup.moshi.Moshi
-import kotlinx.parcelize.RawValue
 
 object FirestoreCollection {
     const val USERS = "users"
@@ -18,28 +18,18 @@ enum class AuthProvider(val providerId: String) {
     GITHUB("github.com")
 }
 
-sealed class Role(val name: String, val description: String) {
+sealed class Role(val name: String, @StringRes val description: Int) {
 
-     sealed class Workspace(roleName: String, roleDescription: String) : Role(roleName, roleDescription) {
-         data object Admin : Workspace("Admin", "Description of the Workspace Admin role")
-         data object Member : Workspace("Member", "Description of the Workspace Member role")
+     sealed class Workspace(roleName: String, roleDescription: Int) : Role(roleName, roleDescription) {
+         data object Admin : Workspace("Admin", R.string.workspace_role_admin_description)
+         data object Member : Workspace("Member", R.string.workspace_role_member_description)
      }
 
-    sealed class Board(roleName: String, roleDescription: String) : Role(roleName, roleDescription) {
-        data object Admin : Board("Admin", "Description of the Board Admin role")
-        data object Member : Board("Member", "Description of the Workspace Member role")
+    sealed class Board(roleName: String, roleDescription: Int) : Role(roleName, roleDescription) {
+        data object Admin : Board("Admin", R.string.board_role_admin_description)
+        data object Member : Board("Member", R.string.board_role_member_description)
     }
 }
-
-//val boardRoles = listOf(
-//    ItemRole(BoardRole.ADMIN.roleName, BoardRole.ADMIN.roleDescription),
-//    ItemRole(BoardRole.MEMBER.roleName, BoardRole.ADMIN.roleDescription),
-//)
-//
-//enum class BoardRole(val roleName: String, val roleDescription: String) {
-//    ADMIN("Admin", "Description of the role"),
-//    MEMBER("Member", "Description of the role")
-//}
 
 object ToastMessage {
     const val NO_NETWORK_CONNECTION = "No Internet connection"

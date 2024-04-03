@@ -64,6 +64,7 @@
             app:layout_constraintTop_toTopOf="parent">
 
             <AutoCompleteTextView
+                android:dropDownWidth="match_parent"
                 android:layout_width="140dp"
                 android:layout_height="wrap_content"
                 android:hint="Role"
