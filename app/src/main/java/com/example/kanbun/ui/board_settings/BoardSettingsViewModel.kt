@@ -12,6 +12,7 @@ import com.example.kanbun.ui.BaseViewModel
 import com.example.kanbun.ui.ViewState
 import com.example.kanbun.ui.model.Member
 import com.example.kanbun.ui.model.TagUi
+import com.example.kanbun.ui.model.UserSearchResult
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -38,7 +39,7 @@ class BoardSettingsViewModel @Inject constructor(
     private var _message = MutableStateFlow<String?>(null)
     private var _tags = MutableStateFlow<List<Tag>>(emptyList())
     private var _boardMembers = MutableStateFlow<List<Member>>(emptyList())
-    private var _foundUsers = MutableStateFlow<List<User>?>(null)
+    private var _foundUsers = MutableStateFlow<List<UserSearchResult>?>(null)
 
     val boardSettingsState: StateFlow<ViewState.BoardSettingsViewState> =
         combine(
@@ -87,7 +88,6 @@ class BoardSettingsViewModel @Inject constructor(
 
     private fun fetchWorkspaceMembers(workspaceId: String) {
         viewModelScope.launch {
-            val fetchedMembers = mutableListOf<User>()
             when (val resultWorkspace = firestoreRepository.getWorkspace(workspaceId)) {
                 is Result.Success -> {
                     val workspace = resultWorkspace.data
@@ -101,8 +101,6 @@ class BoardSettingsViewModel @Inject constructor(
 
                 is Result.Error -> _message.value = resultWorkspace.message
             }
-
-            _workspaceMembers.value = fetchedMembers
         }
     }
 
@@ -136,13 +134,21 @@ class BoardSettingsViewModel @Inject constructor(
 
     fun searchUser(tag: String) = viewModelScope.launch {
         when (val result = searchUserUseCase(tag)) {
-            is Result.Success -> _foundUsers.value = result.data
+            is Result.Success -> _foundUsers.value = result.data.map { user ->
+                UserSearchResult(user, _boardMembers.value.any { it.user.id == user.id })
+            }
             is Result.Error -> _message.value = result.message
         }
     }
 
     fun resetFoundUsers(clear: Boolean = false) {
-        _foundUsers.value = if (clear) null else _workspaceMembers.value
+        _foundUsers.value = if (clear) {
+            null
+        } else {
+            _workspaceMembers.value.map { user ->
+                UserSearchResult(user, _boardMembers.value.any { it.user.id == user.id })
+            }
+        }
     }
 
     fun addMember(user: User) {

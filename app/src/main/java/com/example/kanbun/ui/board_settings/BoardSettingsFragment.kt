@@ -76,9 +76,9 @@ class BoardSettingsFragment : BaseFragment(), StateHandler {
 
             var searchJob: Job? = null
             etSearchUser.setOnFocusChangeListener { view, isFocused ->
-                if (isFocused && etSearchUser.text?.isEmpty() == true) {
+                if (isFocused) {
                     viewModel.resetFoundUsers()
-                } else if (!isFocused) {
+                } else {
                     viewModel.resetFoundUsers(true)
                 }
             }
@@ -183,12 +183,9 @@ class BoardSettingsFragment : BaseFragment(), StateHandler {
 
                 rvFoundUsers.isVisible = foundUsers != null
                 foundUsers?.let { users ->
-                    // TODO: DON'T FORGET TO UPDATE ME!!!
-//                    searchUsersAdapter?.users = users
+                    searchUsersAdapter?.users = users
                 }
 
-                Log.d(TAG, "processState: members: $boardMembers")
-//                searchUsersAdapter?.members = boardMembers.map { it.id }
                 boardMembersAdapter?.members = boardMembers.map { it.user }
             }
         }

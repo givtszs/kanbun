@@ -94,7 +94,7 @@ sealed class ViewState {
         val message: String? = null,
         val tags: List<TagUi> = emptyList(),
         val boardMembers: List<Member> = emptyList(),
-        val foundUsers: List<User>? = null
+        val foundUsers: List<UserSearchResult>? = null
     ) : ViewState()
 
     data class EditTagsViewState(
