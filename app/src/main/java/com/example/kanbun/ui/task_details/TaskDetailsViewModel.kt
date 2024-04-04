@@ -2,14 +2,14 @@ package com.example.kanbun.ui.task_details
 
 
 import android.util.Log
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.kanbun.common.Result
 import com.example.kanbun.domain.model.BoardList
-import com.example.kanbun.domain.model.Tag
 import com.example.kanbun.domain.model.Task
 import com.example.kanbun.domain.repository.FirestoreRepository
-import com.example.kanbun.ui.BaseViewModel
 import com.example.kanbun.ui.ViewState
+import com.example.kanbun.ui.main_activity.MainActivity
 import com.example.kanbun.ui.model.TagUi
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -28,7 +28,7 @@ private const val TAG = "TaskDetailsViewModel"
 @HiltViewModel
 class TaskDetailsViewModel @Inject constructor(
     private val firestoreRepository: FirestoreRepository
-) : BaseViewModel() {
+) : ViewModel() {
     private var _author = MutableStateFlow(ViewState.TaskDetailsViewState.UserInfo())
     private var _tags = MutableStateFlow<List<TagUi>>(emptyList())
     private var _members = MutableStateFlow<List<Nothing>>(emptyList())
@@ -66,7 +66,7 @@ class TaskDetailsViewModel @Inject constructor(
 
     fun getAuthor(userId: String) {
         viewModelScope.launch {
-            if (firebaseUser == null) {
+            if (MainActivity.firebaseUser == null) {
                 _message.value = "The user is null"
                 return@launch
             }

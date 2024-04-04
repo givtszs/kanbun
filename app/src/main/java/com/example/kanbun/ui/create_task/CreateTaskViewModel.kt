@@ -1,6 +1,7 @@
 package com.example.kanbun.ui.create_task
 
 import android.util.Log
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.kanbun.common.FirestoreCollection
 import com.example.kanbun.common.Result
@@ -12,9 +13,7 @@ import com.example.kanbun.domain.model.Task
 import com.example.kanbun.domain.model.User
 import com.example.kanbun.domain.repository.FirestoreRepository
 import com.example.kanbun.domain.usecase.UpsertTagUseCase
-import com.example.kanbun.ui.BaseViewModel
 import com.example.kanbun.ui.ViewState
-import com.example.kanbun.ui.model.Member
 import com.example.kanbun.ui.model.TagUi
 import com.example.kanbun.ui.model.UserSearchResult
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -33,7 +32,7 @@ private const val TAG = "CreateTaskViewModel"
 class CreateTaskViewModel @Inject constructor(
     private val firestoreRepository: FirestoreRepository,
     private val upsertTagUseCase: UpsertTagUseCase,
-) : BaseViewModel() {
+) : ViewModel() {
 
     private var _task = MutableStateFlow<Task?>(null)
     private var _tags =

@@ -2,6 +2,7 @@ package com.example.kanbun.ui.user_boards
 
 import android.content.Context
 import android.util.Log
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
 import com.example.kanbun.R
@@ -18,8 +19,9 @@ import com.example.kanbun.domain.model.Workspace
 import com.example.kanbun.domain.model.WorkspaceInfo
 import com.example.kanbun.domain.repository.FirestoreRepository
 import com.example.kanbun.domain.utils.ConnectivityChecker
-import com.example.kanbun.ui.BaseViewModel
 import com.example.kanbun.ui.ViewState
+import com.example.kanbun.ui.main_activity.MainActivity
+import com.example.kanbun.ui.main_activity.MainActivity.Companion.firebaseUser
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.firebase.auth.ktx.auth
@@ -41,7 +43,7 @@ class UserBoardsViewModel @Inject constructor(
     private val connectivityChecker: ConnectivityChecker,
     private val firestoreRepository: FirestoreRepository,
     private val dataStore: PreferenceDataStoreHelper
-) : BaseViewModel() {
+) : ViewModel() {
     // TODO: Make one-shot query to get the user's data
 //    private val _user =
 //        firestoreRepository.getUserStream(firebaseUser?.uid ?: "").distinctUntilChanged()
@@ -75,15 +77,15 @@ class UserBoardsViewModel @Inject constructor(
             }
 
 
-            val userInfo = firebaseUser.providerData.first { it.providerId != "firebase" }
+            val userInfo = firebaseUser?.providerData?.first { it.providerId != "firebase" }
 
             Log.d(
                 TAG,
-                "provider: ${userInfo.providerId}, isEmailVerified: ${userInfo.isEmailVerified}"
+                "provider: ${userInfo?.providerId}, isEmailVerified: ${userInfo?.isEmailVerified}"
             )
 
 
-            if (userInfo.providerId == AuthProvider.EMAIL.providerId && !firebaseUser.isEmailVerified) {
+            if (userInfo?.providerId == AuthProvider.EMAIL.providerId && firebaseUser?.isEmailVerified == false) {
                 _message.value = "Complete registration by signing in with ${userInfo.providerId} and verifying your email"
                 navController.navigate(UserBoardsFragmentDirections.actionUserBoardsFragmentToRegistrationPromptFragment())
                 return@launch
@@ -131,7 +133,8 @@ class UserBoardsViewModel @Inject constructor(
 
     fun signOutUser(context: Context, onSuccess: () -> Unit) {
         viewModelScope.launch {
-            Firebase.auth.signOut()
+            MainActivity.signOut()
+            Log.d(TAG, "signOut: ${firebaseUser}")
             val signInOptions = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestIdToken("723106455668-7apee9lsea93gpi66cjkoiom258i30e2.apps.googleusercontent.com")
                 .requestEmail()

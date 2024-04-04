@@ -31,6 +31,7 @@ import com.example.kanbun.ui.StateHandler
 import com.example.kanbun.ui.ViewState
 import com.example.kanbun.ui.board.common_adapters.TagsAdapter
 import com.example.kanbun.ui.create_tag_dialog.CreateTagDialog
+import com.example.kanbun.ui.main_activity.MainActivity
 import com.example.kanbun.ui.manage_members.MembersAdapter
 import com.example.kanbun.ui.manage_members.SearchUsersAdapter
 import com.example.kanbun.ui.members.MembersBottomSheet
@@ -212,7 +213,7 @@ class CreateTaskFragment : BaseFragment(), StateHandler {
         return task.copy(
             name = binding.etName.text?.trim().toString(),
             description = binding.etDescription.text?.trim().toString(),
-            author = createTaskViewModel.firebaseUser!!.uid,
+            author = MainActivity.firebaseUser!!.uid,
             tags = createTaskViewModel.createTaskState.value.tags
                 .filter { it.isSelected }
                 .map { it.tag.id },

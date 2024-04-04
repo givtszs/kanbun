@@ -1,5 +1,6 @@
 package com.example.kanbun.ui.board_settings
 
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.kanbun.common.Result
 import com.example.kanbun.common.Role
@@ -8,7 +9,6 @@ import com.example.kanbun.domain.model.Tag
 import com.example.kanbun.domain.model.User
 import com.example.kanbun.domain.repository.FirestoreRepository
 import com.example.kanbun.domain.usecase.SearchUserUseCase
-import com.example.kanbun.ui.BaseViewModel
 import com.example.kanbun.ui.ViewState
 import com.example.kanbun.ui.model.Member
 import com.example.kanbun.ui.model.TagUi
@@ -27,7 +27,7 @@ import javax.inject.Inject
 class BoardSettingsViewModel @Inject constructor(
     private val firestoreRepository: FirestoreRepository,
     private val searchUserUseCase: SearchUserUseCase
-) : BaseViewModel() {
+) : ViewModel() {
     companion object {
         private const val TAG = "BoardSettingsViewModel"
     }
