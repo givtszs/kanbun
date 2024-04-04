@@ -1,5 +1,6 @@
 package com.example.kanbun.ui.board_settings
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.kanbun.common.Result
@@ -13,6 +14,7 @@ import com.example.kanbun.ui.ViewState
 import com.example.kanbun.ui.model.Member
 import com.example.kanbun.ui.model.TagUi
 import com.example.kanbun.ui.model.UserSearchResult
+import com.example.kanbun.ui.workspace_settings.WorkspaceSettingsViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -62,25 +64,34 @@ class BoardSettingsViewModel @Inject constructor(
             ViewState.BoardSettingsViewState()
         )
 
-    fun init(tags: List<Tag>, members: List<Board.BoardMember>, workspaceId: String) {
+    fun init(tags: List<Tag>, ownerId: String, members: List<Board.BoardMember>, workspaceId: String) {
         setTags(tags)
-        fetchBoardMembers(members)
+        fetchBoardMembers(ownerId, members)
         // TODO: Use the shared view model with workspace members in the BoardSettingsFragment instead of fetching the data
         fetchWorkspaceMembers(workspaceId)
     }
 
-    private fun fetchBoardMembers(members: List<Board.BoardMember>) {
+    private fun fetchBoardMembers(ownerId: String, members: List<Board.BoardMember>) {
         viewModelScope.launch {
-            when (val result = firestoreRepository.getMembers(members.map { it.id })) {
+            when (val result = firestoreRepository.getMembers(members.map { it.id })
+            ) {
                 is Result.Success -> {
                     val membersById = members.associateBy { it.id }
-                    _boardMembers.value = result.data.map { user ->
-                        Member(
-                            user = user,
-                            role = membersById[user.id]?.role ?: Role.Board.Member
-                        )
+                    val fetchedMembers = result.data.map { user ->
+                        val role = membersById[user.id]?.role ?: Role.Workspace.Member
+                        Member(user = user, role = role)
                     }
+                    val owner = fetchedMembers.find { it.user.id == ownerId }
+
+                    _boardMembers.value = if (owner != null) {
+                        val ownerMember = owner.copy(role = Role.Workspace.Admin)
+                        listOf(ownerMember) + fetchedMembers.filterNot { it.user.id == ownerId }
+                    } else {
+                        fetchedMembers
+                    }
+//                    Log.d(WorkspaceSettingsViewModel.TAG, "members: ${_boardMembers.value}")
                 }
+
                 is Result.Error -> _message.value = result.message
             }
         }

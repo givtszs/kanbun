@@ -133,7 +133,6 @@ class WorkspaceSettingsViewModel @Inject constructor(
     fun addMember(user: User) {
         if (!_members.value.any { it.user.id == user.id }) {
             _members.update { it + Member(user, Role.Workspace.Member) }
-
         }
     }
 
@@ -147,7 +146,7 @@ class WorkspaceSettingsViewModel @Inject constructor(
 
     fun setMembers(members: List<Member>) {
         if (members != _members.value) {
-            _members.value = members.sortedBy { it.user.name }
+            _members.value = members
         }
     }
 

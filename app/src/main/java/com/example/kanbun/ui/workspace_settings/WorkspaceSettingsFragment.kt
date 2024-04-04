@@ -25,7 +25,6 @@ import com.example.kanbun.ui.manage_members.SearchUsersAdapter
 import com.example.kanbun.ui.manage_members.MembersAdapter
 import com.example.kanbun.ui.members.MembersBottomSheet
 import com.google.android.material.appbar.MaterialToolbar
-import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Job
@@ -162,7 +161,11 @@ class WorkspaceSettingsFragment : BaseFragment(), StateHandler {
 
                 rvFoundUsers.isVisible = foundUsers != null
                 foundUsers?.let { users ->
-                    searchUsersAdapter?.users = users
+                    searchUsersAdapter?.users = users.map { user ->
+                        user.copy(
+                            isAdded = members.any { it.user.id == user.user.id }
+                        )
+                    }
                 }
                 workspaceMembersAdapter?.members = members.map { it.user }
             }

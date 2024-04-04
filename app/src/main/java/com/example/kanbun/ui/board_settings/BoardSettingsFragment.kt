@@ -58,7 +58,7 @@ class BoardSettingsFragment : BaseFragment(), StateHandler {
         setUpActionBar(binding.toolbar)
         setUpTagsAdapter()
         setUpAdapters()
-        viewModel.init(board.tags, board.members, board.workspace.id)
+        viewModel.init(board.tags, board.owner, board.members, board.workspace.id)
         collectState()
     }
 
@@ -183,7 +183,11 @@ class BoardSettingsFragment : BaseFragment(), StateHandler {
 
                 rvFoundUsers.isVisible = foundUsers != null
                 foundUsers?.let { users ->
-                    searchUsersAdapter?.users = users
+                    searchUsersAdapter?.users = users.map { user ->
+                        user.copy(
+                            isAdded = boardMembers.any { it.user.id == user.user.id }
+                        )
+                    }
                 }
 
                 boardMembersAdapter?.members = boardMembers.map { it.user }

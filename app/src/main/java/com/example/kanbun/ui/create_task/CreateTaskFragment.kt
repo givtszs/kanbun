@@ -162,7 +162,6 @@ class CreateTaskFragment : BaseFragment(), StateHandler {
             }
 
             tvCreateTag.setOnClickListener {
-//                buildCreateTagDialog()
                 val createTagDialog = CreateTagDialog(requireContext()) { tag ->
                     createTaskViewModel.createTag(tag, boardListInfo)
                 }
@@ -229,58 +228,7 @@ class CreateTaskFragment : BaseFragment(), StateHandler {
         )
     }
 
-    // TODO: Remove the commented code if it's not needed
-//    private fun buildCreateTagDialog() {
-//        var tagColor = ""
-//        var alertDialogBinding: AlertDialogCreateTagBinding? =
-//            AlertDialogCreateTagBinding.inflate(layoutInflater, null, false)
-//        var colorPickerAdapter: ColorPickerAdapter? = ColorPickerAdapter { colorId ->
-//            tagColor = colorId
-//        }
-//
-//        alertDialogBinding!!.rvTagColors.apply {
-//            adapter = colorPickerAdapter
-//            layoutManager = GridLayoutManager(requireContext(), 4)
-//        }
-//
-//        MaterialAlertDialogBuilder(requireContext())
-//            .setTitle("Create tag")
-//            .setView(alertDialogBinding.root)
-//            .setCancelable(false)
-//            .setPositiveButton("Create") { _, _ ->
-//                viewModel.createTag(
-//                    name = alertDialogBinding!!.etName.text?.trim().toString(),
-//                    color = tagColor,
-//                    boardListInfo = args.boardListInfo
-//                )
-//                alertDialogBinding = null
-//            }
-//            .setNegativeButton("Cancel") { dialog, _ ->
-//                colorPickerAdapter = null
-//                alertDialogBinding = null
-//                dialog.cancel()
-//            }
-//            .create()
-//            .apply {
-//                setOnShowListener {
-//                    val positiveButton = getButton(AlertDialog.BUTTON_POSITIVE).apply {
-//                        isEnabled = false
-//                    }
-//                    alertDialogBinding!!.etName.doOnTextChanged { _, _, _, count ->
-//                        positiveButton.isEnabled = count > 0
-//                    }
-//                }
-//            }
-//            .show()
-//    }
-
     private fun buildDateTimePickerDialog(textField: AutoCompleteTextView) {
-//        fun close(dialogBinding: AlertDialogDatetimePickerBinding, dialog) {
-//            alertDialogBinding = null
-//            binding.tvDateStarts.clearFocus()
-//            dialog.cancel()
-//        }
-//
         var alertDialogBinding: AlertDialogDatetimePickerBinding? =
             AlertDialogDatetimePickerBinding.inflate(layoutInflater, null, false)
 
@@ -334,6 +282,7 @@ class CreateTaskFragment : BaseFragment(), StateHandler {
                             it.isEnabled = false
                         }
 
+                        // TODO: Refactor?
                         dialogBinding.apply {
                             val _isDateSelected = MutableStateFlow(tvSelectedDate.text.isNotEmpty())
                             val _isTimeSelected = MutableStateFlow(tvSelectedTime.text.isNotEmpty())
@@ -460,8 +409,11 @@ class CreateTaskFragment : BaseFragment(), StateHandler {
 
                 rvFoundUsers.isVisible = foundUsers != null
                 foundUsers?.let { users ->
-                    // TODO: DON'T FORGET TO UPDATE ME!!!
-                    searchUsersAdapter?.users = users
+                    searchUsersAdapter?.users = users.map { user ->
+                        user.copy(
+                            isAdded = taskMembers.any { it.id == user.user.id }
+                        )
+                    }
                 }
                 taskMembersAdapter?.members = taskMembers
             }

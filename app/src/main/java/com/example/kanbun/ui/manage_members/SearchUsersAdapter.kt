@@ -39,6 +39,7 @@ class SearchUsersAdapter(
 
     override fun onBindViewHolder(holder: ItemFoundUserViewHolder, position: Int) {
         val user = users[position]
+        Log.d(TAG, "bind: isUserAdded: ${user.isAdded}")
         holder.bind(
             user = user.user,
             isAdded = user.isAdded
@@ -55,9 +56,6 @@ class SearchUsersAdapter(
         init {
             binding.root.setOnClickListener {
                 clickAtPosition(adapterPosition)
-                if (!binding.ivIconAdded.isVisible) {
-                    binding.ivIconAdded.isVisible = true
-                }
             }
         }
 
