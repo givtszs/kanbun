@@ -174,13 +174,13 @@ class UserBoardsFragment : BaseFragment(), StateHandler {
             binding.apply {
                 loading.root.isVisible = isLoading
                 rvBoards.isVisible = currentWorkspace != null
-                fabCreateBoard.isVisible = currentWorkspace?.id != DrawerItem.SHARED_BOARDS
+                fabCreateBoard.isVisible = currentWorkspace != null && currentWorkspace.id != DrawerItem.SHARED_BOARDS
                 activity.isSharedBoardsSelected = currentWorkspace?.id == DrawerItem.SHARED_BOARDS
-                tvTip.isVisible = currentWorkspace?.boards?.isEmpty() == true
+                tvTip.isVisible = currentWorkspace == null || currentWorkspace.boards.isEmpty()
                 topAppBar.toolbar.title = currentWorkspace?.name ?: resources.getString(R.string.boards)
 
                 // create options menu
-                if (!isMenuProviderAdded && currentWorkspace?.id != DrawerItem.SHARED_BOARDS) {
+                if (!isMenuProviderAdded && currentWorkspace != null && currentWorkspace.id != DrawerItem.SHARED_BOARDS) {
                     createOptionsMenu()
                     isMenuProviderAdded = true
                 } else if (currentWorkspace == null || currentWorkspace.id == DrawerItem.SHARED_BOARDS) {

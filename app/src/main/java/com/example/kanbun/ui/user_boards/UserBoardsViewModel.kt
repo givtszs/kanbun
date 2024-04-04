@@ -24,8 +24,6 @@ import com.example.kanbun.ui.main_activity.MainActivity
 import com.example.kanbun.ui.main_activity.MainActivity.Companion.firebaseUser
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
-import com.google.firebase.auth.ktx.auth
-import com.google.firebase.ktx.Firebase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -44,7 +42,7 @@ class UserBoardsViewModel @Inject constructor(
     private val firestoreRepository: FirestoreRepository,
     private val dataStore: PreferenceDataStoreHelper
 ) : ViewModel() {
-    // TODO: Make one-shot query to get the user's data
+    // TODO: Update the code to use this code
 //    private val _user =
 //        firestoreRepository.getUserStream(firebaseUser?.uid ?: "").distinctUntilChanged()
     private var _user = MutableStateFlow<User?>(null)
@@ -161,7 +159,10 @@ class UserBoardsViewModel @Inject constructor(
         )
 
         when (val result = firestoreRepository.createWorkspace(workspace)) {
-            is Result.Success -> _message.value = ToastMessage.WORKSPACE_CREATED
+            is Result.Success -> {
+                _message.value = ToastMessage.WORKSPACE_CREATED
+                getUser()
+            }
             is Result.Error -> _message.value = result.message
         }
     }
