@@ -201,7 +201,7 @@ class CreateTaskFragment : BaseFragment(), StateHandler {
                             Member(user, null)
                         }
                     ) { members ->
-//                        createTaskViewModel.setMembers(members)
+                        createTaskViewModel.setMembers(members)
                     }
                 membersBottomSheet.show(childFragmentManager, "workspace_members")
             }

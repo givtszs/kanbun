@@ -78,8 +78,8 @@ class MembersBottomSheet private constructor() : BottomSheetDialogFragment() {
     private fun setUpAdapter() {
         val currentUserRole = members.find { it.user.id == MainActivity.firebaseUser?.uid }?.role
         Log.d(TAG, "currentUserRole: $currentUserRole")
-        if (currentUserRole == Role.Workspace.Admin || currentUserRole == Role.Board.Admin) {
-            val swipeHandler = object : SwipeToDeleteCallback(requireContext()) {
+        if (currentUserRole == Role.Workspace.Admin || currentUserRole == Role.Board.Admin || currentUserRole == null) {
+            val swipeHandler = object : SwipeToDeleteCallback(requireContext(), currentUserRole != null) {
                 override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
                     membersAdapter?.removeItemAt(viewHolder.adapterPosition) { member ->
                         members.remove(member)
@@ -223,7 +223,8 @@ private class AllMembersAdapter(
 }
 
 private abstract class SwipeToDeleteCallback(
-    val context: Context
+    val context: Context,
+    val memberHasRole: Boolean
 ) : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
     private val clearPaint = Paint().apply { xfermode = PorterDuffXfermode(PorterDuff.Mode.CLEAR) }
     private val background = ColorDrawable()
@@ -238,7 +239,7 @@ private abstract class SwipeToDeleteCallback(
         viewHolder: RecyclerView.ViewHolder
     ): Int {
         // this code suggests that the first element is always an owner thus preventing it from being swiped
-        if (viewHolder.adapterPosition == 0) return 0
+        if (viewHolder.adapterPosition == 0 && memberHasRole) return 0
         return super.getMovementFlags(recyclerView, viewHolder)
     }
 

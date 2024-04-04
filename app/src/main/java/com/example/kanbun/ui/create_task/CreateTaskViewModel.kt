@@ -14,6 +14,7 @@ import com.example.kanbun.domain.model.User
 import com.example.kanbun.domain.repository.FirestoreRepository
 import com.example.kanbun.domain.usecase.UpsertTagUseCase
 import com.example.kanbun.ui.ViewState
+import com.example.kanbun.ui.model.Member
 import com.example.kanbun.ui.model.TagUi
 import com.example.kanbun.ui.model.UserSearchResult
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -230,5 +231,9 @@ class CreateTaskViewModel @Inject constructor(
 
     fun removeMember(member: User) {
         _taskMembers.update { _member -> _member.filterNot { it == member } }
+    }
+
+    fun setMembers(members: List<Member>) {
+        _taskMembers.value = members.map { it.user }
     }
 }
