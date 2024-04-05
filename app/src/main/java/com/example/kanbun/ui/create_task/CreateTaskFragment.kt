@@ -197,9 +197,10 @@ class CreateTaskFragment : BaseFragment(), StateHandler {
             btnViewAllMembers.setOnClickListener {
                 val membersBottomSheet =
                     MembersBottomSheet.init(
-                        createTaskViewModel.createTaskState.value.taskMembers.map { user ->
+                        members = createTaskViewModel.createTaskState.value.taskMembers.map { user ->
                             Member(user, null)
-                        }
+                        },
+                        isTaskScreen = true
                     ) { members ->
                         createTaskViewModel.setMembers(members)
                     }

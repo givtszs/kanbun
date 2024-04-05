@@ -35,6 +35,7 @@ class MembersBottomSheet private constructor() : BottomSheetDialogFragment() {
     private var _binding: FragmentViewAllMembersBinding? = null
     private val binding: FragmentViewAllMembersBinding get() = _binding!!
     private lateinit var members: MutableList<Member>
+    private var isTaskScreen: Boolean = false
     private lateinit var onDismissCallback: (List<Member>) -> Unit
     private var membersAdapter: AllMembersAdapter? = null
     private var saveOnDismiss = true
@@ -44,10 +45,12 @@ class MembersBottomSheet private constructor() : BottomSheetDialogFragment() {
 
         fun init(
             members: List<Member>,
+            isTaskScreen: Boolean = false,
             onDismissCallback: (List<Member>) -> Unit
         ): MembersBottomSheet {
             return MembersBottomSheet().apply {
                 this.members = members.toMutableList()
+                this.isTaskScreen = isTaskScreen
                 this.onDismissCallback = onDismissCallback
             }
         }
@@ -78,7 +81,7 @@ class MembersBottomSheet private constructor() : BottomSheetDialogFragment() {
     private fun setUpAdapter() {
         val currentUserRole = members.find { it.user.id == MainActivity.firebaseUser?.uid }?.role
         Log.d(TAG, "currentUserRole: $currentUserRole")
-        if (currentUserRole == Role.Workspace.Admin || currentUserRole == Role.Board.Admin || currentUserRole == null) {
+        if (currentUserRole == Role.Workspace.Admin || currentUserRole == Role.Board.Admin || isTaskScreen) {
             val swipeHandler = object : SwipeToDeleteCallback(requireContext(), currentUserRole != null) {
                 override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
                     membersAdapter?.removeItemAt(viewHolder.adapterPosition) { member ->
