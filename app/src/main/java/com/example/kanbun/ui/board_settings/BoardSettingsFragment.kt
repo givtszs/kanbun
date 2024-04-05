@@ -85,10 +85,8 @@ class BoardSettingsFragment : BaseFragment(), StateHandler {
             etSearchUser.doOnTextChanged { text, _, _, _ ->
                 searchJob?.cancel()
                 if (!text.isNullOrEmpty() && text.length >= 3) {
-                    Log.d(TAG, "searchUsers: $text")
                     searchJob = viewModel.searchUser(text.toString())
                 } else {
-                    Log.d(TAG, "searchUser: call resetFoundUsers")
                     viewModel.resetFoundUsers()
                 }
             }
@@ -112,6 +110,7 @@ class BoardSettingsFragment : BaseFragment(), StateHandler {
                     description = etDescription.text?.trim().toString(),
                     tags = viewModel.boardSettingsState.value.tags.map { it.tag },
                     members = viewModel.boardSettingsState.value.boardMembers.map { member ->
+                        Log.d(TAG, "cast members: $member")
                         Board.BoardMember(id = member.user.id, role = member.role as Role.Board)
                     }
                 )

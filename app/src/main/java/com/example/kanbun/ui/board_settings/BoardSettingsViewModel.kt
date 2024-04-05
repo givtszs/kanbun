@@ -78,13 +78,13 @@ class BoardSettingsViewModel @Inject constructor(
                 is Result.Success -> {
                     val membersById = members.associateBy { it.id }
                     val fetchedMembers = result.data.map { user ->
-                        val role = membersById[user.id]?.role ?: Role.Workspace.Member
+                        val role = membersById[user.id]?.role ?: Role.Board.Member
                         Member(user = user, role = role)
                     }
                     val owner = fetchedMembers.find { it.user.id == ownerId }
 
                     _boardMembers.value = if (owner != null) {
-                        val ownerMember = owner.copy(role = Role.Workspace.Admin)
+                        val ownerMember = owner.copy(role = Role.Board.Admin)
                         listOf(ownerMember) + fetchedMembers.filterNot { it.user.id == ownerId }
                     } else {
                         fetchedMembers
