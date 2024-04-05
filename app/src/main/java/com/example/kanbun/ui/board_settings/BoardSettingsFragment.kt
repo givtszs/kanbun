@@ -38,6 +38,11 @@ class BoardSettingsFragment : BaseFragment(), StateHandler {
     private val binding: FragmentBoardSettingsBinding get() = _binding!!
     private val args: BoardSettingsFragmentArgs by navArgs()
     private lateinit var board: Board
+    private val isUserAdmin: Boolean by lazy {
+        board.members
+            .find { it.id == MainActivity.firebaseUser?.uid }
+            ?.role == Role.Board.Admin
+    }
     private val viewModel: BoardSettingsViewModel by viewModels()
     private var tagsAdapter: TagsAdapter? = null
     private var searchUsersAdapter: SearchUsersAdapter? = null
@@ -71,7 +76,9 @@ class BoardSettingsFragment : BaseFragment(), StateHandler {
 
     override fun setUpListeners() {
         binding.apply {
+            tfName.isEnabled = isUserAdmin
             etName.setText(board.name)
+            tfDescription.isEnabled = isUserAdmin
             etDescription.setText(board.description)
 
             var searchJob: Job? = null
@@ -91,6 +98,7 @@ class BoardSettingsFragment : BaseFragment(), StateHandler {
                 }
             }
 
+            btnDeleteBoard.isEnabled = isUserAdmin
             btnDeleteBoard.setOnClickListener {
                 viewModel.deleteBoard(board) {
                     navController.popBackStack(R.id.userBoardsFragment, false)
