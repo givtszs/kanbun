@@ -4,19 +4,28 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
+import com.example.kanbun.common.Role
 import com.example.kanbun.common.loadUserProfilePicture
 import com.example.kanbun.databinding.ItemMemberChipBinding
-import com.example.kanbun.domain.model.User
+import com.example.kanbun.ui.main_activity.MainActivity
+import com.example.kanbun.ui.model.Member
 
 class MembersAdapter(
-    val ownerId: String? = null,
-    private val onRemoveClicked: (User) -> Unit
+    private val ownerId: String? = null,
+    private val onRemoveClicked: (Member) -> Unit
 ) : RecyclerView.Adapter<MembersAdapter.MemberViewHolder>() {
 
-    var members: List<User> = emptyList()
+    private var isCurrentUserAdmin = false
+    private fun checkIsCurrentUserAdmin() {
+        val currentUser = members.find { it.user.id == MainActivity.firebaseUser?.uid }
+        isCurrentUserAdmin = currentUser?.role == Role.Workspace.Admin
+    }
+
+    var members: List<Member> = emptyList()
         set(value) {
             if (field != value) {
                 field = value
+                checkIsCurrentUserAdmin()
                 notifyDataSetChanged()
             }
         }
@@ -35,7 +44,7 @@ class MembersAdapter(
     }
 
     override fun onBindViewHolder(holder: MemberViewHolder, position: Int) {
-        holder.bind(members[position])
+        holder.bind(members[position], isCurrentUserAdmin)
     }
 
     override fun getItemCount(): Int = members.size
@@ -52,15 +61,16 @@ class MembersAdapter(
             }
         }
 
-        fun bind(member: User) {
+        fun bind(member: Member, isAdmin: Boolean) {
             binding.apply {
-                tvName.text = member.name
+                tvName.text = member.user.name
+                btnRemove.isVisible = member.user.id != ownerId && isAdmin
+
                 loadUserProfilePicture(
                     context = itemView.context,
-                    pictureUrl = member.profilePicture,
+                    pictureUrl = member.user.profilePicture,
                     view = ivProfilePicture
                 )
-                btnRemove.isVisible = member.id != ownerId
             }
 
         }

@@ -415,7 +415,7 @@ class CreateTaskFragment : BaseFragment(), StateHandler {
                         )
                     }
                 }
-                taskMembersAdapter?.members = taskMembers
+                taskMembersAdapter?.members = taskMembers.map { Member(it, null) }
             }
 
             message?.let {
@@ -433,7 +433,7 @@ class CreateTaskFragment : BaseFragment(), StateHandler {
         binding.rvFoundUsers.adapter = searchUsersAdapter
 
         taskMembersAdapter = MembersAdapter() { member ->
-            createTaskViewModel.removeMember(member)
+            createTaskViewModel.removeMember(member.user)
         }
         binding.rvMembers.adapter = taskMembersAdapter
     }

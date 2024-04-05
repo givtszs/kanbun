@@ -155,7 +155,7 @@ class BoardSettingsFragment : BaseFragment(), StateHandler {
         binding.rvFoundUsers.adapter = searchUsersAdapter
 
         boardMembersAdapter = MembersAdapter(ownerId = board.owner) { member ->
-            viewModel.removeMember(member)
+            viewModel.removeMember(member.user)
         }
         binding.rvMembers.adapter = boardMembersAdapter
     }
@@ -189,7 +189,7 @@ class BoardSettingsFragment : BaseFragment(), StateHandler {
                     }
                 }
 
-                boardMembersAdapter?.members = boardMembers.map { it.user }
+                boardMembersAdapter?.members = boardMembers
             }
         }
     }

@@ -177,7 +177,6 @@ class CreateTaskViewModel @Inject constructor(
         }
     }
 
-
     private suspend fun getTags(boardListInfo: BoardListInfo) {
         _isLoadingTags.value = true
         val boardRef =

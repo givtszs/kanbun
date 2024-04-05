@@ -40,6 +40,11 @@ class WorkspaceSettingsFragment : BaseFragment(), StateHandler {
     private val viewModel: WorkspaceSettingsViewModel by viewModels()
     private val args: WorkspaceSettingsFragmentArgs by navArgs()
     private lateinit var workspace: Workspace
+    private val isUserAdmin: Boolean by lazy {
+        workspace.members
+            .find { it.id == MainActivity.firebaseUser?.uid }
+            ?.role == Role.Workspace.Admin
+    }
     private var searchUsersAdapter: SearchUsersAdapter? = null
     private var workspaceMembersAdapter: MembersAdapter? = null
 
@@ -49,11 +54,11 @@ class WorkspaceSettingsFragment : BaseFragment(), StateHandler {
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentWorkspaceSettingsBinding.inflate(inflater, container, false)
+        workspace = args.workspace
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        workspace = args.workspace
         super.onViewCreated(view, savedInstanceState)
         setUpActionBar(binding.toolbar)
         setUpAdapters()
@@ -78,6 +83,7 @@ class WorkspaceSettingsFragment : BaseFragment(), StateHandler {
         binding.apply {
             tfName.apply {
                 editText?.setText(workspace.name)
+                isEnabled = isUserAdmin
             }
 
             etName.doOnTextChanged { text, _, _, _ ->
@@ -125,8 +131,11 @@ class WorkspaceSettingsFragment : BaseFragment(), StateHandler {
                 }
             }
 
-            btnDeleteWorkspace.setOnClickListener {
-                buildConfirmationDialog()
+            btnDeleteWorkspace.apply {
+                setOnClickListener {
+                    buildConfirmationDialog()
+                }
+                isEnabled = isUserAdmin
             }
 
             btnViewAllMembers.setOnClickListener {
@@ -167,7 +176,7 @@ class WorkspaceSettingsFragment : BaseFragment(), StateHandler {
                         )
                     }
                 }
-                workspaceMembersAdapter?.members = members.map { it.user }
+                workspaceMembersAdapter?.members = members
             }
         }
     }
@@ -182,7 +191,7 @@ class WorkspaceSettingsFragment : BaseFragment(), StateHandler {
         binding.rvFoundUsers.adapter = searchUsersAdapter
 
         workspaceMembersAdapter = MembersAdapter(ownerId = workspace.owner) { member ->
-            viewModel.removeMember(member)
+            viewModel.removeMember(member.user)
         }
         binding.rvMembers.adapter = workspaceMembersAdapter
     }
