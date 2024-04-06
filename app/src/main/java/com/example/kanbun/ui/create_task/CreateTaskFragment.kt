@@ -36,7 +36,7 @@ import com.example.kanbun.ui.manage_members.MembersAdapter
 import com.example.kanbun.ui.manage_members.SearchUsersAdapter
 import com.example.kanbun.ui.members.MembersBottomSheet
 import com.example.kanbun.ui.model.Member
-import com.example.kanbun.ui.shared.BoardMembersViewModel
+import com.example.kanbun.ui.shared.SharedViewModel
 import com.google.android.material.datepicker.CalendarConstraints
 import com.google.android.material.datepicker.DateValidatorPointForward
 import com.google.android.material.datepicker.MaterialDatePicker
@@ -57,7 +57,7 @@ class CreateTaskFragment : BaseFragment(), StateHandler {
     private var _binding: FragmentCreateTaskBinding? = null
     private val binding: FragmentCreateTaskBinding get() = _binding!!
     private val createTaskViewModel: CreateTaskViewModel by viewModels()
-    private val boardMembersViewModel: BoardMembersViewModel by activityViewModels()
+    private val sharedViewModel: SharedViewModel by activityViewModels()
     private val args: CreateTaskFragmentArgs by navArgs()
     private val boardListInfo: BoardListInfo by lazy {
         BoardListInfo(args.boardList.id, args.boardList.path)
@@ -92,7 +92,7 @@ class CreateTaskFragment : BaseFragment(), StateHandler {
             args.task,
             boardListInfo,
             args.actionType,
-            boardMembersViewModel.boardMembers
+            sharedViewModel.boardMembers
         )
         setUpTagsAdapter()
         setUpAdapters()

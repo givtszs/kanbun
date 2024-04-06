@@ -42,7 +42,7 @@ import com.example.kanbun.ui.board.board_list.ItemBoardListViewHolder
 import com.example.kanbun.ui.board.tasks_adapter.TasksAdapter
 import com.example.kanbun.ui.model.DragAndDropListItem
 import com.example.kanbun.ui.model.DragAndDropTaskItem
-import com.example.kanbun.ui.shared.BoardMembersViewModel
+import com.example.kanbun.ui.shared.SharedViewModel
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Job
@@ -57,13 +57,14 @@ class BoardFragment : BaseFragment(), StateHandler {
     private var _binding: FragmentBoardBinding? = null
     private val binding: FragmentBoardBinding get() = _binding!!
     private val boardViewModel: BoardViewModel by viewModels()
-    private val membersViewModel: BoardMembersViewModel by activityViewModels()
+    private val membersViewModel: SharedViewModel by activityViewModels()
     private val args: BoardFragmentArgs by navArgs()
     private lateinit var boardInfo: Workspace.BoardInfo
     private var boardListsAdapter: BoardListsAdapter? = null
 
     private var scrollJob: Job? = null
     private var pagerSnapHelper = PagerSnapHelper()
+    private var areBoardMembersFetched = false
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -323,9 +324,9 @@ class BoardFragment : BaseFragment(), StateHandler {
                 boardViewModel.messageShown()
             }
 
-            if (board.id.isNotEmpty() && !boardViewModel.areBoardMembersFetched) {
+            if (board.id.isNotEmpty() && !areBoardMembersFetched) {
                 membersViewModel.getBoardMembers(board.members.map { it.id })
-                boardViewModel.areBoardMembersFetched = true
+                areBoardMembersFetched = true
             }
         }
     }

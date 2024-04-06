@@ -1,5 +1,6 @@
 package com.example.kanbun.ui.shared
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.kanbun.common.Result
@@ -10,14 +11,20 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class BoardMembersViewModel @Inject constructor(
+class SharedViewModel @Inject constructor(
   private val firestoreRepository: FirestoreRepository
 ) : ViewModel() {
-    var boardMembers: List<User> = emptyList()
+    companion object {
+        private const val TAG = "SharedViewModel"
+    }
+
+    private var _boardMembers: List<User> = emptyList()
+    val boardMembers: List<User> get() = _boardMembers
 
     fun getBoardMembers(memberIds: List<String>) {
         viewModelScope.launch {
-            boardMembers = when (val result = firestoreRepository.getMembers(memberIds)) {
+            Log.d(TAG, "Fetching board members")
+            _boardMembers = when (val result = firestoreRepository.getMembers(memberIds)) {
                 is Result.Success -> result.data
                 is Result.Error -> emptyList()
             }

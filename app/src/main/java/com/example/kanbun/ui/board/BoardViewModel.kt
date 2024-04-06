@@ -31,8 +31,6 @@ class BoardViewModel @Inject constructor(
     private val firestoreRepository: FirestoreRepository
 ) : ViewModel() {
 
-    var areBoardMembersFetched = false
-
     private val _board = MutableStateFlow(Board())
     private var _boardLists = MutableStateFlow<List<BoardList>>(emptyList())
     private val _isLoading = MutableStateFlow(true)
