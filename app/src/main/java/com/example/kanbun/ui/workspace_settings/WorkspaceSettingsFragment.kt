@@ -135,7 +135,10 @@ class WorkspaceSettingsFragment : BaseFragment(), StateHandler {
 
             btnViewAllMembers.setOnClickListener {
                 val membersBottomSheet =
-                    MembersBottomSheet.init(viewModel.workspaceSettingsState.value.members) { members ->
+                    MembersBottomSheet.init(
+                        members = viewModel.workspaceSettingsState.value.members,
+                        isOwner = MainActivity.firebaseUser?.uid == workspace.owner
+                        ) { members ->
                         viewModel.setMembers(members)
                     }
                 membersBottomSheet.show(childFragmentManager, "workspace_members")

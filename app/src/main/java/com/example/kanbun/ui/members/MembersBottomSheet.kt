@@ -35,7 +35,8 @@ class MembersBottomSheet private constructor() : BottomSheetDialogFragment() {
     private var _binding: FragmentViewAllMembersBinding? = null
     private val binding: FragmentViewAllMembersBinding get() = _binding!!
     private lateinit var members: MutableList<Member>
-    private var isTaskScreen: Boolean = false
+    private var isTaskScreen = false
+    private var isCurrentUserOwner = false
     private lateinit var onDismissCallback: (List<Member>) -> Unit
     private var membersAdapter: AllMembersAdapter? = null
     private var saveOnDismiss = true
@@ -46,11 +47,13 @@ class MembersBottomSheet private constructor() : BottomSheetDialogFragment() {
         fun init(
             members: List<Member>,
             isTaskScreen: Boolean = false,
+            isOwner: Boolean = false,
             onDismissCallback: (List<Member>) -> Unit
         ): MembersBottomSheet {
             return MembersBottomSheet().apply {
                 this.members = members.toMutableList()
                 this.isTaskScreen = isTaskScreen
+                this.isCurrentUserOwner = isOwner
                 this.onDismissCallback = onDismissCallback
             }
         }
@@ -93,8 +96,9 @@ class MembersBottomSheet private constructor() : BottomSheetDialogFragment() {
         }
 
         membersAdapter = AllMembersAdapter(
-            members.toMutableList(),
+            members = members.toMutableList(),
             isCurrentUserAdmin = currentUserRole == Role.Workspace.Admin || currentUserRole == Role.Board.Admin,
+            isCurrentUserOwner = isCurrentUserOwner,
             onRoleChanged = { member, role ->
                 updateMemberRole(
                     member.copy(role = role)
@@ -134,6 +138,7 @@ class MembersBottomSheet private constructor() : BottomSheetDialogFragment() {
 private class AllMembersAdapter(
     private val members: MutableList<Member>,
     private val isCurrentUserAdmin: Boolean,
+    private val isCurrentUserOwner: Boolean,
     private val onRoleChanged: (Member, Role) -> Unit
 ) : RecyclerView.Adapter<AllMembersAdapter.ItemMemberViewHolder>() {
 
@@ -145,12 +150,13 @@ private class AllMembersAdapter(
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ItemMemberViewHolder {
         return ItemMemberViewHolder(
-            ItemMemberBinding.inflate(
+            binding = ItemMemberBinding.inflate(
                 LayoutInflater.from(parent.context),
                 parent,
                 false
             ),
-            isCurrentUserAdmin
+            isUserAdmin = isCurrentUserAdmin,
+            isUserOwner = isCurrentUserOwner
         ) { position, role ->
             onRoleChanged(members[position], role)
         }
@@ -165,6 +171,7 @@ private class AllMembersAdapter(
     class ItemMemberViewHolder(
         val binding: ItemMemberBinding,
         val isUserAdmin: Boolean,
+        val isUserOwner: Boolean,
         val onRoleChanged: (Int, Role) -> Unit
     ) : RecyclerView.ViewHolder(binding.root) {
         companion object {
@@ -186,7 +193,7 @@ private class AllMembersAdapter(
                     view = ivProfilePicture
                 )
 
-                tfRole.isEnabled = isUserAdmin
+                tfRole.isEnabled = isUserAdmin && !isUserOwner
                 if (member.role == null) {
                     tfRole.visibility = View.GONE
                     return@apply

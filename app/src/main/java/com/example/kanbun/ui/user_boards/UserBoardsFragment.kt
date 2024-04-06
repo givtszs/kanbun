@@ -23,9 +23,9 @@ import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import com.bumptech.glide.Glide
 import com.example.kanbun.R
-import com.example.kanbun.common.AuthProvider
 import com.example.kanbun.common.DrawerItem
 import com.example.kanbun.common.RECYCLERVIEW_BOARDS_COLUMNS
+import com.example.kanbun.common.Role
 import com.example.kanbun.common.getColor
 import com.example.kanbun.databinding.FragmentUserBoardsBinding
 import com.example.kanbun.domain.model.User
@@ -83,6 +83,7 @@ class UserBoardsFragment : BaseFragment(), StateHandler {
 
     private var isMenuProviderAdded = false
     private var boardsAdapter: BoardsAdapter? = null
+    private var isUserAdmin = false
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -174,10 +175,12 @@ class UserBoardsFragment : BaseFragment(), StateHandler {
             binding.apply {
                 loading.root.isVisible = isLoading
                 rvBoards.isVisible = currentWorkspace != null
-                fabCreateBoard.isVisible = currentWorkspace != null && currentWorkspace.id != DrawerItem.SHARED_BOARDS
+                fabCreateBoard.isVisible =
+                    currentWorkspace != null && currentWorkspace.id != DrawerItem.SHARED_BOARDS && isUserAdmin
                 activity.isSharedBoardsSelected = currentWorkspace?.id == DrawerItem.SHARED_BOARDS
                 tvTip.isVisible = currentWorkspace == null || currentWorkspace.boards.isEmpty()
-                topAppBar.toolbar.title = currentWorkspace?.name ?: resources.getString(R.string.boards)
+                topAppBar.toolbar.title =
+                    currentWorkspace?.name ?: resources.getString(R.string.boards)
 
                 // create options menu
                 if (!isMenuProviderAdded && currentWorkspace != null && currentWorkspace.id != DrawerItem.SHARED_BOARDS) {
@@ -191,6 +194,8 @@ class UserBoardsFragment : BaseFragment(), StateHandler {
                     Log.d(TAG, "currentWorkspace: $currentWorkspace")
                     boardsAdapter?.setData(currentWorkspace.boards)
                     DrawerAdapter.prevSelectedWorkspaceId = currentWorkspace.id
+                    isUserAdmin =
+                        currentWorkspace.members[MainActivity.firebaseUser?.uid] == Role.Workspace.Admin
 
                     if (currentWorkspace.boards.isEmpty()) {
                         tvTip.text = if (currentWorkspace.id != DrawerItem.SHARED_BOARDS) {
