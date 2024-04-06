@@ -155,7 +155,7 @@ class UserBoardsViewModel @Inject constructor(
         val workspace = Workspace(
             name = name,
             owner = user.id,
-            members = listOf(Workspace.WorkspaceMember(user.id, Role.Workspace.Admin)),
+            members = mapOf(user.id to Role.Workspace.Admin),
         )
 
         when (val result = firestoreRepository.createWorkspace(workspace)) {

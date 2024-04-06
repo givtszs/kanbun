@@ -1,6 +1,5 @@
 package com.example.kanbun.ui.board_settings
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.kanbun.common.Result
@@ -14,7 +13,6 @@ import com.example.kanbun.ui.ViewState
 import com.example.kanbun.ui.model.Member
 import com.example.kanbun.ui.model.TagUi
 import com.example.kanbun.ui.model.UserSearchResult
-import com.example.kanbun.ui.workspace_settings.WorkspaceSettingsViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -103,7 +101,7 @@ class BoardSettingsViewModel @Inject constructor(
                 is Result.Success -> {
                     val workspace = resultWorkspace.data
                     when (val resultMembers =
-                        firestoreRepository.getMembers(workspace.members.map { it.id })
+                        firestoreRepository.getMembers(workspace.members.keys.toList())
                     ) {
                         is Result.Success -> _workspaceMembers.value = resultMembers.data
                         is Result.Error -> _message.value = resultMembers.message

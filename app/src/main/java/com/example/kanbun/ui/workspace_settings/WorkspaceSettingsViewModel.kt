@@ -58,18 +58,17 @@ class WorkspaceSettingsViewModel @Inject constructor(
             ViewState.WorkspaceSettingsViewState()
         )
 
-    fun init(ownerId: String, workspaceMembers: List<Workspace.WorkspaceMember>) {
+    fun init(ownerId: String, workspaceMembers: Map<String, Role.Workspace>) {
         fetchMembers(ownerId, workspaceMembers)
     }
 
-    private fun fetchMembers(ownerId: String, members: List<Workspace.WorkspaceMember>) {
+    private fun fetchMembers(ownerId: String, members: Map<String, Role.Workspace>) {
         viewModelScope.launch {
-            when (val result = firestoreRepository.getMembers(members.map { it.id })
+            when (val result = firestoreRepository.getMembers(members.keys.toList())
             ) {
                 is Result.Success -> {
-                    val membersById = members.associateBy { it.id }
                     val fetchedMembers = result.data.map { user ->
-                        val role = membersById[user.id]?.role ?: Role.Workspace.Member
+                        val role = members[user.id] ?: Role.Workspace.Member
                         Member(user = user, role = role)
                     }
                     val owner = fetchedMembers.find { it.user.id == ownerId }

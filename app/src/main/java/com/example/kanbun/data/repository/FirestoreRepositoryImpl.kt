@@ -238,8 +238,8 @@ class FirestoreRepositoryImpl @Inject constructor(
                     }
 
                     if ("members" in workspaceUpdates) {
-                        val oldMembersIds = oldWorkspace.members.map { it.id }
-                        val newMembersIds = newWorkspace.members.map { it.id }
+                        val oldMembersIds = oldWorkspace.members.keys
+                        val newMembersIds = newWorkspace.members.keys
                         if (oldMembersIds != newMembersIds) {
                             val membersToAdd = newMembersIds.filterNot { it in oldMembersIds }
                             membersToAdd.forEach { memberId ->
@@ -279,14 +279,14 @@ class FirestoreRepositoryImpl @Inject constructor(
 
     private fun updateWorkspaceNameInUserWorkspaces(
         workspaceId: String,
-        members: List<Workspace.WorkspaceMember>,
+        members: Map<String, Role.Workspace>,
         name: String,
         scope: CoroutineScope
     ) {
-        members.map { user ->
+        members.forEach { member ->
             scope.launch {
                 firestore.collection(FirestoreCollection.USERS)
-                    .document(user.id)
+                    .document(member.key)
                     .update("workspaces.$workspaceId", name)
             }
         }
@@ -361,13 +361,13 @@ class FirestoreRepositoryImpl @Inject constructor(
      */
     private fun deleteWorkspaceFromMembers(
         workspaceId: String,
-        members: List<Workspace.WorkspaceMember>,
+        members: Map<String, Role.Workspace>,
         scope: CoroutineScope
     ) {
-        members.map { user ->
+        members.forEach { member ->
             scope.launch {
                 firestore.collection(FirestoreCollection.USERS)
-                    .document(user.id)
+                    .document(member.key)
                     .update("workspaces.$workspaceId", FieldValue.delete())
             }
         }

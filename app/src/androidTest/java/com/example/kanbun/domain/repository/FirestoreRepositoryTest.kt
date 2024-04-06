@@ -265,8 +265,8 @@ class FirestoreRepositoryTest {
             // verify workspace members field has `user2`
             val workspaceUpdate = (repository.getWorkspace(workspace.id) as Result.Success).data
 
-            assertThat(workspaceUpdate.members.any { it.id == user2.id }).isTrue()
-            assertThat(workspaceUpdate.members.first { it.id == user2.id }.role).isEqualTo(Role.Workspace.Member)
+            assertThat(workspaceUpdate.members[user2.id]).isNotNull()
+            assertThat(workspaceUpdate.members[user2.id]).isEqualTo(Role.Workspace.Member)
         }
 
     @Test

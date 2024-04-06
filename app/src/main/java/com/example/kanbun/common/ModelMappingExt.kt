@@ -90,10 +90,7 @@ fun Workspace.BoardInfo.toFirestoreBoardInfo(): Map<String, String?> =
         "cover" to cover
     )
 
-fun List<Workspace.WorkspaceMember>.toFirestoreMembers(): Map<String, String> =
-    associate { member ->
-        member.id to member.role.name
-    }
+fun Map<String, Role.Workspace>.toFirestoreMembers(): Map<String, String> = mapValues { it.value.name }
 
 fun List<Workspace.BoardInfo>.toFirestoreBoards(): Map<String, Map<String, String?>> =
     associate { boardInfo ->
@@ -108,11 +105,9 @@ fun FirestoreWorkspace.toWorkspace(workspaceId: String): Workspace =
         id = workspaceId,
         name = name,
         owner = owner,
-        members = members.map { entry ->
-            Workspace.WorkspaceMember(
-                id = entry.key,
-                role = if (entry.value == Role.Workspace.Admin.name) Role.Workspace.Admin else Role.Workspace.Member
-            )
+        members = members.mapValues {
+            if (it.value == Role.Workspace.Admin.name) Role.Workspace.Admin
+            else Role.Workspace.Member
         },
         boards = boards.map { entry ->
             val values = entry.value

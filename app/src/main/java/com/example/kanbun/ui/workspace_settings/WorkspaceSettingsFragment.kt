@@ -41,9 +41,7 @@ class WorkspaceSettingsFragment : BaseFragment(), StateHandler {
     private val args: WorkspaceSettingsFragmentArgs by navArgs()
     private lateinit var workspace: Workspace
     private val isUserAdmin: Boolean by lazy {
-        workspace.members
-            .find { it.id == MainActivity.firebaseUser?.uid }
-            ?.role == Role.Workspace.Admin
+        workspace.members[MainActivity.firebaseUser?.uid] == Role.Workspace.Admin
     }
     private var searchUsersAdapter: SearchUsersAdapter? = null
     private var workspaceMembersAdapter: MembersAdapter? = null
@@ -118,11 +116,8 @@ class WorkspaceSettingsFragment : BaseFragment(), StateHandler {
                     oldWorkspace = workspace,
                     newWorkspace = workspace.copy(
                         name = name,
-                        members = viewModel.workspaceSettingsState.value.members.map {
-                            Workspace.WorkspaceMember(
-                                id = it.user.id,
-                                role = it.role as Role.Workspace
-                            )
+                        members = viewModel.workspaceSettingsState.value.members.associate {
+                            it.user.id to it.role as Role.Workspace
                         }
                     )
                 ) {
