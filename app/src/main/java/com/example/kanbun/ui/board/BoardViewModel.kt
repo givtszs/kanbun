@@ -78,13 +78,14 @@ class BoardViewModel @Inject constructor(
         }
     }
 
-    fun getBoard(boardId: String, workspaceId: String) {
+    fun getBoard(boardId: String, workspaceId: String, onSuccess: (Board) -> Unit) {
         viewModelScope.launch {
             _isLoading.value = true
             when (val result = firestoreRepository.getBoard(boardId, workspaceId)) {
                 is Result.Success -> {
                     val board = result.data
                     _board.value = board
+                    onSuccess(board)
                     getBoardLists(firestoreRepository.getBoardListsStream(board.id, board.workspace.id))
                 }
                 is Result.Error -> _message.value = result.message

@@ -70,6 +70,7 @@ class BoardFragment : BaseFragment(), StateHandler {
     private var pagerSnapHelper = PagerSnapHelper()
 
     private var areBoardMembersFetched = false
+    private var isBoardFetched = false
     private var isWorkspaceAdminOrBoardMember = false
 
     override fun onCreateView(
@@ -78,17 +79,27 @@ class BoardFragment : BaseFragment(), StateHandler {
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentBoardBinding.inflate(inflater, container, false)
+        Log.d(TAG, "workspaceRole: ${args.userWorkspaceRole}")
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val boardInfo = args.boardInfo
+        val boardInfo: Workspace.BoardInfo = args.boardInfo
+        getBoard(boardInfo.boardId, boardInfo.workspaceId)
         setUpActionBar(binding.topAppBar.toolbar, boardInfo.name)
         setUpBoardListsAdapter()
         setUpMenu()
         collectState()
-        boardViewModel.getBoard(boardInfo.boardId, boardInfo.workspaceId)
+    }
+
+    private fun getBoard(boardId: String, workspaceId: String) {
+        if (isBoardFetched) return
+        boardViewModel.getBoard(boardId, workspaceId) { board ->
+            isBoardFetched = true
+            isWorkspaceAdminOrBoardMember = args.userWorkspaceRole == Role.Workspace.Admin || board.members.any { it.id == MainActivity.firebaseUser?.uid }
+            boardListsAdapter?.isWorkspaceAdminOrBoardMember = isWorkspaceAdminOrBoardMember
+        }
     }
 
     override fun setUpListeners() {
@@ -322,8 +333,6 @@ class BoardFragment : BaseFragment(), StateHandler {
         with(state as ViewState.BoardViewState) {
             boardListsAdapter?.setData(lists.sortedBy { it.position })
             boardListsAdapter?.boardTags = board.tags
-            isWorkspaceAdminOrBoardMember = args.userWorkspaceRole == Role.Workspace.Admin || board.members.any { it.id == MainActivity.firebaseUser?.uid }
-
 
             Log.d(TAG, "processState: isLoading: $isLoading")
             binding.loading.root.isVisible = isLoading
