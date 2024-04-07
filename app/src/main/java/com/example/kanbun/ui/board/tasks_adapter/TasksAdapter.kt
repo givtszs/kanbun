@@ -30,7 +30,7 @@ class TasksAdapter(
 
     lateinit var listInfo: BoardListInfo
 
-    private val isWorkspaceAdminOrBoardMember =
+    private val isWorkspaceAdminOrBoardMember get() =
         UserBoardsFragment.userRole == Role.Workspace.Admin || BoardFragment.isBoardMember
 
     fun setData(data: List<Task>) {

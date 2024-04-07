@@ -61,10 +61,6 @@ class BoardFragment : BaseFragment(), StateHandler {
     companion object {
         private var _isBoardMember = false
         val isBoardMember: Boolean get() = _isBoardMember
-
-        private fun setIsBoardMember(isMember: Boolean) {
-            _isBoardMember = isMember
-        }
     }
 
     private var _binding: FragmentBoardBinding? = null
@@ -105,7 +101,7 @@ class BoardFragment : BaseFragment(), StateHandler {
         if (isBoardFetched) return
         boardViewModel.getBoard(boardId, workspaceId) { board ->
             isBoardFetched = true
-            setIsBoardMember(board.members.any { it.id == MainActivity.firebaseUser?.uid })
+            _isBoardMember = board.members.any { it.id == MainActivity.firebaseUser?.uid }
         }
     }
 
@@ -324,7 +320,6 @@ class BoardFragment : BaseFragment(), StateHandler {
 
     override fun collectState() {
         lifecycleScope.launch {
-            // TODO("Change Lifecycle.State to RESUMED if somethings is wrong")
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 boardViewModel.boardState.collectLatest {
                     processState(it)
@@ -357,5 +352,10 @@ class BoardFragment : BaseFragment(), StateHandler {
         super.onDestroyView()
         _binding = null
         boardListsAdapter = null
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        _isBoardMember = false
     }
 }
