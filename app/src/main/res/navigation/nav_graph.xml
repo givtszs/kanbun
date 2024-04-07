@@ -131,6 +131,8 @@
         <argument
             android:name="boardList"
             app:argType="com.example.kanbun.domain.model.BoardList" />
+        <argument android:name="isWorkspaceAdminOrBoardMember"
+            app:argType="boolean" />
     </fragment>
     <fragment
         android:id="@+id/createTaskFragment"

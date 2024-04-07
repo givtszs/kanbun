@@ -90,6 +90,7 @@ class TaskDetailsFragment : BaseFragment(), StateHandler {
                 convertTimestampToDateString(DATE_TIME_FORMAT, task.dateEnds)
             )
 
+            fabEditTask.isVisible = args.isWorkspaceAdminOrBoardMember
             fabEditTask.setOnClickListener {
                 navController.navigate(
                     TaskDetailsFragmentDirections.actionTaskDetailsFragmentToCreateTaskFragment(
@@ -163,6 +164,12 @@ class TaskDetailsFragment : BaseFragment(), StateHandler {
                     // display icon in the options menu list
                     menu.setOptionalIconsVisible(true)
                 }
+            }
+
+
+            override fun onPrepareMenu(menu: Menu) {
+                super.onPrepareMenu(menu)
+                menu.findItem(R.id.menu_item_delete).isEnabled = args.isWorkspaceAdminOrBoardMember
             }
 
             override fun onMenuItemSelected(menuItem: MenuItem): Boolean {

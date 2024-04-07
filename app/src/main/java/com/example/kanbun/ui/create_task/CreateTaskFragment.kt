@@ -129,7 +129,8 @@ class CreateTaskFragment : BaseFragment(), StateHandler {
                                 navController.navigate(
                                     CreateTaskFragmentDirections.actionCreateTaskFragmentToTaskDetailsFragment(
                                         task = updatedTask,
-                                        boardList = args.boardList
+                                        boardList = args.boardList,
+                                        isWorkspaceAdminOrBoardMember = true // since users with the workspace role `Role.Workspace.Member` can't access this fragment
                                     )
                                 )
                             }

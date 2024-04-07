@@ -56,6 +56,7 @@ private const val TAG = "BoardFragment"
 
 @AndroidEntryPoint
 class BoardFragment : BaseFragment(), StateHandler {
+
     private var _binding: FragmentBoardBinding? = null
     private val binding: FragmentBoardBinding get() = _binding!!
 
@@ -69,6 +70,7 @@ class BoardFragment : BaseFragment(), StateHandler {
     private var pagerSnapHelper = PagerSnapHelper()
 
     private var areBoardMembersFetched = false
+    private var isWorkspaceAdminOrBoardMember = false
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -163,7 +165,8 @@ class BoardFragment : BaseFragment(), StateHandler {
                     navController.navigate(
                         BoardFragmentDirections.actionBoardFragmentToTaskDetailsFragment(
                             task,
-                            boardList = boardList
+                            boardList = boardList,
+                            isWorkspaceAdminOrBoardMember = this@BoardFragment.isWorkspaceAdminOrBoardMember
                         )
                     )
                 }
@@ -172,7 +175,9 @@ class BoardFragment : BaseFragment(), StateHandler {
 //                    viewModel.stopLoading()
                 }
             }
-        )
+        ).apply {
+            isWorkspaceAdminOrBoardMember = this@BoardFragment.isWorkspaceAdminOrBoardMember
+        }
 
         binding.rvLists.apply {
             adapter = boardListsAdapter
@@ -317,8 +322,8 @@ class BoardFragment : BaseFragment(), StateHandler {
         with(state as ViewState.BoardViewState) {
             boardListsAdapter?.setData(lists.sortedBy { it.position })
             boardListsAdapter?.boardTags = board.tags
-            boardListsAdapter?.isWorkspaceAdminOrBoardMember =
-                args.userWorkspaceRole == Role.Workspace.Admin || board.members.any { it.id == MainActivity.firebaseUser?.uid }
+            isWorkspaceAdminOrBoardMember = args.userWorkspaceRole == Role.Workspace.Admin || board.members.any { it.id == MainActivity.firebaseUser?.uid }
+
 
             Log.d(TAG, "processState: isLoading: $isLoading")
             binding.loading.root.isVisible = isLoading
