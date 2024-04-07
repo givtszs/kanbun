@@ -81,6 +81,7 @@ class BoardSettingsFragment : BaseFragment(), StateHandler {
             tfDescription.isEnabled = isUserAdmin
             etDescription.setText(board.description)
 
+            tfSearchUser.isEnabled = isUserAdmin
             var searchJob: Job? = null
             etSearchUser.setOnFocusChangeListener { view, isFocused ->
                 if (isFocused) {
@@ -135,7 +136,8 @@ class BoardSettingsFragment : BaseFragment(), StateHandler {
 
             btnEditTags.setOnClickListener {
                 val editTagsDialog = EditTagsBottomSheet.init(
-                    tags = viewModel.boardSettingsState.value.tags.map { it.tag }
+                    tags = viewModel.boardSettingsState.value.tags.map { it.tag },
+                    isEditable = board.members.any { it.id == MainActivity.firebaseUser?.uid }
                 )
                 editTagsDialog.onDismissCallback = { tags ->
                     viewModel.setTags(tags)

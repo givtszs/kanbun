@@ -31,11 +31,13 @@ class EditTagsBottomSheet : BottomSheetDialogFragment(), StateHandler {
     private val viewModel: EditTagsViewModel by viewModels()
     private var editTagsAdapter: EditTagsAdapter? = null
     private lateinit var tags: List<Tag>
+    private var isEditable = false
 
     companion object {
-        fun init(tags: List<Tag>): EditTagsBottomSheet {
+        fun init(tags: List<Tag>, isEditable: Boolean): EditTagsBottomSheet {
             return EditTagsBottomSheet().apply {
                 this.tags = tags
+                this.isEditable = isEditable
             }
         }
     }
@@ -58,6 +60,7 @@ class EditTagsBottomSheet : BottomSheetDialogFragment(), StateHandler {
         viewModel.setTags(tags)
         collectState()
 
+        binding.btnCreateTag.isEnabled = isEditable
         binding.btnCreateTag.setOnClickListener {
             val createTagDialog = CreateTagDialog(requireContext()) { tag ->
                 viewModel.upsertTag(tag)
@@ -89,6 +92,7 @@ class EditTagsBottomSheet : BottomSheetDialogFragment(), StateHandler {
 
     private fun setUpTagsAdapter() {
         editTagsAdapter = EditTagsAdapter(
+            isEditable = isEditable,
             onItemClicked = { clickedTag ->
                 // edit tag
                 val tagEditor = CreateTagDialog(requireContext()) { tag ->
@@ -117,6 +121,7 @@ class EditTagsBottomSheet : BottomSheetDialogFragment(), StateHandler {
     }
 
     private class EditTagsAdapter(
+        private val isEditable: Boolean,
         private val onItemClicked: (Tag) -> Unit,
         private val onDeleteIconClicked: (String) -> Unit
     ) : RecyclerView.Adapter<EditTagsAdapter.ItemEditTagViewHolder>() {
@@ -137,6 +142,7 @@ class EditTagsBottomSheet : BottomSheetDialogFragment(), StateHandler {
                     parent,
                     false
                 ),
+                isEditable = isEditable,
                 onItemClicked = { position ->
                     onItemClicked(tags[position])
                 },
@@ -154,6 +160,7 @@ class EditTagsBottomSheet : BottomSheetDialogFragment(), StateHandler {
 
         class ItemEditTagViewHolder(
             private val binding: ItemEditTagBinding,
+            private val isEditable: Boolean,
             onItemClicked: (Int) -> Unit,
             onDeleteTagClicked: (Int) -> Unit
         ) : RecyclerView.ViewHolder(binding.root) {
@@ -161,10 +168,12 @@ class EditTagsBottomSheet : BottomSheetDialogFragment(), StateHandler {
             init {
                 binding.apply {
                     cardBackground.setOnClickListener {
+                        if (!isEditable) return@setOnClickListener
                         onItemClicked(adapterPosition)
                     }
 
                     btnDeleteTag.setOnClickListener {
+                        if (!isEditable) return@setOnClickListener
                         onDeleteTagClicked(adapterPosition)
                     }
                 }
