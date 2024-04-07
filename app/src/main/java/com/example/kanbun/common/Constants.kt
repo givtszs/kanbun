@@ -1,8 +1,10 @@
 package com.example.kanbun.common
 
+import android.os.Parcelable
 import androidx.annotation.StringRes
 import com.example.kanbun.R
 import com.squareup.moshi.Moshi
+import kotlinx.parcelize.Parcelize
 
 object FirestoreCollection {
     const val USERS = "users"
@@ -18,14 +20,17 @@ enum class AuthProvider(val providerId: String) {
     GITHUB("github.com")
 }
 
-sealed class Role(val name: String, @StringRes val description: Int) {
+@Parcelize
+sealed class Role(val name: String, @StringRes val description: Int) : Parcelable {
 
-     sealed class Workspace(roleName: String, roleDescription: Int) : Role(roleName, roleDescription) {
+    @Parcelize
+     sealed class Workspace(private val roleName: String, private val roleDescription: Int) : Role(roleName, roleDescription) {
          data object Admin : Workspace("Admin", R.string.workspace_role_admin_description)
          data object Member : Workspace("Member", R.string.workspace_role_member_description)
      }
 
-    sealed class Board(roleName: String, roleDescription: Int) : Role(roleName, roleDescription) {
+    @Parcelize
+    sealed class Board(private val roleName: String, private val roleDescription: Int) : Role(roleName, roleDescription) {
         data object Admin : Board("Admin", R.string.board_role_admin_description)
         data object Member : Board("Member", R.string.board_role_member_description)
     }

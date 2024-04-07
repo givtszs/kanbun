@@ -5,6 +5,7 @@ import com.example.kanbun.databinding.ItemCreateBoardListBinding
 
 class ItemCreateBoardListViewHolder(
     binding: ItemCreateBoardListBinding,
+    isWorkspaceAdminOrBoardMember: Boolean,
     private val onClickListener: () -> Unit
 ) : RecyclerView.ViewHolder(binding.root) {
 
@@ -12,5 +13,6 @@ class ItemCreateBoardListViewHolder(
         binding.cardView.setOnClickListener {
             onClickListener()
         }
+        binding.cardView.isEnabled = isWorkspaceAdminOrBoardMember
     }
 }

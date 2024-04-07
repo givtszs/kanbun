@@ -26,6 +26,7 @@ import androidx.recyclerview.widget.PagerSnapHelper
 import androidx.recyclerview.widget.RecyclerView
 import com.example.kanbun.R
 import com.example.kanbun.common.HORIZONTAL_SCROLL_DISTANCE
+import com.example.kanbun.common.Role
 import com.example.kanbun.common.TaskAction
 import com.example.kanbun.common.moshi
 import com.example.kanbun.databinding.FragmentBoardBinding
@@ -40,6 +41,7 @@ import com.example.kanbun.ui.board.board_list.BoardListsAdapter
 import com.example.kanbun.ui.board.board_list.BoardListsAdapterCallbacks
 import com.example.kanbun.ui.board.board_list.ItemBoardListViewHolder
 import com.example.kanbun.ui.board.tasks_adapter.TasksAdapter
+import com.example.kanbun.ui.main_activity.MainActivity
 import com.example.kanbun.ui.model.DragAndDropListItem
 import com.example.kanbun.ui.model.DragAndDropTaskItem
 import com.example.kanbun.ui.shared.SharedViewModel
@@ -56,14 +58,16 @@ private const val TAG = "BoardFragment"
 class BoardFragment : BaseFragment(), StateHandler {
     private var _binding: FragmentBoardBinding? = null
     private val binding: FragmentBoardBinding get() = _binding!!
+
     private val boardViewModel: BoardViewModel by viewModels()
     private val membersViewModel: SharedViewModel by activityViewModels()
-    private val args: BoardFragmentArgs by navArgs()
-    private lateinit var boardInfo: Workspace.BoardInfo
-    private var boardListsAdapter: BoardListsAdapter? = null
 
+    private val args: BoardFragmentArgs by navArgs()
+
+    private var boardListsAdapter: BoardListsAdapter? = null
     private var scrollJob: Job? = null
     private var pagerSnapHelper = PagerSnapHelper()
+
     private var areBoardMembersFetched = false
 
     override fun onCreateView(
@@ -72,13 +76,12 @@ class BoardFragment : BaseFragment(), StateHandler {
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentBoardBinding.inflate(inflater, container, false)
-        boardInfo = args.boardInfo
-        Log.d(TAG, "boardInfo: $boardInfo")
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        val boardInfo = args.boardInfo
         setUpActionBar(binding.topAppBar.toolbar, boardInfo.name)
         setUpBoardListsAdapter()
         setUpMenu()
@@ -139,8 +142,8 @@ class BoardFragment : BaseFragment(), StateHandler {
                     buildCreateListDialog()
                 }
 
-                override fun onBoardListMenuClicked(boardList: BoardList, boardLists: List<BoardList>) {
-                    val boardListMenuDialog = BoardListMenuDialog.init(boardList, boardLists)
+                override fun onBoardListMenuClicked(boardList: BoardList, boardLists: List<BoardList>, isEnabled: Boolean) {
+                    val boardListMenuDialog = BoardListMenuDialog.init(boardList, boardLists, isEnabled)
                     boardListMenuDialog.show(childFragmentManager, "board_list_menu")
                 }
 
@@ -314,8 +317,9 @@ class BoardFragment : BaseFragment(), StateHandler {
         with(state as ViewState.BoardViewState) {
             boardListsAdapter?.setData(lists.sortedBy { it.position })
             boardListsAdapter?.boardTags = board.tags
-//            if (board.tags.isNotEmpty()) {
-//            }
+            boardListsAdapter?.isWorkspaceAdminOrBoardMember =
+                args.userWorkspaceRole == Role.Workspace.Admin || board.members.any { it.id == MainActivity.firebaseUser?.uid }
+
             Log.d(TAG, "processState: isLoading: $isLoading")
             binding.loading.root.isVisible = isLoading
 

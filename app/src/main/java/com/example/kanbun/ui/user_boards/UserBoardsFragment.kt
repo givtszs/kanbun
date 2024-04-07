@@ -45,6 +45,7 @@ private const val TAG = "UserBoardsFragm"
 
 @AndroidEntryPoint
 class UserBoardsFragment : BaseFragment(), StateHandler {
+
     private var _binding: FragmentUserBoardsBinding? = null
     private val binding: FragmentUserBoardsBinding get() = _binding!!
 
@@ -83,7 +84,7 @@ class UserBoardsFragment : BaseFragment(), StateHandler {
 
     private var isMenuProviderAdded = false
     private var boardsAdapter: BoardsAdapter? = null
-    private var isUserAdmin = false
+    private var userRole: Role.Workspace? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -176,7 +177,7 @@ class UserBoardsFragment : BaseFragment(), StateHandler {
                 loading.root.isVisible = isLoading
                 rvBoards.isVisible = currentWorkspace != null
                 fabCreateBoard.isVisible =
-                    currentWorkspace != null && currentWorkspace.id != DrawerItem.SHARED_BOARDS && isUserAdmin
+                    currentWorkspace != null && currentWorkspace.id != DrawerItem.SHARED_BOARDS && userRole == Role.Workspace.Admin
                 activity.isSharedBoardsSelected = currentWorkspace?.id == DrawerItem.SHARED_BOARDS
                 tvTip.isVisible = currentWorkspace == null || currentWorkspace.boards.isEmpty()
                 topAppBar.toolbar.title =
@@ -194,8 +195,7 @@ class UserBoardsFragment : BaseFragment(), StateHandler {
                     Log.d(TAG, "currentWorkspace: $currentWorkspace")
                     boardsAdapter?.setData(currentWorkspace.boards)
                     DrawerAdapter.prevSelectedWorkspaceId = currentWorkspace.id
-                    isUserAdmin =
-                        currentWorkspace.members[MainActivity.firebaseUser?.uid] == Role.Workspace.Admin
+                    userRole = currentWorkspace.members[MainActivity.firebaseUser?.uid] ?: Role.Workspace.Member
 
                     if (currentWorkspace.boards.isEmpty()) {
                         tvTip.text = if (currentWorkspace.id != DrawerItem.SHARED_BOARDS) {
@@ -308,7 +308,8 @@ class UserBoardsFragment : BaseFragment(), StateHandler {
         boardsAdapter = BoardsAdapter { boardInfo ->
             navController.navigate(
                 UserBoardsFragmentDirections.actionUserBoardsFragmentToBoardFragment(
-                    boardInfo
+                    boardInfo = boardInfo,
+                    userRole ?: Role.Workspace.Member,
                 )
             )
         }

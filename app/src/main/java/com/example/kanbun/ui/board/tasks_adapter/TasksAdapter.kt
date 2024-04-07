@@ -18,6 +18,7 @@ import com.example.kanbun.domain.model.Tag
  * @property loadTaskTags the callback to load tags of a task
  */
 class TasksAdapter(
+    private val isWorkspaceAdminOrBoardMember: Boolean,
     val taskDropCallbacks: TaskDropCallbacks,
     private val onTaskClicked: (Task) -> Unit,
     private val loadTaskTags: (List<String>) -> List<Tag>
@@ -47,7 +48,8 @@ class TasksAdapter(
             clickAtPosition = { position ->
                 onTaskClicked(tasks[position])
             },
-            loadTags = loadTaskTags
+            loadTags = loadTaskTags,
+            isWorkspaceAdminOrBoardMember = isWorkspaceAdminOrBoardMember
         )
     }
 

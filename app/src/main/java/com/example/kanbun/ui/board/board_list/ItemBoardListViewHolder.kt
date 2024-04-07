@@ -22,6 +22,7 @@ import kotlinx.coroutines.launch
 
 class ItemBoardListViewHolder(
     coroutineScope: CoroutineScope,
+    isWorkspaceAdminOrBoardMember: Boolean,
     taskDropCallbacks: TaskDropCallbacks,
     val binding: ItemBoardListBinding,
     private val boardListAdapter: BoardListsAdapter,
@@ -52,6 +53,7 @@ class ItemBoardListViewHolder(
     init {
         ItemBoardListViewHolder.coroutineScope = coroutineScope
 
+        binding.btnCreateTask.isEnabled = isWorkspaceAdminOrBoardMember
         binding.btnCreateTask.setOnClickListener {
             callbacks.createTask(adapterPosition)
         }
@@ -61,6 +63,7 @@ class ItemBoardListViewHolder(
         }
 
         tasksAdapter = TasksAdapter(
+            isWorkspaceAdminOrBoardMember = isWorkspaceAdminOrBoardMember,
             taskDropCallbacks = taskDropCallbacks,
             onTaskClicked = { task ->
                 callbacks.onTaskClicked(task, boardList!!)
@@ -90,13 +93,15 @@ class ItemBoardListViewHolder(
         )
 
         // starts the drag and drop action
-        binding.tvListName.setOnLongClickListener { view ->
-            ListDragAndDropHelper.currentAdapter = boardListAdapter
-            ListDragAndDropHelper.startListDragging(
-                view = view,
-                position = adapterPosition,
-                binding = binding
-            )
+        if (isWorkspaceAdminOrBoardMember) {
+            binding.tvListName.setOnLongClickListener { view ->
+                ListDragAndDropHelper.currentAdapter = boardListAdapter
+                ListDragAndDropHelper.startListDragging(
+                    view = view,
+                    position = adapterPosition,
+                    binding = binding
+                )
+            }
         }
 
         // handle drag events when the user drops the draggable view on the board list item

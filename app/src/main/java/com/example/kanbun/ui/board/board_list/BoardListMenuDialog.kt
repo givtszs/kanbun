@@ -23,12 +23,18 @@ class BoardListMenuDialog : BottomSheetDialogFragment() {
     private val viewModel: BoardListViewModel by viewModels()
     private lateinit var boardList: BoardList
     private lateinit var boardLists: List<BoardList>
+    private var areOptionsEnabled: Boolean = false
 
     companion object {
-        fun init(boardList: BoardList, boardLists: List<BoardList>): BoardListMenuDialog {
+        fun init(
+            boardList: BoardList,
+            boardLists: List<BoardList>,
+            areOptionsEnabled: Boolean
+        ): BoardListMenuDialog {
             return BoardListMenuDialog().apply {
                 this.boardList = boardList
                 this.boardLists = boardLists
+                this.areOptionsEnabled = areOptionsEnabled
             }
         }
     }
@@ -45,12 +51,16 @@ class BoardListMenuDialog : BottomSheetDialogFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        binding.btnDelete.setOnClickListener {
-            viewModel.deleteBoardList(boardList, boardLists) { dismiss() }
-        }
+        binding.apply {
+            btnDelete.isEnabled = areOptionsEnabled
+            btnDelete.setOnClickListener {
+                viewModel.deleteBoardList(boardList, boardLists) { dismiss() }
+            }
 
-        binding.btnEditName.setOnClickListener {
-            buildEditNameDialog()
+            btnEditName.isEnabled = areOptionsEnabled
+            btnEditName.setOnClickListener {
+                buildEditNameDialog()
+            }
         }
     }
 

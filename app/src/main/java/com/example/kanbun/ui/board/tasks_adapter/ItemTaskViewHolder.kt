@@ -2,7 +2,6 @@ package com.example.kanbun.ui.board.tasks_adapter
 
 import android.content.ClipData
 import android.content.ClipDescription
-import android.content.Context
 import android.util.Log
 import android.view.DragEvent
 import android.view.View
@@ -25,6 +24,7 @@ import com.squareup.moshi.Moshi
 class ItemTaskViewHolder(
     private val binding: ItemTaskBinding,
     private val tasksAdapter: TasksAdapter,
+    isWorkspaceAdminOrBoardMember: Boolean,
     private val clickAtPosition: (Int) -> Unit,
     private val loadTags: (List<String>) -> List<Tag>
 ) : RecyclerView.ViewHolder(binding.root) {
@@ -41,13 +41,15 @@ class ItemTaskViewHolder(
             clickAtPosition(adapterPosition)
         }
 
-        // initiates dragging action
-        binding.materialCard.setOnLongClickListener { view ->
-            Log.d("ItemTaskViewHolder", "long clicked perform at: $adapterPosition")
-            draggedTaskInitPosition = adapterPosition
-            draggedTaskPrevPosition = adapterPosition
+        if (isWorkspaceAdminOrBoardMember) {
+            // initiates dragging action
+            binding.materialCard.setOnLongClickListener { view ->
+                Log.d("ItemTaskViewHolder", "long clicked perform at: $adapterPosition")
+                draggedTaskInitPosition = adapterPosition
+                draggedTaskPrevPosition = adapterPosition
 
-            TaskDragAndDropHelper.startDrag(tasksAdapter, view, task)
+                TaskDragAndDropHelper.startDrag(tasksAdapter, view, task)
+            }
         }
 
         binding.materialCard.setOnDragListener { receiverView, event ->

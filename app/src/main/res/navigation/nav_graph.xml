@@ -113,6 +113,9 @@
         <action
             android:id="@+id/action_boardFragment_to_boardSettingsFragment"
             app:destination="@id/boardSettingsFragment" />
+        <argument
+            android:name="userWorkspaceRole"
+            app:argType="com.example.kanbun.common.Role$Workspace" />
     </fragment>
     <fragment
         android:id="@+id/taskDetailsFragment"
