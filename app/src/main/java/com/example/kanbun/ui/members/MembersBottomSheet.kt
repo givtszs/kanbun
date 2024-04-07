@@ -36,7 +36,7 @@ class MembersBottomSheet private constructor() : BottomSheetDialogFragment() {
     private val binding: FragmentViewAllMembersBinding get() = _binding!!
     private lateinit var members: MutableList<Member>
     private var isTaskScreen = false
-    private var isCurrentUserOwner = false
+    private var ownerId: String? = null
     private lateinit var onDismissCallback: (List<Member>) -> Unit
     private var membersAdapter: AllMembersAdapter? = null
     private var saveOnDismiss = true
@@ -47,13 +47,13 @@ class MembersBottomSheet private constructor() : BottomSheetDialogFragment() {
         fun init(
             members: List<Member>,
             isTaskScreen: Boolean = false,
-            isOwner: Boolean = false,
+            ownerId: String? = null,
             onDismissCallback: (List<Member>) -> Unit
         ): MembersBottomSheet {
             return MembersBottomSheet().apply {
                 this.members = members.toMutableList()
                 this.isTaskScreen = isTaskScreen
-                this.isCurrentUserOwner = isOwner
+                this.ownerId = ownerId
                 this.onDismissCallback = onDismissCallback
             }
         }
@@ -98,7 +98,7 @@ class MembersBottomSheet private constructor() : BottomSheetDialogFragment() {
         membersAdapter = AllMembersAdapter(
             members = members.toMutableList(),
             isCurrentUserAdmin = currentUserRole == Role.Workspace.Admin || currentUserRole == Role.Board.Admin,
-            isCurrentUserOwner = isCurrentUserOwner,
+            ownerId = ownerId,
             onRoleChanged = { member, role ->
                 updateMemberRole(
                     member.copy(role = role)
@@ -138,7 +138,7 @@ class MembersBottomSheet private constructor() : BottomSheetDialogFragment() {
 private class AllMembersAdapter(
     private val members: MutableList<Member>,
     private val isCurrentUserAdmin: Boolean,
-    private val isCurrentUserOwner: Boolean,
+    private val ownerId: String?,
     private val onRoleChanged: (Member, Role) -> Unit
 ) : RecyclerView.Adapter<AllMembersAdapter.ItemMemberViewHolder>() {
 
@@ -156,7 +156,7 @@ private class AllMembersAdapter(
                 false
             ),
             isUserAdmin = isCurrentUserAdmin,
-            isUserOwner = isCurrentUserOwner
+            ownerId = ownerId
         ) { position, role ->
             onRoleChanged(members[position], role)
         }
@@ -171,7 +171,7 @@ private class AllMembersAdapter(
     class ItemMemberViewHolder(
         val binding: ItemMemberBinding,
         val isUserAdmin: Boolean,
-        val isUserOwner: Boolean,
+        val ownerId: String?,
         val onRoleChanged: (Int, Role) -> Unit
     ) : RecyclerView.ViewHolder(binding.root) {
         companion object {
@@ -193,7 +193,7 @@ private class AllMembersAdapter(
                     view = ivProfilePicture
                 )
 
-                tfRole.isEnabled = isUserAdmin && !isUserOwner
+                tfRole.isEnabled = isUserAdmin && member.user.id != ownerId && MainActivity.firebaseUser?.uid != member.user.id
                 if (member.role == null) {
                     tfRole.visibility = View.GONE
                     return@apply

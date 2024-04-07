@@ -90,6 +90,7 @@ class WorkspaceSettingsFragment : BaseFragment(), StateHandler {
                 }
             }
 
+            tfSearchMembers.isEnabled = isUserAdmin
             var searchJob: Job? = null
             etSearchUser.doOnTextChanged { text, _, _, _ ->
                 searchJob?.cancel()
@@ -137,7 +138,7 @@ class WorkspaceSettingsFragment : BaseFragment(), StateHandler {
                 val membersBottomSheet =
                     MembersBottomSheet.init(
                         members = viewModel.workspaceSettingsState.value.members,
-                        isOwner = MainActivity.firebaseUser?.uid == workspace.owner
+                        ownerId = workspace.owner,
                         ) { members ->
                         viewModel.setMembers(members)
                     }
