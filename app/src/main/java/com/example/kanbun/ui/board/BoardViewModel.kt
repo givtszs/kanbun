@@ -54,6 +54,26 @@ class BoardViewModel @Inject constructor(
             )
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), BoardViewState())
 
+    fun getBoard(boardId: String, workspaceId: String, onSuccess: (Board) -> Unit) {
+        viewModelScope.launch {
+            firestoreRepository.getBoardStream(boardId, workspaceId).collectLatest { result ->
+                Log.d(TAG, "getBoard1: result: $result")
+                when (result) {
+                    is Result.Success -> {
+                        val board = result.data
+                        // should be called only once since board ID should be empty only during the creation of the initial state
+                        if (_board.value.id.isEmpty()) {
+                            onSuccess(board)
+                            getBoardLists(firestoreRepository.getBoardListsStream(board.id, board.workspace.id))
+                        }
+                        _board.value = board
+                    }
+                    is Result.Error -> _message.value = result.message
+                }
+            }
+        }
+    }
+
     private fun getBoardLists(flow: Flow<Result<List<BoardList>>>) {
         viewModelScope.launch {
             flow.collectLatest { result ->
@@ -74,21 +94,6 @@ class BoardViewModel @Inject constructor(
                         _isLoading.value = false
                     }
                 }
-            }
-        }
-    }
-
-    fun getBoard(boardId: String, workspaceId: String, onSuccess: (Board) -> Unit) {
-        viewModelScope.launch {
-            _isLoading.value = true
-            when (val result = firestoreRepository.getBoard(boardId, workspaceId)) {
-                is Result.Success -> {
-                    val board = result.data
-                    _board.value = board
-                    onSuccess(board)
-                    getBoardLists(firestoreRepository.getBoardListsStream(board.id, board.workspace.id))
-                }
-                is Result.Error -> _message.value = result.message
             }
         }
     }

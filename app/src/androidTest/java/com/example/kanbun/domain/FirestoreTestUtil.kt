@@ -1,9 +1,7 @@
 package com.example.kanbun.domain
 
 import com.example.kanbun.common.AuthProvider
-import com.example.kanbun.common.BoardRole
-import com.example.kanbun.common.FirestoreCollection
-import com.example.kanbun.common.WorkspaceRole
+import com.example.kanbun.common.Role
 import com.example.kanbun.domain.model.Board
 import com.example.kanbun.domain.model.BoardList
 import com.example.kanbun.domain.model.Tag
@@ -80,6 +78,7 @@ class FirestoreTestUtil {
                 authProvider = AuthProvider.GOOGLE,
                 workspaces = emptyList(),
                 sharedWorkspaces = emptyList(),
+                sharedBoards = emptyMap(),
                 cards = emptyList()
             )
         }
@@ -88,7 +87,7 @@ class FirestoreTestUtil {
             Workspace(
                 name = name,
                 owner = userId,
-                members = listOf(Workspace.WorkspaceMember(id = userId, WorkspaceRole.ADMIN)),
+                members = mapOf(userId to Role.Workspace.Admin),
                 boards = emptyList()
             )
 
@@ -98,7 +97,7 @@ class FirestoreTestUtil {
                 description = "Simple description",
                 owner = userId,
                 workspace = workspace,
-                members = listOf(Board.BoardMember(userId, BoardRole.ADMIN))
+                members = listOf(Board.BoardMember(userId, Role.Board.Admin))
             )
 
         fun createBoardList(name: String, position: Int): BoardList =

@@ -36,7 +36,7 @@ class FirestoreRepositoryTest {
 
     @After
     fun tearDown() = runBlocking {
-//        FirestoreTestUtil.deleteFirestoreData()
+        FirestoreTestUtil.deleteFirestoreData()
     }
 
     private fun Subject.isResultSuccess() = isInstanceOf(Result.Success::class.java)
@@ -344,6 +344,27 @@ class FirestoreRepositoryTest {
         val result = repository.getBoard("board1", "")
 
         assertThat(result).isResultError()
+    }
+
+    @Test
+    fun getBoardStream_returnsBoardDataContinuenly() = runBlocking {
+        val board = createBoard("Board")
+        val boardFlow = repository.getBoardStream(board.id, board.workspace.id)
+
+        var result = boardFlow.first()
+        assertThat(result).isResultSuccess()
+
+        var resultData = (result as Result.Success).data
+        assertThat(resultData).isEqualTo(board)
+
+        val newBoard = board.copy(name = "New Name")
+        repository.updateBoard(board, newBoard)
+
+        result = boardFlow.first()
+        assertThat(result).isResultSuccess()
+
+        resultData = (result as Result.Success).data
+        assertThat(resultData).isEqualTo(newBoard)
     }
 
     @Test

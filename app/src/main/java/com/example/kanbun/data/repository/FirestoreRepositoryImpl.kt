@@ -417,6 +417,27 @@ class FirestoreRepositoryImpl @Inject constructor(
             }
         }
 
+    override fun getBoardStream(boardId: String, workspaceId: String): Flow<Result<Board>> = callbackFlow {
+        val listener = firestore.collection(FirestoreCollection.WORKSPACES).document(workspaceId)
+            .collection(FirestoreCollection.BOARDS).document(boardId)
+            .addSnapshotListener { documentSnapshot, error ->
+                if (error != null) {
+                    trySend(Result.Error(error.message))
+                    close(error)
+                    return@addSnapshotListener
+                }
+
+                val board = documentSnapshot?.toObject(FirestoreBoard::class.java)?.toBoard(documentSnapshot.id)
+                    ?: throw NullPointerException("Couldn't convert FirestoreBoard to Board since the value is null")
+                Log.d(TAG, "getBoardStream: board $board")
+                trySend(Result.Success(board))
+            }
+
+        awaitClose {
+            listener.remove()
+        }
+    }
+
     override suspend fun updateBoard(oldBoard: Board, newBoard: Board): Result<Unit> =
         runCatching {
             withContext(ioDispatcher) {
