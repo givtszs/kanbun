@@ -63,7 +63,6 @@ class ItemBoardListViewHolder(
         }
 
         tasksAdapter = TasksAdapter(
-            isWorkspaceAdminOrBoardMember = isWorkspaceAdminOrBoardMember,
             taskDropCallbacks = taskDropCallbacks,
             onTaskClicked = { task ->
                 callbacks.onTaskClicked(task, boardList!!)

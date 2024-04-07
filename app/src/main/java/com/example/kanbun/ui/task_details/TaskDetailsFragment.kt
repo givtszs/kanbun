@@ -20,6 +20,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.navArgs
 import com.example.kanbun.R
 import com.example.kanbun.common.DATE_TIME_FORMAT
+import com.example.kanbun.common.Role
 import com.example.kanbun.common.TaskAction
 import com.example.kanbun.common.convertTimestampToDateString
 import com.example.kanbun.databinding.FragmentTaskDetailsBinding
@@ -28,7 +29,9 @@ import com.example.kanbun.domain.model.Task
 import com.example.kanbun.ui.BaseFragment
 import com.example.kanbun.ui.StateHandler
 import com.example.kanbun.ui.ViewState
+import com.example.kanbun.ui.board.BoardFragment
 import com.example.kanbun.ui.board.common_adapters.TagsAdapter
+import com.example.kanbun.ui.user_boards.UserBoardsFragment
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -44,6 +47,8 @@ class TaskDetailsFragment : BaseFragment(), StateHandler {
     private var tagsAdapter: TagsAdapter? = null
     private lateinit var task: Task
     private lateinit var boardList: BoardList
+    private val isWorkspaceAdminOrBoardMember =
+        UserBoardsFragment.userRole == Role.Workspace.Admin || BoardFragment.isBoardMember
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -90,7 +95,7 @@ class TaskDetailsFragment : BaseFragment(), StateHandler {
                 convertTimestampToDateString(DATE_TIME_FORMAT, task.dateEnds)
             )
 
-            fabEditTask.isVisible = args.isWorkspaceAdminOrBoardMember
+            fabEditTask.isVisible = isWorkspaceAdminOrBoardMember
             fabEditTask.setOnClickListener {
                 navController.navigate(
                     TaskDetailsFragmentDirections.actionTaskDetailsFragmentToCreateTaskFragment(
@@ -169,7 +174,7 @@ class TaskDetailsFragment : BaseFragment(), StateHandler {
 
             override fun onPrepareMenu(menu: Menu) {
                 super.onPrepareMenu(menu)
-                menu.findItem(R.id.menu_item_delete).isEnabled = args.isWorkspaceAdminOrBoardMember
+                menu.findItem(R.id.menu_item_delete).isEnabled = isWorkspaceAdminOrBoardMember
             }
 
             override fun onMenuItemSelected(menuItem: MenuItem): Boolean {

@@ -113,9 +113,6 @@
         <action
             android:id="@+id/action_boardFragment_to_boardSettingsFragment"
             app:destination="@id/boardSettingsFragment" />
-        <argument
-            android:name="userWorkspaceRole"
-            app:argType="com.example.kanbun.common.Role$Workspace" />
     </fragment>
     <fragment
         android:id="@+id/taskDetailsFragment"
@@ -131,8 +128,6 @@
         <argument
             android:name="boardList"
             app:argType="com.example.kanbun.domain.model.BoardList" />
-        <argument android:name="isWorkspaceAdminOrBoardMember"
-            app:argType="boolean" />
     </fragment>
     <fragment
         android:id="@+id/createTaskFragment"

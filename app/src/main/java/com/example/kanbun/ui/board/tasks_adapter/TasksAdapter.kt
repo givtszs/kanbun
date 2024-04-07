@@ -4,11 +4,14 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.example.kanbun.common.Role
 import com.example.kanbun.databinding.ItemTaskBinding
 import com.example.kanbun.domain.model.Task
 import com.example.kanbun.ui.board.TaskDropCallbacks
 import com.example.kanbun.domain.model.BoardListInfo
 import com.example.kanbun.domain.model.Tag
+import com.example.kanbun.ui.board.BoardFragment
+import com.example.kanbun.ui.user_boards.UserBoardsFragment
 
 /**
  * A [RecyclerView.Adapter] responsible for managing and displaying a list of [Task]s
@@ -18,7 +21,6 @@ import com.example.kanbun.domain.model.Tag
  * @property loadTaskTags the callback to load tags of a task
  */
 class TasksAdapter(
-    private val isWorkspaceAdminOrBoardMember: Boolean,
     val taskDropCallbacks: TaskDropCallbacks,
     private val onTaskClicked: (Task) -> Unit,
     private val loadTaskTags: (List<String>) -> List<Tag>
@@ -27,6 +29,9 @@ class TasksAdapter(
         private set
 
     lateinit var listInfo: BoardListInfo
+
+    private val isWorkspaceAdminOrBoardMember =
+        UserBoardsFragment.userRole == Role.Workspace.Admin || BoardFragment.isBoardMember
 
     fun setData(data: List<Task>) {
         tasks = data.toMutableList()

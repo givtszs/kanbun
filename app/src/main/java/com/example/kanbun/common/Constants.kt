@@ -20,17 +20,14 @@ enum class AuthProvider(val providerId: String) {
     GITHUB("github.com")
 }
 
-@Parcelize
-sealed class Role(val name: String, @StringRes val description: Int) : Parcelable {
+sealed class Role(val name: String, @StringRes val description: Int) {
 
-    @Parcelize
-     sealed class Workspace(private val roleName: String, private val roleDescription: Int) : Role(roleName, roleDescription) {
-         data object Admin : Workspace("Admin", R.string.workspace_role_admin_description)
-         data object Member : Workspace("Member", R.string.workspace_role_member_description)
-     }
+    sealed class Workspace(roleName: String, roleDescription: Int) : Role(roleName, roleDescription) {
+        data object Admin : Workspace("Admin", R.string.workspace_role_admin_description)
+        data object Member : Workspace("Member", R.string.workspace_role_member_description)
+    }
 
-    @Parcelize
-    sealed class Board(private val roleName: String, private val roleDescription: Int) : Role(roleName, roleDescription) {
+    sealed class Board(roleName: String, roleDescription: Int) : Role(roleName, roleDescription) {
         data object Admin : Board("Admin", R.string.board_role_admin_description)
         data object Member : Board("Member", R.string.board_role_member_description)
     }

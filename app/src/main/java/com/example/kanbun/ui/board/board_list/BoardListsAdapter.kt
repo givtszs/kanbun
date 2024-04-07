@@ -4,13 +4,16 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.example.kanbun.common.Role
 import com.example.kanbun.databinding.ItemBoardListBinding
 import com.example.kanbun.databinding.ItemCreateBoardListBinding
 import com.example.kanbun.domain.model.BoardList
 import com.example.kanbun.domain.model.Tag
 import com.example.kanbun.domain.model.Task
+import com.example.kanbun.ui.board.BoardFragment
 import com.example.kanbun.ui.board.DropCallback
 import com.example.kanbun.ui.board.TaskDropCallbacks
+import com.example.kanbun.ui.user_boards.UserBoardsFragment
 import kotlinx.coroutines.CoroutineScope
 
 class BoardListsAdapter(
@@ -27,7 +30,7 @@ class BoardListsAdapter(
 
     var boardTags: List<Tag> = emptyList()
     var lists: List<BoardList> = emptyList()
-    var isWorkspaceAdminOrBoardMember: Boolean? = null
+    private val isWorkspaceAdminOrBoardMember = UserBoardsFragment.userRole == Role.Workspace.Admin || BoardFragment.isBoardMember
 
     fun setData(data: List<BoardList>) {
         lists = data
@@ -43,7 +46,7 @@ class BoardListsAdapter(
                     parent,
                     false
                 ),
-                isWorkspaceAdminOrBoardMember = isWorkspaceAdminOrBoardMember == true,
+                isWorkspaceAdminOrBoardMember = isWorkspaceAdminOrBoardMember,
                 coroutineScope = coroutineScope,
                 taskDropCallbacks = taskDropCallbacks,
                 boardListAdapter = this@BoardListsAdapter,
@@ -60,7 +63,7 @@ class BoardListsAdapter(
                         callbacks.onBoardListMenuClicked(
                             lists[position],
                             lists,
-                            isWorkspaceAdminOrBoardMember == true
+                            isWorkspaceAdminOrBoardMember
                         )
                     }
                 }
@@ -72,7 +75,7 @@ class BoardListsAdapter(
                     parent,
                     false
                 ),
-                isWorkspaceAdminOrBoardMember = isWorkspaceAdminOrBoardMember == true
+                isWorkspaceAdminOrBoardMember = isWorkspaceAdminOrBoardMember
             ) {
                 callbacks.createBoardList()
             }

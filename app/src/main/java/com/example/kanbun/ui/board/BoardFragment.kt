@@ -45,6 +45,7 @@ import com.example.kanbun.ui.main_activity.MainActivity
 import com.example.kanbun.ui.model.DragAndDropListItem
 import com.example.kanbun.ui.model.DragAndDropTaskItem
 import com.example.kanbun.ui.shared.SharedViewModel
+import com.example.kanbun.ui.user_boards.UserBoardsFragment
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Job
@@ -56,6 +57,15 @@ private const val TAG = "BoardFragment"
 
 @AndroidEntryPoint
 class BoardFragment : BaseFragment(), StateHandler {
+
+    companion object {
+        private var _isBoardMember = false
+        val isBoardMember: Boolean get() = _isBoardMember
+
+        private fun setIsBoardMember(isMember: Boolean) {
+            _isBoardMember = isMember
+        }
+    }
 
     private var _binding: FragmentBoardBinding? = null
     private val binding: FragmentBoardBinding get() = _binding!!
@@ -71,7 +81,6 @@ class BoardFragment : BaseFragment(), StateHandler {
 
     private var areBoardMembersFetched = false
     private var isBoardFetched = false
-    private var isWorkspaceAdminOrBoardMember = false
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -79,7 +88,6 @@ class BoardFragment : BaseFragment(), StateHandler {
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentBoardBinding.inflate(inflater, container, false)
-        Log.d(TAG, "workspaceRole: ${args.userWorkspaceRole}")
         return binding.root
     }
 
@@ -97,8 +105,7 @@ class BoardFragment : BaseFragment(), StateHandler {
         if (isBoardFetched) return
         boardViewModel.getBoard(boardId, workspaceId) { board ->
             isBoardFetched = true
-            isWorkspaceAdminOrBoardMember = args.userWorkspaceRole == Role.Workspace.Admin || board.members.any { it.id == MainActivity.firebaseUser?.uid }
-            boardListsAdapter?.isWorkspaceAdminOrBoardMember = isWorkspaceAdminOrBoardMember
+            setIsBoardMember(board.members.any { it.id == MainActivity.firebaseUser?.uid })
         }
     }
 
@@ -176,8 +183,7 @@ class BoardFragment : BaseFragment(), StateHandler {
                     navController.navigate(
                         BoardFragmentDirections.actionBoardFragmentToTaskDetailsFragment(
                             task,
-                            boardList = boardList,
-                            isWorkspaceAdminOrBoardMember = this@BoardFragment.isWorkspaceAdminOrBoardMember
+                            boardList = boardList
                         )
                     )
                 }
@@ -186,9 +192,7 @@ class BoardFragment : BaseFragment(), StateHandler {
 //                    viewModel.stopLoading()
                 }
             }
-        ).apply {
-            isWorkspaceAdminOrBoardMember = this@BoardFragment.isWorkspaceAdminOrBoardMember
-        }
+        )
 
         binding.rvLists.apply {
             adapter = boardListsAdapter

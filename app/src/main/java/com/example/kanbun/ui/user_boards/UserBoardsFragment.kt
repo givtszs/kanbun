@@ -46,6 +46,15 @@ private const val TAG = "UserBoardsFragm"
 @AndroidEntryPoint
 class UserBoardsFragment : BaseFragment(), StateHandler {
 
+    companion object {
+        private var _workspaceRole: Role.Workspace? = null
+        val userRole: Role.Workspace? get() = _workspaceRole
+
+        private fun setUserWorkspaceRole(role: Role.Workspace?) {
+            _workspaceRole = role
+        }
+    }
+
     private var _binding: FragmentUserBoardsBinding? = null
     private val binding: FragmentUserBoardsBinding get() = _binding!!
 
@@ -84,7 +93,6 @@ class UserBoardsFragment : BaseFragment(), StateHandler {
 
     private var isMenuProviderAdded = false
     private var boardsAdapter: BoardsAdapter? = null
-    private var userRole: Role.Workspace? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -193,9 +201,9 @@ class UserBoardsFragment : BaseFragment(), StateHandler {
 
                 if (currentWorkspace != null) {
                     Log.d(TAG, "currentWorkspace: $currentWorkspace")
+                    setUserWorkspaceRole(currentWorkspace.members[MainActivity.firebaseUser?.uid])
                     boardsAdapter?.setData(currentWorkspace.boards)
                     DrawerAdapter.prevSelectedWorkspaceId = currentWorkspace.id
-                    userRole = currentWorkspace.members[MainActivity.firebaseUser?.uid] ?: Role.Workspace.Member
 
                     if (currentWorkspace.boards.isEmpty()) {
                         tvTip.text = if (currentWorkspace.id != DrawerItem.SHARED_BOARDS) {
@@ -307,10 +315,7 @@ class UserBoardsFragment : BaseFragment(), StateHandler {
     private fun setUpBoardsAdapter() {
         boardsAdapter = BoardsAdapter { boardInfo ->
             navController.navigate(
-                UserBoardsFragmentDirections.actionUserBoardsFragmentToBoardFragment(
-                    boardInfo = boardInfo,
-                    userRole ?: Role.Workspace.Member,
-                )
+                UserBoardsFragmentDirections.actionUserBoardsFragmentToBoardFragment(boardInfo = boardInfo)
             )
         }
 
