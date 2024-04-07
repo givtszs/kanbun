@@ -147,7 +147,10 @@ class BoardSettingsFragment : BaseFragment(), StateHandler {
 
             btnViewAllMembers.setOnClickListener {
                 val membersBottomSheet =
-                    MembersBottomSheet.init(viewModel.boardSettingsState.value.boardMembers) { members ->
+                    MembersBottomSheet.init(
+                        members = viewModel.boardSettingsState.value.boardMembers,
+                        ownerId = board.owner
+                    ) { members ->
                         viewModel.setMembers(members)
                     }
                 membersBottomSheet.show(childFragmentManager, "workspace_members")
