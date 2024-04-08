@@ -349,7 +349,7 @@ class FirestoreRepositoryImpl @Inject constructor(
             // delete the workspace boards
             recursiveDelete(boardsPath)
 
-            deleteWorkspaceFromMembers(workspace.id, workspace.members, scope = this@withContext)
+            deleteWorkspaceFromMembers(workspace.id, workspace.owner, workspace.members, scope = this@withContext)
         }
     }
 
@@ -361,14 +361,17 @@ class FirestoreRepositoryImpl @Inject constructor(
      */
     private fun deleteWorkspaceFromMembers(
         workspaceId: String,
+        ownerId: String,
         members: Map<String, Role.Workspace>,
         scope: CoroutineScope
     ) {
+        val collectionRef = firestore.collection(FirestoreCollection.USERS)
         members.forEach { member ->
+            val field = if (member.key != ownerId) "sharedWorkspaces" else "workspaces"
             scope.launch {
-                firestore.collection(FirestoreCollection.USERS)
+                collectionRef
                     .document(member.key)
-                    .update("workspaces.$workspaceId", FieldValue.delete())
+                    .update("$field.$workspaceId", FieldValue.delete())
             }
         }
     }
