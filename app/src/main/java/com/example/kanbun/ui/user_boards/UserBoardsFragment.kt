@@ -117,10 +117,16 @@ class UserBoardsFragment : BaseFragment(), StateHandler {
     override fun setUpListeners() {
         // set up drawers listeners
         activity.apply {
-            activityMainBinding.drawerContent.headerLayout.btnSignOut.setOnClickListener {
-                viewModel.signOutUser(requireContext()) {
-                    DrawerAdapter.prevSelectedWorkspaceId = null
-                    navController.navigate(R.id.registrationPromptFragment)
+            activityMainBinding.drawerContent.headerLayout.apply {
+                btnSignOut.setOnClickListener {
+                    viewModel.signOutUser(requireContext()) {
+                        DrawerAdapter.prevSelectedWorkspaceId = null
+                        navController.navigate(R.id.registrationPromptFragment)
+                    }
+                }
+
+                btnSettings.setOnClickListener {
+                    navController.navigate(R.id.settingsFragment)
                 }
             }
 

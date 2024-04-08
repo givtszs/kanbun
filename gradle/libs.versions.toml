@@ -16,6 +16,7 @@ mockitoCore = "5.8.0"
 moshi = "1.15.0"
 navigation = "2.7.6"
 playServicesAuth = "20.7.0"
+preferenceKtx = "1.2.0"
 secretsGradlePlugin = "2.0.1"
 truth = "1.2.0"
 
@@ -29,6 +30,7 @@ androidx-junit = { module = "androidx.test.ext:junit", version.ref = "junitVersi
 androidx-navigation-safe-args-gradle-plugin = { module = "androidx.navigation:navigation-safe-args-gradle-plugin", version.ref = "navigation" }
 androidx-navigation-ui-ktx = { module = "androidx.navigation:navigation-ui-ktx", version.ref = "navigation" }
 androidx-navigation-fragment-ktx = { module = "androidx.navigation:navigation-fragment-ktx", version.ref = "navigation" }
+androidx-preference-ktx = { module = "androidx.preference:preference-ktx", version.ref = "preferenceKtx" }
 flexbox = { module = "com.google.android.flexbox:flexbox", version.ref = "flexbox" }
 glide = { module = "com.github.bumptech.glide:glide", version.ref = "glide" }
 hilt-compiler = { module = "com.google.dagger:hilt-compiler", version.ref = "hiltAndroid" }

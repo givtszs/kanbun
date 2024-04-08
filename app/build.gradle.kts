@@ -70,6 +70,7 @@ dependencies {
     kapt(libs.moshi.kotlin.codegen)
     implementation(libs.moshi)
     implementation(libs.flexbox)
+    implementation(libs.androidx.preference.ktx)
 
     testImplementation(libs.junit)
     testImplementation(libs.kotlinx.coroutines.test)

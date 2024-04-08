@@ -76,6 +76,9 @@
         <action
             android:id="@+id/action_userBoardsFragment_to_boardFragment"
             app:destination="@id/boardFragment" />
+        <action
+            android:id="@+id/action_userBoardsFragment_to_settingsFragment"
+            app:destination="@id/settingsFragment" />
     </fragment>
     <fragment
         android:id="@+id/userCardsFragment"
@@ -152,9 +155,22 @@
         android:id="@+id/boardSettingsFragment"
         android:name="com.example.kanbun.ui.board_settings.BoardSettingsFragment"
         android:label="@string/board_settings"
-        tools:layout="@layout/fragment_board_settings" >
+        tools:layout="@layout/fragment_board_settings">
         <argument
             android:name="board"
             app:argType="com.example.kanbun.domain.model.Board" />
     </fragment>
+    <fragment
+        android:id="@+id/settingsFragment"
+        android:name="com.example.kanbun.ui.settings.SettingsFragment"
+        android:label="SettingsFragment">
+        <action
+            android:id="@+id/action_settingsFragment_to_editProfileFragment"
+            app:destination="@id/editProfileFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/editProfileFragment"
+        android:name="com.example.kanbun.ui.edit_profile.EditProfileFragment"
+        android:label="@string/edit_profile"
+        tools:layout="@layout/fragment_edit_profile" />
 </navigation>
