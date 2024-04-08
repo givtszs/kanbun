@@ -32,6 +32,7 @@ class ItemTaskViewHolder(
     companion object {
         var draggedTaskInitPosition = -1
         var draggedTaskPrevPosition = -1
+        private const val TAG = "ItemTaskViewHolder"
     }
 
     private var task: Task? = null
@@ -44,7 +45,7 @@ class ItemTaskViewHolder(
         if (isWorkspaceAdminOrBoardMember) {
             // initiates dragging action
             binding.materialCard.setOnLongClickListener { view ->
-                Log.d("ItemTaskViewHolder", "long clicked perform at: $adapterPosition")
+                Log.d(TAG, "long clicked perform at: $adapterPosition")
                 draggedTaskInitPosition = adapterPosition
                 draggedTaskPrevPosition = adapterPosition
 
@@ -53,7 +54,7 @@ class ItemTaskViewHolder(
         }
 
         binding.materialCard.setOnDragListener { receiverView, event ->
-            TaskDragAndDropHelper.handleDragEvent(
+            TaskDragAndDropHelper.taskCardViewDragEventHandler(
                 tasksAdapter,
                 receiverView,
                 event,
@@ -62,7 +63,7 @@ class ItemTaskViewHolder(
         }
 
         binding.root.setOnDragListener { _, event ->
-            TaskDragAndDropHelper.handleDragEvent(event)
+            TaskDragAndDropHelper.taskRootViewDragEventHandler(event)
         }
     }
 
@@ -133,7 +134,7 @@ class ItemTaskViewHolder(
 
     private fun setUpTagsFlexbox(task: Task) {
         val tags = loadTags(task.tags)
-        Log.d("ItemTaskViewHolder", "tags: $tags")
+        Log.d(TAG, "tags: $tags")
 
         if (tags.isEmpty()) {
             binding.flexTags.isVisible = false
@@ -211,7 +212,7 @@ class ItemTaskViewHolder(
                     initTasksList = adapter.tasks
                 )
             )
-            Log.d("ItemTaskViewHolder", "Parsed task: $json")
+            Log.d(TAG, "Parsed task: $json")
 
             val item = ClipData.Item(json)
             return ClipData(
@@ -226,22 +227,21 @@ class ItemTaskViewHolder(
         private var isMovedDown = false
         private var isInsertHandled = false
 
-        fun handleDragEvent(
+        fun taskCardViewDragEventHandler(
             adapter: TasksAdapter,
             receiverView: View,
             event: DragEvent,
             position: Int
         ): Boolean {
-            val draggableView = event.localState as View
-
             return when (event.action) {
                 DragEvent.ACTION_DRAG_STARTED -> {
+                    Log.d(TAG, "task card: ACTION_DRAG_STARTED")
                     event.clipDescription.hasMimeType(ClipDescription.MIMETYPE_TEXT_PLAIN)
                 }
 
                 DragEvent.ACTION_DRAG_ENTERED -> {
                     Log.d(
-                        "ItemTaskViewHolder",
+                        TAG,
                         "ACTION_DRAG_ENTERED: View under drag: $position\n" +
                                 "currAdapter: $adapter,\n" +
                                 "lastAdapter: $currentAdapter"
@@ -272,7 +272,7 @@ class ItemTaskViewHolder(
                             val newPos =
                                 if (position < draggedTaskPrevPosition) position else position - 1
                             Log.d(
-                                "ItemTaskViewHolder",
+                                TAG,
                                 "ACTION_DRAG_LOCATION: oldPos: $draggedTaskPrevPosition, newPos: $newPos"
                             )
                             moveTask(draggedTaskPrevPosition, newPos)
@@ -282,7 +282,7 @@ class ItemTaskViewHolder(
                             val newPos =
                                 if (position < draggedTaskPrevPosition) position + 1 else position
                             Log.d(
-                                "ItemTaskViewHolder",
+                                TAG,
                                 "ACTION_DRAG_LOCATION: oldPos: $draggedTaskPrevPosition, newPos: $newPos"
                             )
                             moveTask(draggedTaskPrevPosition, newPos)
@@ -290,7 +290,7 @@ class ItemTaskViewHolder(
                     } else if (!isInsertHandled) {
                         isInsertHandled = true
                         Log.d(
-                            "ItemTaskViewHolder",
+                            TAG,
                             "ACTION_DRAG_LOCATION: insertPos: $position"
                         )
                         insertDropZone(adapter, position)
@@ -307,7 +307,7 @@ class ItemTaskViewHolder(
                 }
 
                 DragEvent.ACTION_DROP -> {
-                    Log.d("ItemTaskViewHolder", "ACTION_DROP")
+                    Log.d(TAG, "ACTION_DROP")
                     // why not to use the currentWorkingAdapter
 //                    adapter.dragAndDropHelper.drop(
 //                        clipData = event.clipData,
@@ -317,57 +317,22 @@ class ItemTaskViewHolder(
                     handleDrop(clipData = event.clipData, adapter.taskDropCallbacks)
                 }
 
-                DragEvent.ACTION_DRAG_ENDED -> {
-                    if (!isActionDragEndedHandled) {
-                        Log.d("ItemTaskViewHolder", "ACTION_DRAG_ENDED: handle action")
-                        draggableView.visibility = View.VISIBLE
-//
-//                        Log.d(
-//                            "ItemTaskViewHolder", "event.result: ${event.result}, " +
-//                                    "tempRemovedTask: ${taskInitAdapter.dragAndDropHelper.tempRemovedTask}"
-//                        )
-
-                        // if the drag and drop failed
-                        Log.d(
-                            "ItemTaskViewHolder", "ACTION_ENDED: event result: ${event.result}\n" +
-                                    "tempRemovedTask: $tempRemovedTask"
-                        )
-                        if (!event.result) {
-                            with(taskInitAdapter) {
-                                tempRemovedTask?.let { task ->
-                                    removeDropZone()
-                                    if (task.id != DROP_ZONE_TASK) {
-                                        Log.d(
-                                            "ItemTaskViewHolder",
-                                            "ACTION_DRAG_ENDED: bring back draggable item"
-                                        )
-                                        addData(task.position.toInt(), task)
-                                        tempRemovedTask = null
-                                    }
-                                }
-                            }
-
-                            taskInitAdapter.notifyDataSetChanged()
-                        }
-
-                        isActionDragEndedHandled = true
-                    }
-
-                    true
-                }
-
                 else -> false
             }
         }
 
-        fun handleDragEvent(event: DragEvent): Boolean {
+        /**
+         * Drag event handler for the root view of the task's materical card view.
+         */
+        fun taskRootViewDragEventHandler(event: DragEvent): Boolean {
+            val draggableView = event.localState as View
             return when (event.action) {
                 DragEvent.ACTION_DRAG_STARTED -> {
                     event.clipDescription.hasMimeType(ClipDescription.MIMETYPE_TEXT_PLAIN)
                 }
 
                 DragEvent.ACTION_DROP -> {
-                    Log.d("ItemTaskViewHolder", "Root#ACTION_DROP at $this")
+                    Log.d(TAG, "Root#ACTION_DROP at $this")
                     handleDrop(
                         event.clipData,
                         taskInitAdapter.taskDropCallbacks
@@ -375,8 +340,42 @@ class ItemTaskViewHolder(
                 }
 
                 DragEvent.ACTION_DRAG_ENDED -> {
-                    Log.d("ItemTaskViewHolder", "Root#ACTION_DRAG_ENDED")
-                    removeDropZone()
+                    if (!isActionDragEndedHandled) {
+                        Log.d(TAG, "Root#ACTION_DRAG_ENDED: handle action")
+                        draggableView.visibility = View.VISIBLE
+
+                        // if the drag and drop failed
+                        Log.d(
+                            TAG, "Root#ACTION_DRAG_ENDED: event result: ${event.result}\n" +
+                                    "tempRemovedTask: $tempRemovedTask"
+                        )
+
+                        // if the drag-and-drop failed...
+                        if (!event.result) {
+                            with(taskInitAdapter) {
+                                // ...and the dragged task was deleted from the initial list in case of
+                                // being dragged out of it to be inserted in another list...
+                                tempRemovedTask?.let { task ->
+                                    // ...remove the created drop zone in a new list...
+                                    removeDropZone()
+                                    if (task.id != DROP_ZONE_TASK) {
+                                        Log.d(
+                                            TAG,
+                                            "Root#ACTION_DRAG_ENDED: bring back draggable item"
+                                        )
+                                        // ...and restore the task in the initial list
+                                        addData(task.position.toInt(), task)
+                                        tempRemovedTask = null
+                                    }
+                                }
+
+                                notifyDataSetChanged()
+                            }
+                        }
+
+                        isActionDragEndedHandled = true
+                    }
+
                     true
                 }
 
@@ -394,7 +393,7 @@ class ItemTaskViewHolder(
             if (from != to && to != -1) {
                 currentAdapter?.notifyItemMoved(from, to)
                 draggedTaskPrevPosition = to
-                Log.d("ItemTaskViewHolder", "move: Moved item from $from to $to")
+                Log.d(TAG, "move: Moved item from $from to $to")
             }
         }
 
@@ -411,7 +410,7 @@ class ItemTaskViewHolder(
                 // ...but in the underlying dataset we remove item at the last moved position
                 currentAdapter?.notifyItemRemoved(draggedTaskPrevPosition)
                 Log.d(
-                    "ItemTaskViewHolder",
+                    TAG,
                     "removeDropZone: removed drop zone at position $draggedTaskPrevPosition"
                 )
                 true
@@ -431,7 +430,7 @@ class ItemTaskViewHolder(
             if (position != -1) {
                 tempRemovedTask = adapter.tasks[position]
                 Log.d(
-                    "ItemTaskViewHolder",
+                    TAG,
                     "removeDataAt: tempRemovedTask: $tempRemovedTask"
                 )
                 // when we move items only the underlying dataset gets updated,
@@ -440,7 +439,7 @@ class ItemTaskViewHolder(
                 // ...but in the underlying dataset we remove item at the last moved position
                 adapter.notifyItemRemoved(draggedTaskPrevPosition)
                 draggedTaskPrevPosition = -1 // TODO: Check if this reset is vital
-                Log.d("ItemTaskViewHolder", "removeData: removed item at $position")
+                Log.d(TAG, "removeData: removed item at $position")
             }
         }
 
@@ -459,7 +458,7 @@ class ItemTaskViewHolder(
                 adapter.tasks.add(position, dropZoneTask)
                 adapter.notifyItemInserted(position)
                 draggedTaskPrevPosition = position
-                Log.d("ItemTaskViewHolder", "insertDropZone: inserted drop_zone")
+                Log.d(TAG, "insertDropZone: inserted drop_zone")
             }
         }
 
@@ -480,14 +479,14 @@ class ItemTaskViewHolder(
 
             return if (dragItem == null) {
                 Log.d(
-                    "ItemTaskViewHolder",
+                    TAG,
                     "drop: dragItem is null"
                 )
                 false
             } else {
                 val containedDropZone = removeDropZone()
                 Log.d(
-                    "ItemTaskViewHolder",
+                    TAG,
                     "drop: isNewAdapter: ${isNewAdapter}, " +
                             "containedDropZone: $containedDropZone"
                 )
@@ -495,7 +494,7 @@ class ItemTaskViewHolder(
                 // TODO: inspect whether this double checks is required, or isNewAdapter check is enough
                 if (isNewAdapter || containedDropZone) {
                     Log.d(
-                        "ItemTaskViewHolder",
+                        TAG,
                         "drop: insert task ${dragItem.task}"
                     )
 
@@ -507,7 +506,7 @@ class ItemTaskViewHolder(
                     tempRemovedTask = null
                 } else {
                     Log.d(
-                        "ItemTaskViewHolder",
+                        TAG,
                         "drop: move tasks from ${dragItem.initPosition} to $draggedTaskPrevPosition"
                     )
                     taskDropCallbacks.dropToMove(
