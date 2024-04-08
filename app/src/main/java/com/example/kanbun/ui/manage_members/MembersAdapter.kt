@@ -1,5 +1,6 @@
 package com.example.kanbun.ui.manage_members
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.core.view.isVisible
@@ -18,7 +19,10 @@ class MembersAdapter(
     private var isCurrentUserAdmin = false
     private fun checkIsCurrentUserAdmin() {
         val currentUser = members.find { it.user.id == MainActivity.firebaseUser?.uid }
-        isCurrentUserAdmin = currentUser?.role == Role.Workspace.Admin
+        Log.d("MembersAdapter", "currentUser: $currentUser")
+        isCurrentUserAdmin =
+            currentUser?.role == Role.Workspace.Admin || currentUser?.role == Role.Board.Admin
+        Log.d("MembersAdapter", "isCurrentUserAdmin: $isCurrentUserAdmin")
     }
 
     var members: List<Member> = emptyList()

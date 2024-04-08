@@ -531,6 +531,9 @@ class FirestoreRepositoryImpl @Inject constructor(
 
             // delete the board information from the workspace it belongs to
             deleteBoardInfoFromWorkspace(board.workspace.id, board.id)
+
+            // delete the board from its members
+            deleteBoardFromMembers(board.id, board.members, this@withContext)
         }
     }
 
@@ -541,6 +544,20 @@ class FirestoreRepositoryImpl @Inject constructor(
         firestore.collection(FirestoreCollection.WORKSPACES)
             .document(workspaceId)
             .update("boards.${boardId}", FieldValue.delete())
+    }
+
+    private fun deleteBoardFromMembers(
+        boardId: String,
+        members: List<Board.BoardMember>,
+        scope: CoroutineScope
+    ) {
+        members.forEach { member ->
+            scope.launch {
+                firestore.collection(FirestoreCollection.USERS)
+                    .document(member.id)
+                    .update("sharedBoards.$boardId", FieldValue.delete())
+            }
+        }
     }
 
     override suspend fun createBoardList(
