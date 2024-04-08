@@ -79,4 +79,7 @@
     <string name="board_role_admin_description">Can create, edit and delete lists and tasks, edit board settings, invite and remove members.</string>
     <string name="board_role_member_description">Can create and edit lists and own tasks, invite other members to the board.</string>
     <string name="item_role">%s\n%s</string>
+    <string name="edit">Edit</string>
+    <string name="hint_tag">Tag</string>
+    <string name="edit_profile">Edit profile</string>
 </resources>
