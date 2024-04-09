@@ -12,7 +12,7 @@ sealed class Result<T> {
     }
 
     fun onError(block: (String?, Throwable?) -> Unit): Result<T> {
-        if (this is Result.Error) {
+        if (this is Error) {
             block(message, e)
         }
         return this

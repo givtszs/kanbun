@@ -45,7 +45,14 @@ class EditProfileFragment : BaseFragment(), StateHandler {
     }
 
     override fun setUpListeners() {
-//        TODO("Not yet implemented")
+        binding.btnSave.setOnClickListener {
+            viewModel.updateUser(
+                name = binding.etName.text?.trim().toString(),
+                tag = binding.etTag.text?.trim().toString()
+            ) {
+                navController.popBackStack()
+            }
+        }
     }
 
     override fun collectState() {
@@ -67,6 +74,11 @@ class EditProfileFragment : BaseFragment(), StateHandler {
                     etName.setText(_user.name)
                     etEmail.setText(_user.email)
                     etTag.setText(_user.tag)
+                }
+
+                message?.let {
+                    showToast(it)
+                    viewModel.messageShown()
                 }
             }
         }

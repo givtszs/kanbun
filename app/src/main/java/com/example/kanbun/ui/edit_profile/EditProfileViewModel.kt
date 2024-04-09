@@ -1,11 +1,10 @@
 package com.example.kanbun.ui.edit_profile
 
-import androidx.browser.customtabs.CustomTabsIntent.ShareState
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.kanbun.domain.model.User
-import com.example.kanbun.domain.repository.FirestoreRepository
 import com.example.kanbun.domain.usecase.GetUserUseCase
+import com.example.kanbun.domain.usecase.UpdateUserUseCase
 import com.example.kanbun.ui.ViewState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -17,7 +16,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class EditProfileViewModel @Inject constructor(
-    private val getUserUseCase: GetUserUseCase
+    private val getUserUseCase: GetUserUseCase,
+    private val updateUserUseCase: UpdateUserUseCase
 ) : ViewModel() {
 
     private var _message = MutableStateFlow<String?>(null)
@@ -53,6 +53,33 @@ class EditProfileViewModel @Inject constructor(
                 }
             _isLoading.value = false
         }
+    }
+
+    fun updateUser(name: String, tag: String, onSuccess: () -> Unit) {
+        viewModelScope.launch {
+            if (_user.value == null) {
+                _message.value = "Couldn't update the user since its value is null"
+                return@launch
+            }
+
+            updateUserUseCase(
+                oldUser = _user.value!!,
+                newUser = _user.value!!.copy(
+                    name = name,
+                    tag = tag
+                )
+            )
+                .onSuccess {
+                    onSuccess()
+                }
+                .onError { message, _ ->
+                    _message.value = message
+                }
+        }
+    }
+
+    fun messageShown() {
+        _message.value = null
     }
 
 }
