@@ -5,12 +5,32 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <include
+    <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/topAppBar"
-        layout="@layout/top_app_bar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent">
+
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:minHeight="?attr/actionBarSize">
+
+            <Button
+                android:id="@+id/btnSave"
+                style="@style/Widget.Material3.Button.TextButton"
+                android:layout_width="60dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="end"
+                android:layout_marginEnd="16dp"
+                android:text="Save"
+                android:textColor="@color/md_theme_light_primary"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+        </com.google.android.material.appbar.MaterialToolbar>
+    </com.google.android.material.appbar.AppBarLayout>
 
     <com.google.android.material.imageview.ShapeableImageView
         android:id="@+id/ivProfilePicture"
@@ -87,6 +107,10 @@
 
     <include
         android:id="@+id/loading"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:layout_constraintTop_toBottomOf="@id/topAppBar"
+        app:layout_constraintBottom_toBottomOf="parent"
         layout="@layout/loading_state" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -35,7 +35,7 @@ class EditProfileFragment : BaseFragment(), StateHandler {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        setUpActionBar(binding.topAppBar.toolbar)
+        setUpActionBar(binding.toolbar)
         collectState()
     }
 
