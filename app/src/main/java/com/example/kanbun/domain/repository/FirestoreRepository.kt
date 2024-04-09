@@ -30,6 +30,8 @@ interface FirestoreRepository {
 
     fun getUserStream(userId: String): Flow<User?>
 
+    suspend fun updateUser(userId: String, updates: Map<String, String?>): Result<Unit>
+
     suspend fun findUsersByTag(tag: String): Result<List<User>>
 
     suspend fun createWorkspace(workspace: Workspace): Result<Unit>

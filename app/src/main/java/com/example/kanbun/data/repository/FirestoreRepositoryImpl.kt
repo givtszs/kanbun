@@ -118,6 +118,14 @@ class FirestoreRepositoryImpl @Inject constructor(
         }
     }
 
+    override suspend fun updateUser(userId: String, updates: Map<String, String?>): Result<Unit> = runCatching {
+        withContext(ioDispatcher) {
+            firestore.collection(FirestoreCollection.USERS)
+                .document(userId)
+                .update(updates)
+        }
+    }
+
     override suspend fun findUsersByTag(tag: String): Result<List<User>> = runCatching {
         withContext(ioDispatcher) {
             firestore.collection(FirestoreCollection.USERS)
