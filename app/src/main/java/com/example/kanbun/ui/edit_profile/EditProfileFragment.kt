@@ -35,6 +35,7 @@ class EditProfileFragment : BaseFragment(), StateHandler {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        setUpActionBar(binding.topAppBar.toolbar)
         collectState()
     }
 
@@ -61,7 +62,12 @@ class EditProfileFragment : BaseFragment(), StateHandler {
         with (state as ViewState.EditProfileViewState) {
             binding.apply {
                 loading.root.isVisible = isLoading
-                loadUserProfilePicture(requireContext(), user?.profilePicture, ivProfilePicture)
+                user?.let { _user ->
+                    loadUserProfilePicture(requireContext(), _user.profilePicture, ivProfilePicture)
+                    etName.setText(_user.name)
+                    etEmail.setText(_user.email)
+                    etTag.setText(_user.tag)
+                }
             }
         }
     }
