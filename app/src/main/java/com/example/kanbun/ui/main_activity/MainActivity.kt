@@ -1,7 +1,6 @@
 package com.example.kanbun.ui.main_activity
 
 import android.os.Bundle
-import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
 import androidx.drawerlayout.widget.DrawerLayout
@@ -13,9 +12,6 @@ import androidx.navigation.ui.setupWithNavController
 import com.example.kanbun.R
 import com.example.kanbun.common.DrawerItem
 import com.example.kanbun.databinding.ActivityMainBinding
-import com.google.firebase.FirebaseError
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.auth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import dagger.hilt.android.AndroidEntryPoint
@@ -75,17 +71,13 @@ class MainActivity : AppCompatActivity() {
             R.id.boardFragment,
             R.id.createTaskFragment,
             R.id.taskDetailsFragment,
-            R.id.boardSettingsFragment
+            R.id.boardSettingsFragment,
+            R.id.settingsFragment,
+            R.id.editProfileFragment
         )
 
         navController.addOnDestinationChangedListener { controller, destination, arguments ->
-            val hideNavBar = navBarlessDestinations.contains(destination.id)
-
-            if (hideNavBar) {
-                activityMainBinding.navBar.visibility = View.GONE
-            } else {
-                activityMainBinding.navBar.visibility = View.VISIBLE
-            }
+            activityMainBinding.navBar.isVisible = !navBarlessDestinations.contains(destination.id)
 
             val hideNavDrawer = destination.id != R.id.userBoardsFragment
             if (hideNavDrawer) {

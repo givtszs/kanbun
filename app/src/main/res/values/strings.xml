@@ -81,5 +81,6 @@
     <string name="item_role">%s\n%s</string>
     <string name="edit">Edit</string>
     <string name="hint_tag">Tag</string>
+    <string name="settings">Settings</string>
     <string name="edit_profile">Edit profile</string>
 </resources>

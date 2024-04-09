@@ -5,7 +5,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import com.example.kanbun.ui.model.TagUi
-import com.example.kanbun.ui.task_tag.TagView
+import com.example.kanbun.ui.custom_views.TagView
 
 class TagsAdapter(
     private val areItemsClickable: Boolean = false

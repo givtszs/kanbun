@@ -1,4 +1,4 @@
-package com.example.kanbun.ui.task_tag
+package com.example.kanbun.ui.custom_views
 
 import android.content.Context
 import android.graphics.Color

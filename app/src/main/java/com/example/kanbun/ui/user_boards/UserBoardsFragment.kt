@@ -126,7 +126,7 @@ class UserBoardsFragment : BaseFragment(), StateHandler {
                 }
 
                 btnSettings.setOnClickListener {
-                    navController.navigate(R.id.settingsFragment)
+                    navController.navigate(R.id.action_userBoardsFragment_to_settingsFragment)
                 }
             }
 

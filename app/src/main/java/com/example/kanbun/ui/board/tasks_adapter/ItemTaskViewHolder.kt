@@ -18,7 +18,7 @@ import com.example.kanbun.domain.model.Task
 import com.example.kanbun.ui.board.TaskDropCallbacks
 import com.example.kanbun.ui.board.tasks_adapter.ItemTaskViewHolder.TaskDragAndDropHelper.DROP_ZONE_TASK
 import com.example.kanbun.ui.model.DragAndDropTaskItem
-import com.example.kanbun.ui.task_tag.TagView
+import com.example.kanbun.ui.custom_views.TagView
 import com.squareup.moshi.Moshi
 
 class ItemTaskViewHolder(
