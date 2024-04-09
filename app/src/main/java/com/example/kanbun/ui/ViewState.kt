@@ -101,4 +101,10 @@ sealed class ViewState {
         val tags: List<Tag> = emptyList(),
         val message: String? = null
     ) : ViewState()
+
+    data class EditProfileViewState(
+        val message: String? = null,
+        val isLoading: Boolean = true,
+        val user: User? = null
+    ) : ViewState()
 }

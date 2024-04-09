@@ -84,5 +84,8 @@
             android:hint="@string/hint_email" />
     </com.google.android.material.textfield.TextInputLayout>
 
+    <include
+        android:id="@+id/loading"
+        layout="@layout/loading_state" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -18,6 +18,7 @@ import com.example.kanbun.domain.model.User
 import com.example.kanbun.domain.model.Workspace
 import com.example.kanbun.domain.model.WorkspaceInfo
 import com.example.kanbun.domain.repository.FirestoreRepository
+import com.example.kanbun.domain.usecase.GetUserUseCase
 import com.example.kanbun.domain.utils.ConnectivityChecker
 import com.example.kanbun.ui.ViewState
 import com.example.kanbun.ui.main_activity.MainActivity
@@ -40,7 +41,8 @@ private const val TAG = "UserBoardsViewModel"
 class UserBoardsViewModel @Inject constructor(
     private val connectivityChecker: ConnectivityChecker,
     private val firestoreRepository: FirestoreRepository,
-    private val dataStore: PreferenceDataStoreHelper
+    private val dataStore: PreferenceDataStoreHelper,
+    private val getUserUseCase: GetUserUseCase
 ) : ViewModel() {
     // TODO: Update the code to use this code
 //    private val _user =
@@ -96,7 +98,7 @@ class UserBoardsViewModel @Inject constructor(
 
 
     private suspend fun getUser() {
-        when (val result = firestoreRepository.getUser(firebaseUser!!.uid)) {
+        when (val result = getUserUseCase()) {
             is Result.Success -> _user.value = result.data
             is Result.Error -> _message.value = result.message
         }
