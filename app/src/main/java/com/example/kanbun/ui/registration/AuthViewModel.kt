@@ -9,8 +9,8 @@ import com.example.kanbun.R
 import com.example.kanbun.common.AuthProvider
 import com.example.kanbun.common.Result
 import com.example.kanbun.common.ToastMessage
+import com.example.kanbun.domain.repository.AuthenticationRepository
 import com.example.kanbun.domain.usecase.ManageFirestoreUserUseCase
-import com.example.kanbun.domain.usecase.RegisterUserUseCase
 import com.example.kanbun.domain.utils.ConnectivityChecker
 import com.example.kanbun.ui.ViewState
 import com.google.android.gms.auth.api.signin.GoogleSignIn
@@ -26,7 +26,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 open class AuthViewModel @Inject constructor(
-    private val registerUserUseCase: RegisterUserUseCase,
+    private val authRepository: AuthenticationRepository,
     private val manageFirestoreUserUseCase: ManageFirestoreUserUseCase,
     private val connectivityChecker: ConnectivityChecker
 ) : ViewModel() {
@@ -116,7 +116,7 @@ open class AuthViewModel @Inject constructor(
                 return@launch
             }
 
-            when (val result = registerUserUseCase.authWithGoogle(accountId)) {
+            when (val result = authRepository.authWithGoogle(accountId)) {
                 is Result.Success -> {
                     successCallback(result.data)
                 }
@@ -136,7 +136,7 @@ open class AuthViewModel @Inject constructor(
                 notifyNoInternet()
             }
 
-            when (val result = registerUserUseCase.authWithGitHub(activity)) {
+            when (val result = authRepository.authWithGitHub(activity)) {
                 is Result.Success -> {
                     successCallback(result.data)
                 }

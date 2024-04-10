@@ -6,7 +6,7 @@ import com.example.kanbun.common.AuthProvider
 import com.example.kanbun.common.EMAIL_RESEND_TIME_LIMIT
 import com.example.kanbun.common.Result
 import com.example.kanbun.common.ToastMessage
-import com.example.kanbun.domain.usecase.RegisterUserUseCase
+import com.example.kanbun.domain.repository.AuthenticationRepository
 import com.example.kanbun.domain.utils.ConnectivityChecker
 import com.example.kanbun.ui.ViewState
 import com.google.firebase.auth.FirebaseUser
@@ -24,7 +24,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class EmailVerificationViewModel @Inject constructor(
-    private val registerUserUseCase: RegisterUserUseCase,
+    private val authRepository: AuthenticationRepository,
     private val connectivityChecker: ConnectivityChecker
 ) : ViewModel() {
     private val _emailVerificationState = MutableStateFlow(ViewState.EmailVerificationState())
@@ -64,7 +64,7 @@ class EmailVerificationViewModel @Inject constructor(
             return@launch
         }
 
-        when (val result = registerUserUseCase.sendVerificationEmail(user)) {
+        when (val result = authRepository.sendVerificationEmail(user)) {
             is Result.Success -> showMessage("Verification email has been sent successfully")
             is Result.Error -> showMessage(result.message)
         }
