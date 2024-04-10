@@ -61,7 +61,7 @@ class FirestoreTestUtil {
             con.disconnect()
         }
 
-        const val testName = "IAmTest"
+        const val testName = "Test"
         const val testEmail = "qatesteverything@gmail.com"
         const val testPassword = "Qwerty123_"
 
