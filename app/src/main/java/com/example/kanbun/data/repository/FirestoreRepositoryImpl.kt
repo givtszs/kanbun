@@ -320,24 +320,6 @@ class FirestoreRepositoryImpl @Inject constructor(
             .update("members.$memberId", Role.Workspace.Member.name)
     }
 
-    override suspend fun inviteToWorkspace(
-        workspace: Workspace,
-        user: User
-    ): Result<Unit> = runCatching {
-        // update workspace members
-        addMemberToWorkspace(
-            workspace.id,
-            user.id
-        )
-
-        // update user's workspaces
-        addWorkspaceInfoToUser(
-            userId = user.id,
-            workspaceInfo = WorkspaceInfo(workspace.id, workspace.name),
-            isSharedWorkspace = true
-        )
-    }
-
     /**
      * Calls the Cloud Function to recursively delete a document or collection specified by the [path]
      *

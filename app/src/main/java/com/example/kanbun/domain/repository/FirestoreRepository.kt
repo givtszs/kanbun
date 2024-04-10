@@ -50,8 +50,6 @@ interface FirestoreRepository {
 
     suspend fun updateWorkspace(oldWorkspace: Workspace, newWorkspace: Workspace): Result<Unit>
 
-    suspend fun inviteToWorkspace(workspace: Workspace, user: User): Result<Unit>
-
     /**
      * Deletes the [workspace] using the deployed Cloud Function which recursively deletes all
      * data in the document, including sub collections.

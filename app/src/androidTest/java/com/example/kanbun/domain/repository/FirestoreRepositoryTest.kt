@@ -12,6 +12,8 @@ import com.example.kanbun.domain.model.Task
 import com.example.kanbun.domain.model.User
 import com.example.kanbun.domain.model.Workspace
 import com.example.kanbun.domain.model.WorkspaceInfo
+import com.example.kanbun.isResultError
+import com.example.kanbun.isResultSuccess
 import com.google.common.truth.Subject
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -39,9 +41,6 @@ class FirestoreRepositoryTest {
         FirestoreTestUtil.deleteFirestoreData()
     }
 
-    private fun Subject.isResultSuccess() = isInstanceOf(Result.Success::class.java)
-    private fun Subject.isResultError() = isInstanceOf(Result.Error::class.java)
-
     @Test
     fun createUser_validUserId_addsUserDataToFirestore() = runBlocking {
         val user = FirestoreTestUtil.createUser("user1")
@@ -68,7 +67,7 @@ class FirestoreRepositoryTest {
         val user = createUser("user1")
         val result = repository.getUser(user.id)
 
-        assertThat(result).isInstanceOf(Result.Success::class.java)
+        assertThat(result).isResultSuccess()
 
         val resultUser = (result as Result.Success).data
 
@@ -116,6 +115,32 @@ class FirestoreRepositoryTest {
         userFlow = repository.getUserStream(user.id)
 
         assertThat(userFlow.first()).isEqualTo(user)
+    }
+
+    @Test
+    fun isTagTaken_returnsTrueIfTheTagTaken() = runBlocking {
+        val user = createUser("user1", "test")
+        val tag = "test"
+        val result = repository.isTagTaken(tag)
+
+        assertThat(result).isResultSuccess()
+
+        val resultData = (result as Result.Success).data
+
+        assertThat(resultData).isTrue()
+    }
+
+    @Test
+    fun isTagTaken_returnsFalseIfTheTagIsNotTaken() = runBlocking {
+        val user = createUser("user1", "test")
+        val tag = "test1"
+        val result = repository.isTagTaken(tag)
+
+        assertThat(result).isResultSuccess()
+
+        val resultData = (result as Result.Success).data
+
+        assertThat(resultData).isFalse()
     }
 
     @Test
@@ -245,29 +270,6 @@ class FirestoreRepositoryTest {
 
         assertThat(workspaceFlow.first()).isNull()
     }
-
-
-    @Test
-    fun inviteToWorkspace_addsUserIntoWorkspaceMembers_addsWorkspaceIntoUserWorkspaces() =
-        runBlocking {
-            val user1 = createUser("user1")
-            val user2 = createUser("user2")
-            val workspace = createWorkspace(user1.id, "Workspace")
-            val result = repository.inviteToWorkspace(workspace, user2)
-
-            assertThat(result).isResultSuccess()
-
-            // verify user2 has `workspace`
-            val user2Update = (repository.getUser(user2.id) as Result.Success).data
-
-            assertThat(user2Update.sharedWorkspaces.any { it.id == workspace.id }).isTrue()
-
-            // verify workspace members field has `user2`
-            val workspaceUpdate = (repository.getWorkspace(workspace.id) as Result.Success).data
-
-            assertThat(workspaceUpdate.members[user2.id]).isNotNull()
-            assertThat(workspaceUpdate.members[user2.id]).isEqualTo(Role.Workspace.Member)
-        }
 
     @Test
     fun deleteWorkspace_deletesWorkspace(): Unit = runBlocking {
