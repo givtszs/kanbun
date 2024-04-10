@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.view.isVisible
+import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -23,6 +24,7 @@ class EditProfileFragment : BaseFragment(), StateHandler {
     private var _binding: FragmentEditProfileBinding? = null
     private val binding: FragmentEditProfileBinding get() = _binding!!
     private val viewModel: EditProfileViewModel by viewModels()
+    private var isUserDataFetched = false
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -45,14 +47,30 @@ class EditProfileFragment : BaseFragment(), StateHandler {
     }
 
     override fun setUpListeners() {
-        binding.btnSave.setOnClickListener {
-            viewModel.updateUser(
-                name = binding.etName.text?.trim().toString(),
-                tag = binding.etTag.text?.trim().toString()
-            ) {
-                navController.popBackStack()
+        binding.apply {
+            btnSave.setOnClickListener {
+                viewModel.updateUser(
+                    name = binding.etName.text?.trim().toString(),
+                    tag = binding.etTag.text?.trim().toString()
+                ) {
+                    navController.popBackStack()
+                }
+            }
+
+            etName.doOnTextChanged { text, _, _, _ ->
+                if (tfName.isErrorEnabled && !text.isNullOrEmpty()) {
+                    tfName.isErrorEnabled = false
+                }
+            }
+
+            etTag.doOnTextChanged { text, _, _, _ ->
+                if (tfTag.isErrorEnabled && !text.isNullOrEmpty()) {
+                    tfTag.isErrorEnabled = false
+                }
             }
         }
+
+
     }
 
     override fun collectState() {
@@ -69,11 +87,28 @@ class EditProfileFragment : BaseFragment(), StateHandler {
         with (state as ViewState.EditProfileViewState) {
             binding.apply {
                 loading.root.isVisible = isLoading
+
+                // update to fetch the user data only once
                 user?.let { _user ->
-                    loadUserProfilePicture(requireContext(), _user.profilePicture, ivProfilePicture)
-                    etName.setText(_user.name)
-                    etEmail.setText(_user.email)
-                    etTag.setText(_user.tag)
+                    if (!isUserDataFetched) {
+                        loadUserProfilePicture(requireContext(), _user.profilePicture, ivProfilePicture)
+                        etName.setText(_user.name)
+                        etEmail.setText(_user.email)
+                        etTag.setText(_user.tag)
+                        isUserDataFetched = true
+                    }
+                }
+
+                nameError?.let {
+                    tfName.error = it
+                    tfName.isErrorEnabled = true
+                    viewModel.nameErrorShown()
+                }
+
+                tagError?.let {
+                    tfTag.error = it
+                    tfTag.isErrorEnabled = true
+                    viewModel.tagErrorShown()
                 }
 
                 message?.let {

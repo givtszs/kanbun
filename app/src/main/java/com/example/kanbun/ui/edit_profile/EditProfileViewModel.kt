@@ -20,17 +20,21 @@ class EditProfileViewModel @Inject constructor(
     private val updateUserUseCase: UpdateUserUseCase
 ) : ViewModel() {
 
+    private var _user = MutableStateFlow<User?>(null)
     private var _message = MutableStateFlow<String?>(null)
     private var _isLoading = MutableStateFlow(true)
-    private var _user = MutableStateFlow<User?>(null)
+    private var _nameError = MutableStateFlow<String?>(null)
+    private var _tagError = MutableStateFlow<String?>(null)
 
     val editProfileState = combine(
-        _message, _isLoading, _user
-    ) { message, isLoading, user ->
+        _user, _message, _isLoading, _nameError, _tagError
+    ) { user, message, isLoading, nameError, tagError ->
         ViewState.EditProfileViewState(
+            user = user,
             message = message,
             isLoading = isLoading,
-            user = user
+            nameError = nameError,
+            tagError = tagError
         )
     }.stateIn(
         viewModelScope,
@@ -73,8 +77,21 @@ class EditProfileViewModel @Inject constructor(
                     onSuccess()
                 }
                 .onError { message, _ ->
-                    _message.value = message
+                    processError(message)
                 }
+        }
+    }
+
+    private fun processError(message: String?) {
+        if (message == null) {
+            return
+        }
+
+        val messageLowercase = message.lowercase()
+        when {
+            messageLowercase.contains("name") -> _nameError.value = message
+            messageLowercase.contains("tag") ->  _tagError.value = message
+            else -> _message.value = message
         }
     }
 
@@ -82,4 +99,12 @@ class EditProfileViewModel @Inject constructor(
         _message.value = null
     }
 
+    fun nameErrorShown() {
+        _nameError.value = null
+    }
+
+
+    fun tagErrorShown() {
+        _tagError.value = null
+    }
 }

@@ -103,8 +103,10 @@ sealed class ViewState {
     ) : ViewState()
 
     data class EditProfileViewState(
+        val user: User? = null,
         val message: String? = null,
         val isLoading: Boolean = true,
-        val user: User? = null
+        val nameError: String? = null,
+        val tagError: String? = null
     ) : ViewState()
 }
