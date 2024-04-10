@@ -7,14 +7,14 @@ import javax.inject.Inject
 
 class UpdateUserUseCase @Inject constructor(
     private val firestoreRepository: FirestoreRepository,
-    private val credentialsValidationUseCases: CredentialsValidationUseCases
+    private val validateNameUseCase: ValidateNameUseCase,
+    private val validateTagUseCase: ValidateTagUseCase
 ) {
     suspend operator fun invoke(oldUser: User, newUser: User): Result<Unit> {
         val userUpdates = mutableMapOf<String, String?>()
         var error: Result.Error<Unit>? = null
         if (newUser.name != oldUser.name) {
-            // validate name
-            credentialsValidationUseCases.validateNameUseCase(newUser.name ?: "")
+            validateNameUseCase(newUser.name ?: "")
                 .onSuccess {
                     userUpdates["name"] = newUser.name
                 }
@@ -23,8 +23,13 @@ class UpdateUserUseCase @Inject constructor(
                 }
         }
         if (newUser.tag != oldUser.tag) {
-            // validate tag
-            userUpdates["tag"] = newUser.tag
+            validateTagUseCase(newUser.tag)
+                .onSuccess {
+                    userUpdates["tag"] = newUser.tag
+                }
+                .onError { message, throwable ->
+                    error = Result.Error(message, throwable)
+                }
         }
 
         if (error != null) {
