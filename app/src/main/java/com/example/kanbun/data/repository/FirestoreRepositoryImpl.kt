@@ -118,6 +118,17 @@ class FirestoreRepositoryImpl @Inject constructor(
         }
     }
 
+    override suspend fun isTagTaken(tag: String): Result<Boolean> = runCatching {
+        withContext(ioDispatcher) {
+            firestore.collection(FirestoreCollection.USERS)
+                .whereEqualTo("tag", tag)
+                .get()
+                .getResult {
+                    result.documents.size != 0
+                }
+        }
+    }
+
     override suspend fun updateUser(userId: String, updates: Map<String, String?>): Result<Unit> = runCatching {
         withContext(ioDispatcher) {
             firestore.collection(FirestoreCollection.USERS)

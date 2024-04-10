@@ -11,7 +11,7 @@ sealed class Result<T> {
         return this
     }
 
-    fun onError(block: (String?, Throwable?) -> Unit): Result<T> {
+    fun onError(block: (message: String?, Throwable?) -> Unit): Result<T> {
         if (this is Error) {
             block(message, e)
         }
