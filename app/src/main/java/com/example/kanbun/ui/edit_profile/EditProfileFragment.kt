@@ -1,9 +1,12 @@
 package com.example.kanbun.ui.edit_profile
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.view.isVisible
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.viewModels
@@ -21,10 +24,24 @@ import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class EditProfileFragment : BaseFragment(), StateHandler {
+
+    companion object {
+        private const val TAG = "EditProfileFragment"
+    }
+
     private var _binding: FragmentEditProfileBinding? = null
     private val binding: FragmentEditProfileBinding get() = _binding!!
     private val viewModel: EditProfileViewModel by viewModels()
     private var isUserDataFetched = false
+
+    private val pickMedia = registerForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
+        if (uri != null) {
+            Log.d(TAG, "PickMedia: Picked image: $uri")
+            loadUserProfilePicture(requireContext(), uri.toString(), binding.ivProfilePicture)
+        } else {
+            Log.d(TAG, "PickMedia: No media selected")
+        }
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -55,6 +72,10 @@ class EditProfileFragment : BaseFragment(), StateHandler {
                 ) {
                     navController.popBackStack()
                 }
+            }
+
+            btnEditProfilePicture.setOnClickListener {
+                pickMedia.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
             }
 
             etName.doOnTextChanged { text, _, _, _ ->

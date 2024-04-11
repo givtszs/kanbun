@@ -71,6 +71,7 @@ dependencies {
     implementation(libs.moshi)
     implementation(libs.flexbox)
     implementation(libs.androidx.preference.ktx)
+    implementation(libs.androidx.activity.ktx)
 
     testImplementation(libs.junit)
     testImplementation(libs.kotlinx.coroutines.test)

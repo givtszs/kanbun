@@ -6,6 +6,8 @@ import android.widget.ImageView
 import androidx.annotation.ColorRes
 import androidx.core.content.ContextCompat
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.Transformation
+import com.bumptech.glide.request.RequestOptions
 import com.example.kanbun.R
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
@@ -38,8 +40,11 @@ fun convertTimestampToDateString(format: String, timestamp: Long?): String = try
 }
 
 fun loadUserProfilePicture(context: Context, pictureUrl: String?, view: ImageView) {
+    val options = RequestOptions().centerCrop()
     Glide.with(context)
         .load(pictureUrl)
+        .transform()
+        .apply(options)
         .placeholder(R.drawable.ic_launcher_background)
         .into(view)
 }
