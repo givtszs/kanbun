@@ -1,8 +1,11 @@
 package com.example.kanbun.ui.edit_profile
 
+import android.net.Uri
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.kanbun.domain.model.User
+import com.example.kanbun.domain.repository.StorageRepository
 import com.example.kanbun.domain.usecase.GetUserUseCase
 import com.example.kanbun.domain.usecase.UpdateUserUseCase
 import com.example.kanbun.ui.ViewState
@@ -17,8 +20,13 @@ import javax.inject.Inject
 @HiltViewModel
 class EditProfileViewModel @Inject constructor(
     private val getUserUseCase: GetUserUseCase,
-    private val updateUserUseCase: UpdateUserUseCase
+    private val updateUserUseCase: UpdateUserUseCase,
+    private val storageRepository: StorageRepository
 ) : ViewModel() {
+
+    companion object {
+        private const val TAG = "EditProfileViewModel"
+    }
 
     private var _user = MutableStateFlow<User?>(null)
     private var _message = MutableStateFlow<String?>(null)
@@ -56,6 +64,19 @@ class EditProfileViewModel @Inject constructor(
                     _message.value = message
                 }
             _isLoading.value = false
+        }
+    }
+
+    fun uploadProfilePicture(path: Uri) {
+        viewModelScope.launch {
+            storageRepository.uploadImage(path)
+                .onSuccess {
+                    Log.d(TAG, "Picture was uploaded successfully")
+                }
+                .onError { message, e ->
+                    _message.value = message
+                    Log.e(TAG, "Error while uploading: ${e?.message}", e)
+                }
         }
     }
 

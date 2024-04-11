@@ -37,7 +37,9 @@ class EditProfileFragment : BaseFragment(), StateHandler {
     private val pickMedia = registerForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
         if (uri != null) {
             Log.d(TAG, "PickMedia: Picked image: $uri")
+            uri.lastPathSegment
             loadUserProfilePicture(requireContext(), uri.toString(), binding.ivProfilePicture)
+            viewModel.uploadProfilePicture(uri)
         } else {
             Log.d(TAG, "PickMedia: No media selected")
         }

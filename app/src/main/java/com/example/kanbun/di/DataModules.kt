@@ -3,14 +3,18 @@ package com.example.kanbun.di
 import com.example.kanbun.data.AndroidEmailPatternValidator
 import com.example.kanbun.data.repository.AuthenticationRepositoryImpl
 import com.example.kanbun.data.repository.FirestoreRepositoryImpl
+import com.example.kanbun.data.repository.StorageRepositoryImpl
 import com.example.kanbun.domain.repository.AuthenticationRepository
 import com.example.kanbun.domain.repository.FirestoreRepository
+import com.example.kanbun.domain.repository.StorageRepository
 import com.example.kanbun.domain.utils.EmailPatternValidator
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
+import com.google.firebase.storage.FirebaseStorage
+import com.google.firebase.storage.ktx.storage
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
@@ -35,6 +39,12 @@ abstract class DataModule {
 
     @Binds
     @Singleton
+    abstract fun bindStorageRepository(
+        storageRepositoryImpl: StorageRepositoryImpl
+    ): StorageRepository
+
+    @Binds
+    @Singleton
     abstract fun bindEmailPatternValidator(
         androidEmailPatternValidator: AndroidEmailPatternValidator
     ): EmailPatternValidator
@@ -53,6 +63,10 @@ object FirebaseModule {
     @Provides
     @Singleton
     fun provideFirestore(): FirebaseFirestore = Firebase.firestore
+
+    @Provides
+    @Singleton
+    fun provideFirebaseStorage(): FirebaseStorage = Firebase.storage
 
     @Provides
     @Singleton

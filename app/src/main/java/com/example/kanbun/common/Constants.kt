@@ -14,6 +14,10 @@ object FirestoreCollection {
     const val TASKS = "tasks"
 }
 
+object FirebaseStorageFolders {
+    const val USER_PROFILE_PICTURES = "user_prof_pics"
+}
+
 enum class AuthProvider(val providerId: String) {
     EMAIL("password"),
     GOOGLE("google.com"),
