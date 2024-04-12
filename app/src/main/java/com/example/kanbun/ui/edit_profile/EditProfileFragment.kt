@@ -13,7 +13,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import com.example.kanbun.common.loadUserProfilePicture
+import com.example.kanbun.common.loadProfilePicture
 import com.example.kanbun.databinding.FragmentEditProfileBinding
 import com.example.kanbun.ui.BaseFragment
 import com.example.kanbun.ui.StateHandler
@@ -38,7 +38,7 @@ class EditProfileFragment : BaseFragment(), StateHandler {
         if (uri != null) {
             Log.d(TAG, "PickMedia: Picked image: $uri")
             uri.lastPathSegment
-            loadUserProfilePicture(requireContext(), uri.toString(), binding.ivProfilePicture)
+            loadProfilePicture(requireContext(), uri.toString(), binding.ivProfilePicture)
             viewModel.uploadProfilePicture(uri)
         } else {
             Log.d(TAG, "PickMedia: No media selected")
@@ -114,7 +114,7 @@ class EditProfileFragment : BaseFragment(), StateHandler {
                 // update to fetch the user data only once
                 user?.let { _user ->
                     if (!isUserDataFetched) {
-                        loadUserProfilePicture(requireContext(), _user.profilePicture, ivProfilePicture)
+                        loadProfilePicture(requireContext(), _user.profilePicture, ivProfilePicture)
                         etName.setText(_user.name)
                         etEmail.setText(_user.email)
                         etTag.setText(_user.tag)

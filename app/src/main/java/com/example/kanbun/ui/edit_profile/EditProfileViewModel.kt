@@ -5,8 +5,8 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.kanbun.domain.model.User
-import com.example.kanbun.domain.repository.StorageRepository
 import com.example.kanbun.domain.usecase.GetUserUseCase
+import com.example.kanbun.domain.usecase.UpdateProfilePictureUseCase
 import com.example.kanbun.domain.usecase.UpdateUserUseCase
 import com.example.kanbun.ui.ViewState
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -21,7 +21,7 @@ import javax.inject.Inject
 class EditProfileViewModel @Inject constructor(
     private val getUserUseCase: GetUserUseCase,
     private val updateUserUseCase: UpdateUserUseCase,
-    private val storageRepository: StorageRepository
+    private val updateProfilePictureUseCase: UpdateProfilePictureUseCase
 ) : ViewModel() {
 
     companion object {
@@ -68,8 +68,12 @@ class EditProfileViewModel @Inject constructor(
     }
 
     fun uploadProfilePicture(path: Uri) {
+        if (_user.value == null) {
+            _message.value = "User is null"
+            return
+        }
         viewModelScope.launch {
-            storageRepository.uploadImage(path)
+            updateProfilePictureUseCase(_user.value!!, path)
                 .onSuccess {
                     Log.d(TAG, "Picture was uploaded successfully")
                 }
