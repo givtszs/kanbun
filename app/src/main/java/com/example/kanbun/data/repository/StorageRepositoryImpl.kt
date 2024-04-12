@@ -22,16 +22,14 @@ class StorageRepositoryImpl @Inject constructor(
         private const val TAG = "StorageRepository"
     }
 
-    override suspend fun uploadImage(uri: Uri): Result<Unit> = runCatching {
-        val file = Uri.fromFile(File(uri.toString()))
-        val imageRef = storage.reference.child(
-            "${FirebaseStorageFolders.USER_PROFILE_PICTURES}/${uri.lastPathSegment}"
-        )
+    override suspend fun uploadImage(uri: Uri): Result<String> = runCatching {
+        val imageRef = storage.reference
+            .child("${FirebaseStorageFolders.USER_PROFILE_PICTURES}/${uri.lastPathSegment}")
+        Log.d(TAG, "Image path: $imageRef")
         withContext(ioDispatcher) {
-            val uploadTask = imageRef.putFile(file)
+            val uploadTask = imageRef.putFile(uri)
             uploadTask.await()
-            val fileUrl = imageRef.downloadUrl
-            Log.d(TAG, "Uploaded file url: $fileUrl")
         }
+        imageRef.toString()
     }
 }

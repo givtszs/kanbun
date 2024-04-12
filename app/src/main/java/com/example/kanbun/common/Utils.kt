@@ -6,16 +6,15 @@ import android.widget.ImageView
 import androidx.annotation.ColorRes
 import androidx.core.content.ContextCompat
 import com.bumptech.glide.Glide
-import com.bumptech.glide.load.Transformation
-import com.bumptech.glide.request.RequestOptions
 import com.example.kanbun.R
+import com.google.firebase.ktx.Firebase
+import com.google.firebase.storage.ktx.storage
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.Locale
 import java.util.TimeZone
-import kotlin.reflect.typeOf
 
 fun getColor(context: Context, @ColorRes color: Int) = ContextCompat.getColor(context, color)
 
@@ -39,15 +38,32 @@ fun convertTimestampToDateString(format: String, timestamp: Long?): String = try
     "dd/mm/yyyy, hh:mm"
 }
 
-fun loadUserProfilePicture(context: Context, pictureUrl: String?, view: ImageView) {
-    val options = RequestOptions().centerCrop()
+fun loadProfilePicture(context: Context, pictureUrl: String?, view: ImageView) {
+    val isStoragePath = pictureUrl?.contains("gs://kanbun-aa2d6.appspot.com/")
+    if (isStoragePath == true) {
+        loadImageFromStorage(context, pictureUrl, view)
+        return
+    }
+
+    showProfilePicture(context, pictureUrl, view)
+}
+
+private fun loadImageFromStorage(context: Context, path: String, view: ImageView) {
+    val downloadUrl = Firebase.storage.getReferenceFromUrl(path)
+    downloadUrl.downloadUrl.addOnSuccessListener { uri ->
+        Log.d("StorageLoading", "uri: $uri")
+        showProfilePicture(context, uri.toString(), view)
+    }
+}
+
+private fun showProfilePicture(context: Context, url: String?, view: ImageView) =
     Glide.with(context)
-        .load(pictureUrl)
+        .load(url)
         .transform()
-        .apply(options)
+        .centerCrop()
         .placeholder(R.drawable.ic_launcher_background)
         .into(view)
-}
+
 
 fun <T1, T2, T3, T4, T5, T6, R> combine(
     flow1: Flow<T1>,

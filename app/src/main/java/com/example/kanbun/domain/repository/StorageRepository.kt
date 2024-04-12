@@ -5,5 +5,5 @@ import com.example.kanbun.common.Result
 
 interface StorageRepository {
 
-    suspend fun uploadImage(uri: Uri): Result<Unit>
+    suspend fun uploadImage(uri: Uri): Result<String>
 }
