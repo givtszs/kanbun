@@ -95,14 +95,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setUpNavView() {
-        // set up header layout
-        activityMainBinding.drawerContent.headerLayout.apply {
-            ivProfilePicture.setImageResource(R.drawable.ic_launcher_background)
-            // TODO: Check why do I even have this
-            tvName.text = "Awesome Name"
-            tvEmail.text = "awesome@email.com"
-        }
-
         activityMainBinding.drawerContent.apply {
             userWorkspacesAdapter = DrawerAdapter()
             rvUserWorkspaces.adapter = userWorkspacesAdapter

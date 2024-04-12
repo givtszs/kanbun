@@ -23,7 +23,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.kanbun.R
 import com.example.kanbun.common.Role
 import com.example.kanbun.common.getColor
-import com.example.kanbun.common.loadUserProfilePicture
+import com.example.kanbun.common.loadProfilePicture
 import com.example.kanbun.databinding.FragmentViewAllMembersBinding
 import com.example.kanbun.databinding.ItemMemberBinding
 import com.example.kanbun.ui.main_activity.MainActivity
@@ -187,7 +187,7 @@ private class AllMembersAdapter(
                     R.string.user_tag,
                     member.user.tag
                 )
-                loadUserProfilePicture(
+                loadProfilePicture(
                     context = itemView.context,
                     pictureUrl = member.user.profilePicture,
                     view = ivProfilePicture

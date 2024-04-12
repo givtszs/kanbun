@@ -27,6 +27,7 @@ import com.example.kanbun.common.DrawerItem
 import com.example.kanbun.common.RECYCLERVIEW_BOARDS_COLUMNS
 import com.example.kanbun.common.Role
 import com.example.kanbun.common.getColor
+import com.example.kanbun.common.loadProfilePicture
 import com.example.kanbun.databinding.FragmentUserBoardsBinding
 import com.example.kanbun.domain.model.User
 import com.example.kanbun.domain.model.Workspace
@@ -49,10 +50,6 @@ class UserBoardsFragment : BaseFragment(), StateHandler {
     companion object {
         private var _workspaceRole: Role.Workspace? = null
         val userRole: Role.Workspace? get() = _workspaceRole
-
-        private fun setUserWorkspaceRole(role: Role.Workspace?) {
-            _workspaceRole = role
-        }
     }
 
     private var _binding: FragmentUserBoardsBinding? = null
@@ -93,6 +90,7 @@ class UserBoardsFragment : BaseFragment(), StateHandler {
 
     private var isMenuProviderAdded = false
     private var boardsAdapter: BoardsAdapter? = null
+    private var isInitCalled = false
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -109,7 +107,10 @@ class UserBoardsFragment : BaseFragment(), StateHandler {
         setUpActionBar(binding.topAppBar.toolbar)
         setStatusBarColor(getColor(requireContext(), R.color.md_theme_light_surface))
         addOnBackPressedAction { requireActivity().finish() }
-        viewModel.init(navController)
+        if (!isInitCalled) {
+            viewModel.init(navController)
+            isInitCalled = true
+        }
         setUpBoardsAdapter()
         collectState()
     }
@@ -207,7 +208,7 @@ class UserBoardsFragment : BaseFragment(), StateHandler {
 
                 if (currentWorkspace != null) {
                     Log.d(TAG, "currentWorkspace: $currentWorkspace")
-                    setUserWorkspaceRole(currentWorkspace.members[MainActivity.firebaseUser?.uid])
+                    _workspaceRole = currentWorkspace.members[MainActivity.firebaseUser?.uid]
                     boardsAdapter?.setData(currentWorkspace.boards)
                     DrawerAdapter.prevSelectedWorkspaceId = currentWorkspace.id
 
@@ -237,10 +238,7 @@ class UserBoardsFragment : BaseFragment(), StateHandler {
             activityMainBinding.drawerContent.headerLayout.apply {
                 tvName.text = user.name
                 tvEmail.text = user.email
-                Glide.with(requireContext())
-                    .load(user.profilePicture)
-                    .placeholder(R.drawable.ic_launcher_background)
-                    .into(ivProfilePicture)
+                loadProfilePicture(requireContext(), user.profilePicture, ivProfilePicture)
             }
 
             activityMainBinding.drawerContent.btnCreateWorkspace.setOnClickListener {

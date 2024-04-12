@@ -31,6 +31,9 @@ class UpdateUserUseCase @Inject constructor(
                     error = Result.Error(message, throwable)
                 }
         }
+        if (newUser.profilePicture != oldUser.profilePicture) {
+            userUpdates["profilePicture"] = newUser.profilePicture
+        }
 
         if (error != null) {
             return error as Result.Error<Unit>

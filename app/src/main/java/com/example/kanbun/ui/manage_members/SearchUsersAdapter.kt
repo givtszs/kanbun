@@ -6,7 +6,7 @@ import android.view.ViewGroup
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
 import com.example.kanbun.R
-import com.example.kanbun.common.loadUserProfilePicture
+import com.example.kanbun.common.loadProfilePicture
 import com.example.kanbun.databinding.ItemUserSearchResultBinding
 import com.example.kanbun.domain.model.User
 import com.example.kanbun.ui.model.UserSearchResult
@@ -63,7 +63,7 @@ class SearchUsersAdapter(
             binding.apply {
                 tvName.text = user.name
                 tvTag.text = itemView.context.getString(R.string.user_tag, user.tag)
-                loadUserProfilePicture(
+                loadProfilePicture(
                     context = itemView.context,
                     pictureUrl = user.profilePicture,
                     view = ivProfilePicture

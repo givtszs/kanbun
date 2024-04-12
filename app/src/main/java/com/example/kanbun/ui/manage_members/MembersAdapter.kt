@@ -6,7 +6,7 @@ import android.view.ViewGroup
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
 import com.example.kanbun.common.Role
-import com.example.kanbun.common.loadUserProfilePicture
+import com.example.kanbun.common.loadProfilePicture
 import com.example.kanbun.databinding.ItemMemberChipBinding
 import com.example.kanbun.ui.main_activity.MainActivity
 import com.example.kanbun.ui.model.Member
@@ -70,7 +70,7 @@ class MembersAdapter(
                 tvName.text = member.user.name
                 btnRemove.isVisible = member.user.id != ownerId && isAdmin
 
-                loadUserProfilePicture(
+                loadProfilePicture(
                     context = itemView.context,
                     pictureUrl = member.user.profilePicture,
                     view = ivProfilePicture
