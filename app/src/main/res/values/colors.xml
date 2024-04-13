@@ -8,6 +8,7 @@
     <color name="gray">#808080</color>
     <color name="dim_gray">#696969</color>
     <color name="platinum_1">#E5E4E2</color>
+    <color name="anti_flash_white">#F0F0F0</color>
 
     <!-- Theme colors -->
     <color name="md_theme_light_primary">#FF6110</color>

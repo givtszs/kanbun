@@ -2,6 +2,7 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/anti_flash_white"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <include
@@ -14,8 +15,42 @@
     <com.example.kanbun.ui.custom_views.PreferenceView
         android:id="@+id/prefEditProfile"
         android:layout_width="match_parent"
-        android:layout_height="60dp"
+        android:layout_height="wrap_content"
         android:text="@string/edit_profile"
+        android:layout_marginTop="24dp"
+        android:layout_marginHorizontal="16dp"
+        android:icon="@drawable/ic_edit_profile_24"
         app:layout_constraintTop_toBottomOf="@id/topAppBar" />
+
+    <com.example.kanbun.ui.custom_views.PreferenceView
+        android:id="@+id/prefAbout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/about"
+        android:layout_marginTop="24dp"
+        android:layout_marginHorizontal="16dp"
+        android:icon="@drawable/ic_info_24"
+        app:layout_constraintTop_toBottomOf="@id/prefEditProfile" />
+
+    <com.example.kanbun.ui.custom_views.PreferenceView
+        android:id="@+id/prefFeedback"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/feedback"
+        android:layout_marginTop="24dp"
+        android:layout_marginHorizontal="16dp"
+        android:icon="@drawable/ic_feedback_24"
+        app:layout_constraintTop_toBottomOf="@id/prefAbout" />
+
+    <com.example.kanbun.ui.custom_views.PreferenceView
+        android:id="@+id/prefTermsAndConditions"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/terms_and_conditions"
+        android:layout_marginTop="24dp"
+        android:layout_marginHorizontal="16dp"
+        android:icon="@drawable/ic_terms_and_conditions_24"
+        app:layout_constraintTop_toBottomOf="@id/prefFeedback" />
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,16 +1,19 @@
 package com.example.kanbun.ui.custom_views
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.util.AttributeSet
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.content.ContextCompat
 import com.example.kanbun.R
 import com.google.android.material.card.MaterialCardView
 
 class PreferenceView(context: Context, attributeSet: AttributeSet) :
     ConstraintLayout(context, attributeSet) {
 
-    private lateinit var card: MaterialCardView
+    private var card: MaterialCardView
 
     init {
         inflate(context, R.layout.preference_view, this)
@@ -20,10 +23,12 @@ class PreferenceView(context: Context, attributeSet: AttributeSet) :
             0, 0
         )
         try {
-            findViewById<TextView>(R.id.tvPreferenceName).apply {
-                text = attributes.getString(R.styleable.PreferenceView_android_text)
-            }
             card = findViewById(R.id.prefCardView)
+            findViewById<TextView>(R.id.tvPreferenceName).text =
+                attributes.getString(R.styleable.PreferenceView_android_text)
+
+            findViewById<ImageView>(R.id.ivPrefIcon)
+                .setImageDrawable(attributes.getDrawable(R.styleable.PreferenceView_android_icon))
         } finally {
             attributes.recycle()
         }

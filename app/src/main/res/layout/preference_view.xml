@@ -3,25 +3,43 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="60dp">
+    android:layout_height="@dimen/item_preference_height">
 
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/prefCardView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:clickable="true"
-        app:cardCornerRadius="0dp"
         app:strokeWidth="0dp">
 
-        <TextView
-            android:id="@+id/tvPreferenceName"
-            style="?textAppearanceHeadline6"
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:layout_marginHorizontal="16dp"
-            app:drawableEndCompat="@drawable/ic_arrow_forward_16"
-            tools:text="Name" />
+            android:layout_height="match_parent"
+            android:paddingHorizontal="16dp">
+
+            <ImageView
+                android:id="@+id/ivPrefIcon"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:src="@drawable/ic_edit_profile_24" />
+
+            <TextView
+                android:id="@+id/tvPreferenceName"
+                style="?textAppearanceHeadline6"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_marginStart="16dp"
+                app:drawableEndCompat="@drawable/ic_arrow_forward_16"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/ivPrefIcon"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:text="Name" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
     </com.google.android.material.card.MaterialCardView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
