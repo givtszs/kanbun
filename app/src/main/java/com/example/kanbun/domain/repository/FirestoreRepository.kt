@@ -30,7 +30,7 @@ interface FirestoreRepository {
 
     fun getUserStream(userId: String): Flow<User?>
 
-    suspend fun updateUser(userId: String, updates: Map<String, String?>): Result<Unit>
+    suspend fun updateUser(oldUser: User, newUser: User): Result<Unit>
 
     /**
      * Checks if the user tag is already taken.

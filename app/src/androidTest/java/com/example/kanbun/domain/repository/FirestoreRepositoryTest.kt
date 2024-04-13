@@ -182,6 +182,23 @@ class FirestoreRepositoryTest {
     }
 
     @Test
+    fun updateUser_updatesChangedUserFields() = runBlocking {
+        val user = createUser("user1", "user_test")
+        val newUser = user.copy(
+            name = "New Name",
+            tag = "new_tag",
+            profilePicture = "https://new_prof_pic.jpeg"
+        )
+        var result = repository.updateUser(user, newUser)
+
+        assertThat(result).isResultSuccess()
+
+        val userUpdate = (repository.getUser(newUser.id) as Result.Success).data
+
+        assertThat(userUpdate).isEqualTo(newUser)
+    }
+
+    @Test
     fun createWorkspace_addsWorkspaceToFirestore() = runBlocking {
         val user = createUser("user1")
         val workspace = FirestoreTestUtil.createWorkspace(user.id, "Test")
@@ -549,7 +566,7 @@ class FirestoreRepositoryTest {
         assertThat(result).isResultSuccess()
 
         val boardListsUpdate = (result as Result.Success).data
-        assertThat(boardListsUpdate.any { it.name == newName}).isTrue()
+        assertThat(boardListsUpdate.any { it.name == newName }).isTrue()
     }
 
     @Test
@@ -608,7 +625,8 @@ class FirestoreRepositoryTest {
 
         assertThat(resultCreate).isResultSuccess()
 
-        val boardListUpdate = (repository.getBoardList(boardList.path, boardList.id) as Result.Success).data
+        val boardListUpdate =
+            (repository.getBoardList(boardList.path, boardList.id) as Result.Success).data
 
         assertThat(boardListUpdate.tasks.first().name).isEqualTo(task.name)
         assertThat(boardListUpdate.tasks.first().position).isEqualTo(task.position)
@@ -624,7 +642,8 @@ class FirestoreRepositoryTest {
 
         assertThat(result).isResultSuccess()
 
-        val boardListUpd = (repository.getBoardList(boardList.path, boardList.id) as Result.Success).data
+        val boardListUpd =
+            (repository.getBoardList(boardList.path, boardList.id) as Result.Success).data
 
         assertThat(boardListUpd.tasks.any { it.position == task.position }).isFalse()
     }
@@ -672,7 +691,8 @@ class FirestoreRepositoryTest {
 
         assertThat(result).isResultSuccess()
 
-        val boardListUpdate = (repository.getBoardList(boardList.path, boardList.id) as Result.Success).data
+        val boardListUpdate =
+            (repository.getBoardList(boardList.path, boardList.id) as Result.Success).data
         val task1Update = boardListUpdate.tasks.first { it.id == task1.id }
         val task2Update = boardListUpdate.tasks.first { it.id == task2.id }
         val task3Update = boardListUpdate.tasks.first { it.id == task3.id }
@@ -698,7 +718,8 @@ class FirestoreRepositoryTest {
 
         assertThat(result).isResultSuccess()
 
-        val boardListUpdate = (repository.getBoardList(boardList.path, boardList.id) as Result.Success).data
+        val boardListUpdate =
+            (repository.getBoardList(boardList.path, boardList.id) as Result.Success).data
         val task1Update = boardListUpdate.tasks.first { it.id == task1.id }
         val task2Update = boardListUpdate.tasks.first { it.id == task2.id }
         val task3Update = boardListUpdate.tasks.first { it.id == task3.id }
@@ -723,7 +744,8 @@ class FirestoreRepositoryTest {
 
         assertThat(result).isResultSuccess()
 
-        val boardListUpdate = (repository.getBoardList(boardList.path, boardList.id) as Result.Success).data
+        val boardListUpdate =
+            (repository.getBoardList(boardList.path, boardList.id) as Result.Success).data
 
         assertThat(boardListUpdate.tasks.any { it.id == task1.id }).isFalse()
 
@@ -751,7 +773,8 @@ class FirestoreRepositoryTest {
 
         assertThat(result).isResultSuccess()
 
-        val boardList2Update = (repository.getBoardList(boardList2.path, boardList2.id) as Result.Success).data
+        val boardList2Update =
+            (repository.getBoardList(boardList2.path, boardList2.id) as Result.Success).data
 
         val task1Update = boardList2Update.tasks.first { it.id == task1.id }
         val task2Update = boardList2Update.tasks.first { it.id == task2.id }
@@ -777,7 +800,8 @@ class FirestoreRepositoryTest {
 
         assertThat(result).isResultSuccess()
 
-        val boardListUpdate = (repository.getBoardList(boardList.path, boardList.id) as Result.Success).data
+        val boardListUpdate =
+            (repository.getBoardList(boardList.path, boardList.id) as Result.Success).data
         val taskUpdate = boardListUpdate.tasks.first { it.id == task.id }
 
         assertThat(taskUpdate.name).isEqualTo(newTask.name)
@@ -797,7 +821,8 @@ class FirestoreRepositoryTest {
 
         assertThat(result).isResultSuccess()
 
-        val boardListUpdate = (repository.getBoardList(boardList.path, boardList.id) as Result.Success).data
+        val boardListUpdate =
+            (repository.getBoardList(boardList.path, boardList.id) as Result.Success).data
         val taskUpdate = boardListUpdate.tasks.first { it.id == task.id }
 
         assertThat(taskUpdate.name).isEqualTo(newTask.name)
@@ -832,7 +857,7 @@ class FirestoreRepositoryTest {
         val result = repository.upsertTag(
             tag = newTag,
             boardId = board.id,
-            boardPath= "${FirestoreCollection.WORKSPACES}/${board.workspace.id}" +
+            boardPath = "${FirestoreCollection.WORKSPACES}/${board.workspace.id}" +
                     "/${FirestoreCollection.BOARDS}"
         )
 
@@ -991,7 +1016,8 @@ class FirestoreRepositoryTest {
     private suspend fun createTask(name: String, position: Long, boardList: BoardList): Task {
         return FirestoreTestUtil.createTask(name, position).run {
             repository.createTask(this, boardList.id, boardList.path)
-            val boardListUpd = (repository.getBoardList(boardList.path, boardList.id) as Result.Success).data
+            val boardListUpd =
+                (repository.getBoardList(boardList.path, boardList.id) as Result.Success).data
             boardListUpd.tasks.first { it.position == position }
         }
     }

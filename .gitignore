@@ -17,3 +17,4 @@ local.properties
 /hs_err_pid17700.log
 /replay_pid17700.log
 /.idea/deploymentTargetDropDown.xml
+/codemr/*

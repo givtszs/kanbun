@@ -119,72 +119,72 @@ class EditTagsBottomSheet : BottomSheetDialogFragment(), StateHandler {
         super.onDismiss(dialog)
         onDismissCallback(viewModel.editTagsState.value.tags)
     }
+}
 
-    private class EditTagsAdapter(
+private class EditTagsAdapter(
+    private val isEditable: Boolean,
+    private val onItemClicked: (Tag) -> Unit,
+    private val onDeleteIconClicked: (String) -> Unit
+) : RecyclerView.Adapter<EditTagsAdapter.ItemEditTagViewHolder>() {
+
+    var tags: List<Tag> = emptyList()
+        set(value) {
+            if (field != value) {
+                field = value
+                Log.d(TAG, "editTagsAdapter: tags: $field")
+                notifyDataSetChanged()
+            }
+        }
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ItemEditTagViewHolder {
+        return ItemEditTagViewHolder(
+            binding = ItemEditTagBinding.inflate(
+                LayoutInflater.from(parent.context),
+                parent,
+                false
+            ),
+            isEditable = isEditable,
+            onItemClicked = { position ->
+                onItemClicked(tags[position])
+            },
+            onDeleteTagClicked = { position ->
+                onDeleteIconClicked(tags[position].id)
+            }
+        )
+    }
+
+    override fun onBindViewHolder(holder: ItemEditTagViewHolder, position: Int) {
+        holder.bind(tags[position])
+    }
+
+    override fun getItemCount(): Int = tags.size
+
+    class ItemEditTagViewHolder(
+        private val binding: ItemEditTagBinding,
         private val isEditable: Boolean,
-        private val onItemClicked: (Tag) -> Unit,
-        private val onDeleteIconClicked: (String) -> Unit
-    ) : RecyclerView.Adapter<EditTagsAdapter.ItemEditTagViewHolder>() {
+        onItemClicked: (Int) -> Unit,
+        onDeleteTagClicked: (Int) -> Unit
+    ) : RecyclerView.ViewHolder(binding.root) {
 
-        var tags: List<Tag> = emptyList()
-            set(value) {
-                if (field != value) {
-                    field = value
-                    Log.d(TAG, "editTagsAdapter: tags: $field")
-                    notifyDataSetChanged()
+        init {
+            binding.apply {
+                cardBackground.setOnClickListener {
+                    if (!isEditable) return@setOnClickListener
+                    onItemClicked(adapterPosition)
+                }
+
+                btnDeleteTag.setOnClickListener {
+                    if (!isEditable) return@setOnClickListener
+                    onDeleteTagClicked(adapterPosition)
                 }
             }
-
-        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ItemEditTagViewHolder {
-            return ItemEditTagViewHolder(
-                binding = ItemEditTagBinding.inflate(
-                    LayoutInflater.from(parent.context),
-                    parent,
-                    false
-                ),
-                isEditable = isEditable,
-                onItemClicked = { position ->
-                    onItemClicked(tags[position])
-                },
-                onDeleteTagClicked = { position ->
-                    onDeleteIconClicked(tags[position].id)
-                }
-            )
         }
 
-        override fun onBindViewHolder(holder: ItemEditTagViewHolder, position: Int) {
-            holder.bind(tags[position])
-        }
-
-        override fun getItemCount(): Int = tags.size
-
-        class ItemEditTagViewHolder(
-            private val binding: ItemEditTagBinding,
-            private val isEditable: Boolean,
-            onItemClicked: (Int) -> Unit,
-            onDeleteTagClicked: (Int) -> Unit
-        ) : RecyclerView.ViewHolder(binding.root) {
-
-            init {
-                binding.apply {
-                    cardBackground.setOnClickListener {
-                        if (!isEditable) return@setOnClickListener
-                        onItemClicked(adapterPosition)
-                    }
-
-                    btnDeleteTag.setOnClickListener {
-                        if (!isEditable) return@setOnClickListener
-                        onDeleteTagClicked(adapterPosition)
-                    }
-                }
-            }
-
-            fun bind(tag: Tag) {
-                binding.apply {
-                    tvTagName.text = tag.name
-                    tvTagName.setTextColor(Color.parseColor(tag.color))
-                    cardBackground.setCardBackgroundColor(Color.parseColor(tag.getBackgroundColor()))
-                }
+        fun bind(tag: Tag) {
+            binding.apply {
+                tvTagName.text = tag.name
+                tvTagName.setTextColor(Color.parseColor(tag.color))
+                cardBackground.setCardBackgroundColor(Color.parseColor(tag.getBackgroundColor()))
             }
         }
     }

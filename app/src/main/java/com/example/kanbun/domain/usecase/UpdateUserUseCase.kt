@@ -13,32 +13,25 @@ class UpdateUserUseCase @Inject constructor(
     suspend operator fun invoke(oldUser: User, newUser: User): Result<Unit> {
         val userUpdates = mutableMapOf<String, String?>()
         var error: Result.Error<Unit>? = null
+
         if (newUser.name != oldUser.name) {
             validateNameUseCase(newUser.name ?: "")
-                .onSuccess {
-                    userUpdates["name"] = newUser.name
-                }
                 .onError { message, throwable ->
                    error = Result.Error(message, throwable)
                 }
         }
+
         if (newUser.tag != oldUser.tag) {
             validateTagUseCase(newUser.tag)
-                .onSuccess {
-                    userUpdates["tag"] = newUser.tag
-                }
                 .onError { message, throwable ->
                     error = Result.Error(message, throwable)
                 }
-        }
-        if (newUser.profilePicture != oldUser.profilePicture) {
-            userUpdates["profilePicture"] = newUser.profilePicture
         }
 
         if (error != null) {
             return error as Result.Error<Unit>
         }
 
-        return firestoreRepository.updateUser(newUser.id, userUpdates)
+        return firestoreRepository.updateUser(oldUser, newUser)
     }
 }

@@ -129,12 +129,27 @@ class FirestoreRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun updateUser(userId: String, updates: Map<String, String?>): Result<Unit> = runCatching {
+    override suspend fun updateUser(oldUser: User, newUser: User): Result<Unit> = runCatching {
+        val userUpdates = getUserUpdates(oldUser, newUser)
         withContext(ioDispatcher) {
             firestore.collection(FirestoreCollection.USERS)
-                .document(userId)
-                .update(updates)
+                .document(newUser.id)
+                .update(userUpdates)
         }
+    }
+
+    private fun getUserUpdates(oldUser: User, newUser: User): Map<String, Any?> {
+        val mapOfUpdates = mutableMapOf<String, Any?>()
+        fun updateIfChanged(field: String, oldValue: Any?, newValue: Any?) {
+            if (oldValue != newValue) {
+                mapOfUpdates[field] = newValue
+            }
+        }
+
+        updateIfChanged("name", oldUser.name, newUser.name)
+        updateIfChanged("tag", oldUser.tag, newUser.tag)
+        updateIfChanged("profilePicture", oldUser.profilePicture, newUser.profilePicture)
+        return mapOfUpdates
     }
 
     override suspend fun findUsersByTag(tag: String): Result<List<User>> = runCatching {
