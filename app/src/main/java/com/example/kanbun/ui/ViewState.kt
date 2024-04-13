@@ -106,6 +106,7 @@ sealed class ViewState {
         val user: User? = null,
         val message: String? = null,
         val isLoading: Boolean = true,
+        val isUploadingImage: Boolean = false,
         val nameError: String? = null,
         val tagError: String? = null
     ) : ViewState()

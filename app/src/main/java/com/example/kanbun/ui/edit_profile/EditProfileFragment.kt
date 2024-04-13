@@ -38,8 +38,9 @@ class EditProfileFragment : BaseFragment(), StateHandler {
         if (uri != null) {
             Log.d(TAG, "PickMedia: Picked image: $uri")
             uri.lastPathSegment
-            loadProfilePicture(requireContext(), uri.toString(), binding.ivProfilePicture)
-            viewModel.uploadProfilePicture(uri)
+            viewModel.uploadProfilePicture(uri) {
+                loadProfilePicture(requireContext(), uri.toString(), binding.ivProfilePicture)
+            }
         } else {
             Log.d(TAG, "PickMedia: No media selected")
         }
@@ -110,6 +111,7 @@ class EditProfileFragment : BaseFragment(), StateHandler {
         with (state as ViewState.EditProfileViewState) {
             binding.apply {
                 loading.root.isVisible = isLoading
+                indicatorImageUpload.isVisible = isUploadingImage
 
                 // update to fetch the user data only once
                 user?.let { _user ->
