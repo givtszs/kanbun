@@ -12,10 +12,12 @@ import androidx.core.widget.doAfterTextChanged
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
+import androidx.hilt.navigation.fragment.hiltNavGraphViewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.navArgs
+import androidx.navigation.navGraphViewModels
 import com.example.kanbun.R
 import com.example.kanbun.common.DATE_FORMAT
 import com.example.kanbun.common.DATE_TIME_FORMAT
@@ -36,7 +38,7 @@ import com.example.kanbun.ui.manage_members.MembersAdapter
 import com.example.kanbun.ui.manage_members.SearchUsersAdapter
 import com.example.kanbun.ui.members.MembersBottomSheet
 import com.example.kanbun.ui.model.Member
-import com.example.kanbun.ui.shared.SharedViewModel
+import com.example.kanbun.ui.shared.SharedBoardViewModel
 import com.google.android.material.datepicker.CalendarConstraints
 import com.google.android.material.datepicker.DateValidatorPointForward
 import com.google.android.material.datepicker.MaterialDatePicker
@@ -56,8 +58,9 @@ private const val TAG = "CreateTaskFragment"
 class CreateTaskFragment : BaseFragment(), StateHandler {
     private var _binding: FragmentCreateTaskBinding? = null
     private val binding: FragmentCreateTaskBinding get() = _binding!!
-    private val createTaskViewModel: CreateTaskViewModel by viewModels()
-    private val sharedViewModel: SharedViewModel by activityViewModels()
+//    private val createTaskViewModel: CreateTaskViewModel by viewModels()
+    private val createTaskViewModel: CreateTaskViewModel by hiltNavGraphViewModels(R.id.board_graph)
+    private val sharedBoardViewModel: SharedBoardViewModel by activityViewModels()
     private val args: CreateTaskFragmentArgs by navArgs()
     private val boardListInfo: BoardListInfo by lazy {
         BoardListInfo(args.boardList.id, args.boardList.path)
@@ -92,7 +95,7 @@ class CreateTaskFragment : BaseFragment(), StateHandler {
             args.task,
             boardListInfo,
             args.actionType,
-            sharedViewModel.boardMembers
+            sharedBoardViewModel.boardMembers
         )
         setUpTagsAdapter()
         setUpAdapters()

@@ -16,8 +16,8 @@ import androidx.core.view.MenuHost
 import androidx.core.view.MenuProvider
 import androidx.core.view.isVisible
 import androidx.core.widget.doOnTextChanged
-import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
+import androidx.hilt.navigation.fragment.hiltNavGraphViewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
@@ -26,7 +26,6 @@ import androidx.recyclerview.widget.PagerSnapHelper
 import androidx.recyclerview.widget.RecyclerView
 import com.example.kanbun.R
 import com.example.kanbun.common.HORIZONTAL_SCROLL_DISTANCE
-import com.example.kanbun.common.Role
 import com.example.kanbun.common.TaskAction
 import com.example.kanbun.common.moshi
 import com.example.kanbun.databinding.FragmentBoardBinding
@@ -44,8 +43,7 @@ import com.example.kanbun.ui.board.tasks_adapter.TasksAdapter
 import com.example.kanbun.ui.main_activity.MainActivity
 import com.example.kanbun.ui.model.DragAndDropListItem
 import com.example.kanbun.ui.model.DragAndDropTaskItem
-import com.example.kanbun.ui.shared.SharedViewModel
-import com.example.kanbun.ui.user_boards.UserBoardsFragment
+import com.example.kanbun.ui.shared.SharedBoardViewModel
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Job
@@ -67,7 +65,7 @@ class BoardFragment : BaseFragment(), StateHandler {
     private val binding: FragmentBoardBinding get() = _binding!!
 
     private val boardViewModel: BoardViewModel by viewModels()
-    private val membersViewModel: SharedViewModel by activityViewModels()
+    private val sharedViewModel: SharedBoardViewModel by hiltNavGraphViewModels(R.id.board_graph)
 
     private val args: BoardFragmentArgs by navArgs()
 
@@ -75,7 +73,6 @@ class BoardFragment : BaseFragment(), StateHandler {
     private var scrollJob: Job? = null
     private var pagerSnapHelper = PagerSnapHelper()
 
-    private var areBoardMembersFetched = false
     private var isBoardFetched = false
 
     override fun onCreateView(
@@ -330,10 +327,8 @@ class BoardFragment : BaseFragment(), StateHandler {
 
     override fun processState(state: ViewState) {
         with(state as ViewState.BoardViewState) {
-            boardListsAdapter?.setData(lists.sortedBy { it.position })
+            boardListsAdapter?.lists = lists.sortedBy { it.position }
             boardListsAdapter?.boardTags = board.tags
-
-            Log.d(TAG, "processState: isLoading: $isLoading")
             binding.loading.root.isVisible = isLoading
 
             message?.let {
@@ -341,9 +336,12 @@ class BoardFragment : BaseFragment(), StateHandler {
                 boardViewModel.messageShown()
             }
 
-            if (board.id.isNotEmpty() && !areBoardMembersFetched) {
-                membersViewModel.getBoardMembers(board.members.map { it.id })
-                areBoardMembersFetched = true
+            if (board.id.isNotEmpty()) {
+                val boardMemberIds = board.members.map { it.id }
+                if (boardMemberIds != sharedViewModel.boardMemberIds) {
+                    Log.d(TAG, "Called fetchBoardMembers with membersIds: $boardMemberIds")
+                    sharedViewModel.fetchBoardMembers(boardMemberIds)
+                }
             }
         }
     }

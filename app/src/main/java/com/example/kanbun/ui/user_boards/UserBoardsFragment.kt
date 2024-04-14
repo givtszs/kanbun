@@ -319,7 +319,8 @@ class UserBoardsFragment : BaseFragment(), StateHandler {
     private fun setUpBoardsAdapter() {
         boardsAdapter = BoardsAdapter { boardInfo ->
             navController.navigate(
-                UserBoardsFragmentDirections.actionUserBoardsFragmentToBoardFragment(boardInfo = boardInfo)
+//                UserBoardsFragmentDirections.actionUserBoardsFragmentToBoardFragment(boardInfo = boardInfo)
+                UserBoardsFragmentDirections.actionUserBoardsFragmentToBoardGraph(boardInfo = boardInfo)
             )
         }
 

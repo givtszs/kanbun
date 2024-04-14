@@ -29,14 +29,22 @@ class BoardListsAdapter(
     }
 
     var boardTags: List<Tag> = emptyList()
-    var lists: List<BoardList> = emptyList()
-    private val isWorkspaceAdminOrBoardMember get() = UserBoardsFragment.userRole == Role.Workspace.Admin || BoardFragment.isBoardMember
+        set(value) {
+            if (field != value) {
+                field = value
+            }
+        }
 
-    fun setData(data: List<BoardList>) {
-        lists = data
-        notifyDataSetChanged()
-        callbacks.loadingComplete()
-    }
+    var lists: List<BoardList> = emptyList()
+        set(value) {
+            if (field != value) {
+                field = value
+                notifyDataSetChanged()
+                callbacks.loadingComplete()
+            }
+        }
+
+    private val isWorkspaceAdminOrBoardMember get() = UserBoardsFragment.userRole == Role.Workspace.Admin || BoardFragment.isBoardMember
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return when (viewType) {

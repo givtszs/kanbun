@@ -64,19 +64,22 @@ class BoardViewModel @Inject constructor(
                         // should be called only once since board ID should be empty only during the creation of the initial state
                         if (_board.value.id.isEmpty()) {
                             onSuccess(board)
-                            getBoardLists(firestoreRepository.getBoardListsStream(board.id, board.workspace.id))
+                            getBoardLists(board.id, board.workspace.id)
                         }
                         _board.value = board
                     }
+
                     is Result.Error -> _message.value = result.message
                 }
             }
         }
     }
 
-    private fun getBoardLists(flow: Flow<Result<List<BoardList>>>) {
+    private fun getBoardLists(boardId: String, workspaceId: String) {
         viewModelScope.launch {
-            flow.collectLatest { result ->
+            val taskListsFlow =
+                firestoreRepository.getBoardListsStream(boardId, workspaceId)
+            taskListsFlow.collectLatest { result ->
                 Log.d(TAG, "getBoardLists: result: $result")
                 when (result) {
                     is Result.Success -> {

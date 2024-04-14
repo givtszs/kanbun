@@ -73,12 +73,15 @@
         <action
             android:id="@+id/action_userBoardsFragment_to_workspaceSettingsFragment"
             app:destination="@id/workspaceSettingsFragment" />
-        <action
-            android:id="@+id/action_userBoardsFragment_to_boardFragment"
-            app:destination="@id/boardFragment" />
+<!--        <action-->
+<!--            android:id="@+id/action_userBoardsFragment_to_boardFragment"-->
+<!--            app:destination="@id/boardFragment" />-->
         <action
             android:id="@+id/action_userBoardsFragment_to_settingsFragment"
             app:destination="@id/settingsFragment" />
+        <action
+            android:id="@+id/action_userBoardsFragment_to_board_graph"
+            app:destination="@id/board_graph" />
     </fragment>
     <fragment
         android:id="@+id/userCardsFragment"
@@ -99,67 +102,77 @@
             android:name="workspace"
             app:argType="com.example.kanbun.domain.model.Workspace" />
     </fragment>
-    <fragment
-        android:id="@+id/boardFragment"
-        android:name="com.example.kanbun.ui.board.BoardFragment"
-        android:label=""
-        tools:layout="@layout/fragment_board">
+
+    <navigation
+        android:id="@+id/board_graph"
+        app:startDestination="@id/boardFragment">
+
+        <fragment
+            android:id="@+id/boardFragment"
+            android:name="com.example.kanbun.ui.board.BoardFragment"
+            android:label=""
+            tools:layout="@layout/fragment_board">
+            <argument
+                android:name="boardInfo"
+                app:argType="com.example.kanbun.domain.model.Workspace$BoardInfo" />
+            <action
+                android:id="@+id/action_boardFragment_to_taskDetailsFragment"
+                app:destination="@id/taskDetailsFragment" />
+            <action
+                android:id="@+id/action_boardFragment_to_createTaskFragment"
+                app:destination="@id/createTaskFragment" />
+            <action
+                android:id="@+id/action_boardFragment_to_boardSettingsFragment"
+                app:destination="@id/boardSettingsFragment" />
+        </fragment>
+        <fragment
+            android:id="@+id/taskDetailsFragment"
+            android:name="com.example.kanbun.ui.task_details.TaskDetailsFragment"
+            android:label="Task details"
+            tools:layout="@layout/fragment_task_details">
+            <argument
+                android:name="task"
+                app:argType="com.example.kanbun.domain.model.Task" />
+            <action
+                android:id="@+id/action_taskDetailsFragment_to_createTaskFragment"
+                app:destination="@id/createTaskFragment" />
+            <argument
+                android:name="boardList"
+                app:argType="com.example.kanbun.domain.model.BoardList" />
+        </fragment>
+        <fragment
+            android:id="@+id/createTaskFragment"
+            android:name="com.example.kanbun.ui.create_task.CreateTaskFragment"
+            android:label=""
+            tools:layout="@layout/fragment_create_task">
+            <argument
+                android:name="actionType"
+                app:argType="com.example.kanbun.common.TaskAction" />
+            <argument
+                android:name="task"
+                app:argType="com.example.kanbun.domain.model.Task" />
+            <action
+                android:id="@+id/action_createTaskFragment_to_taskDetailsFragment"
+                app:destination="@id/taskDetailsFragment"
+                app:popUpTo="@id/boardFragment" />
+            <argument
+                android:name="boardList"
+                app:argType="com.example.kanbun.domain.model.BoardList" />
+        </fragment>
+        <fragment
+            android:id="@+id/boardSettingsFragment"
+            android:name="com.example.kanbun.ui.board_settings.BoardSettingsFragment"
+            android:label="@string/board_settings"
+            tools:layout="@layout/fragment_board_settings">
+            <argument
+                android:name="board"
+                app:argType="com.example.kanbun.domain.model.Board" />
+        </fragment>
         <argument
             android:name="boardInfo"
             app:argType="com.example.kanbun.domain.model.Workspace$BoardInfo" />
-        <action
-            android:id="@+id/action_boardFragment_to_taskDetailsFragment"
-            app:destination="@id/taskDetailsFragment" />
-        <action
-            android:id="@+id/action_boardFragment_to_createTaskFragment"
-            app:destination="@id/createTaskFragment" />
-        <action
-            android:id="@+id/action_boardFragment_to_boardSettingsFragment"
-            app:destination="@id/boardSettingsFragment" />
-    </fragment>
-    <fragment
-        android:id="@+id/taskDetailsFragment"
-        android:name="com.example.kanbun.ui.task_details.TaskDetailsFragment"
-        android:label="Task details"
-        tools:layout="@layout/fragment_task_details">
-        <argument
-            android:name="task"
-            app:argType="com.example.kanbun.domain.model.Task" />
-        <action
-            android:id="@+id/action_taskDetailsFragment_to_createTaskFragment"
-            app:destination="@id/createTaskFragment" />
-        <argument
-            android:name="boardList"
-            app:argType="com.example.kanbun.domain.model.BoardList" />
-    </fragment>
-    <fragment
-        android:id="@+id/createTaskFragment"
-        android:name="com.example.kanbun.ui.create_task.CreateTaskFragment"
-        android:label=""
-        tools:layout="@layout/fragment_create_task">
-        <argument
-            android:name="actionType"
-            app:argType="com.example.kanbun.common.TaskAction" />
-        <argument
-            android:name="task"
-            app:argType="com.example.kanbun.domain.model.Task" />
-        <action
-            android:id="@+id/action_createTaskFragment_to_taskDetailsFragment"
-            app:destination="@id/taskDetailsFragment"
-            app:popUpTo="@id/boardFragment" />
-        <argument
-            android:name="boardList"
-            app:argType="com.example.kanbun.domain.model.BoardList" />
-    </fragment>
-    <fragment
-        android:id="@+id/boardSettingsFragment"
-        android:name="com.example.kanbun.ui.board_settings.BoardSettingsFragment"
-        android:label="@string/board_settings"
-        tools:layout="@layout/fragment_board_settings">
-        <argument
-            android:name="board"
-            app:argType="com.example.kanbun.domain.model.Board" />
-    </fragment>
+    </navigation>
+
     <fragment
         android:id="@+id/editProfileFragment"
         android:name="com.example.kanbun.ui.edit_profile.EditProfileFragment"
