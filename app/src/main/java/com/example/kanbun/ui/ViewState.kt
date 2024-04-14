@@ -56,6 +56,7 @@ sealed class ViewState {
     data class BoardViewState(
         val board: Board = Board(),
         val lists: List<BoardList> = emptyList(),
+        val members: List<User> = emptyList(),
         val isLoading: Boolean = true,
         val message: String? = null
     ) : ViewState()

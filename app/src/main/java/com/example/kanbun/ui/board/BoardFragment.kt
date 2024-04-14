@@ -336,13 +336,8 @@ class BoardFragment : BaseFragment(), StateHandler {
                 boardViewModel.messageShown()
             }
 
-            if (board.id.isNotEmpty()) {
-                val boardMemberIds = board.members.map { it.id }
-                if (boardMemberIds != sharedViewModel.boardMemberIds) {
-                    Log.d(TAG, "Called fetchBoardMembers with membersIds: $boardMemberIds")
-                    sharedViewModel.fetchBoardMembers(boardMemberIds)
-                }
-            }
+            sharedViewModel.boardMembers = members
+            sharedViewModel.tags = board.tags
         }
     }
 

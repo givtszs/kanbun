@@ -8,12 +8,12 @@ import com.example.kanbun.common.Result
 import com.example.kanbun.domain.model.Board
 import com.example.kanbun.domain.model.BoardList
 import com.example.kanbun.domain.model.Task
+import com.example.kanbun.domain.model.User
 import com.example.kanbun.domain.repository.FirestoreRepository
 import com.example.kanbun.ui.ViewState.BoardViewState
 import com.example.kanbun.ui.board.tasks_adapter.TasksAdapter
 import com.example.kanbun.ui.model.DragAndDropTaskItem
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -33,22 +33,25 @@ class BoardViewModel @Inject constructor(
 
     private val _board = MutableStateFlow(Board())
     private var _boardLists = MutableStateFlow<List<BoardList>>(emptyList())
+    private var _members = MutableStateFlow<List<User>>(emptyList())
     private val _isLoading = MutableStateFlow(true)
     private val _message = MutableStateFlow<String?>(null)
     val boardState: StateFlow<BoardViewState> =
         combine(
             _board,
             _boardLists,
+            _members,
             _isLoading,
             _message
-        ) { board, boardLists, isLoading, message ->
+        ) { board, boardLists, members, isLoading, message ->
             Log.d(
                 TAG,
-                "boardState#_board: $board,\n_boardLists: $boardLists, \nisLoading: $isLoading,\nmessage: $message"
+                "boardState#board: $board,\nboardLists: $boardLists,\n members: $members,\nisLoading: $isLoading,\nmessage: $message"
             )
             BoardViewState(
                 board = board,
                 lists = boardLists,
+                members = members,
                 isLoading = isLoading,
                 message = message
             )
@@ -66,11 +69,30 @@ class BoardViewModel @Inject constructor(
                             onSuccess(board)
                             getBoardLists(board.id, board.workspace.id)
                         }
+
+                        if (board.members != _board.value.members) {
+                            fetchBoardMembers(board.members.map { it.id })
+                        }
+
                         _board.value = board
                     }
 
                     is Result.Error -> _message.value = result.message
                 }
+            }
+        }
+    }
+
+    private fun fetchBoardMembers(memberIds: List<String>) {
+        viewModelScope.launch {
+            when (val result =
+                firestoreRepository.getMembers(memberIds)) {
+                is Result.Success -> {
+                    Log.d(TAG, "Fetched members: ${result.data}")
+                    _members.value = result.data
+                }
+
+                is Result.Error -> _message.value = result.message
             }
         }
     }
