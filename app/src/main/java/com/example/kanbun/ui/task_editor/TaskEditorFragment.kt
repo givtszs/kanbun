@@ -94,10 +94,15 @@ abstract class TaskEditorFragment : BaseFragment(), StateHandler {
     override fun setUpListeners() {
         binding.apply {
             task?.let { _task ->
+                Log.d(TAG, "setUpListeners: task: $_task")
                 etName.setText(_task.name)
                 etDescription.setText(_task.description)
-                tvDateStarts.setText(convertTimestampToDateString(DATE_TIME_FORMAT, _task.dateStarts))
-                tvDateEnds.setText(convertTimestampToDateString(DATE_TIME_FORMAT, _task.dateEnds))
+                _task.dateStarts?.let { dateStarts ->
+                    tvDateStarts.setText(convertTimestampToDateString(DATE_TIME_FORMAT, dateStarts))
+                }
+                _task.dateEnds?.let { dateEnds ->
+                    tvDateEnds.setText(convertTimestampToDateString(DATE_TIME_FORMAT, dateEnds))
+                }
             }
 
             etName.doOnTextChanged { text, _, _, _ ->
@@ -278,6 +283,9 @@ abstract class TaskEditorFragment : BaseFragment(), StateHandler {
                 }
                 .setNegativeButton("Cancel") { dialog, _ ->
                     dialog.cancel()
+                }
+                .setNeutralButton("Clear") { _, _ ->
+                    textField.text.clear()
                 }
                 .setOnDismissListener {
                     alertDialogBinding = null
