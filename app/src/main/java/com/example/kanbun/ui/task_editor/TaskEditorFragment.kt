@@ -40,6 +40,7 @@ import com.google.android.material.datepicker.CalendarConstraints
 import com.google.android.material.datepicker.DateValidatorPointForward
 import com.google.android.material.datepicker.MaterialDatePicker
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.textfield.TextInputLayout
 import com.google.android.material.timepicker.MaterialTimePicker
 import com.google.android.material.timepicker.TimeFormat
 import dagger.hilt.android.AndroidEntryPoint
@@ -58,7 +59,6 @@ abstract class TaskEditorFragment : BaseFragment(), StateHandler {
     private var _binding: FragmentCreateTaskBinding? = null
     protected val binding: FragmentCreateTaskBinding get() = _binding!!
 
-    //    private val taskEditorViewModel: TaskEditorViewModel by viewModels()
     protected abstract val viewModel: TaskEditorViewModel
     protected val sharedBoardViewModel: SharedBoardViewModel by hiltNavGraphViewModels(R.id.board_graph)
 
@@ -243,41 +243,20 @@ abstract class TaskEditorFragment : BaseFragment(), StateHandler {
     }
 
     private fun buildDateTimePickerDialog(textField: AutoCompleteTextView) {
-        var alertDialogBinding: AlertDialogDatetimePickerBinding? =
+        val alertDialogBinding: AlertDialogDatetimePickerBinding =
             AlertDialogDatetimePickerBinding.inflate(layoutInflater, null, false)
 
-        alertDialogBinding?.let { dialogBinding ->
-            val date = textField.text.toString().substringBefore(",")
-            val time = textField.text.toString().substringAfter(", ")
+        setUpDialogBinding(alertDialogBinding, textField)
 
-            dialogBinding.tvSelectedDate.apply {
-                if (date.isNotEmpty()) {
-                    setText(date)
-                }
-
-                setOnClickListener {
-                    buildDatePicker(dialogBinding, dialogBinding.tvSelectedDate.text.toString())
-                }
-            }
-
-            dialogBinding.tvSelectedTime.apply {
-                if (time.isNotEmpty()) {
-                    setText(time)
-                }
-
-                setOnClickListener {
-                    buildTimePicker(dialogBinding, dialogBinding.tvSelectedTime.text.toString())
-                }
-            }
-
+        alertDialogBinding.apply {
             MaterialAlertDialogBuilder(requireContext())
-                .setView(dialogBinding.root)
+                .setView(root)
                 .setPositiveButton("Save") { _, _ ->
                     textField.setText(
                         resources.getString(
                             R.string.date_time,
-                            dialogBinding.tvSelectedDate.text,
-                            dialogBinding.tvSelectedTime.text
+                            tvSelectedDate.text,
+                            tvSelectedTime.text
                         )
                     )
                 }
@@ -288,45 +267,61 @@ abstract class TaskEditorFragment : BaseFragment(), StateHandler {
                     textField.text.clear()
                 }
                 .setOnDismissListener {
-                    alertDialogBinding = null
+//                    alertDialogBinding = null
                     textField.clearFocus()
                 }
                 .setCancelable(false)
                 .create()
                 .apply {
                     setOnShowListener {
-                        val positiveButton = getButton(AlertDialog.BUTTON_POSITIVE).also {
-                            it.isEnabled = false
+                        val positiveButton = getButton(AlertDialog.BUTTON_POSITIVE).apply {
+                            isEnabled = !tvSelectedDate.text.isNullOrEmpty()
+                                    && !tvSelectedTime.text.isNullOrEmpty()
                         }
 
-                        // TODO: Refactor?
-                        dialogBinding.apply {
-                            val _isDateSelected = MutableStateFlow(tvSelectedDate.text.isNotEmpty())
-                            val _isTimeSelected = MutableStateFlow(tvSelectedTime.text.isNotEmpty())
-                            lifecycleScope.launch {
-                                combine(
-                                    _isDateSelected,
-                                    _isTimeSelected
-                                ) { isDateSelected, isTimeSelected ->
-                                    isDateSelected && isTimeSelected
-                                }.collectLatest { isDateTimeSelected ->
-                                    positiveButton.isEnabled = isDateTimeSelected
-                                }
-                            }
+                        tvSelectedDate.doOnTextChanged { text, _, _, _ ->
+                            Log.d(TAG, "date has changed: $text")
+                            positiveButton.isEnabled = !text.isNullOrEmpty()
+                                    && !tvSelectedTime.text.isNullOrEmpty()
+                        }
 
-                            tvSelectedDate.doAfterTextChanged {
-                                Log.d(TAG, "date has changed: $it")
-                                _isDateSelected.value = it?.isNotEmpty() == true
-                            }
-
-                            tvSelectedTime.doAfterTextChanged {
-                                Log.d(TAG, "time has changed: $it")
-                                _isTimeSelected.value = it?.isNotEmpty() == true
-                            }
+                        tvSelectedTime.doOnTextChanged { text, _, _, _ ->
+                            Log.d(TAG, "time has changed: $text")
+                            positiveButton.isEnabled = !text.isNullOrEmpty()
+                                    && !tvSelectedDate.text.isNullOrEmpty()
                         }
                     }
                 }
                 .show()
+
+        }
+    }
+
+    private fun setUpDialogBinding(
+        dialogBinding: AlertDialogDatetimePickerBinding,
+        textField: AutoCompleteTextView
+    ) {
+        val date = textField.text.toString().substringBefore(",")
+        val time = textField.text.toString().substringAfter(", ")
+
+        dialogBinding.tvSelectedDate.apply {
+            if (date.isNotEmpty()) {
+                setText(date)
+            }
+
+            setOnClickListener {
+                buildDatePicker(dialogBinding, dialogBinding.tvSelectedDate.text.toString())
+            }
+        }
+
+        dialogBinding.tvSelectedTime.apply {
+            if (time.isNotEmpty()) {
+                setText(time)
+            }
+
+            setOnClickListener {
+                buildTimePicker(dialogBinding, dialogBinding.tvSelectedTime.text.toString())
+            }
         }
     }
 
