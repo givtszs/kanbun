@@ -73,7 +73,8 @@ class MainActivity : AppCompatActivity() {
             R.id.taskDetailsFragment,
             R.id.boardSettingsFragment,
             R.id.settingsFragment,
-            R.id.editProfileFragment
+            R.id.editProfileFragment,
+            R.id.editTaskFragment
         )
 
         navController.addOnDestinationChangedListener { controller, destination, arguments ->

@@ -752,6 +752,7 @@ class FirestoreRepositoryImpl @Inject constructor(
     ): Result<Unit> = runCatching {
         withContext(ioDispatcher) {
             val taskUpdates = getTaskUpdates(oldTask, newTask)
+            Log.d(TAG, "updateTask: taskUpdates: $taskUpdates")
             firestore.collection(boardListPath)
                 .document(boardListId)
                 .update(taskUpdates)

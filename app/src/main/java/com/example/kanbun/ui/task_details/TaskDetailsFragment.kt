@@ -98,10 +98,9 @@ class TaskDetailsFragment : BaseFragment(), StateHandler {
             fabEditTask.isVisible = isWorkspaceAdminOrBoardMember
             fabEditTask.setOnClickListener {
                 navController.navigate(
-                    TaskDetailsFragmentDirections.actionTaskDetailsFragmentToCreateTaskFragment(
-                        actionType = TaskAction.ACTION_EDIT,
-                        task = task,
-                        boardList = args.boardList
+                    TaskDetailsFragmentDirections.actionTaskDetailsFragmentToEditTaskFragment(
+                        boardList = args.boardList,
+                        task = task
                     )
                 )
             }

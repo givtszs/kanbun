@@ -61,20 +61,13 @@ sealed class ViewState {
         val message: String? = null
     ) : ViewState()
 
-    data class CreateTaskViewState(
-        val task: Task? = null,
+    data class TaskEditorViewState(
         val tags: List<TagUi> = mutableListOf(),
-        val loadingManager: LoadingManager = LoadingManager(), // TODO: Change to the single isLoading property
         val message: String? = null,
+        val isSavingTask: Boolean = false,
         val taskMembers: List<User> = emptyList(),
         val foundUsers: List<UserSearchResult>? = null
-    ) : ViewState() {
-        data class LoadingManager(
-            val isScreenLoading: Boolean = false,
-            val isUpsertingTask: Boolean = false,
-            val isLoadingTags: Boolean = false
-        )
-    }
+    ) : ViewState()
 
     data class TaskDetailsViewState(
         val author: UserInfo = UserInfo(),

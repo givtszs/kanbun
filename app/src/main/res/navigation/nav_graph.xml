@@ -133,12 +133,12 @@
             <argument
                 android:name="task"
                 app:argType="com.example.kanbun.domain.model.Task" />
-            <action
-                android:id="@+id/action_taskDetailsFragment_to_createTaskFragment"
-                app:destination="@id/createTaskFragment" />
             <argument
                 android:name="boardList"
                 app:argType="com.example.kanbun.domain.model.BoardList" />
+            <action
+                android:id="@+id/action_taskDetailsFragment_to_editTaskFragment"
+                app:destination="@id/editTaskFragment" />
         </fragment>
         <fragment
             android:id="@+id/createTaskFragment"
@@ -146,18 +146,29 @@
             android:label=""
             tools:layout="@layout/fragment_create_task">
             <argument
-                android:name="actionType"
-                app:argType="com.example.kanbun.common.TaskAction" />
+                android:name="boardList"
+                app:argType="com.example.kanbun.domain.model.BoardList" />
+            <argument
+                android:name="task"
+                app:argType="com.example.kanbun.domain.model.Task"
+                app:nullable="true"
+                android:defaultValue="@null" />
+        </fragment>
+        <fragment
+            android:id="@+id/editTaskFragment"
+            tools:layout="@layout/fragment_create_task"
+            android:name="com.example.kanbun.ui.edit_task.EditTaskFragment"
+            android:label="EditTaskFragment" >
             <argument
                 android:name="task"
                 app:argType="com.example.kanbun.domain.model.Task" />
-            <action
-                android:id="@+id/action_createTaskFragment_to_taskDetailsFragment"
-                app:destination="@id/taskDetailsFragment"
-                app:popUpTo="@id/boardFragment" />
             <argument
                 android:name="boardList"
                 app:argType="com.example.kanbun.domain.model.BoardList" />
+            <action
+                android:id="@+id/action_editTaskFragment_to_taskDetailsFragment"
+                app:destination="@id/taskDetailsFragment"
+                app:popUpTo="@id/boardFragment" />
         </fragment>
         <fragment
             android:id="@+id/boardSettingsFragment"

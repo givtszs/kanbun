@@ -163,10 +163,6 @@ class BoardFragment : BaseFragment(), StateHandler {
                 override fun createTask(boardList: BoardList) {
                     navController.navigate(
                         BoardFragmentDirections.actionBoardFragmentToCreateTaskFragment(
-                            actionType = TaskAction.ACTION_CREATE,
-                            task = Task(
-                                position = boardList.tasks.size.toLong()
-                            ),
                             boardList = boardList
                         )
                     )

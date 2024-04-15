@@ -65,6 +65,7 @@ class TaskDetailsViewModel @Inject constructor(
     }
 
     fun getAuthor(userId: String) {
+        // TODO: first check whether the userId is in the boardMembers, if not - fetch from the firestore
         viewModelScope.launch {
             if (MainActivity.firebaseUser == null) {
                 _message.value = "The user is null"
