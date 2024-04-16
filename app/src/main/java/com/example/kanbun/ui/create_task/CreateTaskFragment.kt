@@ -26,6 +26,7 @@ import com.example.kanbun.common.convertDateStringToTimestamp
 import com.example.kanbun.common.convertTimestampToDateString
 import com.example.kanbun.databinding.AlertDialogDatetimePickerBinding
 import com.example.kanbun.databinding.FragmentCreateTaskBinding
+import com.example.kanbun.domain.model.BoardList
 import com.example.kanbun.domain.model.BoardListInfo
 import com.example.kanbun.domain.model.Task
 import com.example.kanbun.ui.BaseFragment
@@ -58,6 +59,13 @@ private const val TAG = "CreateTaskFragment"
 
 @AndroidEntryPoint
 class CreateTaskFragment : TaskEditorFragment(){
+    private val args: CreateTaskFragmentArgs by navArgs()
+    override val boardList: BoardList by lazy {
+        args.boardList
+    }
+    override val task: Task? by lazy {
+        args.task
+    }
     override val viewModel: CreateTaskViewModel by viewModels()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -72,7 +80,7 @@ class CreateTaskFragment : TaskEditorFragment(){
         binding.btnCreateTask.setOnClickListener {
             viewModel.createTask(
                 createTask(),
-                boardListInfo
+                boardList
             ) {
                 navController.popBackStack()
             }

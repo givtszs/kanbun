@@ -22,6 +22,7 @@ import com.example.kanbun.common.convertDateStringToTimestamp
 import com.example.kanbun.common.convertTimestampToDateString
 import com.example.kanbun.databinding.AlertDialogDatetimePickerBinding
 import com.example.kanbun.databinding.FragmentCreateTaskBinding
+import com.example.kanbun.domain.model.BoardList
 import com.example.kanbun.domain.model.BoardListInfo
 import com.example.kanbun.domain.model.Task
 import com.example.kanbun.ui.BaseFragment
@@ -60,14 +61,12 @@ abstract class TaskEditorFragment : BaseFragment(), StateHandler {
     protected val binding: FragmentCreateTaskBinding get() = _binding!!
 
     protected abstract val viewModel: TaskEditorViewModel
-    protected val sharedBoardViewModel: SharedBoardViewModel by hiltNavGraphViewModels(R.id.board_graph)
+    private val sharedBoardViewModel: SharedBoardViewModel by hiltNavGraphViewModels(R.id.board_graph)
 
-    protected val args: CreateTaskFragmentArgs by navArgs()
+    abstract val boardList: BoardList
+    abstract val task: Task?
     protected val boardListInfo: BoardListInfo by lazy {
-        BoardListInfo(id = args.boardList.id, path = args.boardList.path)
-    }
-    protected val task: Task? by lazy {
-        args.task
+        BoardListInfo(id = boardList.id, path = boardList.path)
     }
 
     private var tagsAdapter: TagsAdapter? = null
@@ -87,7 +86,7 @@ abstract class TaskEditorFragment : BaseFragment(), StateHandler {
         Log.d(TAG, "onViewCreated")
         super.onViewCreated(view, savedInstanceState)
         setUpAdapters()
-        viewModel.init(args.task, sharedBoardViewModel.boardMembers, sharedBoardViewModel.tags)
+        viewModel.init(task, sharedBoardViewModel.boardMembers, sharedBoardViewModel.tags)
         collectState()
     }
 
