@@ -1,4 +1,4 @@
-package com.example.kanbun.ui.members
+package com.example.kanbun.ui.manage_members
 
 import android.app.Dialog
 import android.content.Context

@@ -30,6 +30,8 @@ import com.example.kanbun.ui.StateHandler
 import com.example.kanbun.ui.ViewState
 import com.example.kanbun.ui.board.BoardFragment
 import com.example.kanbun.ui.board.common_adapters.TagsAdapter
+import com.example.kanbun.ui.manage_members.MembersAdapter
+import com.example.kanbun.ui.model.Member
 import com.example.kanbun.ui.model.TagUi
 import com.example.kanbun.ui.shared.SharedBoardViewModel
 import com.example.kanbun.ui.user_boards.UserBoardsFragment
@@ -55,6 +57,7 @@ class TaskDetailsFragment : BaseFragment(), StateHandler {
     private val isWorkspaceAdminOrBoardMember =
         UserBoardsFragment.userRole == Role.Workspace.Admin || BoardFragment.isBoardMember
     private var tagsAdapter: TagsAdapter? = null
+    private var membersAdapter: MembersAdapter? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -70,6 +73,7 @@ class TaskDetailsFragment : BaseFragment(), StateHandler {
         setUpActionBar(binding.topAppBar.toolbar)
         setUpOptionsMenu()
         setUpTagsAdapter()
+        setUpMembersAdapter()
         collectState()
     }
 
@@ -92,8 +96,14 @@ class TaskDetailsFragment : BaseFragment(), StateHandler {
 
 
             task.tags.let {
-                rvTags.isVisible = it.isNotEmpty()
-                tvNoTags.isVisible = it.isEmpty()
+                rvTags.visibility = if (it.isNotEmpty()) View.VISIBLE else View.INVISIBLE
+                tvNoTags.visibility = if (it.isEmpty()) View.VISIBLE else View.INVISIBLE
+            }
+
+            task.members.let {
+                tvMembersLabel.text = resources.getString(R.string.task_members_count, it.size)
+                rvMembers.visibility = if (it.isNotEmpty()) View.VISIBLE else View.INVISIBLE
+                tvNoMembers.visibility = if (it.isEmpty()) View.VISIBLE else View.INVISIBLE
             }
 
             tvDate.text = resources.getString(
@@ -123,8 +133,11 @@ class TaskDetailsFragment : BaseFragment(), StateHandler {
     }
 
     private fun setUpMembersAdapter() {
-        val members = sharedViewModel.boardMembers.filter { it.id in task.members }
-        // initialize the members adapter
+        val members = sharedViewModel.boardMembers.filter { it.id in task.members }.map { Member(it, null) }
+        membersAdapter = MembersAdapter().apply {
+            this.members = members
+        }
+        binding.rvMembers.adapter = membersAdapter
     }
 
     override fun collectState() {
@@ -162,7 +175,6 @@ class TaskDetailsFragment : BaseFragment(), StateHandler {
                 }
             }
 
-
             override fun onPrepareMenu(menu: Menu) {
                 super.onPrepareMenu(menu)
                 menu.findItem(R.id.menu_item_delete).isEnabled = isWorkspaceAdminOrBoardMember
@@ -188,6 +200,7 @@ class TaskDetailsFragment : BaseFragment(), StateHandler {
     override fun onDestroyView() {
         super.onDestroyView()
         tagsAdapter = null
+        membersAdapter = null
         _binding = null
     }
 }

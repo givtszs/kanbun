@@ -23,8 +23,8 @@ import com.example.kanbun.ui.board.common_adapters.TagsAdapter
 import com.example.kanbun.ui.board_settings.edit_tags.EditTagsBottomSheet
 import com.example.kanbun.ui.main_activity.MainActivity
 import com.example.kanbun.ui.manage_members.MembersAdapter
+import com.example.kanbun.ui.manage_members.MembersBottomSheet
 import com.example.kanbun.ui.manage_members.SearchUsersAdapter
-import com.example.kanbun.ui.members.MembersBottomSheet
 import com.google.android.material.appbar.MaterialToolbar
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collectLatest

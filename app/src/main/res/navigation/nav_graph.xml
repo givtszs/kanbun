@@ -144,7 +144,7 @@
             android:id="@+id/createTaskFragment"
             android:name="com.example.kanbun.ui.create_task.CreateTaskFragment"
             android:label=""
-            tools:layout="@layout/fragment_create_task">
+            tools:layout="@layout/fragment_task_editor">
             <argument
                 android:name="boardList"
                 app:argType="com.example.kanbun.domain.model.BoardList" />
@@ -156,7 +156,7 @@
         </fragment>
         <fragment
             android:id="@+id/editTaskFragment"
-            tools:layout="@layout/fragment_create_task"
+            tools:layout="@layout/fragment_task_editor"
             android:name="com.example.kanbun.ui.edit_task.EditTaskFragment"
             android:label="EditTaskFragment" >
             <argument

@@ -88,7 +88,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/no_tags"
-            app:layout_constraintBottom_toBottomOf="@id/rvTags"
             app:layout_constraintStart_toStartOf="@id/rvTags"
             app:layout_constraintTop_toTopOf="@id/rvTags" />
 
@@ -97,11 +96,23 @@
             style="?textAppearanceTitleMedium"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="24dp"
             android:text="@string/task_members_count"
             android:textSize="18sp"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/rvTags" />
+            app:layout_constraintTop_toBottomOf="@id/tvNoTags" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnViewAllMembers"
+            style="@style/Widget.Material3.Button.TextButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingVertical="0dp"
+            android:text="@string/action_view_all"
+            android:textColor="@color/black"
+            app:layout_constraintBottom_toBottomOf="@id/tvMembersLabel"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@id/tvMembersLabel" />
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rvMembers"
@@ -109,17 +120,17 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:orientation="horizontal"
-            android:visibility="gone"
+            android:visibility="invisible"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
             app:layout_constraintTop_toBottomOf="@id/tvMembersLabel"
-            tools:listitem="@layout/item_task_member" />
+            tools:listitem="@layout/item_member_chip" />
 
         <TextView
             android:id="@+id/tvNoMembers"
             style="?textAppearanceSubtitle1"
+            android:visibility="visible"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="6dp"
             android:text="@string/no_task_members"
             app:layout_constraintStart_toStartOf="@id/rvTags"
             app:layout_constraintTop_toTopOf="@id/rvMembers" />
@@ -131,6 +142,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="24dp"
             android:text="@string/date"
+            android:textSize="18sp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/tvNoMembers" />
 

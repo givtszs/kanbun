@@ -13,10 +13,11 @@ import com.example.kanbun.ui.model.Member
 
 class MembersAdapter(
     private val ownerId: String? = null,
-    private val onRemoveClicked: (Member) -> Unit
+    private val onRemoveClicked: (Member) -> Unit = {}
 ) : RecyclerView.Adapter<MembersAdapter.MemberViewHolder>() {
 
     private var isCurrentUserAdmin = false
+
     private fun checkIsCurrentUserAdmin() {
         val currentUser = members.find { it.user.id == MainActivity.firebaseUser?.uid }
         Log.d("MembersAdapter", "currentUser: $currentUser")

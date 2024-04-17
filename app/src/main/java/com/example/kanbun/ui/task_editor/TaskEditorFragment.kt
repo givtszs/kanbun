@@ -8,20 +8,18 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.AutoCompleteTextView
 import androidx.core.view.isVisible
-import androidx.core.widget.doAfterTextChanged
 import androidx.core.widget.doOnTextChanged
 import androidx.hilt.navigation.fragment.hiltNavGraphViewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import androidx.navigation.fragment.navArgs
 import com.example.kanbun.R
 import com.example.kanbun.common.DATE_FORMAT
 import com.example.kanbun.common.DATE_TIME_FORMAT
 import com.example.kanbun.common.convertDateStringToTimestamp
 import com.example.kanbun.common.convertTimestampToDateString
 import com.example.kanbun.databinding.AlertDialogDatetimePickerBinding
-import com.example.kanbun.databinding.FragmentCreateTaskBinding
+import com.example.kanbun.databinding.FragmentTaskEditorBinding
 import com.example.kanbun.domain.model.BoardList
 import com.example.kanbun.domain.model.BoardListInfo
 import com.example.kanbun.domain.model.Task
@@ -30,24 +28,20 @@ import com.example.kanbun.ui.StateHandler
 import com.example.kanbun.ui.ViewState
 import com.example.kanbun.ui.board.common_adapters.TagsAdapter
 import com.example.kanbun.ui.create_tag_dialog.CreateTagDialog
-import com.example.kanbun.ui.create_task.CreateTaskFragmentArgs
 import com.example.kanbun.ui.main_activity.MainActivity
 import com.example.kanbun.ui.manage_members.MembersAdapter
+import com.example.kanbun.ui.manage_members.MembersBottomSheet
 import com.example.kanbun.ui.manage_members.SearchUsersAdapter
-import com.example.kanbun.ui.members.MembersBottomSheet
 import com.example.kanbun.ui.model.Member
 import com.example.kanbun.ui.shared.SharedBoardViewModel
 import com.google.android.material.datepicker.CalendarConstraints
 import com.google.android.material.datepicker.DateValidatorPointForward
 import com.google.android.material.datepicker.MaterialDatePicker
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.google.android.material.textfield.TextInputLayout
 import com.google.android.material.timepicker.MaterialTimePicker
 import com.google.android.material.timepicker.TimeFormat
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
@@ -57,8 +51,8 @@ abstract class TaskEditorFragment : BaseFragment(), StateHandler {
         private const val TAG = "TaskEditorFragment"
     }
 
-    private var _binding: FragmentCreateTaskBinding? = null
-    protected val binding: FragmentCreateTaskBinding get() = _binding!!
+    private var _binding: FragmentTaskEditorBinding? = null
+    protected val binding: FragmentTaskEditorBinding get() = _binding!!
 
     protected abstract val viewModel: TaskEditorViewModel
     private val sharedBoardViewModel: SharedBoardViewModel by hiltNavGraphViewModels(R.id.board_graph)
@@ -78,7 +72,7 @@ abstract class TaskEditorFragment : BaseFragment(), StateHandler {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        _binding = FragmentCreateTaskBinding.inflate(inflater, container, false)
+        _binding = FragmentTaskEditorBinding.inflate(inflater, container, false)
         return binding.root
     }
 
