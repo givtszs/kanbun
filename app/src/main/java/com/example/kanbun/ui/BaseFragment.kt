@@ -35,7 +35,7 @@ abstract class BaseFragment : Fragment() {
      *
      * View binding may also be set in this method.
      */
-    protected abstract fun setUpListeners()
+    protected abstract fun setUpListeners() // TODO: Rename to `setUpViews`
 
     /**
      * Adds a custom [navigation action][navigate] to be executed for the current fragment when

@@ -70,18 +70,9 @@ sealed class ViewState {
     ) : ViewState()
 
     data class TaskDetailsViewState(
-        val author: UserInfo = UserInfo(),
-        val tags: List<TagUi> = emptyList(),
-        val members: List<Nothing> = emptyList(), // TODO: update generic type with the member model
-        val message: String? = null,
-        val isLoading: Boolean = false
-    ) : ViewState() {
-
-        data class UserInfo(
-            val name: String = "",
-            val profilePicture: String? = null
-        )
-    }
+        val author: User? = null,
+        val message: String? = null
+    ) : ViewState()
 
     data class BoardSettingsViewState(
         val isLoading: Boolean = false,

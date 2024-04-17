@@ -18,3 +18,6 @@ local.properties
 /replay_pid17700.log
 /.idea/deploymentTargetDropDown.xml
 /codemr/*
+/hs_err_pid16348.log
+/hs_err_pid16904.log
+/replay_pid16348.log
