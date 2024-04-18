@@ -59,34 +59,6 @@ class FirestoreRepositoryImpl @Inject constructor(
     @IoDispatcher private val ioDispatcher: CoroutineDispatcher
 ) : FirestoreRepository {
 
-    override suspend fun isTagTaken(tag: String): Result<Boolean> = runCatching {
-        withContext(ioDispatcher) {
-            firestore.collection(FirestoreCollection.USERS)
-                .whereEqualTo("tag", tag)
-                .get()
-                .getResult {
-                    result.documents.size != 0
-                }
-        }
-    }
-
-    override suspend fun findUsersByTag(tag: String): Result<List<User>> = runCatching {
-        withContext(ioDispatcher) {
-            firestore.collection(FirestoreCollection.USERS)
-                .whereGreaterThanOrEqualTo("tag", tag)
-                .whereLessThanOrEqualTo("tag", tag + '\uf8ff')
-                .get()
-                .getResult {
-                    val users = this.result.documents.map { document ->
-                        document.toObject(FirestoreUser::class.java)?.toUser(document.id)
-                            ?: throw NullPointerException("Couldn't convert FirestoreUser to User since the value is null")
-                    }
-                    Log.d(TAG, "findUsersByTag: $users")
-                    users
-                }
-        }
-    }
-
     override suspend fun createWorkspace(workspace: Workspace): Result<Unit> = runCatching {
         withContext(ioDispatcher) {
             firestore.collection(FirestoreCollection.WORKSPACES)

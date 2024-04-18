@@ -14,16 +14,6 @@ import kotlinx.coroutines.flow.Flow
  */
 interface FirestoreRepository {
 
-    /**
-     * Checks if the user tag is already taken.
-     *
-     * @param tag the user tag
-     * @return `true` if the tag is already taken, `false` otherwise
-     */
-    suspend fun isTagTaken(tag: String): Result<Boolean>
-
-    suspend fun findUsersByTag(tag: String): Result<List<User>>
-
     suspend fun createWorkspace(workspace: Workspace): Result<Unit>
 
     suspend fun getWorkspace(workspaceId: String): Result<Workspace>

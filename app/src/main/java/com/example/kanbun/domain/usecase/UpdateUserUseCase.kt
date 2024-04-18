@@ -8,7 +8,7 @@ import javax.inject.Inject
 class UpdateUserUseCase @Inject constructor(
     private val userRepository: UserRepository,
     private val validateNameUseCase: ValidateNameUseCase,
-    private val validateTagUseCase: ValidateTagUseCase
+    private val validateUserTagUseCase: ValidateUserTagUseCase
 ) {
     suspend operator fun invoke(oldUser: User, newUser: User): Result<Unit> {
         val userUpdates = mutableMapOf<String, String?>()
@@ -22,7 +22,7 @@ class UpdateUserUseCase @Inject constructor(
         }
 
         if (newUser.tag != oldUser.tag) {
-            validateTagUseCase(newUser.tag)
+            validateUserTagUseCase(newUser.tag)
                 .onError { message, throwable ->
                     error = Result.Error(message, throwable)
                 }

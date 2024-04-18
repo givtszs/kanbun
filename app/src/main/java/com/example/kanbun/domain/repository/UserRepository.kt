@@ -25,18 +25,34 @@ interface UserRepository {
     /**
      * Retrieves a stream of [User] data for the specified [userId] from the Firestore database.
      *
-     * @param userId the id of the user for which to retrieve the data stream
-     * @return [Flow] that emits the [User] data for the specified [userId]
+     * @param userId the id of the user for which to retrieve the data stream.
+     * @return [Flow] that emits the [User] data for the specified [userId].
      */
     fun getUserStream(userId: String): Flow<User?>
 
     suspend fun updateUser(oldUser: User, newUser: User): Result<Unit>
 
     /**
-     * Retrieves a list of [User]s for the given list of user ids
+     * Retrieves a list of [User]s for the given list of user ids.
      *
-     * @param userIds the list of user ids to retrieve
-     * @return [Result] with the list of [User]s on success, or an error message on failure
+     * @param userIds the list of user ids to retrieve.
+     * @return [Result] with the list of [User]s on success, or an error message on failure.
      */
     suspend fun getUsers(userIds: List<String>): Result<List<User>>
+
+    /**
+     * Checks if the user tag is already taken.
+     *
+     * @param tag the user tag
+     * @return `true` if the tag is already taken, `false` otherwise
+     */
+    suspend fun isUserTagTaken(tag: String): Result<Boolean>
+
+    /**
+     * Retrieves a list of users with tags matching the given [tag] or its part.
+     *
+     * @param tag the tag or its part to match other users against.
+     * @return [Result] with the list of [User]s with tags matching the given tag, or an error on failure.
+     */
+    suspend fun findUsersByUserTag(tag: String): Result<List<User>>
 }

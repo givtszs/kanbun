@@ -1,11 +1,11 @@
 package com.example.kanbun.domain.usecase
 
 import com.example.kanbun.common.Result
-import com.example.kanbun.domain.repository.FirestoreRepository
+import com.example.kanbun.domain.repository.UserRepository
 import javax.inject.Inject
 
-class ValidateTagUseCase @Inject constructor(
-    private val firestoreRepository: FirestoreRepository
+class ValidateUserTagUseCase @Inject constructor(
+    private val userRepository: UserRepository
 ) {
     suspend operator fun invoke(tag: String): Result<Unit> {
         val isValid = validateTag(tag)
@@ -13,7 +13,7 @@ class ValidateTagUseCase @Inject constructor(
             return isValid
         }
 
-        val isTagTakenResult = firestoreRepository.isTagTaken(tag)
+        val isTagTakenResult = userRepository.isUserTagTaken(tag)
         if (isTagTakenResult is Result.Error) {
             return Result.Error("Could not verify the tag. Try again later")
         }

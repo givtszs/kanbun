@@ -118,4 +118,32 @@ class UserRepositoryImpl @Inject constructor(
         }
         members
     }
+
+    override suspend fun isUserTagTaken(tag: String): Result<Boolean> = runCatching {
+        withContext(dispatcher) {
+            firestore.collection(FirestoreCollection.USERS)
+                .whereEqualTo("tag", tag)
+                .get()
+                .getResult {
+                    result.documents.size != 0
+                }
+        }
+    }
+
+    override suspend fun findUsersByUserTag(tag: String): Result<List<User>> = runCatching {
+        withContext(dispatcher) {
+            firestore.collection(FirestoreCollection.USERS)
+                .whereGreaterThanOrEqualTo("tag", tag)
+                .whereLessThanOrEqualTo("tag", tag + '\uf8ff')
+                .get()
+                .getResult {
+                    val users = this.result.documents.map { document ->
+                        document.toObject(FirestoreUser::class.java)?.toUser(document.id)
+                            ?: throw NullPointerException("Couldn't convert FirestoreUser to User since the value is null")
+                    }
+                    Log.d(TAG, "findUsersByTag: $users")
+                    users
+                }
+        }
+    }
 }
