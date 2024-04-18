@@ -62,37 +62,13 @@ class BoardSettingsViewModel @Inject constructor(
             ViewState.BoardSettingsViewState()
         )
 
-    fun init(tags: List<Tag>, ownerId: String, members: List<Board.BoardMember>, workspaceId: String) {
-        setTags(tags)
-        fetchBoardMembers(ownerId, members)
-        // TODO: Use the shared view model with workspace members in the BoardSettingsFragment instead of fetching the data
+    fun init(tags: List<Tag>, members: List<User>, boardMembers: List<Board.BoardMember>, workspaceId: String) {
+        _tags.value = tags
+
+        val boardMembersById = boardMembers.associateBy { it.id }
+        _boardMembers.value = members.map { Member(user = it, role = boardMembersById[it.id]?.role) }
+
         fetchWorkspaceMembers(workspaceId)
-    }
-
-    private fun fetchBoardMembers(ownerId: String, members: List<Board.BoardMember>) {
-        viewModelScope.launch {
-            when (val result = firestoreRepository.getMembers(members.map { it.id })
-            ) {
-                is Result.Success -> {
-                    val membersById = members.associateBy { it.id }
-                    val fetchedMembers = result.data.map { user ->
-                        val role = membersById[user.id]?.role ?: Role.Board.Member
-                        Member(user = user, role = role)
-                    }
-                    val owner = fetchedMembers.find { it.user.id == ownerId }
-
-                    _boardMembers.value = if (owner != null) {
-                        val ownerMember = owner.copy(role = Role.Board.Admin)
-                        listOf(ownerMember) + fetchedMembers.filterNot { it.user.id == ownerId }
-                    } else {
-                        fetchedMembers
-                    }
-//                    Log.d(WorkspaceSettingsViewModel.TAG, "members: ${_boardMembers.value}")
-                }
-
-                is Result.Error -> _message.value = result.message
-            }
-        }
     }
 
     private fun fetchWorkspaceMembers(workspaceId: String) {
