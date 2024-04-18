@@ -9,6 +9,7 @@ import com.example.kanbun.domain.model.Tag
 import com.example.kanbun.domain.model.User
 import com.example.kanbun.domain.repository.FirestoreRepository
 import com.example.kanbun.domain.repository.UserRepository
+import com.example.kanbun.domain.repository.WorkspaceRepository
 import com.example.kanbun.domain.usecase.SearchUserUseCase
 import com.example.kanbun.ui.ViewState
 import com.example.kanbun.ui.model.Member
@@ -28,6 +29,7 @@ import javax.inject.Inject
 class BoardSettingsViewModel @Inject constructor(
     private val firestoreRepository: FirestoreRepository,
     private val userRepository: UserRepository,
+    private val workspaceRepository: WorkspaceRepository,
     private val searchUserUseCase: SearchUserUseCase
 ) : ViewModel() {
     companion object {
@@ -75,7 +77,7 @@ class BoardSettingsViewModel @Inject constructor(
 
     private fun fetchWorkspaceMembers(workspaceId: String) {
         viewModelScope.launch {
-            when (val resultWorkspace = firestoreRepository.getWorkspace(workspaceId)) {
+            when (val resultWorkspace = workspaceRepository.getWorkspace(workspaceId)) {
                 is Result.Success -> {
                     val workspace = resultWorkspace.data
                     when (val resultMembers =

@@ -18,6 +18,7 @@ import com.example.kanbun.domain.model.User
 import com.example.kanbun.domain.model.Workspace
 import com.example.kanbun.domain.model.WorkspaceInfo
 import com.example.kanbun.domain.repository.FirestoreRepository
+import com.example.kanbun.domain.repository.WorkspaceRepository
 import com.example.kanbun.domain.usecase.GetUserUseCase
 import com.example.kanbun.domain.utils.ConnectivityChecker
 import com.example.kanbun.ui.ViewState
@@ -41,6 +42,7 @@ private const val TAG = "UserBoardsViewModel"
 class UserBoardsViewModel @Inject constructor(
     private val connectivityChecker: ConnectivityChecker,
     private val firestoreRepository: FirestoreRepository,
+    private val workspaceRepository: WorkspaceRepository,
     private val dataStore: PreferenceDataStoreHelper,
     private val getUserUseCase: GetUserUseCase
 ) : ViewModel() {
@@ -160,7 +162,7 @@ class UserBoardsViewModel @Inject constructor(
             members = mapOf(user.id to Role.Workspace.Admin),
         )
 
-        when (val result = firestoreRepository.createWorkspace(workspace)) {
+        when (val result = workspaceRepository.createWorkspace(workspace)) {
             is Result.Success -> {
                 _message.value = ToastMessage.WORKSPACE_CREATED
                 getUser()
@@ -190,7 +192,7 @@ class UserBoardsViewModel @Inject constructor(
             return@launch
         }
 
-        when (val result = firestoreRepository.getWorkspace(workspaceId)) {
+        when (val result = workspaceRepository.getWorkspace(workspaceId)) {
             is Result.Success -> {
                 _currentWorkspace.value = result.data
                 _isLoading.value = false

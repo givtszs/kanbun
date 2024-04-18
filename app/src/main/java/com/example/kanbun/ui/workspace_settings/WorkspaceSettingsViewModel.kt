@@ -12,6 +12,7 @@ import com.example.kanbun.domain.model.User
 import com.example.kanbun.domain.model.Workspace
 import com.example.kanbun.domain.repository.FirestoreRepository
 import com.example.kanbun.domain.repository.UserRepository
+import com.example.kanbun.domain.repository.WorkspaceRepository
 import com.example.kanbun.domain.usecase.SearchUserUseCase
 import com.example.kanbun.ui.ViewState
 import com.example.kanbun.ui.model.Member
@@ -30,6 +31,7 @@ import javax.inject.Inject
 class WorkspaceSettingsViewModel @Inject constructor(
     private val firestoreRepository: FirestoreRepository,
     private val userRepository: UserRepository,
+    private val workspaceRepository: WorkspaceRepository,
     private val searchUserUseCase: SearchUserUseCase,
     private val dataStore: PreferenceDataStoreHelper,
 ) : ViewModel() {
@@ -94,7 +96,7 @@ class WorkspaceSettingsViewModel @Inject constructor(
         }
 
         viewModelScope.launch {
-            when (val result = firestoreRepository.updateWorkspace(oldWorkspace, newWorkspace)) {
+            when (val result = workspaceRepository.updateWorkspace(oldWorkspace, newWorkspace)) {
                 is Result.Success -> onSuccess()
                 is Result.Error -> Log.d("WorkspaceSettingsViewModel", result.message, result.e)
             }
@@ -104,7 +106,7 @@ class WorkspaceSettingsViewModel @Inject constructor(
     fun deleteWorkspaceCloudFn(workspace: Workspace, onSuccess: () -> Unit) {
         _isLoading.value = true
         viewModelScope.launch {
-            when (val result = firestoreRepository.deleteWorkspace(workspace)) {
+            when (val result = workspaceRepository.deleteWorkspace(workspace)) {
                 is Result.Success -> {
                     dataStore.setPreference(PreferenceDataStoreKeys.CURRENT_WORKSPACE_ID, "")
                     onSuccess()
