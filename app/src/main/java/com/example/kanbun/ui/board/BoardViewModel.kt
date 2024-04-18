@@ -5,10 +5,12 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.kanbun.common.FirestoreCollection
 import com.example.kanbun.common.Result
+import com.example.kanbun.common.TAG
 import com.example.kanbun.domain.model.Board
 import com.example.kanbun.domain.model.BoardList
 import com.example.kanbun.domain.model.Task
 import com.example.kanbun.domain.model.User
+import com.example.kanbun.domain.repository.BoardRepository
 import com.example.kanbun.domain.repository.FirestoreRepository
 import com.example.kanbun.domain.repository.UserRepository
 import com.example.kanbun.ui.ViewState.BoardViewState
@@ -25,12 +27,11 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-private const val TAG = "BoardViewModel"
-
 @HiltViewModel
 class BoardViewModel @Inject constructor(
     private val firestoreRepository: FirestoreRepository,
-    private val userRepository: UserRepository
+    private val userRepository: UserRepository,
+    private val boardRepository: BoardRepository
 ) : ViewModel() {
 
     private val _board = MutableStateFlow(Board())
@@ -61,7 +62,7 @@ class BoardViewModel @Inject constructor(
 
     fun getBoard(boardId: String, workspaceId: String, onSuccess: (Board) -> Unit) {
         viewModelScope.launch {
-            firestoreRepository.getBoardStream(boardId, workspaceId).collectLatest { result ->
+            boardRepository.getBoardStream(boardId, workspaceId).collectLatest { result ->
                 Log.d(TAG, "getBoard1: result: $result")
                 when (result) {
                     is Result.Success -> {

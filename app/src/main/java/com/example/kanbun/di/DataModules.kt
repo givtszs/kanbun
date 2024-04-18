@@ -2,11 +2,13 @@ package com.example.kanbun.di
 
 import com.example.kanbun.data.AndroidEmailPatternValidator
 import com.example.kanbun.data.repository.AuthenticationRepositoryImpl
+import com.example.kanbun.data.repository.BoardRepositoryImpl
 import com.example.kanbun.data.repository.FirestoreRepositoryImpl
 import com.example.kanbun.data.repository.StorageRepositoryImpl
 import com.example.kanbun.data.repository.UserRepositoryImpl
 import com.example.kanbun.data.repository.WorkspaceRepositoryImpl
 import com.example.kanbun.domain.repository.AuthenticationRepository
+import com.example.kanbun.domain.repository.BoardRepository
 import com.example.kanbun.domain.repository.FirestoreRepository
 import com.example.kanbun.domain.repository.StorageRepository
 import com.example.kanbun.domain.repository.UserRepository
@@ -43,9 +45,16 @@ abstract class DataModule {
 
     @Binds
     @Singleton
+    abstract fun bindBoardRepository(
+        boardRepositoryImpl: BoardRepositoryImpl
+    ): BoardRepository
+
+    @Binds
+    @Singleton
     abstract fun bindWorkspaceRepository(
         workspaceRepositoryImpl: WorkspaceRepositoryImpl
     ): WorkspaceRepository
+
 
     @Binds
     @Singleton

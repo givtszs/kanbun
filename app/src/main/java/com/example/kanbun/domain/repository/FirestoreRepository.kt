@@ -17,16 +17,6 @@ interface FirestoreRepository {
 
     fun recursiveDelete(path: String): com.google.android.gms.tasks.Task<HttpsCallableResult>
 
-    suspend fun createBoard(board: Board): Result<Unit>
-
-    suspend fun getBoard(boardId: String, workspaceId: String): Result<Board>
-
-    fun getBoardStream(boardId: String, workspaceId: String): Flow<Result<Board>>
-
-    suspend fun updateBoard(oldBoard: Board, newBoard: Board): Result<Unit>
-
-    suspend fun deleteBoard(board: Board): Result<Unit>
-
     suspend fun createBoardList(boardList: BoardList, board: Board): Result<Unit>
 
     suspend fun getBoardList(boardListPath: String, boardListId: String): Result<BoardList>
@@ -96,21 +86,4 @@ interface FirestoreRepository {
         boardId: String,
         boardPath: String
     ): Result<Tag>
-
-    /**
-     * Gets all tags for the specified board.
-     *
-     * @param boardId the board id
-     * @param workspaceId the workspace id that hosts the board
-     * @return the [Result] containing a list of fetched board tags
-     */
-    suspend fun getAllTags(boardId: String, workspaceId: String): Result<List<Tag>>
-
-    suspend fun getTaskTags(
-        task: Task,
-        boardListId: String,
-        boardListPath: String,
-    ): Result<List<Tag>>
-
-    suspend fun getSharedBoards(sharedBoards: Map<String, String>): Result<List<Board>>
 }

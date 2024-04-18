@@ -7,7 +7,7 @@ import com.example.kanbun.common.Role
 import com.example.kanbun.domain.model.Board
 import com.example.kanbun.domain.model.Tag
 import com.example.kanbun.domain.model.User
-import com.example.kanbun.domain.repository.FirestoreRepository
+import com.example.kanbun.domain.repository.BoardRepository
 import com.example.kanbun.domain.repository.UserRepository
 import com.example.kanbun.domain.repository.WorkspaceRepository
 import com.example.kanbun.domain.usecase.SearchUserUseCase
@@ -27,14 +27,11 @@ import javax.inject.Inject
 
 @HiltViewModel
 class BoardSettingsViewModel @Inject constructor(
-    private val firestoreRepository: FirestoreRepository,
     private val userRepository: UserRepository,
     private val workspaceRepository: WorkspaceRepository,
+    private val boardRepository: BoardRepository,
     private val searchUserUseCase: SearchUserUseCase
 ) : ViewModel() {
-    companion object {
-        private const val TAG = "BoardSettingsViewModel"
-    }
 
     // preserves the list of workspace members of type WorkspaceMember
     private var _workspaceMembers = MutableStateFlow<List<User>>(emptyList())
@@ -66,11 +63,17 @@ class BoardSettingsViewModel @Inject constructor(
             ViewState.BoardSettingsViewState()
         )
 
-    fun init(tags: List<Tag>, members: List<User>, boardMembers: List<Board.BoardMember>, workspaceId: String) {
+    fun init(
+        tags: List<Tag>,
+        members: List<User>,
+        boardMembers: List<Board.BoardMember>,
+        workspaceId: String
+    ) {
         _tags.value = tags
 
         val boardMembersById = boardMembers.associateBy { it.id }
-        _boardMembers.value = members.map { Member(user = it, role = boardMembersById[it.id]?.role) }
+        _boardMembers.value =
+            members.map { Member(user = it, role = boardMembersById[it.id]?.role) }
 
         fetchWorkspaceMembers(workspaceId)
     }
@@ -96,12 +99,12 @@ class BoardSettingsViewModel @Inject constructor(
     fun deleteBoard(board: Board, onSuccess: () -> Unit) =
         viewModelScope.launch {
             _isLoading.value = true
-            processResult(firestoreRepository.deleteBoard(board), onSuccess)
+            processResult(boardRepository.deleteBoard(board), onSuccess)
         }
 
     fun updateBoard(oldBoard: Board, newBoard: Board, onSuccess: () -> Unit) =
         viewModelScope.launch {
-            processResult(firestoreRepository.updateBoard(oldBoard, newBoard), onSuccess)
+            processResult(boardRepository.updateBoard(oldBoard, newBoard), onSuccess)
         }
 
     private fun <T : Any> processResult(result: Result<T>, onSuccess: () -> Unit) {
@@ -126,6 +129,7 @@ class BoardSettingsViewModel @Inject constructor(
             is Result.Success -> _foundUsers.value = result.data.map { user ->
                 UserSearchResult(user, _boardMembers.value.any { it.user.id == user.id })
             }
+
             is Result.Error -> _message.value = result.message
         }
     }
@@ -141,7 +145,7 @@ class BoardSettingsViewModel @Inject constructor(
     }
 
     fun addMember(user: User) {
-        if (!_boardMembers.value.any { it.user.id == user.id } ) {
+        if (!_boardMembers.value.any { it.user.id == user.id }) {
             _boardMembers.update { it + Member(user, Role.Board.Member) }
         }
     }

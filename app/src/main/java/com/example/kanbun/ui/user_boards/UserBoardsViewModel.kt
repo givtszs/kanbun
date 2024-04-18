@@ -10,6 +10,7 @@ import com.example.kanbun.common.AuthProvider
 import com.example.kanbun.common.DrawerItem
 import com.example.kanbun.common.Result
 import com.example.kanbun.common.Role
+import com.example.kanbun.common.TAG
 import com.example.kanbun.common.ToastMessage
 import com.example.kanbun.data.local.PreferenceDataStoreHelper
 import com.example.kanbun.data.local.PreferenceDataStoreKeys
@@ -17,7 +18,7 @@ import com.example.kanbun.domain.model.Board
 import com.example.kanbun.domain.model.User
 import com.example.kanbun.domain.model.Workspace
 import com.example.kanbun.domain.model.WorkspaceInfo
-import com.example.kanbun.domain.repository.FirestoreRepository
+import com.example.kanbun.domain.repository.BoardRepository
 import com.example.kanbun.domain.repository.WorkspaceRepository
 import com.example.kanbun.domain.usecase.GetUserUseCase
 import com.example.kanbun.domain.utils.ConnectivityChecker
@@ -36,13 +37,11 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
-private const val TAG = "UserBoardsViewModel"
-
 @HiltViewModel
 class UserBoardsViewModel @Inject constructor(
     private val connectivityChecker: ConnectivityChecker,
-    private val firestoreRepository: FirestoreRepository,
     private val workspaceRepository: WorkspaceRepository,
+    private val boardRepository: BoardRepository,
     private val dataStore: PreferenceDataStoreHelper,
     private val getUserUseCase: GetUserUseCase
 ) : ViewModel() {
@@ -213,7 +212,7 @@ class UserBoardsViewModel @Inject constructor(
     }
 
     private suspend fun getSharedBoards(): List<Workspace.BoardInfo> {
-        return when (val result = firestoreRepository.getSharedBoards(_user.value?.sharedBoards ?: emptyMap())) {
+        return when (val result = boardRepository.getSharedBoards(_user.value?.sharedBoards ?: emptyMap())) {
             is Result.Success -> result.data.map { board ->
                 Workspace.BoardInfo(
                     boardId = board.id,
@@ -239,7 +238,7 @@ class UserBoardsViewModel @Inject constructor(
         }
 
         // TODO: Wrap in the `when` expression to process the result
-        firestoreRepository.createBoard(
+        boardRepository.createBoard(
             Board(
                 name = name,
                 owner = userId,
