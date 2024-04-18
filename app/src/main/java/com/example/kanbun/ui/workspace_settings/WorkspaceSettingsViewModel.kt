@@ -5,11 +5,13 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.kanbun.common.Result
 import com.example.kanbun.common.Role
+import com.example.kanbun.common.TAG
 import com.example.kanbun.data.local.PreferenceDataStoreHelper
 import com.example.kanbun.data.local.PreferenceDataStoreKeys
 import com.example.kanbun.domain.model.User
 import com.example.kanbun.domain.model.Workspace
 import com.example.kanbun.domain.repository.FirestoreRepository
+import com.example.kanbun.domain.repository.UserRepository
 import com.example.kanbun.domain.usecase.SearchUserUseCase
 import com.example.kanbun.ui.ViewState
 import com.example.kanbun.ui.model.Member
@@ -27,12 +29,10 @@ import javax.inject.Inject
 @HiltViewModel
 class WorkspaceSettingsViewModel @Inject constructor(
     private val firestoreRepository: FirestoreRepository,
+    private val userRepository: UserRepository,
     private val searchUserUseCase: SearchUserUseCase,
     private val dataStore: PreferenceDataStoreHelper,
 ) : ViewModel() {
-    companion object {
-        private const val TAG = "WorkspaceSettingsViewModel"
-    }
 
     // holds the list of workspace members of type User to display on the UI
     private var _members = MutableStateFlow<List<Member>>(emptyList())
@@ -64,7 +64,7 @@ class WorkspaceSettingsViewModel @Inject constructor(
 
     private fun fetchMembers(ownerId: String, members: Map<String, Role.Workspace>) {
         viewModelScope.launch {
-            when (val result = firestoreRepository.getMembers(members.keys.toList())
+            when (val result = userRepository.getUsers(members.keys.toList())
             ) {
                 is Result.Success -> {
                     val fetchedMembers = result.data.map { user ->

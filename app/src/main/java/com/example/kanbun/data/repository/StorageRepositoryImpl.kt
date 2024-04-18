@@ -5,6 +5,7 @@ import android.util.Log
 import com.example.kanbun.common.FirebaseStorageFolders
 import com.example.kanbun.common.Result
 import com.example.kanbun.common.runCatching
+import com.example.kanbun.di.IoDispatcher
 import com.example.kanbun.domain.repository.StorageRepository
 import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.CoroutineDispatcher
@@ -15,7 +16,7 @@ import javax.inject.Inject
 
 class StorageRepositoryImpl @Inject constructor(
     private val storage: FirebaseStorage,
-    private val ioDispatcher: CoroutineDispatcher
+    @IoDispatcher private val ioDispatcher: CoroutineDispatcher
 ) : StorageRepository {
 
     companion object {

@@ -7,14 +7,30 @@ import androidx.annotation.ColorRes
 import androidx.core.content.ContextCompat
 import com.bumptech.glide.Glide
 import com.example.kanbun.R
+import com.google.android.gms.tasks.Task
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.ktx.storage
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.tasks.await
 import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.Locale
 import java.util.TimeZone
+
+val Any.TAG: String
+    get() {
+        return javaClass.simpleName
+    }
+
+suspend inline fun <T, R> Task<T>.getResult(onSuccess: Task<T>.() -> R): R {
+    await()
+    if (!isSuccessful) {
+        throw exception?.cause
+            ?: IllegalStateException("Firestore operation failed with an unknown error.")
+    }
+    return onSuccess()
+}
 
 fun getColor(context: Context, @ColorRes color: Int) = ContextCompat.getColor(context, color)
 

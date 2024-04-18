@@ -4,6 +4,7 @@ import android.app.Activity
 import android.util.Log
 import com.example.kanbun.common.Result
 import com.example.kanbun.common.runCatching
+import com.example.kanbun.di.IoDispatcher
 import com.example.kanbun.domain.repository.AuthenticationRepository
 import com.google.firebase.auth.AuthResult
 import com.google.firebase.auth.FirebaseAuth
@@ -20,7 +21,7 @@ import javax.inject.Inject
 
 class AuthenticationRepositoryImpl @Inject constructor(
     private val auth: FirebaseAuth,
-    private val ioDispatcher: CoroutineDispatcher
+    @IoDispatcher private val ioDispatcher: CoroutineDispatcher
 ) : AuthenticationRepository {
 
     companion object {

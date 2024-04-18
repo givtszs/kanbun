@@ -2,11 +2,11 @@ package com.example.kanbun.domain.usecase
 
 import com.example.kanbun.common.Result
 import com.example.kanbun.domain.model.User
-import com.example.kanbun.domain.repository.FirestoreRepository
+import com.example.kanbun.domain.repository.UserRepository
 import javax.inject.Inject
 
 class UpdateUserUseCase @Inject constructor(
-    private val firestoreRepository: FirestoreRepository,
+    private val userRepository: UserRepository,
     private val validateNameUseCase: ValidateNameUseCase,
     private val validateTagUseCase: ValidateTagUseCase
 ) {
@@ -32,6 +32,6 @@ class UpdateUserUseCase @Inject constructor(
             return error as Result.Error<Unit>
         }
 
-        return firestoreRepository.updateUser(oldUser, newUser)
+        return userRepository.updateUser(oldUser, newUser)
     }
 }

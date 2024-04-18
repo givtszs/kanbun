@@ -15,24 +15,6 @@ import kotlinx.coroutines.flow.Flow
 interface FirestoreRepository {
 
     /**
-     * Adds a user to Firestore.
-     * @param user user instance to be added.
-     * @return [Result] containing [Unit] on success, or an error message on failure.
-     */
-    suspend fun createUser(user: User): Result<Unit>
-
-    /**
-     * Retrieves a user from Firestore based on the [userId].
-     * @param userId id of the user to retrieve.
-     * @return [Result] containing the retrieved [User] on success, or an error message on failure.
-     */
-    suspend fun getUser(userId: String): Result<User>
-
-    fun getUserStream(userId: String): Flow<User?>
-
-    suspend fun updateUser(oldUser: User, newUser: User): Result<Unit>
-
-    /**
      * Checks if the user tag is already taken.
      *
      * @param tag the user tag
@@ -153,8 +135,6 @@ interface FirestoreRepository {
         boardListId: String,
         boardListPath: String,
     ): Result<List<Tag>>
-
-    suspend fun getMembers(userIds: List<String>): Result<List<User>>
 
     suspend fun getSharedBoards(sharedBoards: Map<String, String>): Result<List<Board>>
 }

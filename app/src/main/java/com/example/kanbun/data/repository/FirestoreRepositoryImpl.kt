@@ -4,7 +4,9 @@ import android.util.Log
 import com.example.kanbun.common.FirestoreCollection
 import com.example.kanbun.common.Result
 import com.example.kanbun.common.Role
+import com.example.kanbun.common.TAG
 import com.example.kanbun.common.WorkspaceType
+import com.example.kanbun.common.getResult
 import com.example.kanbun.common.runCatching
 import com.example.kanbun.common.toBoard
 import com.example.kanbun.common.toBoardList
@@ -16,7 +18,6 @@ import com.example.kanbun.common.toFirestoreMembers
 import com.example.kanbun.common.toFirestoreTag
 import com.example.kanbun.common.toFirestoreTags
 import com.example.kanbun.common.toFirestoreTask
-import com.example.kanbun.common.toFirestoreUser
 import com.example.kanbun.common.toFirestoreWorkspace
 import com.example.kanbun.common.toUser
 import com.example.kanbun.common.toWorkspace
@@ -24,6 +25,7 @@ import com.example.kanbun.data.model.FirestoreBoard
 import com.example.kanbun.data.model.FirestoreBoardList
 import com.example.kanbun.data.model.FirestoreUser
 import com.example.kanbun.data.model.FirestoreWorkspace
+import com.example.kanbun.di.IoDispatcher
 import com.example.kanbun.domain.model.Board
 import com.example.kanbun.domain.model.BoardList
 import com.example.kanbun.domain.model.Tag
@@ -54,69 +56,8 @@ import javax.inject.Inject
 
 class FirestoreRepositoryImpl @Inject constructor(
     private val firestore: FirebaseFirestore,
-    private val ioDispatcher: CoroutineDispatcher
+    @IoDispatcher private val ioDispatcher: CoroutineDispatcher
 ) : FirestoreRepository {
-    private val TAG = "RefactoredFirestoreRepository"
-
-    private suspend inline fun <T, R> Task<T>.getResult(onSuccess: Task<T>.() -> R): R {
-        await()
-        if (!isSuccessful) {
-            throw exception?.cause
-                ?: IllegalStateException("Firestore operation failed with an unknown error.")
-        }
-        return onSuccess()
-    }
-
-    override suspend fun createUser(user: User): Result<Unit> = runCatching {
-        withContext(ioDispatcher) {
-            firestore.collection(FirestoreCollection.USERS)
-                .document(user.id)
-                .set(user.toFirestoreUser())
-        }
-    }
-
-    override suspend fun getUser(userId: String): Result<User> = runCatching {
-        withContext(ioDispatcher) {
-            firestore.collection(FirestoreCollection.USERS)
-                .document(userId)
-                .get()
-                .addOnSuccessListener { }
-                .getResult {
-                    val firestoreUser = result.toObject(FirestoreUser::class.java)
-                        ?: throw NullPointerException("Couldn't convert FirestoreUser to User since the value is null")
-                    Log.d(TAG, "getUser: firestoreUser: $firestoreUser")
-                    firestoreUser.toUser(userId)
-                }
-        }
-    }
-
-    override fun getUserStream(userId: String): Flow<User?> = callbackFlow {
-        var listener: ListenerRegistration? = null
-        if (userId.isEmpty()) {
-            trySend(null)
-        } else {
-            listener = firestore.collection(FirestoreCollection.USERS)
-                .document(userId)
-                .addSnapshotListener { documentSnapshot, exception ->
-                    if (exception != null) {
-                        close(exception)
-                        return@addSnapshotListener
-                    }
-
-                    documentSnapshot?.let {
-                        val user = it.toObject(FirestoreUser::class.java)?.toUser(userId)
-                            ?: throw NullPointerException("Couldn't convert FirestoreUser to User since the value is null")
-                        Log.d(TAG, "user: firestoreUser: $user")
-
-                        trySend(user)
-                    }
-                }
-        }
-
-        awaitClose {
-            listener?.remove()
-        }
-    }
 
     override suspend fun isTagTaken(tag: String): Result<Boolean> = runCatching {
         withContext(ioDispatcher) {
@@ -127,29 +68,6 @@ class FirestoreRepositoryImpl @Inject constructor(
                     result.documents.size != 0
                 }
         }
-    }
-
-    override suspend fun updateUser(oldUser: User, newUser: User): Result<Unit> = runCatching {
-        val userUpdates = getUserUpdates(oldUser, newUser)
-        withContext(ioDispatcher) {
-            firestore.collection(FirestoreCollection.USERS)
-                .document(newUser.id)
-                .update(userUpdates)
-        }
-    }
-
-    private fun getUserUpdates(oldUser: User, newUser: User): Map<String, Any?> {
-        val mapOfUpdates = mutableMapOf<String, Any?>()
-        fun updateIfChanged(field: String, oldValue: Any?, newValue: Any?) {
-            if (oldValue != newValue) {
-                mapOfUpdates[field] = newValue
-            }
-        }
-
-        updateIfChanged("name", oldUser.name, newUser.name)
-        updateIfChanged("tag", oldUser.tag, newUser.tag)
-        updateIfChanged("profilePicture", oldUser.profilePicture, newUser.profilePicture)
-        return mapOfUpdates
     }
 
     override suspend fun findUsersByTag(tag: String): Result<List<User>> = runCatching {
@@ -966,23 +884,6 @@ class FirestoreRepositoryImpl @Inject constructor(
 
             taskTags
         }
-    }
-
-    override suspend fun getMembers(userIds: List<String>): Result<List<User>> = runCatching {
-        val members = mutableListOf<User>()
-        val fetchedUsers  = withContext(ioDispatcher) {
-            userIds.map { id ->
-                async {
-                    getUser(id)
-                }
-            }
-        }.awaitAll()
-        fetchedUsers.forEach { result ->
-            if (result is Result.Success) {
-                members.add(result.data)
-            }
-        }
-        members
     }
 
     override suspend fun getSharedBoards(sharedBoards: Map<String, String>): Result<List<Board>> = runCatching {

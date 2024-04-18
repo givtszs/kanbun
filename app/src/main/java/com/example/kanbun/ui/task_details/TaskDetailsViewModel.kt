@@ -5,8 +5,10 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.kanbun.common.Result
+import com.example.kanbun.common.TAG
 import com.example.kanbun.domain.model.BoardList
 import com.example.kanbun.domain.repository.FirestoreRepository
+import com.example.kanbun.domain.repository.UserRepository
 import com.example.kanbun.ui.ViewState
 import com.example.kanbun.ui.main_activity.MainActivity
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -17,12 +19,10 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 // TODO: Add network connectivity checks to this and others view models.
-
-private const val TAG = "TaskDetailsViewModel"
-
 @HiltViewModel
 class TaskDetailsViewModel @Inject constructor(
-    private val firestoreRepository: FirestoreRepository
+    private val firestoreRepository: FirestoreRepository,
+    private val userRepository: UserRepository
 ) : ViewModel() {
 
     private var _taskDetailsState = MutableStateFlow(ViewState.TaskDetailsViewState())
@@ -45,7 +45,7 @@ class TaskDetailsViewModel @Inject constructor(
                 return@launch
             }
 
-            when (val result = firestoreRepository.getUser(userId)) {
+            when (val result = userRepository.getUser(userId)) {
                 is Result.Success -> _taskDetailsState.update {
                     it.copy(author = result.data)
                 }

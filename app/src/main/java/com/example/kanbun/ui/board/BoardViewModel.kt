@@ -10,6 +10,7 @@ import com.example.kanbun.domain.model.BoardList
 import com.example.kanbun.domain.model.Task
 import com.example.kanbun.domain.model.User
 import com.example.kanbun.domain.repository.FirestoreRepository
+import com.example.kanbun.domain.repository.UserRepository
 import com.example.kanbun.ui.ViewState.BoardViewState
 import com.example.kanbun.ui.board.tasks_adapter.TasksAdapter
 import com.example.kanbun.ui.model.DragAndDropTaskItem
@@ -28,7 +29,8 @@ private const val TAG = "BoardViewModel"
 
 @HiltViewModel
 class BoardViewModel @Inject constructor(
-    private val firestoreRepository: FirestoreRepository
+    private val firestoreRepository: FirestoreRepository,
+    private val userRepository: UserRepository
 ) : ViewModel() {
 
     private val _board = MutableStateFlow(Board())
@@ -86,7 +88,7 @@ class BoardViewModel @Inject constructor(
     private fun fetchBoardMembers(memberIds: List<String>) {
         viewModelScope.launch {
             when (val result =
-                firestoreRepository.getMembers(memberIds)) {
+                userRepository.getUsers(memberIds)) {
                 is Result.Success -> {
                     Log.d(TAG, "Fetched members: ${result.data}")
                     _members.value = result.data
@@ -150,7 +152,7 @@ class BoardViewModel @Inject constructor(
         val task = Task(
             position = boardList.tasks.size.toLong(),
             name = name,
-            author = when (val result = firestoreRepository.getUser(_board.value.owner)) {
+            author = when (val result = userRepository.getUser(_board.value.owner)) {
                 is Result.Success -> result.data.name!!
                 is Result.Error -> {
                     _message.value = result.message

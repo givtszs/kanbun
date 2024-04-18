@@ -4,9 +4,11 @@ import com.example.kanbun.data.AndroidEmailPatternValidator
 import com.example.kanbun.data.repository.AuthenticationRepositoryImpl
 import com.example.kanbun.data.repository.FirestoreRepositoryImpl
 import com.example.kanbun.data.repository.StorageRepositoryImpl
+import com.example.kanbun.data.repository.UserRepositoryImpl
 import com.example.kanbun.domain.repository.AuthenticationRepository
 import com.example.kanbun.domain.repository.FirestoreRepository
 import com.example.kanbun.domain.repository.StorageRepository
+import com.example.kanbun.domain.repository.UserRepository
 import com.example.kanbun.domain.utils.EmailPatternValidator
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
@@ -30,6 +32,12 @@ abstract class DataModule {
     abstract fun bindFirestoreRepository(
         firestoreRepositoryImpl: FirestoreRepositoryImpl
     ): FirestoreRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindUserRepository(
+        userRepositoryImpl: UserRepositoryImpl
+    ): UserRepository
 
     @Binds
     @Singleton
