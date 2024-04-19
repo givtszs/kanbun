@@ -17,32 +17,6 @@ interface FirestoreRepository {
 
     fun recursiveDelete(path: String): com.google.android.gms.tasks.Task<HttpsCallableResult>
 
-    suspend fun createBoardList(boardList: BoardList, board: Board): Result<Unit>
-
-    suspend fun getBoardList(boardListPath: String, boardListId: String): Result<BoardList>
-
-    fun getBoardListsStream(boardId: String, workspaceId: String): Flow<Result<List<BoardList>>>
-
-    suspend fun updateBoardListName(
-        newName: String,
-        boardListPath: String,
-        boardListId: String
-    ): Result<Unit>
-
-    suspend fun deleteBoardListAndRearrange(
-        id: String,
-        path: String,
-        boardLists: List<BoardList>,
-        deleteAt: Int
-    ): Result<Unit>
-
-    suspend fun rearrangeBoardLists(
-        boardListPath: String,
-        boardLists: List<BoardList>,
-        from: Int,
-        to: Int
-    ): Result<Unit>
-
     suspend fun createTask(
         task: Task,
         listId: String,

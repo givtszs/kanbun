@@ -12,6 +12,7 @@ import com.example.kanbun.domain.model.Task
 import com.example.kanbun.domain.model.User
 import com.example.kanbun.domain.repository.BoardRepository
 import com.example.kanbun.domain.repository.FirestoreRepository
+import com.example.kanbun.domain.repository.TaskListRepository
 import com.example.kanbun.domain.repository.UserRepository
 import com.example.kanbun.ui.ViewState.BoardViewState
 import com.example.kanbun.ui.board.tasks_adapter.TasksAdapter
@@ -31,7 +32,8 @@ import javax.inject.Inject
 class BoardViewModel @Inject constructor(
     private val firestoreRepository: FirestoreRepository,
     private val userRepository: UserRepository,
-    private val boardRepository: BoardRepository
+    private val boardRepository: BoardRepository,
+    private val taskListRepository: TaskListRepository
 ) : ViewModel() {
 
     private val _board = MutableStateFlow(Board())
@@ -103,7 +105,7 @@ class BoardViewModel @Inject constructor(
     private fun getBoardLists(boardId: String, workspaceId: String) {
         viewModelScope.launch {
             val taskListsFlow =
-                firestoreRepository.getBoardListsStream(boardId, workspaceId)
+                taskListRepository.getTaskListStream(boardId, workspaceId)
             taskListsFlow.collectLatest { result ->
                 Log.d(TAG, "getBoardLists: result: $result")
                 when (result) {
@@ -136,8 +138,8 @@ class BoardViewModel @Inject constructor(
 
     fun createBoardList(listName: String) = viewModelScope.launch {
         val board = _board.value
-        firestoreRepository.createBoardList(
-            boardList = BoardList(
+        taskListRepository.createTaskList(
+            taskList = BoardList(
                 name = listName,
                 position = _board.value.lists.size.toLong(),
                 path = "${FirestoreCollection.WORKSPACES}/${board.workspace.id}" +
@@ -233,7 +235,7 @@ class BoardViewModel @Inject constructor(
             val boardPath = "${FirestoreCollection.BOARDS}/${_board.value.id}"
             val listsPath =
                 "$workspacePath/$boardPath/${FirestoreCollection.TASK_LISTS}"
-            firestoreRepository.rearrangeBoardLists(
+            taskListRepository.rearrangeTaskLists(
                 listsPath,
                 boardLists,
                 from,
