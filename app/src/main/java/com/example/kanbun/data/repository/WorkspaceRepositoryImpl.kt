@@ -11,6 +11,7 @@ import com.example.kanbun.common.runCatching
 import com.example.kanbun.common.toFirestoreMembers
 import com.example.kanbun.common.toFirestoreWorkspace
 import com.example.kanbun.common.toWorkspace
+import com.example.kanbun.common.updateIfChanged
 import com.example.kanbun.data.model.FirestoreWorkspace
 import com.example.kanbun.di.IoDispatcher
 import com.example.kanbun.domain.model.Workspace
@@ -157,14 +158,10 @@ class WorkspaceRepositoryImpl @Inject constructor(
     private fun getWorkspaceUpdates(
         oldWorkspace: Workspace,
         newWorkspace: Workspace
-    ): Map<String, Any> {
-        val mapOfUpdates = mutableMapOf<String, Any>()
-        if (newWorkspace.name != oldWorkspace.name) {
-            mapOfUpdates["name"] = newWorkspace.name
-        }
-        if (newWorkspace.members != oldWorkspace.members) {
-            mapOfUpdates["members"] = newWorkspace.members.toFirestoreMembers()
-        }
+    ): Map<String, Any?> {
+        val mapOfUpdates = mutableMapOf<String, Any?>()
+        updateIfChanged(mapOfUpdates, "name", oldWorkspace.name, newWorkspace.name)
+        updateIfChanged(mapOfUpdates, "members", oldWorkspace.members.toFirestoreMembers(), newWorkspace.members.toFirestoreMembers())
         return mapOfUpdates
     }
 

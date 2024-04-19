@@ -80,6 +80,11 @@ private fun showProfilePicture(context: Context, url: String?, view: ImageView) 
         .placeholder(R.drawable.ic_launcher_background)
         .into(view)
 
+fun updateIfChanged(updates: MutableMap<String, Any?>, field: String, oldValue: Any?, newValue: Any?) {
+    if (oldValue != newValue) {
+        updates[field] = newValue
+    }
+}
 
 fun <T1, T2, T3, T4, T5, T6, R> combine(
     flow1: Flow<T1>,

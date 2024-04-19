@@ -12,6 +12,7 @@ import com.example.kanbun.common.toFirestoreBoardInfo
 import com.example.kanbun.common.toFirestoreBoardMembers
 import com.example.kanbun.common.toFirestoreTag
 import com.example.kanbun.common.toFirestoreTags
+import com.example.kanbun.common.updateIfChanged
 import com.example.kanbun.data.model.FirestoreBoard
 import com.example.kanbun.di.IoDispatcher
 import com.example.kanbun.domain.model.Board
@@ -157,20 +158,12 @@ class BoardRepositoryImpl @Inject constructor(
             }
         }
 
-    private fun getBoardUpdates(oldBoard: Board, newBoard: Board): Map<String, Any> {
-        val mapOfUpdates = mutableMapOf<String, Any>()
-        if (newBoard.name != oldBoard.name) {
-            mapOfUpdates["name"] = newBoard.name
-        }
-        if (newBoard.description != oldBoard.description) {
-            mapOfUpdates["description"] = newBoard.description
-        }
-        if (newBoard.tags != oldBoard.tags) {
-            mapOfUpdates["tags"] = newBoard.tags.toFirestoreTags()
-        }
-        if (newBoard.members != oldBoard.members) {
-            mapOfUpdates["members"] = newBoard.members.toFirestoreBoardMembers()
-        }
+    private fun getBoardUpdates(oldBoard: Board, newBoard: Board): Map<String, Any?> {
+        val mapOfUpdates = mutableMapOf<String, Any?>()
+        updateIfChanged(mapOfUpdates, "name", oldBoard.name, newBoard.name)
+        updateIfChanged(mapOfUpdates, "description", oldBoard.description, newBoard.description)
+        updateIfChanged(mapOfUpdates, "tags", oldBoard.tags.toFirestoreTags(), newBoard.tags.toFirestoreTags())
+        updateIfChanged(mapOfUpdates, "members", oldBoard.members.toFirestoreBoardMembers(), newBoard.members.toFirestoreBoardMembers())
         return mapOfUpdates
     }
 

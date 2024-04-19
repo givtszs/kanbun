@@ -8,6 +8,7 @@ import com.example.kanbun.common.getResult
 import com.example.kanbun.common.runCatching
 import com.example.kanbun.common.toFirestoreUser
 import com.example.kanbun.common.toUser
+import com.example.kanbun.common.updateIfChanged
 import com.example.kanbun.data.model.FirestoreUser
 import com.example.kanbun.di.IoDispatcher
 import com.example.kanbun.domain.model.User
@@ -90,15 +91,9 @@ class UserRepositoryImpl @Inject constructor(
 
     private fun getUserUpdates(oldUser: User, newUser: User): Map<String, Any?> {
         val mapOfUpdates = mutableMapOf<String, Any?>()
-        fun updateIfChanged(field: String, oldValue: Any?, newValue: Any?) {
-            if (oldValue != newValue) {
-                mapOfUpdates[field] = newValue
-            }
-        }
-
-        updateIfChanged("name", oldUser.name, newUser.name)
-        updateIfChanged("tag", oldUser.tag, newUser.tag)
-        updateIfChanged("profilePicture", oldUser.profilePicture, newUser.profilePicture)
+        updateIfChanged(mapOfUpdates, "name", oldUser.name, newUser.name)
+        updateIfChanged(mapOfUpdates, "tag", oldUser.tag, newUser.tag)
+        updateIfChanged(mapOfUpdates, "profilePicture", oldUser.profilePicture, newUser.profilePicture)
         return mapOfUpdates
     }
 

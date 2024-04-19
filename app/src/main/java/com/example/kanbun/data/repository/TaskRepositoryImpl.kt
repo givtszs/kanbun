@@ -6,6 +6,7 @@ import com.example.kanbun.common.Result
 import com.example.kanbun.common.TAG
 import com.example.kanbun.common.runCatching
 import com.example.kanbun.common.toFirestoreTask
+import com.example.kanbun.common.updateIfChanged
 import com.example.kanbun.di.IoDispatcher
 import com.example.kanbun.domain.model.Task
 import com.example.kanbun.domain.repository.TaskRepository
@@ -57,24 +58,12 @@ class TaskRepositoryImpl @Inject constructor(
     ): Map<String, Any?> {
         val mapOfUpdates = mutableMapOf<String, Any?>()
         val taskId = newTask.id
-        if (newTask.name != oldTask.name) {
-            mapOfUpdates["${FirestoreCollection.TASKS}.$taskId.name"] = newTask.name
-        }
-        if (newTask.description != oldTask.description) {
-            mapOfUpdates["${FirestoreCollection.TASKS}.$taskId.description"] = newTask.description
-        }
-        if (newTask.dateStarts != oldTask.dateStarts) {
-            mapOfUpdates["${FirestoreCollection.TASKS}.$taskId.dateStarts"] = newTask.dateStarts
-        }
-        if (newTask.dateEnds != oldTask.dateEnds) {
-            mapOfUpdates["${FirestoreCollection.TASKS}.$taskId.dateEnds"] = newTask.dateEnds
-        }
-        if (newTask.tags != oldTask.tags) {
-            mapOfUpdates["${FirestoreCollection.TASKS}.$taskId.tags"] = newTask.tags
-        }
-        if (newTask.members != oldTask.members) {
-            mapOfUpdates["${FirestoreCollection.TASKS}.$taskId.members"] = newTask.members
-        }
+        updateIfChanged(mapOfUpdates, "${FirestoreCollection.TASKS}.$taskId.name", oldTask.name, newTask.name)
+        updateIfChanged(mapOfUpdates, "${FirestoreCollection.TASKS}.$taskId.description", oldTask.description, newTask.description)
+        updateIfChanged(mapOfUpdates, "${FirestoreCollection.TASKS}.$taskId.dateStarts", oldTask.dateStarts, newTask.dateStarts)
+        updateIfChanged(mapOfUpdates, "${FirestoreCollection.TASKS}.$taskId.dateEnds", oldTask.dateEnds, newTask.dateEnds)
+        updateIfChanged(mapOfUpdates, "${FirestoreCollection.TASKS}.$taskId.tags", oldTask.tags, newTask.tags)
+        updateIfChanged(mapOfUpdates, "${FirestoreCollection.TASKS}.$taskId.members", oldTask.members, newTask.members)
         return mapOfUpdates
     }
 
