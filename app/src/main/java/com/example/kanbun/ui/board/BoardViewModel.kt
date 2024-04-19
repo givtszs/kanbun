@@ -13,6 +13,7 @@ import com.example.kanbun.domain.model.User
 import com.example.kanbun.domain.repository.BoardRepository
 import com.example.kanbun.domain.repository.FirestoreRepository
 import com.example.kanbun.domain.repository.TaskListRepository
+import com.example.kanbun.domain.repository.TaskRepository
 import com.example.kanbun.domain.repository.UserRepository
 import com.example.kanbun.ui.ViewState.BoardViewState
 import com.example.kanbun.ui.board.tasks_adapter.TasksAdapter
@@ -33,7 +34,8 @@ class BoardViewModel @Inject constructor(
     private val firestoreRepository: FirestoreRepository,
     private val userRepository: UserRepository,
     private val boardRepository: BoardRepository,
-    private val taskListRepository: TaskListRepository
+    private val taskListRepository: TaskListRepository,
+    private val taskRepository: TaskRepository
 ) : ViewModel() {
 
     private val _board = MutableStateFlow(Board())
@@ -174,9 +176,9 @@ class BoardViewModel @Inject constructor(
 
     fun rearrangeTasks(listPath: String, listId: String, tasks: List<Task>, from: Int, to: Int) =
         viewModelScope.launch {
-            firestoreRepository.rearrangeTasks(
-                listPath = listPath,
-                listId = listId,
+            taskRepository.rearrangeTasks(
+                taskListPath = listPath,
+                taskListId = listId,
                 tasks = tasks,
                 from = from,
                 to = to
@@ -193,7 +195,7 @@ class BoardViewModel @Inject constructor(
             "ItemTaskViewHolder",
             "Deleting task in adapter $adapter at position ${dragItem.initPosition} from tasks $tasksRemoveStr"
         )
-        val deleteResult = firestoreRepository.deleteTaskAndRearrange(
+        val deleteResult = taskRepository.deleteTaskAndRearrange(
             dragItem.initTaskList.path,
             dragItem.initTaskList.id,
             dragItem.initTasksList,
@@ -211,7 +213,7 @@ class BoardViewModel @Inject constructor(
             "Inserting task in adapter $adapter at position $to into tasks $tasksInsertStr"
         )
         val insertResult =
-            firestoreRepository.insertTaskAndRearrange(
+            taskRepository.insertTaskAndRearrange(
                 adapter.listInfo.path,
                 adapter.listInfo.id,
                 adapter.tasks,

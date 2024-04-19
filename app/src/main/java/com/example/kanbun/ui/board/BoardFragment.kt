@@ -28,16 +28,16 @@ import com.example.kanbun.R
 import com.example.kanbun.common.HORIZONTAL_SCROLL_DISTANCE
 import com.example.kanbun.common.moshi
 import com.example.kanbun.databinding.FragmentBoardBinding
-import com.example.kanbun.domain.model.TaskList
 import com.example.kanbun.domain.model.Task
+import com.example.kanbun.domain.model.TaskList
 import com.example.kanbun.domain.model.Workspace
 import com.example.kanbun.ui.BaseFragment
 import com.example.kanbun.ui.StateHandler
 import com.example.kanbun.ui.ViewState
+import com.example.kanbun.ui.board.task_list.ItemTaskListViewHolder
 import com.example.kanbun.ui.board.task_list.TaskListMenuDialog
 import com.example.kanbun.ui.board.task_list.TaskListsAdapter
 import com.example.kanbun.ui.board.task_list.TaskListsAdapterCallbacks
-import com.example.kanbun.ui.board.task_list.ItemTaskListViewHolder
 import com.example.kanbun.ui.board.tasks_adapter.TasksAdapter
 import com.example.kanbun.ui.main_activity.MainActivity
 import com.example.kanbun.ui.model.DragAndDropListItem
@@ -49,8 +49,6 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-
-private const val TAG = "BoardFragment"
 
 @AndroidEntryPoint
 class BoardFragment : BaseFragment(), StateHandler {

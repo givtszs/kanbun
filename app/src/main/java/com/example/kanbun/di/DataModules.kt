@@ -6,6 +6,7 @@ import com.example.kanbun.data.repository.BoardRepositoryImpl
 import com.example.kanbun.data.repository.FirestoreRepositoryImpl
 import com.example.kanbun.data.repository.StorageRepositoryImpl
 import com.example.kanbun.data.repository.TaskListRepositoryImpl
+import com.example.kanbun.data.repository.TaskRepositoryImpl
 import com.example.kanbun.data.repository.UserRepositoryImpl
 import com.example.kanbun.data.repository.WorkspaceRepositoryImpl
 import com.example.kanbun.domain.repository.AuthenticationRepository
@@ -13,6 +14,7 @@ import com.example.kanbun.domain.repository.BoardRepository
 import com.example.kanbun.domain.repository.FirestoreRepository
 import com.example.kanbun.domain.repository.StorageRepository
 import com.example.kanbun.domain.repository.TaskListRepository
+import com.example.kanbun.domain.repository.TaskRepository
 import com.example.kanbun.domain.repository.UserRepository
 import com.example.kanbun.domain.repository.WorkspaceRepository
 import com.example.kanbun.domain.utils.EmailPatternValidator
@@ -62,6 +64,12 @@ abstract class DataModule {
     abstract fun bindTaskListRepository(
         taskListRepositoryImpl: TaskListRepositoryImpl
     ): TaskListRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindTaskRepository(
+        taskRepositoryImpl: TaskRepositoryImpl
+    ): TaskRepository
 
     @Binds
     @Singleton

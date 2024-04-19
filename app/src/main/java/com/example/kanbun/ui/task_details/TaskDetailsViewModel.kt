@@ -7,7 +7,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.kanbun.common.Result
 import com.example.kanbun.common.TAG
 import com.example.kanbun.domain.model.TaskList
-import com.example.kanbun.domain.repository.FirestoreRepository
+import com.example.kanbun.domain.repository.TaskRepository
 import com.example.kanbun.domain.repository.UserRepository
 import com.example.kanbun.ui.ViewState
 import com.example.kanbun.ui.main_activity.MainActivity
@@ -21,7 +21,7 @@ import javax.inject.Inject
 // TODO: Add network connectivity checks to this and others view models.
 @HiltViewModel
 class TaskDetailsViewModel @Inject constructor(
-    private val firestoreRepository: FirestoreRepository,
+    private val taskRepository: TaskRepository,
     private val userRepository: UserRepository
 ) : ViewModel() {
 
@@ -59,9 +59,9 @@ class TaskDetailsViewModel @Inject constructor(
     fun deleteTask(taskPosition: Int, taskList: TaskList, navigateOnDelete: () -> Unit) =
         viewModelScope.launch {
             when (
-                val result = firestoreRepository.deleteTaskAndRearrange(
-                    listPath = taskList.path,
-                    listId = taskList.id,
+                val result = taskRepository.deleteTaskAndRearrange(
+                    taskListPath = taskList.path,
+                    taskListId = taskList.id,
                     tasks = taskList.tasks,
                     from = taskPosition
                 )
