@@ -113,7 +113,7 @@ class TaskRepositoryImpl @Inject constructor(
         return updMap
     }
 
-    override suspend fun deleteTaskAndRearrange(
+    override suspend fun removeTaskAndRearrange(
         taskListPath: String,
         taskListId: String,
         tasks: List<Task>,

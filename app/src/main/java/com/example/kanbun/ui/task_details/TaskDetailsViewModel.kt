@@ -59,7 +59,7 @@ class TaskDetailsViewModel @Inject constructor(
     fun deleteTask(taskPosition: Int, taskList: TaskList, navigateOnDelete: () -> Unit) =
         viewModelScope.launch {
             when (
-                val result = taskRepository.deleteTaskAndRearrange(
+                val result = taskRepository.removeTaskAndRearrange(
                     taskListPath = taskList.path,
                     taskListId = taskList.id,
                     tasks = taskList.tasks,

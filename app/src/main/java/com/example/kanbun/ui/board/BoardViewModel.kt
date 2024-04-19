@@ -193,7 +193,7 @@ class BoardViewModel @Inject constructor(
             "ItemTaskViewHolder",
             "Deleting task in adapter $adapter at position ${dragItem.initPosition} from tasks $tasksRemoveStr"
         )
-        val deleteResult = taskRepository.deleteTaskAndRearrange(
+        val deleteResult = taskRepository.removeTaskAndRearrange(
             dragItem.initTaskList.path,
             dragItem.initTaskList.id,
             dragItem.initTasksList,
