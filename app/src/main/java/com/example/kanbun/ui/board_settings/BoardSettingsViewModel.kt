@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.kanbun.common.Result
 import com.example.kanbun.common.Role
+import com.example.kanbun.common.moveOwnerToTheTop
 import com.example.kanbun.domain.model.Board
 import com.example.kanbun.domain.model.Tag
 import com.example.kanbun.domain.model.User
@@ -65,15 +66,17 @@ class BoardSettingsViewModel @Inject constructor(
 
     fun init(
         tags: List<Tag>,
-        members: List<User>,
+        ownerId: String,
+        users: List<User>,
         boardMembers: List<Board.BoardMember>,
         workspaceId: String
     ) {
         _tags.value = tags
 
         val boardMembersById = boardMembers.associateBy { it.id }
-        _boardMembers.value =
-            members.map { Member(user = it, role = boardMembersById[it.id]?.role) }
+        val members = users.map { Member(user = it, role = boardMembersById[it.id]?.role) }.toMutableList()
+        moveOwnerToTheTop(ownerId, members)
+        _boardMembers.value = members
 
         fetchWorkspaceMembers(workspaceId)
     }

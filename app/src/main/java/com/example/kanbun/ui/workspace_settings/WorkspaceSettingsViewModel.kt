@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.kanbun.common.Result
 import com.example.kanbun.common.Role
 import com.example.kanbun.common.TAG
+import com.example.kanbun.common.moveOwnerToTheTop
 import com.example.kanbun.data.local.PreferenceDataStoreHelper
 import com.example.kanbun.data.local.PreferenceDataStoreKeys
 import com.example.kanbun.domain.model.User
@@ -70,16 +71,9 @@ class WorkspaceSettingsViewModel @Inject constructor(
                     val fetchedMembers = result.data.map { user ->
                         val role = members[user.id] ?: Role.Workspace.Member
                         Member(user = user, role = role)
-                    }
-                    val owner = fetchedMembers.find { it.user.id == ownerId }
-
-                    _members.value = if (owner != null) {
-                        val ownerMember = owner.copy(role = Role.Workspace.Admin)
-                        listOf(ownerMember) + fetchedMembers.filterNot { it.user.id == ownerId }
-                    } else {
-                        fetchedMembers
-                    }
-                    Log.d(TAG, "members: ${_members.value}")
+                    }.toMutableList()
+                    moveOwnerToTheTop(ownerId, fetchedMembers)
+                    _members.value = fetchedMembers
                 }
 
                 is Result.Error -> _message.value = result.message

@@ -7,6 +7,7 @@ import androidx.annotation.ColorRes
 import androidx.core.content.ContextCompat
 import com.bumptech.glide.Glide
 import com.example.kanbun.R
+import com.example.kanbun.ui.model.Member
 import com.google.android.gms.tasks.Task
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.ktx.storage
@@ -83,6 +84,15 @@ private fun showProfilePicture(context: Context, url: String?, view: ImageView) 
 fun updateIfChanged(updates: MutableMap<String, Any?>, field: String, oldValue: Any?, newValue: Any?) {
     if (oldValue != newValue) {
         updates[field] = newValue
+    }
+}
+
+fun moveOwnerToTheTop(ownerId: String, members: MutableList<Member>) {
+    val ownerIndex = members.indexOfFirst { it.user.id == ownerId }
+    if (ownerIndex != -1 && ownerIndex != 0) {
+        // move the owner to the top of the list
+        val owner = members.removeAt(ownerIndex)
+        members.add(0, owner)
     }
 }
 

@@ -73,6 +73,7 @@ class BoardSettingsFragment : BaseFragment(), StateHandler {
         setUpMembersAdapter()
         boardSettingsViewModel.init(
             board.tags,
+            board.owner,
             sharedViewModel.boardMembers,
             board.members,
             board.workspace.id
