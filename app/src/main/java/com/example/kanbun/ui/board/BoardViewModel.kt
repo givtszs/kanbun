@@ -7,11 +7,10 @@ import com.example.kanbun.common.FirestoreCollection
 import com.example.kanbun.common.Result
 import com.example.kanbun.common.TAG
 import com.example.kanbun.domain.model.Board
-import com.example.kanbun.domain.model.TaskList
 import com.example.kanbun.domain.model.Task
+import com.example.kanbun.domain.model.TaskList
 import com.example.kanbun.domain.model.User
 import com.example.kanbun.domain.repository.BoardRepository
-import com.example.kanbun.domain.repository.FirestoreRepository
 import com.example.kanbun.domain.repository.TaskListRepository
 import com.example.kanbun.domain.repository.TaskRepository
 import com.example.kanbun.domain.repository.UserRepository
@@ -31,7 +30,6 @@ import javax.inject.Inject
 
 @HiltViewModel
 class BoardViewModel @Inject constructor(
-    private val firestoreRepository: FirestoreRepository,
     private val userRepository: UserRepository,
     private val boardRepository: BoardRepository,
     private val taskListRepository: TaskListRepository,

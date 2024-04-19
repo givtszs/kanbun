@@ -15,7 +15,7 @@ import com.example.kanbun.data.model.FirestoreWorkspace
 import com.example.kanbun.di.IoDispatcher
 import com.example.kanbun.domain.model.Workspace
 import com.example.kanbun.domain.model.WorkspaceInfo
-import com.example.kanbun.domain.repository.FirestoreRepository
+import com.example.kanbun.domain.repository.FirebaseFunctionsRepository
 import com.example.kanbun.domain.repository.WorkspaceRepository
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
@@ -32,8 +32,9 @@ import javax.inject.Inject
 class WorkspaceRepositoryImpl @Inject constructor(
     private val firestore: FirebaseFirestore,
     @IoDispatcher private val dispatcher: CoroutineDispatcher,
-    private val firestoreRepository: FirestoreRepository
+    private val firebaseFunctionsRepository: FirebaseFunctionsRepository
 ) : WorkspaceRepository {
+
     override suspend fun createWorkspace(workspace: Workspace): Result<Unit> = runCatching {
         withContext(dispatcher) {
             firestore.collection(FirestoreCollection.WORKSPACES)
@@ -198,10 +199,10 @@ class WorkspaceRepositoryImpl @Inject constructor(
                 "${FirestoreCollection.WORKSPACES}/${workspace.id}/${FirestoreCollection.BOARDS}"
 
             // delete the workspace
-            firestoreRepository.recursiveDelete(workspacePath)
+            firebaseFunctionsRepository.recursiveDelete(workspacePath)
 
             // delete the workspace boards
-            firestoreRepository.recursiveDelete(boardsPath)
+            firebaseFunctionsRepository.recursiveDelete(boardsPath)
 
             deleteWorkspaceFromMembers(workspace.id, workspace.owner, workspace.members, scope = this@withContext)
         }

@@ -9,7 +9,7 @@ import javax.inject.Inject
 
 /**
  * Use case for managing user-related operation in Firestore.
- * @property firestoreRepository repository responsible for Firestore operations.
+ * @property userRepository repository responsible for Firestore operations.
  */
 class ManageFirestoreUserUseCase @Inject constructor(
     private val userRepository: UserRepository

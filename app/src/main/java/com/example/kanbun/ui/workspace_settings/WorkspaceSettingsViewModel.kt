@@ -10,7 +10,6 @@ import com.example.kanbun.data.local.PreferenceDataStoreHelper
 import com.example.kanbun.data.local.PreferenceDataStoreKeys
 import com.example.kanbun.domain.model.User
 import com.example.kanbun.domain.model.Workspace
-import com.example.kanbun.domain.repository.FirestoreRepository
 import com.example.kanbun.domain.repository.UserRepository
 import com.example.kanbun.domain.repository.WorkspaceRepository
 import com.example.kanbun.domain.usecase.SearchUserUseCase
@@ -29,7 +28,6 @@ import javax.inject.Inject
 
 @HiltViewModel
 class WorkspaceSettingsViewModel @Inject constructor(
-    private val firestoreRepository: FirestoreRepository,
     private val userRepository: UserRepository,
     private val workspaceRepository: WorkspaceRepository,
     private val searchUserUseCase: SearchUserUseCase,

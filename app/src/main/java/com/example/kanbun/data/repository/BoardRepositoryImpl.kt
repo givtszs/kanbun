@@ -18,7 +18,7 @@ import com.example.kanbun.domain.model.Board
 import com.example.kanbun.domain.model.Tag
 import com.example.kanbun.domain.model.Workspace
 import com.example.kanbun.domain.repository.BoardRepository
-import com.example.kanbun.domain.repository.FirestoreRepository
+import com.example.kanbun.domain.repository.FirebaseFunctionsRepository
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.CoroutineDispatcher
@@ -36,7 +36,7 @@ import javax.inject.Inject
 class BoardRepositoryImpl @Inject constructor(
     private val firestore: FirebaseFirestore,
     @IoDispatcher private val dispatcher: CoroutineDispatcher,
-    private val firestoreRepository: FirestoreRepository
+    private val firebaseFunctionsRepository: FirebaseFunctionsRepository
 ) : BoardRepository {
 
     override suspend fun createBoard(board: Board): Result<Unit> = runCatching {
@@ -207,10 +207,10 @@ class BoardRepositoryImpl @Inject constructor(
             val taskListsRef = boardPath + "/${FirestoreCollection.TASK_LISTS}"
 
             // delete board
-            firestoreRepository.recursiveDelete(boardPath)
+            firebaseFunctionsRepository.recursiveDelete(boardPath)
 
             // delete board lists
-            firestoreRepository.recursiveDelete(taskListsRef)
+            firebaseFunctionsRepository.recursiveDelete(taskListsRef)
 
             // delete the board information from the workspace it belongs to
             deleteBoardInfoFromWorkspace(board.workspace.id, board.id)

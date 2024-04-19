@@ -2,7 +2,7 @@ package com.example.kanbun.domain.repository
 
 import com.example.kanbun.common.FirestoreCollection
 import com.example.kanbun.common.Result
-import com.example.kanbun.data.repository.FirestoreRepositoryImpl
+import com.example.kanbun.data.repository.FirebaseFunctionsRepositoryImpl
 import com.example.kanbun.domain.FirestoreTestUtil
 import com.example.kanbun.domain.model.Board
 import com.example.kanbun.domain.model.TaskList
@@ -24,14 +24,14 @@ import org.junit.Test
 
 class FirestoreRepositoryTest {
     // use interface implementation to test support methods (those not included in the interface)
-    private lateinit var repository: FirestoreRepositoryImpl
+    private lateinit var repository: FirebaseFunctionsRepositoryImpl
 
     @OptIn(ExperimentalCoroutinesApi::class)
     @Before
     fun setUp() {
         val firestore = FirestoreTestUtil.firestore
         val dispatcher = UnconfinedTestDispatcher()
-        repository = FirestoreRepositoryImpl(firestore, dispatcher)
+        repository = FirebaseFunctionsRepositoryImpl(firestore, dispatcher)
     }
 
     @After

@@ -2,11 +2,10 @@ package com.example.kanbun.domain.usecase
 
 import com.example.kanbun.common.AuthProvider
 import com.example.kanbun.common.Result
-import com.example.kanbun.data.repository.AuthenticationRepositoryImpl
-import com.example.kanbun.data.repository.FirestoreRepositoryImpl
+import com.example.kanbun.data.repository.FirebaseFunctionsRepositoryImpl
 import com.example.kanbun.domain.FirestoreTestUtil
 import com.example.kanbun.domain.repository.AuthenticationRepository
-import com.example.kanbun.domain.repository.FirestoreRepository
+import com.example.kanbun.domain.repository.FirebaseFunctionsRepository
 import com.example.kanbun.isResultSuccess
 import com.google.common.truth.Truth.assertThat
 import com.google.firebase.auth.FirebaseUser
@@ -18,11 +17,10 @@ import org.junit.Before
 import org.junit.Test
 import org.mockito.Mockito
 import org.mockito.Mockito.`when`
-import java.lang.IllegalStateException
 
 class ManageFirestoreUserUseCaseTest {
     private lateinit var manageFirestoreUserUseCase: ManageFirestoreUserUseCase
-    private lateinit var firestoreRepository: FirestoreRepository
+    private lateinit var firestoreRepository: FirebaseFunctionsRepository
     private lateinit var authRepository: AuthenticationRepository
     private val auth = FirestoreTestUtil.auth
     private lateinit var user: FirebaseUser
@@ -32,7 +30,7 @@ class ManageFirestoreUserUseCaseTest {
     fun setUp() {
         val firestore = FirestoreTestUtil.firestore
         val dispatcher = UnconfinedTestDispatcher()
-        firestoreRepository = FirestoreRepositoryImpl(firestore, dispatcher)
+        firestoreRepository = FirebaseFunctionsRepositoryImpl(firestore, dispatcher)
         manageFirestoreUserUseCase = ManageFirestoreUserUseCase(firestoreRepository)
     }
 
