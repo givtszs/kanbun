@@ -11,10 +11,4 @@ import com.google.firebase.functions.HttpsCallableResult
 interface FirestoreRepository {
 
     fun recursiveDelete(path: String): com.google.android.gms.tasks.Task<HttpsCallableResult>
-
-    suspend fun upsertTag(
-        tag: Tag,
-        boardId: String,
-        boardPath: String
-    ): Result<Tag>
 }

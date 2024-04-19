@@ -2,11 +2,11 @@ package com.example.kanbun.domain.usecase
 
 import com.example.kanbun.common.Result
 import com.example.kanbun.domain.model.Tag
-import com.example.kanbun.domain.repository.FirestoreRepository
+import com.example.kanbun.domain.repository.BoardRepository
 import javax.inject.Inject
 
 class UpsertTagUseCase @Inject constructor(
-    private val firestoreRepository: FirestoreRepository
+    private val boardRepository: BoardRepository
 ) {
     suspend operator fun invoke(
         tag: Tag,
@@ -18,7 +18,7 @@ class UpsertTagUseCase @Inject constructor(
         return if (doesTagExist) {
             Result.Error("Tag with the same name is already created")
         } else {
-            firestoreRepository.upsertTag(
+            boardRepository.upsertTag(
                 tag = tag,
                 boardId = boardId,
                 boardPath = boardPath

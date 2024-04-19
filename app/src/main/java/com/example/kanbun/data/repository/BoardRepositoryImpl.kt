@@ -10,10 +10,12 @@ import com.example.kanbun.common.toBoard
 import com.example.kanbun.common.toFirestoreBoard
 import com.example.kanbun.common.toFirestoreBoardInfo
 import com.example.kanbun.common.toFirestoreBoardMembers
+import com.example.kanbun.common.toFirestoreTag
 import com.example.kanbun.common.toFirestoreTags
 import com.example.kanbun.data.model.FirestoreBoard
 import com.example.kanbun.di.IoDispatcher
 import com.example.kanbun.domain.model.Board
+import com.example.kanbun.domain.model.Tag
 import com.example.kanbun.domain.model.Workspace
 import com.example.kanbun.domain.repository.BoardRepository
 import com.example.kanbun.domain.repository.FirestoreRepository
@@ -28,6 +30,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.util.UUID
 import javax.inject.Inject
 
 class BoardRepositoryImpl @Inject constructor(
@@ -237,6 +240,22 @@ class BoardRepositoryImpl @Inject constructor(
                     .document(member.id)
                     .update("sharedBoards.$boardId", FieldValue.delete())
             }
+        }
+    }
+
+    override suspend fun upsertTag(
+        tag: Tag,
+        boardId: String,
+        boardPath: String,
+    ): Result<Tag> = runCatching {
+        withContext(dispatcher) {
+            val tagId = tag.id.ifEmpty { UUID.randomUUID().toString() }
+            firestore.collection(boardPath)
+                .document(boardId)
+                .update("tags.$tagId", tag.toFirestoreTag())
+                .getResult {
+                    tag.copy(id = tagId)
+                }
         }
     }
 }

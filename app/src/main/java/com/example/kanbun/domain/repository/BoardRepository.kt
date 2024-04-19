@@ -2,6 +2,7 @@ package com.example.kanbun.domain.repository
 
 import com.example.kanbun.common.Result
 import com.example.kanbun.domain.model.Board
+import com.example.kanbun.domain.model.Tag
 import com.example.kanbun.domain.model.Workspace
 import kotlinx.coroutines.flow.Flow
 
@@ -47,4 +48,6 @@ interface BoardRepository {
      * Deletes the given [board] from the Firestore database.
      */
     suspend fun deleteBoard(board: Board): Result<Unit>
+
+    suspend fun upsertTag(tag: Tag, boardId: String, boardPath: String): Result<Tag>
 }
