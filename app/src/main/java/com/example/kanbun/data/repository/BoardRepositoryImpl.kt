@@ -201,13 +201,13 @@ class BoardRepositoryImpl @Inject constructor(
     ): Result<Unit> = runCatching {
         withContext(dispatcher) {
             val boardPath = "${FirestoreCollection.WORKSPACES}/${board.workspace.id}/${FirestoreCollection.BOARDS}/${board.id}"
-            val boardListsRef = boardPath + "/${FirestoreCollection.TASK_LISTS}"
+            val taskListsRef = boardPath + "/${FirestoreCollection.TASK_LISTS}"
 
             // delete board
             firestoreRepository.recursiveDelete(boardPath)
 
             // delete board lists
-            firestoreRepository.recursiveDelete(boardListsRef)
+            firestoreRepository.recursiveDelete(taskListsRef)
 
             // delete the board information from the workspace it belongs to
             deleteBoardInfoFromWorkspace(board.workspace.id, board.id)

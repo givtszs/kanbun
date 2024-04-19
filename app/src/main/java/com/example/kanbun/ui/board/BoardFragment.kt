@@ -26,19 +26,18 @@ import androidx.recyclerview.widget.PagerSnapHelper
 import androidx.recyclerview.widget.RecyclerView
 import com.example.kanbun.R
 import com.example.kanbun.common.HORIZONTAL_SCROLL_DISTANCE
-import com.example.kanbun.common.TaskAction
 import com.example.kanbun.common.moshi
 import com.example.kanbun.databinding.FragmentBoardBinding
-import com.example.kanbun.domain.model.BoardList
+import com.example.kanbun.domain.model.TaskList
 import com.example.kanbun.domain.model.Task
 import com.example.kanbun.domain.model.Workspace
 import com.example.kanbun.ui.BaseFragment
 import com.example.kanbun.ui.StateHandler
 import com.example.kanbun.ui.ViewState
-import com.example.kanbun.ui.board.board_list.BoardListMenuDialog
-import com.example.kanbun.ui.board.board_list.BoardListsAdapter
-import com.example.kanbun.ui.board.board_list.BoardListsAdapterCallbacks
-import com.example.kanbun.ui.board.board_list.ItemBoardListViewHolder
+import com.example.kanbun.ui.board.task_list.TaskListMenuDialog
+import com.example.kanbun.ui.board.task_list.TaskListsAdapter
+import com.example.kanbun.ui.board.task_list.TaskListsAdapterCallbacks
+import com.example.kanbun.ui.board.task_list.ItemTaskListViewHolder
 import com.example.kanbun.ui.board.tasks_adapter.TasksAdapter
 import com.example.kanbun.ui.main_activity.MainActivity
 import com.example.kanbun.ui.model.DragAndDropListItem
@@ -69,7 +68,7 @@ class BoardFragment : BaseFragment(), StateHandler {
 
     private val args: BoardFragmentArgs by navArgs()
 
-    private var boardListsAdapter: BoardListsAdapter? = null
+    private var taskListsAdapter: TaskListsAdapter? = null
     private var scrollJob: Job? = null
     private var pagerSnapHelper = PagerSnapHelper()
 
@@ -89,7 +88,7 @@ class BoardFragment : BaseFragment(), StateHandler {
         val boardInfo: Workspace.BoardInfo = args.boardInfo
         getBoard(boardInfo.boardId, boardInfo.workspaceId)
         setUpActionBar(binding.topAppBar.toolbar, boardInfo.name)
-        setUpBoardListsAdapter()
+        setUpTaskListsAdapter()
         setUpMenu()
         collectState()
     }
@@ -145,34 +144,34 @@ class BoardFragment : BaseFragment(), StateHandler {
         }
     }
 
-    private fun setUpBoardListsAdapter() {
-        boardListsAdapter = BoardListsAdapter(
+    private fun setUpTaskListsAdapter() {
+        taskListsAdapter = TaskListsAdapter(
             coroutineScope = lifecycleScope,
             taskDropCallbacks = taskDropCallbacks,
-            boardListDropCallback = boardListDropCallback,
-            callbacks = object : BoardListsAdapterCallbacks {
-                override fun createBoardList() {
+            taskListDropCallback = taskListDropCallback,
+            callbacks = object : TaskListsAdapterCallbacks {
+                override fun createTaskList() {
                     buildCreateListDialog()
                 }
 
-                override fun onBoardListMenuClicked(boardList: BoardList, boardLists: List<BoardList>, isEnabled: Boolean) {
-                    val boardListMenuDialog = BoardListMenuDialog.init(boardList, boardLists, isEnabled)
-                    boardListMenuDialog.show(childFragmentManager, "board_list_menu")
+                override fun onTaskListMenuClicked(taskList: TaskList, taskLists: List<TaskList>, isEnabled: Boolean) {
+                    val taskListMenuDialog = TaskListMenuDialog.init(taskList, taskLists, isEnabled)
+                    taskListMenuDialog.show(childFragmentManager, "board_list_menu")
                 }
 
-                override fun createTask(boardList: BoardList) {
+                override fun createTask(taskList: TaskList) {
                     navController.navigate(
                         BoardFragmentDirections.actionBoardFragmentToCreateTaskFragment(
-                            boardList = boardList
+                            taskList = taskList
                         )
                     )
                 }
 
-                override fun onTaskClicked(task: Task, boardList: BoardList) {
+                override fun onTaskClicked(task: Task, taskList: TaskList) {
                     navController.navigate(
                         BoardFragmentDirections.actionBoardFragmentToTaskDetailsFragment(
                             task,
-                            boardList = boardList
+                            taskList = taskList
                         )
                     )
                 }
@@ -184,7 +183,7 @@ class BoardFragment : BaseFragment(), StateHandler {
         )
 
         binding.rvLists.apply {
-            adapter = boardListsAdapter
+            adapter = taskListsAdapter
             pagerSnapHelper.attachToRecyclerView(this)
         }
     }
@@ -211,21 +210,21 @@ class BoardFragment : BaseFragment(), StateHandler {
         }
     }
 
-    private val boardListDropCallback = object : DropCallback {
+    private val taskListDropCallback = object : DropCallback {
         override fun <T : RecyclerView.ViewHolder> drop(
             clipData: ClipData,
             adapter: RecyclerView.Adapter<T>,
             position: Int
         ): Boolean {
-            val boardListAdapter = adapter as BoardListsAdapter
+            val taskListAdapter = adapter as TaskListsAdapter
             val data = clipData.getItemAt(0).text.toString()
             val dragItem = moshi.adapter(DragAndDropListItem::class.java).fromJson(data)
 
             dragItem?.let {
                 boardViewModel.rearrangeLists(
-                    boardLists = boardListAdapter.lists,
+                    taskLists = taskListAdapter.lists,
                     from = dragItem.initPosition,
-                    to = ItemBoardListViewHolder.oldPosition
+                    to = ItemTaskListViewHolder.oldPosition
                 )
             }
 
@@ -238,17 +237,17 @@ class BoardFragment : BaseFragment(), StateHandler {
             dialogTitle = "Create list",
             editTextHint = "Enter a new list name",
             createCallback = { name ->
-                boardViewModel.createBoardList(name)
+                boardViewModel.createTaskList(name)
             }
         )
     }
 
-    private fun buildCreateTaskDialog(boardList: BoardList) {
+    private fun buildCreateTaskDialog(taskList: TaskList) {
         buildAlertDialog(
             dialogTitle = "Create task",
             editTextHint = "Enter a new task name",
             createCallback = { name ->
-                boardViewModel.createTask(name, boardList)
+                boardViewModel.createTask(name, taskList)
             }
         )
     }
@@ -323,8 +322,8 @@ class BoardFragment : BaseFragment(), StateHandler {
 
     override fun processState(state: ViewState) {
         with(state as ViewState.BoardViewState) {
-            boardListsAdapter?.lists = lists.sortedBy { it.position }
-            boardListsAdapter?.boardTags = board.tags
+            taskListsAdapter?.lists = lists.sortedBy { it.position }
+            taskListsAdapter?.boardTags = board.tags
             binding.loading.root.isVisible = isLoading
 
             message?.let {
@@ -340,7 +339,7 @@ class BoardFragment : BaseFragment(), StateHandler {
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
-        boardListsAdapter = null
+        taskListsAdapter = null
     }
 
     override fun onDestroy() {

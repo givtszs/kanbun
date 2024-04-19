@@ -1,4 +1,4 @@
-package com.example.kanbun.ui.board.board_list
+package com.example.kanbun.ui.board.task_list
 
 import android.app.AlertDialog
 import android.os.Bundle
@@ -10,30 +10,30 @@ import android.widget.LinearLayout
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.viewModels
 import com.example.kanbun.R
-import com.example.kanbun.databinding.BoardListMenuDialogBinding
-import com.example.kanbun.domain.model.BoardList
+import com.example.kanbun.databinding.TaskListMenuDialogBinding
+import com.example.kanbun.domain.model.TaskList
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
-class BoardListMenuDialog : BottomSheetDialogFragment() {
-    private var _binding: BoardListMenuDialogBinding? = null
-    private val binding: BoardListMenuDialogBinding get() = _binding!!
-    private val viewModel: BoardListViewModel by viewModels()
-    private lateinit var boardList: BoardList
-    private lateinit var boardLists: List<BoardList>
+class TaskListMenuDialog : BottomSheetDialogFragment() {
+    private var _binding: TaskListMenuDialogBinding? = null
+    private val binding: TaskListMenuDialogBinding get() = _binding!!
+    private val viewModel: TaskListViewModel by viewModels()
+    private lateinit var taskList: TaskList
+    private lateinit var taskLists: List<TaskList>
     private var areOptionsEnabled: Boolean = false
 
     companion object {
         fun init(
-            boardList: BoardList,
-            boardLists: List<BoardList>,
+            taskList: TaskList,
+            taskLists: List<TaskList>,
             areOptionsEnabled: Boolean
-        ): BoardListMenuDialog {
-            return BoardListMenuDialog().apply {
-                this.boardList = boardList
-                this.boardLists = boardLists
+        ): TaskListMenuDialog {
+            return TaskListMenuDialog().apply {
+                this.taskList = taskList
+                this.taskLists = taskLists
                 this.areOptionsEnabled = areOptionsEnabled
             }
         }
@@ -44,7 +44,7 @@ class BoardListMenuDialog : BottomSheetDialogFragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        _binding = BoardListMenuDialogBinding.inflate(inflater, container, false)
+        _binding = TaskListMenuDialogBinding.inflate(inflater, container, false)
         return binding.root
     }
 
@@ -54,7 +54,7 @@ class BoardListMenuDialog : BottomSheetDialogFragment() {
         binding.apply {
             btnDelete.isEnabled = areOptionsEnabled
             btnDelete.setOnClickListener {
-                viewModel.deleteBoardList(boardList, boardLists) { dismiss() }
+                viewModel.deleteTaskList(taskList, taskLists) { dismiss() }
             }
 
             btnEditName.isEnabled = areOptionsEnabled
@@ -66,7 +66,7 @@ class BoardListMenuDialog : BottomSheetDialogFragment() {
 
     private fun buildEditNameDialog() {
         val editTextName = EditText(requireContext()).apply {
-            setText(boardList.name)
+            setText(taskList.name)
             hint = "Enter list's name"
 
             // Create layout parameters
@@ -88,12 +88,12 @@ class BoardListMenuDialog : BottomSheetDialogFragment() {
             .setTitle("Edit list's name")
             .setView(editTextName)
             .setPositiveButton("Save") { _, _ ->
-                viewModel.editBoardListName(
+                viewModel.editTaskListName(
                     newName = editTextName.text.trim().toString(),
-                    boardListPath = boardList.path,
-                    boardListId = boardList.id
+                    taskListPath = taskList.path,
+                    taskListId = taskList.id
                 ) {
-                    this@BoardListMenuDialog.dismiss()
+                    this@TaskListMenuDialog.dismiss()
                 }
             }
             .setNegativeButton("Cancel") { _, _ ->

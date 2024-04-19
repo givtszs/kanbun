@@ -1,4 +1,4 @@
-package com.example.kanbun.ui.board.board_list
+package com.example.kanbun.ui.board.task_list
 
 import android.content.ClipData
 import android.content.ClipDescription
@@ -8,10 +8,11 @@ import android.view.DragEvent
 import android.view.View
 import android.view.View.DragShadowBuilder
 import androidx.recyclerview.widget.RecyclerView
+import com.example.kanbun.common.TAG
 import com.example.kanbun.common.moshi
-import com.example.kanbun.databinding.ItemBoardListBinding
-import com.example.kanbun.domain.model.BoardList
-import com.example.kanbun.domain.model.BoardListInfo
+import com.example.kanbun.databinding.ItemTaskListBinding
+import com.example.kanbun.domain.model.TaskList
+import com.example.kanbun.domain.model.TaskListInfo
 import com.example.kanbun.ui.board.TaskDropCallbacks
 import com.example.kanbun.ui.board.tasks_adapter.TasksAdapter
 import com.example.kanbun.ui.model.DragAndDropListItem
@@ -20,13 +21,13 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-class ItemBoardListViewHolder(
+class ItemTaskListViewHolder(
     coroutineScope: CoroutineScope,
     isWorkspaceAdminOrBoardMember: Boolean,
     taskDropCallbacks: TaskDropCallbacks,
-    val binding: ItemBoardListBinding,
-    private val boardListAdapter: BoardListsAdapter,
-    private val callbacks: BoardListViewHolderCallbacks
+    val binding: ItemTaskListBinding,
+    private val taskListsAdapter: TaskListsAdapter,
+    private val callbacks: TaskListViewHolderCallbacks
 ) : RecyclerView.ViewHolder(binding.root) {
 
     companion object {
@@ -37,7 +38,7 @@ class ItemBoardListViewHolder(
         private var scrollJob: Job? = null
         private lateinit var coroutineScope: CoroutineScope
 
-        fun scrollTasksRecyclerView(binding: ItemBoardListBinding, scrollDistance: Int) {
+        fun scrollTasksRecyclerView(binding: ItemTaskListBinding, scrollDistance: Int) {
             scrollJob = coroutineScope.launch {
                 while (true) {
                     binding.rvTasks.scrollBy(0, scrollDistance)
@@ -48,10 +49,10 @@ class ItemBoardListViewHolder(
     }
 
     private val tasksAdapter: TasksAdapter
-    private var boardList: BoardList? = null
+    private var taskList: TaskList? = null
 
     init {
-        ItemBoardListViewHolder.coroutineScope = coroutineScope
+        ItemTaskListViewHolder.coroutineScope = coroutineScope
 
         binding.btnCreateTask.isEnabled = isWorkspaceAdminOrBoardMember
         binding.btnCreateTask.setOnClickListener {
@@ -65,10 +66,10 @@ class ItemBoardListViewHolder(
         tasksAdapter = TasksAdapter(
             taskDropCallbacks = taskDropCallbacks,
             onTaskClicked = { task ->
-                callbacks.onTaskClicked(task, boardList!!)
+                callbacks.onTaskClicked(task, taskList!!)
             },
             loadTaskTags = { tagIds ->
-                boardListAdapter.boardTags.filter { tag -> tag.id in tagIds }
+                taskListsAdapter.boardTags.filter { tag -> tag.id in tagIds }
             }
         )
 
@@ -94,7 +95,7 @@ class ItemBoardListViewHolder(
         // starts the drag and drop action
         if (isWorkspaceAdminOrBoardMember) {
             binding.tvListName.setOnLongClickListener { view ->
-                ListDragAndDropHelper.currentAdapter = boardListAdapter
+                ListDragAndDropHelper.currentAdapter = taskListsAdapter
                 ListDragAndDropHelper.startListDragging(
                     view = view,
                     position = adapterPosition,
@@ -115,7 +116,7 @@ class ItemBoardListViewHolder(
         }
     }
 
-    fun bind(list: BoardList) {
+    fun bind(list: TaskList) {
         binding.apply {
             tvListName.text = list.name
         }
@@ -123,18 +124,18 @@ class ItemBoardListViewHolder(
         Log.d("TasksAdapter", "bind:\ttasks: ${list.tasks}")
 
         tasksAdapter.setData(list.tasks)
-        tasksAdapter.listInfo = BoardListInfo(list.id, list.path)
+        tasksAdapter.listInfo = TaskListInfo(list.id, list.path)
 
-        boardList = list
+        taskList = list
     }
 
     private object ListDragAndDropHelper {
 
         const val VERTICAL_SCROLL_DISTANCE = 5
-        lateinit var currentAdapter: BoardListsAdapter
+        lateinit var currentAdapter: TaskListsAdapter
 
         fun rvScrollerDragListener(
-            binding: ItemBoardListBinding,
+            binding: ItemTaskListBinding,
             scrollDistance: Int
         ): View.OnDragListener {
             return View.OnDragListener { _, event ->
@@ -163,7 +164,7 @@ class ItemBoardListViewHolder(
             }
         }
 
-        fun startListDragging(view: View, position: Int, binding: ItemBoardListBinding): Boolean {
+        fun startListDragging(view: View, position: Int, binding: ItemTaskListBinding): Boolean {
             oldPosition = position
             isActionDragEndedHandled = false
 
@@ -177,7 +178,7 @@ class ItemBoardListViewHolder(
                 arrayOf(ClipDescription.MIMETYPE_TEXT_HTML),
                 item
             )
-            val boardListShadow = object : DragShadowBuilder(binding.listCard) {
+            val taskListShadow = object : DragShadowBuilder(binding.listCard) {
                 override fun onProvideShadowMetrics(
                     outShadowSize: Point?,
                     outShadowTouchPoint: Point?
@@ -190,7 +191,7 @@ class ItemBoardListViewHolder(
             }
             val isStartSuccess = view.startDragAndDrop(
                 clipData,
-                boardListShadow,
+                taskListShadow,
                 binding.listCard,
                 0
             )
@@ -208,7 +209,7 @@ class ItemBoardListViewHolder(
         fun handleDragEvent(view: View, event: DragEvent, position: Int): Boolean {
             return when (event.action) {
                 DragEvent.ACTION_DRAG_STARTED -> {
-                    Log.d("ItemBoardListViewHolder", "ACTION_DRAG_STARTED")
+                    Log.d(TAG, "ACTION_DRAG_STARTED")
                     event.clipDescription.hasMimeType(ClipDescription.MIMETYPE_TEXT_HTML)
                 }
 
@@ -222,14 +223,14 @@ class ItemBoardListViewHolder(
                         isMoveRight = false
                         val newPos =
                             if (position < oldPosition) position else position - 1
-                        Log.d("ItemBoardListViewHolder", "ACTION_DRAG_LOCATION: newPos: $newPos")
+                        Log.d(TAG, "ACTION_DRAG_LOCATION: newPos: $newPos")
                         currentAdapter.move(oldPosition, newPos)
                     } else if (event.x > rightPivot && !isMoveRight) {
                         isMoveRight = true
                         isMoveLeft = false
                         val newPos =
                             if (position < oldPosition) position + 1 else position
-                        Log.d("ItemBoardListViewHolder", "ACTION_DRAG_LOCATION: newPos: $newPos")
+                        Log.d(TAG, "ACTION_DRAG_LOCATION: newPos: $newPos")
                         currentAdapter.move(oldPosition, newPos)
                     }
 
@@ -243,8 +244,8 @@ class ItemBoardListViewHolder(
                 }
 
                 DragEvent.ACTION_DROP -> {
-                    Log.d("ItemBoardListViewHolder", "ACTION_DROP")
-                    currentAdapter.boardListDropCallback.drop(
+                    Log.d(TAG, "ACTION_DROP")
+                    currentAdapter.taskListDropCallback.drop(
                         clipData = event.clipData,
                         adapter = currentAdapter,
                         position = oldPosition
@@ -263,11 +264,11 @@ class ItemBoardListViewHolder(
                     event.clipDescription.hasMimeType(ClipDescription.MIMETYPE_TEXT_HTML)
 
                 DragEvent.ACTION_DROP -> {
-                    Log.d("ItemBoardListViewHolder", "MaterialCard#ACTION_DROP")
-                    currentAdapter.boardListDropCallback.drop(
+                    Log.d(TAG, "MaterialCard#ACTION_DROP")
+                    currentAdapter.taskListDropCallback.drop(
                         clipData = event.clipData,
                         adapter = currentAdapter,
-                        position = ItemBoardListViewHolder.oldPosition
+                        position = ItemTaskListViewHolder.oldPosition
                     )
                     true
                 }
@@ -277,7 +278,7 @@ class ItemBoardListViewHolder(
                         draggableView.visibility = View.VISIBLE
                         if (!event.result) {
                             Log.d(
-                                "ItemBoardListViewHolder",
+                                TAG,
                                 "MaterialCard#ACTION_DRAG_ENDED: event.result: ${event.result}"
                             )
                             // reset items position if dragging failed

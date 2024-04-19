@@ -1,6 +1,6 @@
 package com.example.kanbun.data.model
 
-data class FirestoreBoardList(
+data class FirestoreTaskList(
     val name: String = "",
     val position: Long = 0,
     val path: String = "",

@@ -1,26 +1,26 @@
-package com.example.kanbun.ui.board.board_list
+package com.example.kanbun.ui.board.task_list
 
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.example.kanbun.common.Role
-import com.example.kanbun.databinding.ItemBoardListBinding
-import com.example.kanbun.databinding.ItemCreateBoardListBinding
-import com.example.kanbun.domain.model.BoardList
+import com.example.kanbun.databinding.ItemCreateTaskListBinding
+import com.example.kanbun.databinding.ItemTaskListBinding
 import com.example.kanbun.domain.model.Tag
 import com.example.kanbun.domain.model.Task
+import com.example.kanbun.domain.model.TaskList
 import com.example.kanbun.ui.board.BoardFragment
 import com.example.kanbun.ui.board.DropCallback
 import com.example.kanbun.ui.board.TaskDropCallbacks
 import com.example.kanbun.ui.user_boards.UserBoardsFragment
 import kotlinx.coroutines.CoroutineScope
 
-class BoardListsAdapter(
+class TaskListsAdapter(
     private val coroutineScope: CoroutineScope,
     private val taskDropCallbacks: TaskDropCallbacks,
-    val boardListDropCallback: DropCallback,
-    private val callbacks: BoardListsAdapterCallbacks,
+    val taskListDropCallback: DropCallback,
+    private val callbacks: TaskListsAdapterCallbacks,
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     companion object {
@@ -35,7 +35,7 @@ class BoardListsAdapter(
             }
         }
 
-    var lists: List<BoardList> = emptyList()
+    var lists: List<TaskList> = emptyList()
         set(value) {
             if (field != value) {
                 field = value
@@ -48,8 +48,8 @@ class BoardListsAdapter(
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return when (viewType) {
-            VIEW_TYPE_BOARD_LIST -> ItemBoardListViewHolder(
-                binding = ItemBoardListBinding.inflate(
+            VIEW_TYPE_BOARD_LIST -> ItemTaskListViewHolder(
+                binding = ItemTaskListBinding.inflate(
                     LayoutInflater.from(parent.context),
                     parent,
                     false
@@ -57,18 +57,18 @@ class BoardListsAdapter(
                 isWorkspaceAdminOrBoardMember = isWorkspaceAdminOrBoardMember,
                 coroutineScope = coroutineScope,
                 taskDropCallbacks = taskDropCallbacks,
-                boardListAdapter = this@BoardListsAdapter,
-                callbacks = object : BoardListViewHolderCallbacks {
+                taskListsAdapter = this@TaskListsAdapter,
+                callbacks = object : TaskListViewHolderCallbacks {
                     override fun createTask(position: Int) {
                         callbacks.createTask(lists[position])
                     }
 
-                    override fun onTaskClicked(task: Task, boardList: BoardList) {
-                        callbacks.onTaskClicked(task, boardList)
+                    override fun onTaskClicked(task: Task, taskList: TaskList) {
+                        callbacks.onTaskClicked(task, taskList)
                     }
 
                     override fun openMenu(position: Int) {
-                        callbacks.onBoardListMenuClicked(
+                        callbacks.onTaskListMenuClicked(
                             lists[position],
                             lists,
                             isWorkspaceAdminOrBoardMember
@@ -77,15 +77,15 @@ class BoardListsAdapter(
                 }
             )
 
-            VIEW_TYPE_CREATE_LIST -> ItemCreateBoardListViewHolder(
-                binding = ItemCreateBoardListBinding.inflate(
+            VIEW_TYPE_CREATE_LIST -> ItemCreateTaskListViewHolder(
+                binding = ItemCreateTaskListBinding.inflate(
                     LayoutInflater.from(parent.context),
                     parent,
                     false
                 ),
                 isWorkspaceAdminOrBoardMember = isWorkspaceAdminOrBoardMember
             ) {
-                callbacks.createBoardList()
+                callbacks.createTaskList()
             }
 
             else -> throw IllegalArgumentException("Invalid view type")
@@ -95,13 +95,13 @@ class BoardListsAdapter(
     fun move(from: Int, to: Int) {
         if (from != to && to != -1) {
             notifyItemMoved(from, to)
-            ItemBoardListViewHolder.oldPosition = to
-            Log.d("ItemBoardListViewHolder", "Move from $from to $to")
+            ItemTaskListViewHolder.oldPosition = to
+            Log.d("ItemTaskListViewHolder", "Move from $from to $to")
         }
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        if (holder is ItemBoardListViewHolder) {
+        if (holder is ItemTaskListViewHolder) {
             holder.bind(lists[position])
         }
     }

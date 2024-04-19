@@ -1,10 +1,10 @@
-package com.example.kanbun.ui.board.board_list
+package com.example.kanbun.ui.board.task_list
 
 import androidx.recyclerview.widget.RecyclerView
-import com.example.kanbun.databinding.ItemCreateBoardListBinding
+import com.example.kanbun.databinding.ItemCreateTaskListBinding
 
-class ItemCreateBoardListViewHolder(
-    binding: ItemCreateBoardListBinding,
+class ItemCreateTaskListViewHolder(
+    binding: ItemCreateTaskListBinding,
     isWorkspaceAdminOrBoardMember: Boolean,
     private val onClickListener: () -> Unit
 ) : RecyclerView.ViewHolder(binding.root) {

@@ -1,14 +1,9 @@
 package com.example.kanbun.domain.repository
 
 import com.example.kanbun.common.Result
-import com.example.kanbun.domain.model.Board
-import com.example.kanbun.domain.model.BoardList
 import com.example.kanbun.domain.model.Tag
 import com.example.kanbun.domain.model.Task
-import com.example.kanbun.domain.model.User
-import com.example.kanbun.domain.model.Workspace
 import com.google.firebase.functions.HttpsCallableResult
-import kotlinx.coroutines.flow.Flow
 
 /**
  * Interface defining methods for Firestore interactions related to user data.

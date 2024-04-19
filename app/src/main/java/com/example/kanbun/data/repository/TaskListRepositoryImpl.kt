@@ -6,12 +6,12 @@ import com.example.kanbun.common.Result
 import com.example.kanbun.common.TAG
 import com.example.kanbun.common.getResult
 import com.example.kanbun.common.runCatching
-import com.example.kanbun.common.toBoardList
-import com.example.kanbun.common.toFirestoreBoardList
-import com.example.kanbun.data.model.FirestoreBoardList
+import com.example.kanbun.common.toTaskList
+import com.example.kanbun.common.toFirestoreTaskList
+import com.example.kanbun.data.model.FirestoreTaskList
 import com.example.kanbun.di.IoDispatcher
 import com.example.kanbun.domain.model.Board
-import com.example.kanbun.domain.model.BoardList
+import com.example.kanbun.domain.model.TaskList
 import com.example.kanbun.domain.repository.TaskListRepository
 import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.FieldValue
@@ -29,39 +29,39 @@ class TaskListRepositoryImpl @Inject constructor(
 ) : TaskListRepository {
 
     override suspend fun createTaskList(
-        taskList: BoardList,
+        taskList: TaskList,
         board: Board
     ): Result<Unit> = runCatching {
         withContext(dispatcher) {
             firestore.collection(FirestoreCollection.WORKSPACES).document(board.workspace.id)
                 .collection(FirestoreCollection.BOARDS).document(board.id)
                 .collection(FirestoreCollection.TASK_LISTS)
-                .add(taskList.toFirestoreBoardList())
+                .add(taskList.toFirestoreTaskList())
                 .getResult {
                     addTaskListToBoard(board, result.id)
                 }
         }
     }
 
-    private fun addTaskListToBoard(board: Board, boardListId: String) {
+    private fun addTaskListToBoard(board: Board, taskListId: String) {
         firestore.collection(FirestoreCollection.WORKSPACES).document(board.workspace.id)
             .collection(FirestoreCollection.BOARDS)
             .document(board.id)
-            .update("lists", board.lists + boardListId)
+            .update("lists", board.lists + taskListId)
     }
 
     override suspend fun getTaskList(
         taskListPath: String,
         taskListId: String
-    ): Result<BoardList> = runCatching {
+    ): Result<TaskList> = runCatching {
         withContext(dispatcher) {
             firestore.collection(taskListPath)
                 .document(taskListId)
                 .get()
                 .getResult {
-                    result.toObject(FirestoreBoardList::class.java)
-                        ?.toBoardList(taskListId, taskListPath)
-                        ?: throw NullPointerException("Couldn't convert FirestoreBoardList to BoardList since the value is null")
+                    result.toObject(FirestoreTaskList::class.java)
+                        ?.toTaskList(taskListId, taskListPath)
+                        ?: throw NullPointerException("Couldn't convert FirestoreTaskList to TaskList since the value is null")
                 }
         }
     }
@@ -69,8 +69,8 @@ class TaskListRepositoryImpl @Inject constructor(
     override fun getTaskListStream(
         boardId: String,
         workspaceId: String
-    ): Flow<Result<List<BoardList>>> = callbackFlow {
-        Log.d(TAG, "getBoardListsStream is called")
+    ): Flow<Result<List<TaskList>>> = callbackFlow {
+        Log.d(TAG, "getTaskListsStream is called")
         val workspacePath =
             "${FirestoreCollection.WORKSPACES}/$workspaceId"
         val boardPath = "${FirestoreCollection.BOARDS}/$boardId"
@@ -80,14 +80,14 @@ class TaskListRepositoryImpl @Inject constructor(
             .collection(FirestoreCollection.TASK_LISTS)
             .addSnapshotListener { querySnapshot, error ->
                 querySnapshot?.let {
-                    val boardLists = it.documents.map { docSnapshot ->
-                        val boardList = docSnapshot.toObject(FirestoreBoardList::class.java)
-                            ?.toBoardList(docSnapshot.id, path)
-                            ?: throw NullPointerException("Couldn't convert FirestoreBoardList to BoardList since the value is null")
-                        boardList
+                    val taskLists = it.documents.map { docSnapshot ->
+                        val taskList = docSnapshot.toObject(FirestoreTaskList::class.java)
+                            ?.toTaskList(docSnapshot.id, path)
+                            ?: throw NullPointerException("Couldn't convert FirestoreTaskList to TaskList since the value is null")
+                        taskList
                     }.reversed()
-                    Log.d(TAG, "getBoardListsFlow#boardLists: $boardLists")
-                    trySend(Result.Success(boardLists))
+                    Log.d(TAG, "getTaskListsFlow#taskLists: $taskLists")
+                    trySend(Result.Success(taskLists))
                 }
             }
 
@@ -111,7 +111,7 @@ class TaskListRepositoryImpl @Inject constructor(
     override suspend fun deleteTaskListAndRearrange(
         id: String,
         path: String,
-        taskLists: List<BoardList>,
+        taskLists: List<TaskList>,
         deleteAt: Int
     ): Result<Unit> = runCatching {
         withContext(dispatcher) {
@@ -132,18 +132,18 @@ class TaskListRepositoryImpl @Inject constructor(
         }
     }
 
-    private fun deleteTaskListFromBoard(boardListPath: String, boardListId: String) {
-        val boardRef = boardListPath.substringBefore("/lists")
+    private fun deleteTaskListFromBoard(taskListPath: String, taskListId: String) {
+        val boardRef = taskListPath.substringBefore("/lists")
         val boardPath = boardRef.substringBeforeLast("/")
         val boardId = boardRef.substringAfterLast("/")
         firestore.collection(boardPath)
             .document(boardId)
-            .update("lists", FieldValue.arrayRemove(boardListId))
+            .update("lists", FieldValue.arrayRemove(taskListId))
     }
 
     override suspend fun rearrangeTaskLists(
         taskListPath: String,
-        taskLists: List<BoardList>,
+        taskLists: List<TaskList>,
         from: Int,
         to: Int
     ): Result<Unit> = runCatching {
@@ -172,7 +172,7 @@ class TaskListRepositoryImpl @Inject constructor(
         newPosition: Long
     ) {
         Log.d(
-            "ItemBoardListViewHolder", "FirestoreRepository#updateBoardListPosition: " +
+            "ItemTaskListViewHolder", "FirestoreRepository#updateTaskListPosition: " +
                     "docId: $documentId, newPos: $newPosition"
         )
         collectionReference.document(documentId)

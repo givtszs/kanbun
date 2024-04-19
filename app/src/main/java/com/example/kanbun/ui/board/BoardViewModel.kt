@@ -7,7 +7,7 @@ import com.example.kanbun.common.FirestoreCollection
 import com.example.kanbun.common.Result
 import com.example.kanbun.common.TAG
 import com.example.kanbun.domain.model.Board
-import com.example.kanbun.domain.model.BoardList
+import com.example.kanbun.domain.model.TaskList
 import com.example.kanbun.domain.model.Task
 import com.example.kanbun.domain.model.User
 import com.example.kanbun.domain.repository.BoardRepository
@@ -37,25 +37,25 @@ class BoardViewModel @Inject constructor(
 ) : ViewModel() {
 
     private val _board = MutableStateFlow(Board())
-    private var _boardLists = MutableStateFlow<List<BoardList>>(emptyList())
+    private var _taskLists = MutableStateFlow<List<TaskList>>(emptyList())
     private var _members = MutableStateFlow<List<User>>(emptyList())
     private val _isLoading = MutableStateFlow(true)
     private val _message = MutableStateFlow<String?>(null)
     val boardState: StateFlow<BoardViewState> =
         combine(
             _board,
-            _boardLists,
+            _taskLists,
             _members,
             _isLoading,
             _message
-        ) { board, boardLists, members, isLoading, message ->
+        ) { board, taskLists, members, isLoading, message ->
             Log.d(
                 TAG,
-                "boardState#board: $board,\nboardLists: $boardLists,\n members: $members,\nisLoading: $isLoading,\nmessage: $message"
+                "boardState#board: $board,\ntaskLists: $taskLists,\n members: $members,\nisLoading: $isLoading,\nmessage: $message"
             )
             BoardViewState(
                 board = board,
-                lists = boardLists,
+                lists = taskLists,
                 members = members,
                 isLoading = isLoading,
                 message = message
@@ -72,7 +72,7 @@ class BoardViewModel @Inject constructor(
                         // should be called only once since board ID should be empty only during the creation of the initial state
                         if (_board.value.id.isEmpty()) {
                             onSuccess(board)
-                            getBoardLists(board.id, board.workspace.id)
+                            getTaskLists(board.id, board.workspace.id)
                         }
 
                         if (board.members != _board.value.members) {
@@ -102,20 +102,20 @@ class BoardViewModel @Inject constructor(
         }
     }
 
-    private fun getBoardLists(boardId: String, workspaceId: String) {
+    private fun getTaskLists(boardId: String, workspaceId: String) {
         viewModelScope.launch {
             val taskListsFlow =
                 taskListRepository.getTaskListStream(boardId, workspaceId)
             taskListsFlow.collectLatest { result ->
-                Log.d(TAG, "getBoardLists: result: $result")
+                Log.d(TAG, "getTaskLists: result: $result")
                 when (result) {
                     is Result.Success -> {
-                        if (_boardLists.value != result.data) {
+                        if (_taskLists.value != result.data) {
                             _board.update {
-                                it.copy(lists = result.data.map { boardList -> boardList.id })
+                                it.copy(lists = result.data.map { taskList -> taskList.id })
                             }
                         }
-                        _boardLists.value = result.data
+                        _taskLists.value = result.data
                         _isLoading.value = false
                     }
 
@@ -136,10 +136,10 @@ class BoardViewModel @Inject constructor(
         _isLoading.value = false
     }
 
-    fun createBoardList(listName: String) = viewModelScope.launch {
+    fun createTaskList(listName: String) = viewModelScope.launch {
         val board = _board.value
         taskListRepository.createTaskList(
-            taskList = BoardList(
+            taskList = TaskList(
                 name = listName,
                 position = _board.value.lists.size.toLong(),
                 path = "${FirestoreCollection.WORKSPACES}/${board.workspace.id}" +
@@ -151,9 +151,9 @@ class BoardViewModel @Inject constructor(
     }
 
     // TODO: Remove if not used
-    fun createTask(name: String, boardList: BoardList) = viewModelScope.launch {
+    fun createTask(name: String, taskList: TaskList) = viewModelScope.launch {
         val task = Task(
-            position = boardList.tasks.size.toLong(),
+            position = taskList.tasks.size.toLong(),
             name = name,
             author = when (val result = userRepository.getUser(_board.value.owner)) {
                 is Result.Success -> result.data.name!!
@@ -166,7 +166,7 @@ class BoardViewModel @Inject constructor(
 
 //        firestoreRepository.createTask(
 //            task = task,
-//            listId = boardList.id,
+//            listId = taskList.id,
 //            boardId = _board.value.id,
 //            workspaceId = _board.value.settings.workspace.id
 //        )
@@ -194,8 +194,8 @@ class BoardViewModel @Inject constructor(
             "Deleting task in adapter $adapter at position ${dragItem.initPosition} from tasks $tasksRemoveStr"
         )
         val deleteResult = firestoreRepository.deleteTaskAndRearrange(
-            dragItem.initBoardList.path,
-            dragItem.initBoardList.id,
+            dragItem.initTaskList.path,
+            dragItem.initTaskList.id,
             dragItem.initTasksList,
             dragItem.initPosition
         )
@@ -224,7 +224,7 @@ class BoardViewModel @Inject constructor(
     }
 
     fun rearrangeLists(
-        boardLists: List<BoardList>,
+        taskLists: List<TaskList>,
         from: Int,
         to: Int
     ) = viewModelScope.launch {
@@ -237,7 +237,7 @@ class BoardViewModel @Inject constructor(
                 "$workspacePath/$boardPath/${FirestoreCollection.TASK_LISTS}"
             taskListRepository.rearrangeTaskLists(
                 listsPath,
-                boardLists,
+                taskLists,
                 from,
                 to
             )

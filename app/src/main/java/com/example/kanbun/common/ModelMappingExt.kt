@@ -1,13 +1,13 @@
 package com.example.kanbun.common
 
 import com.example.kanbun.data.model.FirestoreBoard
-import com.example.kanbun.data.model.FirestoreBoardList
+import com.example.kanbun.data.model.FirestoreTaskList
 import com.example.kanbun.data.model.FirestoreTag
 import com.example.kanbun.data.model.FirestoreTask
 import com.example.kanbun.data.model.FirestoreUser
 import com.example.kanbun.data.model.FirestoreWorkspace
 import com.example.kanbun.domain.model.Board
-import com.example.kanbun.domain.model.BoardList
+import com.example.kanbun.domain.model.TaskList
 import com.example.kanbun.domain.model.Tag
 import com.example.kanbun.domain.model.Task
 import com.example.kanbun.domain.model.User
@@ -171,8 +171,8 @@ fun Map<String, FirestoreTag>.toTags(): List<Tag> =
         entry.value.toTag(entry.key)
     }
 
-fun BoardList.toFirestoreBoardList(): FirestoreBoardList =
-    FirestoreBoardList(
+fun TaskList.toFirestoreTaskList(): FirestoreTaskList =
+    FirestoreTaskList(
         name = name,
         position = position,
         path = path,
@@ -181,12 +181,12 @@ fun BoardList.toFirestoreBoardList(): FirestoreBoardList =
         }
     )
 
-fun FirestoreBoardList.toBoardList(boardListId: String, boardListPath: String): BoardList =
-    BoardList(
-        id = boardListId,
+fun FirestoreTaskList.toTaskList(taskListId: String, taskListPath: String): TaskList =
+    TaskList(
+        id = taskListId,
         name = name,
         position = position,
-        path = boardListPath,
+        path = taskListPath,
         tasks = tasks
             .map { entry ->
                 entry.value.toTask(entry.key)

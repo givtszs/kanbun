@@ -8,7 +8,7 @@ import com.example.kanbun.common.Role
 import com.example.kanbun.databinding.ItemTaskBinding
 import com.example.kanbun.domain.model.Task
 import com.example.kanbun.ui.board.TaskDropCallbacks
-import com.example.kanbun.domain.model.BoardListInfo
+import com.example.kanbun.domain.model.TaskListInfo
 import com.example.kanbun.domain.model.Tag
 import com.example.kanbun.ui.board.BoardFragment
 import com.example.kanbun.ui.user_boards.UserBoardsFragment
@@ -28,7 +28,7 @@ class TasksAdapter(
     var tasks: MutableList<Task> = mutableListOf()
         private set
 
-    lateinit var listInfo: BoardListInfo
+    lateinit var listInfo: TaskListInfo
 
     private val isWorkspaceAdminOrBoardMember get() =
         UserBoardsFragment.userRole == Role.Workspace.Admin || BoardFragment.isBoardMember

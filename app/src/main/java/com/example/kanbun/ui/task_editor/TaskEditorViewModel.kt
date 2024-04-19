@@ -5,7 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.kanbun.common.FirestoreCollection
 import com.example.kanbun.common.Result
-import com.example.kanbun.domain.model.BoardListInfo
+import com.example.kanbun.domain.model.TaskListInfo
 import com.example.kanbun.domain.model.Tag
 import com.example.kanbun.domain.model.Task
 import com.example.kanbun.domain.model.User
@@ -78,10 +78,10 @@ open class TaskEditorViewModel @Inject constructor(
         _message.value = null
     }
 
-    fun createTag(tag: Tag, boardListInfo: BoardListInfo, onSuccess: (Tag) -> Unit) {
+    fun createTag(tag: Tag, taskListInfo: TaskListInfo, onSuccess: (Tag) -> Unit) {
         viewModelScope.launch {
             val boardRef =
-                boardListInfo.path.substringBefore("/${FirestoreCollection.TASK_LISTS}")
+                taskListInfo.path.substringBefore("/${FirestoreCollection.TASK_LISTS}")
 
             when (
                 val result = upsertTagUseCase(

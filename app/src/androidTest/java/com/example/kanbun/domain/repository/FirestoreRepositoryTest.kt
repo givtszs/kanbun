@@ -2,11 +2,10 @@ package com.example.kanbun.domain.repository
 
 import com.example.kanbun.common.FirestoreCollection
 import com.example.kanbun.common.Result
-import com.example.kanbun.common.Role
 import com.example.kanbun.data.repository.FirestoreRepositoryImpl
 import com.example.kanbun.domain.FirestoreTestUtil
 import com.example.kanbun.domain.model.Board
-import com.example.kanbun.domain.model.BoardList
+import com.example.kanbun.domain.model.TaskList
 import com.example.kanbun.domain.model.Tag
 import com.example.kanbun.domain.model.Task
 import com.example.kanbun.domain.model.User
@@ -14,7 +13,6 @@ import com.example.kanbun.domain.model.Workspace
 import com.example.kanbun.domain.model.WorkspaceInfo
 import com.example.kanbun.isResultError
 import com.example.kanbun.isResultSuccess
-import com.google.common.truth.Subject
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
@@ -996,7 +994,7 @@ class FirestoreRepositoryTest {
         name: String,
         position: Int,
         board: Board
-    ): BoardList {
+    ): TaskList {
         return FirestoreTestUtil.createBoardList(name, position).run {
             repository.createBoardList(this, board)
             val boardUpd =
@@ -1008,16 +1006,16 @@ class FirestoreRepositoryTest {
         }
     }
 
-    private suspend fun createBoardList(name: String, position: Int): BoardList {
+    private suspend fun createBoardList(name: String, position: Int): TaskList {
         val board = createBoard("board1")
         return createBoardList(name, position, board)
     }
 
-    private suspend fun createTask(name: String, position: Long, boardList: BoardList): Task {
+    private suspend fun createTask(name: String, position: Long, taskList: TaskList): Task {
         return FirestoreTestUtil.createTask(name, position).run {
-            repository.createTask(this, boardList.id, boardList.path)
+            repository.createTask(this, taskList.id, taskList.path)
             val boardListUpd =
-                (repository.getBoardList(boardList.path, boardList.id) as Result.Success).data
+                (repository.getBoardList(taskList.path, taskList.id) as Result.Success).data
             boardListUpd.tasks.first { it.position == position }
         }
     }

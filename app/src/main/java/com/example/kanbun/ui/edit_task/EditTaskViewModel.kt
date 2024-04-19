@@ -3,7 +3,7 @@ package com.example.kanbun.ui.edit_task
 import android.util.Log
 import androidx.lifecycle.viewModelScope
 import com.example.kanbun.common.Result
-import com.example.kanbun.domain.model.BoardListInfo
+import com.example.kanbun.domain.model.TaskListInfo
 import com.example.kanbun.domain.model.Task
 import com.example.kanbun.domain.repository.FirestoreRepository
 import com.example.kanbun.domain.usecase.UpsertTagUseCase
@@ -22,7 +22,7 @@ class EditTaskViewModel @Inject constructor(
         private const val TAG = "EditTaskViewModel"
     }
 
-    fun editTask(oldTask: Task, updatedTask: Task, boardListInfo: BoardListInfo, onSuccessCallback: () -> Unit) =
+    fun editTask(oldTask: Task, updatedTask: Task, taskListInfo: TaskListInfo, onSuccessCallback: () -> Unit) =
         viewModelScope.launch {
             Log.d(TAG, "editTask: areTheSame: ${updatedTask == oldTask}\noldTask: $oldTask\nupdatedTask: $updatedTask")
             if (updatedTask == oldTask) {
@@ -35,8 +35,8 @@ class EditTaskViewModel @Inject constructor(
                     val result = firestoreRepository.updateTask(
                         oldTask = oldTask,
                         newTask = updatedTask,
-                        boardListId = boardListInfo.id,
-                        boardListPath = boardListInfo.path
+                        boardListId = taskListInfo.id,
+                        boardListPath = taskListInfo.path
                     )
                 ) {
                     is Result.Success -> {

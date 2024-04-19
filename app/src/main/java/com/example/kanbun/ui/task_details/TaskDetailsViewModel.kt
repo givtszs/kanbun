@@ -6,7 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.kanbun.common.Result
 import com.example.kanbun.common.TAG
-import com.example.kanbun.domain.model.BoardList
+import com.example.kanbun.domain.model.TaskList
 import com.example.kanbun.domain.repository.FirestoreRepository
 import com.example.kanbun.domain.repository.UserRepository
 import com.example.kanbun.ui.ViewState
@@ -56,13 +56,13 @@ class TaskDetailsViewModel @Inject constructor(
         }
     }
 
-    fun deleteTask(taskPosition: Int, boardList: BoardList, navigateOnDelete: () -> Unit) =
+    fun deleteTask(taskPosition: Int, taskList: TaskList, navigateOnDelete: () -> Unit) =
         viewModelScope.launch {
             when (
                 val result = firestoreRepository.deleteTaskAndRearrange(
-                    listPath = boardList.path,
-                    listId = boardList.id,
-                    tasks = boardList.tasks,
+                    listPath = taskList.path,
+                    listId = taskList.id,
+                    tasks = taskList.tasks,
                     from = taskPosition
                 )
             ) {

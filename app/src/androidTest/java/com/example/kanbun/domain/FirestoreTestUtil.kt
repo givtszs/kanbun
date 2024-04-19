@@ -3,7 +3,7 @@ package com.example.kanbun.domain
 import com.example.kanbun.common.AuthProvider
 import com.example.kanbun.common.Role
 import com.example.kanbun.domain.model.Board
-import com.example.kanbun.domain.model.BoardList
+import com.example.kanbun.domain.model.TaskList
 import com.example.kanbun.domain.model.Tag
 import com.example.kanbun.domain.model.Task
 import com.example.kanbun.domain.model.User
@@ -100,8 +100,8 @@ class FirestoreTestUtil {
                 members = listOf(Board.BoardMember(userId, Role.Board.Admin))
             )
 
-        fun createBoardList(name: String, position: Int): BoardList =
-            BoardList(
+        fun createBoardList(name: String, position: Int): TaskList =
+            TaskList(
                 name = name,
                 position = position.toLong(),
                 tasks = emptyList()

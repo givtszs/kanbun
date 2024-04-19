@@ -6,7 +6,7 @@ import android.view.View
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.navArgs
 import com.example.kanbun.R
-import com.example.kanbun.domain.model.BoardList
+import com.example.kanbun.domain.model.TaskList
 import com.example.kanbun.domain.model.Task
 import com.example.kanbun.ui.task_editor.TaskEditorFragment
 import dagger.hilt.android.AndroidEntryPoint
@@ -16,8 +16,8 @@ private const val TAG = "CreateTaskFragment"
 @AndroidEntryPoint
 class CreateTaskFragment : TaskEditorFragment(){
     private val args: CreateTaskFragmentArgs by navArgs()
-    override val boardList: BoardList by lazy {
-        args.boardList
+    override val taskList: TaskList by lazy {
+        args.taskList
     }
     override val task: Task? by lazy {
         args.task
@@ -36,7 +36,7 @@ class CreateTaskFragment : TaskEditorFragment(){
         binding.btnCreateTask.setOnClickListener {
             viewModel.createTask(
                 createTask(),
-                boardList
+                taskList
             ) {
                 navController.popBackStack()
             }

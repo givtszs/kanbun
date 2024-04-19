@@ -208,7 +208,7 @@ class ItemTaskViewHolder(
                     task = task ?: return null,
                     initPosition = draggedTaskInitPosition,
                     initAdapter = adapter.toString(),
-                    initBoardList = adapter.listInfo,
+                    initTaskList = adapter.listInfo,
                     initTasksList = adapter.tasks
                 )
             )

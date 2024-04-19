@@ -116,7 +116,7 @@ class TaskDetailsFragment : BaseFragment(), StateHandler {
             fabEditTask.setOnClickListener {
                 navController.navigate(
                     TaskDetailsFragmentDirections.actionTaskDetailsFragmentToEditTaskFragment(
-                        boardList = args.boardList,
+                        taskList = args.taskList,
                         task = task
                     )
                 )
@@ -185,7 +185,7 @@ class TaskDetailsFragment : BaseFragment(), StateHandler {
                     R.id.menu_item_delete -> {
                         taskDetailsViewModel.deleteTask(
                             taskPosition = args.task.position.toInt(),
-                            boardList = args.boardList,
+                            taskList = args.taskList,
                             navigateOnDelete = { navController.popBackStack() }
                         )
                         true

@@ -134,8 +134,8 @@
                 android:name="task"
                 app:argType="com.example.kanbun.domain.model.Task" />
             <argument
-                android:name="boardList"
-                app:argType="com.example.kanbun.domain.model.BoardList" />
+                android:name="taskList"
+                app:argType="com.example.kanbun.domain.model.TaskList" />
             <action
                 android:id="@+id/action_taskDetailsFragment_to_editTaskFragment"
                 app:destination="@id/editTaskFragment" />
@@ -146,8 +146,8 @@
             android:label=""
             tools:layout="@layout/fragment_task_editor">
             <argument
-                android:name="boardList"
-                app:argType="com.example.kanbun.domain.model.BoardList" />
+                android:name="taskList"
+                app:argType="com.example.kanbun.domain.model.TaskList" />
             <argument
                 android:name="task"
                 app:argType="com.example.kanbun.domain.model.Task"
@@ -163,8 +163,8 @@
                 android:name="task"
                 app:argType="com.example.kanbun.domain.model.Task" />
             <argument
-                android:name="boardList"
-                app:argType="com.example.kanbun.domain.model.BoardList" />
+                android:name="taskList"
+                app:argType="com.example.kanbun.domain.model.TaskList" />
             <action
                 android:id="@+id/action_editTaskFragment_to_taskDetailsFragment"
                 app:destination="@id/taskDetailsFragment"
