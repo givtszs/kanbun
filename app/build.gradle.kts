@@ -6,6 +6,7 @@ plugins {
     id("org.jetbrains.kotlin.kapt")
     id("androidx.navigation.safeargs.kotlin")
     id("kotlin-parcelize")
+    id("com.google.android.libraries.mapsplatform.secrets-gradle-plugin")
 }
 
 android {
@@ -23,6 +24,7 @@ android {
     }
     buildFeatures {
         viewBinding = true
+        buildConfig = true
     }
     buildTypes {
         release {
@@ -44,6 +46,10 @@ android {
     }
     kotlinOptions {
         jvmTarget = "1.8"
+    }
+
+    secrets {
+        propertiesFileName = "local.properties"
     }
 }
 
@@ -89,3 +95,4 @@ dependencies {
     androidTestImplementation(libs.truth)
     androidTestImplementation(libs.mockito.android)
 }
+

@@ -21,11 +21,11 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.recyclerview.widget.GridLayoutManager
-import com.bumptech.glide.Glide
 import com.example.kanbun.R
 import com.example.kanbun.common.DrawerItem
 import com.example.kanbun.common.RECYCLERVIEW_BOARDS_COLUMNS
 import com.example.kanbun.common.Role
+import com.example.kanbun.common.TAG
 import com.example.kanbun.common.getColor
 import com.example.kanbun.common.loadProfilePicture
 import com.example.kanbun.databinding.FragmentUserBoardsBinding
@@ -48,8 +48,8 @@ private const val TAG = "UserBoardsFragm"
 class UserBoardsFragment : BaseFragment(), StateHandler {
 
     companion object {
-        private var _workspaceRole: Role.Workspace? = null
-        val userRole: Role.Workspace? get() = _workspaceRole
+        var workspaceRole: Role.Workspace? = null
+            private set
     }
 
     private var _binding: FragmentUserBoardsBinding? = null
@@ -90,7 +90,6 @@ class UserBoardsFragment : BaseFragment(), StateHandler {
 
     private var isMenuProviderAdded = false
     private var boardsAdapter: BoardsAdapter? = null
-    private var isInitCalled = false
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -104,14 +103,20 @@ class UserBoardsFragment : BaseFragment(), StateHandler {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        addOnBackPressedAction { requireActivity().finish() }
         setUpActionBar(binding.topAppBar.toolbar)
         setStatusBarColor(getColor(requireContext(), R.color.md_theme_light_surface))
-        addOnBackPressedAction { requireActivity().finish() }
-        if (!isInitCalled) {
-            viewModel.init(navController)
-            isInitCalled = true
-        }
         setUpBoardsAdapter()
+        viewModel.checkUserVerification(
+            nullUserCallback = {
+                showToast("Firebase user is null")
+                navController.navigate(R.id.action_userBoardsFragment_to_registrationPromptFragment)
+            },
+            failedVerificationCallback = { provider ->
+                showToast("Complete registration by signing in with $provider and verifying your email")
+                navController.navigate(UserBoardsFragmentDirections.actionUserBoardsFragmentToRegistrationPromptFragment())
+            }
+        )
         collectState()
     }
 
@@ -163,10 +168,9 @@ class UserBoardsFragment : BaseFragment(), StateHandler {
 
     override fun processState(state: ViewState) {
         with(state as ViewState.UserBoardsViewState) {
-//            Log.d(TAG, "State: $this")
+//            Log.d(this@UserBoardsFragment.TAG, "State: $this")
             user?.let { _user ->
                 setUpDrawer(_user)
-                Log.d(TAG, "processState: userWorkspaces: ${_user.workspaces}")
                 activity.userWorkspacesAdapter?.workspaces = _user.workspaces.map { workspace ->
                     DrawerAdapter.DrawerWorkspace(
                         workspace,
@@ -191,8 +195,10 @@ class UserBoardsFragment : BaseFragment(), StateHandler {
             binding.apply {
                 loading.root.isVisible = isLoading
                 rvBoards.isVisible = currentWorkspace != null
-                fabCreateBoard.isVisible =
-                    currentWorkspace != null && currentWorkspace.id != DrawerItem.SHARED_BOARDS && userRole == Role.Workspace.Admin
+                workspaceRole = currentWorkspace?.members?.get(MainActivity.firebaseUser?.uid)
+                fabCreateBoard.isVisible = currentWorkspace != null &&
+                        currentWorkspace.id != DrawerItem.SHARED_BOARDS &&
+                        workspaceRole == Role.Workspace.Admin
                 activity.isSharedBoardsSelected = currentWorkspace?.id == DrawerItem.SHARED_BOARDS
                 tvTip.isVisible = currentWorkspace == null || currentWorkspace.boards.isEmpty()
                 topAppBar.toolbar.title =
@@ -207,8 +213,7 @@ class UserBoardsFragment : BaseFragment(), StateHandler {
                 }
 
                 if (currentWorkspace != null) {
-                    Log.d(TAG, "currentWorkspace: $currentWorkspace")
-                    _workspaceRole = currentWorkspace.members[MainActivity.firebaseUser?.uid]
+                    Log.d(this@UserBoardsFragment.TAG, "boards: ${currentWorkspace.boards}")
                     boardsAdapter?.setData(currentWorkspace.boards)
                     DrawerAdapter.prevSelectedWorkspaceId = currentWorkspace.id
 
@@ -297,6 +302,7 @@ class UserBoardsFragment : BaseFragment(), StateHandler {
             .setTitle("Create board")
             .setView(editText)
             .setPositiveButton("Create") { _, _ ->
+                Log.d(TAG, "create is clicked: ${editText.text.toString()}, $userId, $workspace")
                 viewModel.createBoard(editText.text.toString(), userId, workspace)
             }
             .setNegativeButton("Cancel") { dialog, _ ->
