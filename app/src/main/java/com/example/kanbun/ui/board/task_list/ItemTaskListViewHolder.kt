@@ -165,7 +165,7 @@ class ItemTaskListViewHolder(
             }
         }
 
-        fun startListDragging(view: View, position: Int, draggableView: ConstraintLayout, dropArea: MaterialCardView): Boolean {
+        fun startListDragging(view: View, position: Int, draggableView: View, dropArea: View): Boolean {
             oldPosition = position
             isActionDragEndedHandled = false
 
@@ -259,7 +259,7 @@ class ItemTaskListViewHolder(
             }
         }
 
-        fun handleDragEvent(event: DragEvent, dropArea: MaterialCardView): Boolean {
+        fun handleDragEvent(event: DragEvent, dropArea: View): Boolean {
             val draggableView = event.localState as View
             return when (event.action) {
                 DragEvent.ACTION_DRAG_STARTED ->

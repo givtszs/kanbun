@@ -45,12 +45,11 @@ class ItemTaskViewHolder(
 
         if (isWorkspaceAdminOrBoardMember) {
             // initiates dragging action
-            binding.taskCard.setOnLongClickListener { view ->
+            binding.taskCard.setOnLongClickListener { _ ->
                 Log.d(TAG, "long clicked perform at: $adapterPosition")
                 draggedTaskInitPosition = adapterPosition
                 draggedTaskPrevPosition = adapterPosition
-
-//                TaskDragAndDropHelper.startDrag(tasksAdapter, view, task)
+                
                 TaskDragAndDropHelper.startDrag(
                     tasksAdapter,
                     binding.taskCard,
@@ -219,8 +218,8 @@ class ItemTaskViewHolder(
 
         fun startDrag(
             adapter: TasksAdapter,
-            draggedView: MaterialCardView,
-            dropArea: MaterialCardView,
+            draggedView: View,
+            dropArea: View,
             task: Task?
         ): Boolean {
             taskInitAdapter = adapter
