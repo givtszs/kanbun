@@ -83,16 +83,16 @@ class WorkspaceRepositoryImpl @Inject constructor(
         }
     }
 
-    override fun getWorkspaceStream(workspaceId: String): Flow<Workspace?> = callbackFlow {
+    override fun getWorkspaceStream(workspaceId: String): Flow<Result<Workspace?>> = callbackFlow {
         var listener: ListenerRegistration? = null
         if (workspaceId.isEmpty()) {
-            trySend(null)
+            trySend(Result.Success(null))
         } else {
             listener = firestore.collection(FirestoreCollection.WORKSPACES)
                 .document(workspaceId)
                 .addSnapshotListener { docSnapshot, error ->
                     if (error != null) {
-//                        trySend(null)
+                        trySend(Result.Error(error.message, error.cause))
                         close(error)
                         return@addSnapshotListener
                     }
@@ -100,7 +100,7 @@ class WorkspaceRepositoryImpl @Inject constructor(
                     val workspace = docSnapshot?.toObject(FirestoreWorkspace::class.java)
                         ?.toWorkspace(workspaceId)
                         ?: throw NullPointerException("Couldn't convert FirestoreWorkspace to Workspace since the value is null")
-                    trySend(workspace)
+                    trySend(Result.Success(workspace))
                 }
         }
 

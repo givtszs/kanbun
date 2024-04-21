@@ -28,7 +28,7 @@ interface WorkspaceRepository {
      * @param workspaceId the id of a workspace to get data from.
      * @return [Flow] of the [Workspace] data.
      */
-    fun getWorkspaceStream(workspaceId: String): Flow<Workspace?>
+    fun getWorkspaceStream(workspaceId: String): Flow<Result<Workspace?>>
 
     suspend fun updateWorkspace(oldWorkspace: Workspace, newWorkspace: Workspace): Result<Unit>
 

@@ -144,12 +144,18 @@ class UserBoardsViewModel @Inject constructor(
     }
 
     private var collectionJob: Job? = null
-    private fun getWorkspace(flow: Flow<Workspace?>) {
+    private fun getWorkspace(flow: Flow<Result<Workspace?>>) {
         collectionJob?.cancel()
         collectionJob = viewModelScope.launch {
-            flow.collectLatest { workspace ->
-                _currentWorkspace.value = workspace
-                _isLoading.value = false
+            flow.collectLatest { result ->
+                result
+                    .onSuccess { workspace ->
+                        _currentWorkspace.value = workspace
+                        _isLoading.value = false
+                    }.onError { message, _ ->
+                        _message.value = message
+                        _isLoading.value = false
+                    }
             }
         }
     }
