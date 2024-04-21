@@ -31,7 +31,7 @@ class TasksAdapter(
     lateinit var listInfo: TaskListInfo
 
     private val isWorkspaceAdminOrBoardMember get() =
-        UserBoardsFragment.userRole == Role.Workspace.Admin || BoardFragment.isBoardMember
+        UserBoardsFragment.workspaceRole == Role.Workspace.Admin || BoardFragment.isBoardMember
 
     fun setData(data: List<Task>) {
         tasks = data.toMutableList()

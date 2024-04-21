@@ -44,7 +44,7 @@ class TaskListsAdapter(
             }
         }
 
-    private val isWorkspaceAdminOrBoardMember get() = UserBoardsFragment.userRole == Role.Workspace.Admin || BoardFragment.isBoardMember
+    private val isWorkspaceAdminOrBoardMember get() = UserBoardsFragment.workspaceRole == Role.Workspace.Admin || BoardFragment.isBoardMember
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return when (viewType) {

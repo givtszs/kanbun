@@ -55,7 +55,7 @@ class TaskDetailsFragment : BaseFragment(), StateHandler {
     }
 
     private val isWorkspaceAdminOrBoardMember =
-        UserBoardsFragment.userRole == Role.Workspace.Admin || BoardFragment.isBoardMember
+        UserBoardsFragment.workspaceRole == Role.Workspace.Admin || BoardFragment.isBoardMember
     private var tagsAdapter: TagsAdapter? = null
     private var membersAdapter: MembersAdapter? = null
 

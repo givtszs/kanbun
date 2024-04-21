@@ -5,6 +5,7 @@ import android.content.Context
 import androidx.annotation.IdRes
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.kanbun.BuildConfig
 import com.example.kanbun.R
 import com.example.kanbun.common.AuthProvider
 import com.example.kanbun.common.Result
@@ -96,7 +97,7 @@ open class AuthViewModel @Inject constructor(
         }
 
         val signInOptions = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-            .requestIdToken("723106455668-7apee9lsea93gpi66cjkoiom258i30e2.apps.googleusercontent.com")
+            .requestIdToken(BuildConfig.serverClientId)
             .requestEmail()
             .requestProfile()
             .build()
