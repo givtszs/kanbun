@@ -92,7 +92,6 @@ class WorkspaceRepositoryImpl @Inject constructor(
                 .document(workspaceId)
                 .addSnapshotListener { docSnapshot, error ->
                     if (error != null) {
-                        Log.d(TAG, "getWorkspaceStream: error occurred: ${error.message}")
 //                        trySend(null)
                         close(error)
                         return@addSnapshotListener
@@ -161,7 +160,12 @@ class WorkspaceRepositoryImpl @Inject constructor(
     ): Map<String, Any?> {
         val mapOfUpdates = mutableMapOf<String, Any?>()
         updateIfChanged(mapOfUpdates, "name", oldWorkspace.name, newWorkspace.name)
-        updateIfChanged(mapOfUpdates, "members", oldWorkspace.members.toFirestoreMembers(), newWorkspace.members.toFirestoreMembers())
+        updateIfChanged(
+            mapOfUpdates,
+            "members",
+            oldWorkspace.members.toFirestoreMembers(),
+            newWorkspace.members.toFirestoreMembers()
+        )
         return mapOfUpdates
     }
 
@@ -201,7 +205,12 @@ class WorkspaceRepositoryImpl @Inject constructor(
             // delete the workspace boards
             firebaseFunctionsRepository.recursiveDelete(boardsPath)
 
-            deleteWorkspaceFromMembers(workspace.id, workspace.owner, workspace.members, scope = this@withContext)
+            deleteWorkspaceFromMembers(
+                workspace.id,
+                workspace.owner,
+                workspace.members,
+                scope = this@withContext
+            )
         }
     }
 

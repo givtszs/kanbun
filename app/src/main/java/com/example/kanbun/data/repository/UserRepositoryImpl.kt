@@ -52,9 +52,9 @@ class UserRepositoryImpl @Inject constructor(
         }
     }
 
-    override fun getUserStream(userId: String): Flow<User?> = callbackFlow {
+    override fun getUserStream(userId: String?): Flow<User?> = callbackFlow {
         var listener: ListenerRegistration? = null
-        if (userId.isEmpty()) {
+        if (userId.isNullOrEmpty()) {
             trySend(null)
         } else {
             listener = firestore.collection(FirestoreCollection.USERS)

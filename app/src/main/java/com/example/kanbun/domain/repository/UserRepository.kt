@@ -28,7 +28,7 @@ interface UserRepository {
      * @param userId the id of the user for which to retrieve the data stream.
      * @return [Flow] that emits the [User] data for the specified [userId].
      */
-    fun getUserStream(userId: String): Flow<User?>
+    fun getUserStream(userId: String?): Flow<User?>
 
     suspend fun updateUser(oldUser: User, newUser: User): Result<Unit>
 
