@@ -7,6 +7,7 @@ import android.util.Log
 import android.view.DragEvent
 import android.view.View
 import android.view.View.DragShadowBuilder
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.RecyclerView
 import com.example.kanbun.common.TAG
 import com.example.kanbun.common.moshi
@@ -16,6 +17,7 @@ import com.example.kanbun.domain.model.TaskListInfo
 import com.example.kanbun.ui.board.TaskDropCallbacks
 import com.example.kanbun.ui.board.tasks_adapter.TasksAdapter
 import com.example.kanbun.ui.model.DragAndDropListItem
+import com.google.android.material.card.MaterialCardView
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -99,20 +101,19 @@ class ItemTaskListViewHolder(
                 ListDragAndDropHelper.startListDragging(
                     view = view,
                     position = adapterPosition,
-                    binding = binding
+                    draggableView = binding.listCard,
+                    dropArea = binding.dropArea
                 )
             }
         }
 
-        // handle drag events when the user drops the draggable view on the board list item
+        // handle drag events when the user drops the draggable view on the task list item
         binding.listCard.setOnDragListener { view, event ->
             ListDragAndDropHelper.handleDragEvent(view, event, adapterPosition)
         }
 
-        // use `materialCard` (parent view to the `listCard` drag shadow) instead of the board lists recycler view
-        //  to handle drop events performed outside of the `listCard` view
-        binding.materialCard.setOnDragListener { _, event ->
-            ListDragAndDropHelper.handleDragEvent(event)
+        binding.dropArea.setOnDragListener { _, event ->
+            ListDragAndDropHelper.handleDragEvent(event, binding.dropArea)
         }
     }
 
@@ -164,7 +165,7 @@ class ItemTaskListViewHolder(
             }
         }
 
-        fun startListDragging(view: View, position: Int, binding: ItemTaskListBinding): Boolean {
+        fun startListDragging(view: View, position: Int, draggableView: ConstraintLayout, dropArea: MaterialCardView): Boolean {
             oldPosition = position
             isActionDragEndedHandled = false
 
@@ -178,7 +179,7 @@ class ItemTaskListViewHolder(
                 arrayOf(ClipDescription.MIMETYPE_TEXT_HTML),
                 item
             )
-            val taskListShadow = object : DragShadowBuilder(binding.listCard) {
+            val taskListShadow = object : DragShadowBuilder(draggableView) {
                 override fun onProvideShadowMetrics(
                     outShadowSize: Point?,
                     outShadowTouchPoint: Point?
@@ -192,12 +193,13 @@ class ItemTaskListViewHolder(
             val isStartSuccess = view.startDragAndDrop(
                 clipData,
                 taskListShadow,
-                binding.listCard,
+                draggableView,
                 0
             )
 
             if (isStartSuccess) {
-                binding.listCard.visibility = View.INVISIBLE
+                draggableView.visibility = View.INVISIBLE
+                dropArea.visibility = View.VISIBLE
             }
 
             return isStartSuccess
@@ -257,7 +259,7 @@ class ItemTaskListViewHolder(
             }
         }
 
-        fun handleDragEvent(event: DragEvent): Boolean {
+        fun handleDragEvent(event: DragEvent, dropArea: MaterialCardView): Boolean {
             val draggableView = event.localState as View
             return when (event.action) {
                 DragEvent.ACTION_DRAG_STARTED ->
@@ -276,6 +278,7 @@ class ItemTaskListViewHolder(
                 DragEvent.ACTION_DRAG_ENDED -> {
                     if (!isActionDragEndedHandled) {
                         draggableView.visibility = View.VISIBLE
+                        dropArea.visibility = View.GONE
                         if (!event.result) {
                             Log.d(
                                 TAG,

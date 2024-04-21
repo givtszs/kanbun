@@ -7,7 +7,7 @@
     android:paddingHorizontal="8dp">
 
     <com.google.android.material.card.MaterialCardView
-        android:id="@+id/materialCard"
+        android:id="@+id/taskListCard"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -28,8 +28,8 @@
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="8dp"
                 android:layout_marginTop="20dp"
-                android:maxLines="2"
                 android:ellipsize="end"
+                android:maxLines="2"
                 app:layout_constraintEnd_toStartOf="@id/btnMore"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
@@ -54,9 +54,9 @@
                 android:layout_height="wrap_content"
                 android:layout_marginVertical="4dp"
                 android:clipToPadding="false"
-                app:layout_constrainedHeight="true"
-                android:paddingVertical="4dp"
+                android:paddingVertical="8dp"
                 app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                app:layout_constrainedHeight="true"
                 app:layout_constraintBottom_toTopOf="@id/btnCreateTask"
                 app:layout_constraintTop_toBottomOf="@id/btnMore"
                 tools:listitem="@layout/item_task" />
@@ -91,4 +91,25 @@
         </androidx.constraintlayout.widget.ConstraintLayout>
 
     </com.google.android.material.card.MaterialCardView>
+
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/dropArea"
+        android:visibility="gone"
+        android:layout_marginVertical="80dp"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:strokeWidth="4dp"
+        tools:layout_editor_absoluteX="8dp">
+
+        <TextView
+            android:id="@+id/tvDropText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="Drop here"
+            style="?textAppearanceHeadline6" />
+
+
+    </com.google.android.material.card.MaterialCardView>
+
 </androidx.constraintlayout.widget.ConstraintLayout>

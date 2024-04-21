@@ -19,6 +19,7 @@ import com.example.kanbun.ui.board.TaskDropCallbacks
 import com.example.kanbun.ui.board.tasks_adapter.ItemTaskViewHolder.TaskDragAndDropHelper.DROP_ZONE_TASK
 import com.example.kanbun.ui.model.DragAndDropTaskItem
 import com.example.kanbun.ui.custom_views.TagView
+import com.google.android.material.card.MaterialCardView
 import com.squareup.moshi.Moshi
 
 class ItemTaskViewHolder(
@@ -30,30 +31,36 @@ class ItemTaskViewHolder(
 ) : RecyclerView.ViewHolder(binding.root) {
 
     companion object {
-        var draggedTaskInitPosition = -1
-        var draggedTaskPrevPosition = -1
+        private var draggedTaskInitPosition = -1
+        private var draggedTaskPrevPosition = -1
         private const val TAG = "ItemTaskViewHolder"
     }
 
     private var task: Task? = null
 
     init {
-        binding.materialCard.setOnClickListener {
+        binding.taskCard.setOnClickListener {
             clickAtPosition(adapterPosition)
         }
 
         if (isWorkspaceAdminOrBoardMember) {
             // initiates dragging action
-            binding.materialCard.setOnLongClickListener { view ->
+            binding.taskCard.setOnLongClickListener { view ->
                 Log.d(TAG, "long clicked perform at: $adapterPosition")
                 draggedTaskInitPosition = adapterPosition
                 draggedTaskPrevPosition = adapterPosition
 
-                TaskDragAndDropHelper.startDrag(tasksAdapter, view, task)
+//                TaskDragAndDropHelper.startDrag(tasksAdapter, view, task)
+                TaskDragAndDropHelper.startDrag(
+                    tasksAdapter,
+                    binding.taskCard,
+                    binding.dropArea,
+                    task
+                )
             }
         }
 
-        binding.materialCard.setOnDragListener { receiverView, event ->
+        binding.taskCard.setOnDragListener { receiverView, event ->
             TaskDragAndDropHelper.taskCardViewDragEventHandler(
                 tasksAdapter,
                 receiverView,
@@ -62,8 +69,11 @@ class ItemTaskViewHolder(
             )
         }
 
-        binding.root.setOnDragListener { _, event ->
-            TaskDragAndDropHelper.taskRootViewDragEventHandler(event)
+        binding.dropArea.setOnDragListener { view, event ->
+            TaskDragAndDropHelper.taskRootViewDragEventHandler(
+                event,
+                view
+            )
         }
     }
 
@@ -72,11 +82,15 @@ class ItemTaskViewHolder(
         this.task = task
 
         binding.apply {
-            materialCard.visibility = if (task.id != DROP_ZONE_TASK) {
-                View.VISIBLE
-            } else {
-                View.INVISIBLE
-            }
+//            taskCard.visibility = if (task.id != DROP_ZONE_TASK) {
+//                View.VISIBLE
+//            } else {
+//                View.GONE
+//            }
+
+            taskCard.isVisible = task.id != DROP_ZONE_TASK
+            dropArea.isVisible = task.id == DROP_ZONE_TASK
+//            Log.d(TAG, "dropArea.isVisible: ${dropArea.isVisible}")
 
             setUpTagsFlexbox(task)
 
@@ -121,12 +135,12 @@ class ItemTaskViewHolder(
 
             dateEnds != null ->
                 itemView.resources.getString(
-                R.string.date_ends,
-                convertTimestampToDateString(
-                    DATE_TIME_FORMAT,
-                    dateEnds
+                    R.string.date_ends,
+                    convertTimestampToDateString(
+                        DATE_TIME_FORMAT,
+                        dateEnds
+                    )
                 )
-            )
 
             else -> null
         }
@@ -134,7 +148,7 @@ class ItemTaskViewHolder(
 
     private fun setUpTagsFlexbox(task: Task) {
         val tags = loadTags(task.tags)
-        Log.d(TAG, "tags: $tags")
+//        Log.d(TAG, "tags: $tags")
 
         if (tags.isEmpty()) {
             binding.flexTags.isVisible = false
@@ -145,7 +159,7 @@ class ItemTaskViewHolder(
             flexTags.isVisible = true
             flexTags.removeAllViews()
 
-            tags.forEach {  tag ->
+            tags.forEach { tag ->
                 val tagView = TagView(context = itemView.context, isBig = false).also {
                     it.bind(tag, isClickable = false, isSelected = false)
                 }
@@ -196,7 +210,32 @@ class ItemTaskViewHolder(
 
             val isSuccess = view.startDragAndDrop(dragData, taskShadow, view, 0)
             if (isSuccess) {
-                view.visibility = View.INVISIBLE
+//                view.visibility = View.INVISIBLE
+
+            }
+
+            return isSuccess
+        }
+
+        fun startDrag(
+            adapter: TasksAdapter,
+            draggedView: MaterialCardView,
+            dropArea: MaterialCardView,
+            task: Task?
+        ): Boolean {
+            taskInitAdapter = adapter
+            currentAdapter = adapter
+            isActionDragEndedHandled = false
+            isNewAdapter = false
+
+            val dragData = prepareDragData(adapter, task) ?: return false
+            val taskShadow = View.DragShadowBuilder(draggedView)
+
+            val isSuccess = draggedView.startDragAndDrop(dragData, taskShadow, draggedView, 0)
+            if (isSuccess) {
+//                draggedView.visibility = View.INVISIBLE
+                draggedView.visibility = View.GONE
+                dropArea.visibility = View.VISIBLE
             }
 
             return isSuccess
@@ -324,10 +363,14 @@ class ItemTaskViewHolder(
         /**
          * Drag event handler for the root view of the task's materical card view.
          */
-        fun taskRootViewDragEventHandler(event: DragEvent): Boolean {
+        fun taskRootViewDragEventHandler(
+            event: DragEvent,
+            receiverView: View
+        ): Boolean {
             val draggableView = event.localState as View
             return when (event.action) {
                 DragEvent.ACTION_DRAG_STARTED -> {
+                    Log.d(TAG, "Root#ACTION_DRAG_STARTED")
                     event.clipDescription.hasMimeType(ClipDescription.MIMETYPE_TEXT_PLAIN)
                 }
 
@@ -343,6 +386,7 @@ class ItemTaskViewHolder(
                     if (!isActionDragEndedHandled) {
                         Log.d(TAG, "Root#ACTION_DRAG_ENDED: handle action")
                         draggableView.visibility = View.VISIBLE
+                        receiverView.visibility = View.GONE
 
                         // if the drag and drop failed
                         Log.d(
