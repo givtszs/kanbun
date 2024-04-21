@@ -64,7 +64,7 @@ class UserBoardsViewModel @Inject constructor(
         )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), ViewState.UserBoardsViewState())
 
-    init {
+    fun init() {
         getCurrentWorkspace()
     }
 
@@ -149,6 +149,7 @@ class UserBoardsViewModel @Inject constructor(
         collectionJob = viewModelScope.launch {
             flow.collectLatest { workspace ->
                 _currentWorkspace.value = workspace
+                _isLoading.value = false
             }
         }
     }
@@ -169,8 +170,6 @@ class UserBoardsViewModel @Inject constructor(
                     workspaceId
                 )
             }
-
-            _isLoading.value = false
         }
     }
 
@@ -180,6 +179,7 @@ class UserBoardsViewModel @Inject constructor(
             name = "Shared boards",
             boards = getSharedBoards()
         )
+        _isLoading.value = false
     }
 
     private suspend fun getSharedBoards(): List<Workspace.BoardInfo> {

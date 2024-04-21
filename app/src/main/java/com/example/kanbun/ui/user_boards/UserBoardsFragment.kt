@@ -107,6 +107,7 @@ class UserBoardsFragment : BaseFragment(), StateHandler {
         setUpActionBar(binding.topAppBar.toolbar)
         setStatusBarColor(getColor(requireContext(), R.color.md_theme_light_surface))
         setUpBoardsAdapter()
+        viewModel.init()
         viewModel.checkUserVerification(
             nullUserCallback = {
                 showToast("Firebase user is null")
@@ -193,17 +194,6 @@ class UserBoardsFragment : BaseFragment(), StateHandler {
             }
 
             binding.apply {
-                loading.root.isVisible = isLoading
-                rvBoards.isVisible = currentWorkspace != null
-                workspaceRole = currentWorkspace?.members?.get(MainActivity.firebaseUser?.uid)
-                fabCreateBoard.isVisible = currentWorkspace != null &&
-                        currentWorkspace.id != DrawerItem.SHARED_BOARDS &&
-                        workspaceRole == Role.Workspace.Admin
-                activity.isSharedBoardsSelected = currentWorkspace?.id == DrawerItem.SHARED_BOARDS
-                tvTip.isVisible = currentWorkspace == null || currentWorkspace.boards.isEmpty()
-                topAppBar.toolbar.title =
-                    currentWorkspace?.name ?: resources.getString(R.string.boards)
-
                 // create options menu
                 if (!isMenuProviderAdded && currentWorkspace != null && currentWorkspace.id != DrawerItem.SHARED_BOARDS) {
                     createOptionsMenu()
@@ -212,6 +202,7 @@ class UserBoardsFragment : BaseFragment(), StateHandler {
                     removeOptionsMenu()
                 }
 
+                // set workspace data
                 if (currentWorkspace != null) {
                     Log.d(this@UserBoardsFragment.TAG, "boards: ${currentWorkspace.boards}")
                     boardsAdapter?.setData(currentWorkspace.boards)
@@ -228,6 +219,16 @@ class UserBoardsFragment : BaseFragment(), StateHandler {
                     boardsAdapter?.clear()
                     tvTip.text = resources.getString(R.string.workspace_selection_tip)
                 }
+
+                rvBoards.isVisible = currentWorkspace != null
+                workspaceRole = currentWorkspace?.members?.get(MainActivity.firebaseUser?.uid)
+                fabCreateBoard.isVisible = currentWorkspace != null &&
+                        currentWorkspace.id != DrawerItem.SHARED_BOARDS &&
+                        workspaceRole == Role.Workspace.Admin
+                activity.isSharedBoardsSelected = currentWorkspace?.id == DrawerItem.SHARED_BOARDS
+                tvTip.isVisible = currentWorkspace == null || currentWorkspace.boards.isEmpty()
+                topAppBar.toolbar.title = currentWorkspace?.name ?: resources.getString(R.string.boards)
+                loading.root.isVisible = isLoading
             }
 
             message?.let {
