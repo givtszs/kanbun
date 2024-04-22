@@ -16,25 +16,23 @@ import com.example.kanbun.databinding.ItemTaskBinding
 import com.example.kanbun.domain.model.Tag
 import com.example.kanbun.domain.model.Task
 import com.example.kanbun.ui.board.TaskDropCallbacks
-import com.example.kanbun.ui.board.tasks_adapter.ItemTaskViewHolder.TaskDragAndDropHelper.DROP_ZONE_TASK
-import com.example.kanbun.ui.model.DragAndDropTaskItem
 import com.example.kanbun.ui.custom_views.TagView
-import com.google.android.material.card.MaterialCardView
+import com.example.kanbun.ui.model.DragAndDropTaskItem
 import com.squareup.moshi.Moshi
 
 class ItemTaskViewHolder(
+    isWorkspaceAdminOrBoardMember: Boolean,
     private val binding: ItemTaskBinding,
     private val tasksAdapter: TasksAdapter,
-    isWorkspaceAdminOrBoardMember: Boolean,
     private val clickAtPosition: (Int) -> Unit,
     private val loadTags: (List<String>) -> List<Tag>
 ) : RecyclerView.ViewHolder(binding.root) {
 
-    companion object {
-        private var draggedTaskInitPosition = -1
-        private var draggedTaskPrevPosition = -1
-        private const val TAG = "ItemTaskViewHolder"
-    }
+//    companion object {
+//        private var draggedTaskInitPosition = -1
+//        private var draggedTaskPrevPosition = -1
+//        private const val TAG = "ItemTaskViewHolder"
+//    }
 
     private var task: Task? = null
 
@@ -69,7 +67,7 @@ class ItemTaskViewHolder(
         }
 
         binding.dropArea.setOnDragListener { view, event ->
-            TaskDragAndDropHelper.taskRootViewDragEventHandler(
+            TaskDragAndDropHelper.dropAreaViewDragEventHandler(
                 event,
                 view
             )
@@ -170,7 +168,10 @@ class ItemTaskViewHolder(
     /**
      * A helper singleton class for managing drag-and-drop interactions and states within the [TasksAdapter]
      */
-    private object TaskDragAndDropHelper {
+    companion object TaskDragAndDropHelper {
+        private var draggedTaskInitPosition = -1
+        private var draggedTaskPrevPosition = -1
+        private const val TAG = "ItemTaskViewHolder"
         const val DROP_ZONE_TASK = "drop_zone"
 
         /** The dragged task's hosting [TasksAdapter] */
@@ -198,25 +199,7 @@ class ItemTaskViewHolder(
         /** Indicates whether the user has dragged the view over another adapter */
         private var isNewAdapter = false
 
-        fun startDrag(adapter: TasksAdapter, view: View, task: Task?): Boolean {
-            taskInitAdapter = adapter
-            currentAdapter = adapter
-            isActionDragEndedHandled = false
-            isNewAdapter = false
-
-            val dragData = prepareDragData(adapter, task) ?: return false
-            val taskShadow = View.DragShadowBuilder(view)
-
-            val isSuccess = view.startDragAndDrop(dragData, taskShadow, view, 0)
-            if (isSuccess) {
-//                view.visibility = View.INVISIBLE
-
-            }
-
-            return isSuccess
-        }
-
-        fun startDrag(
+        private fun startDrag(
             adapter: TasksAdapter,
             draggedView: View,
             dropArea: View,
@@ -265,7 +248,7 @@ class ItemTaskViewHolder(
         private var isMovedDown = false
         private var isInsertHandled = false
 
-        fun taskCardViewDragEventHandler(
+        private fun taskCardViewDragEventHandler(
             adapter: TasksAdapter,
             receiverView: View,
             event: DragEvent,
@@ -362,7 +345,7 @@ class ItemTaskViewHolder(
         /**
          * Drag event handler for the root view of the task's materical card view.
          */
-        fun taskRootViewDragEventHandler(
+        private fun dropAreaViewDragEventHandler(
             event: DragEvent,
             receiverView: View
         ): Boolean {
@@ -377,7 +360,7 @@ class ItemTaskViewHolder(
                     Log.d(TAG, "Root#ACTION_DROP at $this")
                     handleDrop(
                         event.clipData,
-                        taskInitAdapter.taskDropCallbacks
+                        currentAdapter!!.taskDropCallbacks
                     )
                 }
 
@@ -419,6 +402,64 @@ class ItemTaskViewHolder(
                         isActionDragEndedHandled = true
                     }
 
+                    true
+                }
+
+                else -> false
+            }
+        }
+
+        fun taskListDragEventHandler(
+            adapter: TasksAdapter,
+            receiverView: View,
+            event: DragEvent
+        ): Boolean {
+            return when (event.action) {
+                DragEvent.ACTION_DRAG_STARTED -> {
+                    Log.d(TAG, "RecyclerView: ACTION_DRAG_STARTED")
+                    event.clipDescription.hasMimeType(ClipDescription.MIMETYPE_TEXT_PLAIN)
+                }
+
+                DragEvent.ACTION_DRAG_ENTERED -> {
+                    Log.d(
+                        TAG,
+                        "RecyclerView: ACTION_DRAG_ENTERED: View under drag:\n" +
+                                "currAdapter: $adapter,\n" +
+                                "lastAdapter: $currentAdapter"
+                    )
+
+                    // check if the dragged item has entered an adapter other than hosting it and its empty
+                    if (currentAdapter != adapter && adapter.tasks.isEmpty()) {
+                        Log.d(TAG, "RecyclerView: ACTION_DRAG_ENTERED: adapter is new and empty")
+                        isNewAdapter = true
+                        // if the dragged item has entered a new adapter, remove either
+                        // the previously created drop zone, or the dragged item, from the dataset
+                        val isDropZoneRemoved = removeDropZone()
+                        if (!isDropZoneRemoved) {
+                            removeDataAt(currentAdapter!!, draggedTaskInitPosition)
+                        }
+                        currentAdapter = adapter
+                    }
+                    true
+                }
+
+                DragEvent.ACTION_DRAG_LOCATION -> {
+                    if (isNewAdapter && !isInsertHandled && currentAdapter?.tasks?.isEmpty() == true) {
+                        isInsertHandled = true
+                        Log.d(
+                            TAG,
+                            "RecyclerView: ACTION_DRAG_LOCATION: inserting task at 0 position"
+                        )
+                        insertDropZone(adapter, 0)
+                    }
+
+                    true
+                }
+
+                DragEvent.ACTION_DRAG_EXITED -> {
+                    isMovedUp = false
+                    isMovedDown = false
+                    isInsertHandled = false
                     true
                 }
 
@@ -536,13 +577,16 @@ class ItemTaskViewHolder(
 
                 // TODO: inspect whether this double checks is required, or isNewAdapter check is enough
                 if (isNewAdapter || containedDropZone) {
+                    val adapterTasks = buildString { currentAdapter?.tasks?.forEach { append("$it, ") } }
                     Log.d(
                         TAG,
-                        "drop: insert task ${dragItem.task}"
+                        "drop: insert task ${dragItem.task} in adapter $currentAdapter with tasks:\n" +
+                                adapterTasks
                     )
 
                     taskDropCallbacks.dropToInsert(
-                        currentAdapter!!,
+                        currentAdapter!!.tasks,
+                        currentAdapter!!.listInfo,
                         dragItem,
                         draggedTaskPrevPosition
                     )
@@ -553,7 +597,8 @@ class ItemTaskViewHolder(
                         "drop: move tasks from ${dragItem.initPosition} to $draggedTaskPrevPosition"
                     )
                     taskDropCallbacks.dropToMove(
-                        currentAdapter!!,
+                        currentAdapter!!.tasks,
+                        currentAdapter!!.listInfo,
                         dragItem.initPosition,
                         draggedTaskPrevPosition
                     )

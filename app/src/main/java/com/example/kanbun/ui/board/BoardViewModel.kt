@@ -9,6 +9,7 @@ import com.example.kanbun.common.TAG
 import com.example.kanbun.domain.model.Board
 import com.example.kanbun.domain.model.Task
 import com.example.kanbun.domain.model.TaskList
+import com.example.kanbun.domain.model.TaskListInfo
 import com.example.kanbun.domain.model.User
 import com.example.kanbun.domain.repository.BoardRepository
 import com.example.kanbun.domain.repository.TaskListRepository
@@ -184,14 +185,15 @@ class BoardViewModel @Inject constructor(
         }
 
     fun deleteAndInsert(
-        adapter: TasksAdapter,
+        tasks: List<Task>,
+        taskListInfo: TaskListInfo,
         dragItem: DragAndDropTaskItem,
         to: Int
     ) = viewModelScope.launch {
         val tasksRemoveStr = buildString { dragItem.initTasksList.forEach { append("$it, ") } }
         Log.d(
             "ItemTaskViewHolder",
-            "Deleting task in adapter $adapter at position ${dragItem.initPosition} from tasks $tasksRemoveStr"
+            "Deleting task at position ${dragItem.initPosition} from tasks $tasksRemoveStr"
         )
         val deleteResult = taskRepository.removeTaskAndRearrange(
             dragItem.initTaskList.path,
@@ -205,16 +207,16 @@ class BoardViewModel @Inject constructor(
             return@launch
         }
 
-        val tasksInsertStr = buildString { adapter.tasks.forEach { append("$it, ") } }
+        val tasksInsertStr = buildString { tasks.forEach { append("$it, ") } }
         Log.d(
             "ItemTaskViewHolder",
-            "Inserting task in adapter $adapter at position $to into tasks $tasksInsertStr"
+            "Inserting task at position $to into tasks $tasksInsertStr"
         )
         val insertResult =
             taskRepository.insertTaskAndRearrange(
-                adapter.listInfo.path,
-                adapter.listInfo.id,
-                adapter.tasks,
+                taskListInfo.path,
+                taskListInfo.id,
+                tasks,
                 dragItem.task,
                 to
             )

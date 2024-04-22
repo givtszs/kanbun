@@ -6,11 +6,11 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.example.kanbun.common.Role
 import com.example.kanbun.databinding.ItemTaskBinding
-import com.example.kanbun.domain.model.Task
-import com.example.kanbun.ui.board.TaskDropCallbacks
-import com.example.kanbun.domain.model.TaskListInfo
 import com.example.kanbun.domain.model.Tag
+import com.example.kanbun.domain.model.Task
+import com.example.kanbun.domain.model.TaskListInfo
 import com.example.kanbun.ui.board.BoardFragment
+import com.example.kanbun.ui.board.TaskDropCallbacks
 import com.example.kanbun.ui.user_boards.UserBoardsFragment
 
 /**
@@ -25,6 +25,7 @@ class TasksAdapter(
     private val onTaskClicked: (Task) -> Unit,
     private val loadTaskTags: (List<String>) -> List<Tag>
 ) : RecyclerView.Adapter<ItemTaskViewHolder>() {
+
     var tasks: MutableList<Task> = mutableListOf()
         private set
 

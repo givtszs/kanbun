@@ -7,7 +7,6 @@ import android.util.Log
 import android.view.DragEvent
 import android.view.View
 import android.view.View.DragShadowBuilder
-import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.RecyclerView
 import com.example.kanbun.common.TAG
 import com.example.kanbun.common.moshi
@@ -15,9 +14,9 @@ import com.example.kanbun.databinding.ItemTaskListBinding
 import com.example.kanbun.domain.model.TaskList
 import com.example.kanbun.domain.model.TaskListInfo
 import com.example.kanbun.ui.board.TaskDropCallbacks
+import com.example.kanbun.ui.board.tasks_adapter.ItemTaskViewHolder
 import com.example.kanbun.ui.board.tasks_adapter.TasksAdapter
 import com.example.kanbun.ui.model.DragAndDropListItem
-import com.google.android.material.card.MaterialCardView
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -40,7 +39,7 @@ class ItemTaskListViewHolder(
         private var scrollJob: Job? = null
         private lateinit var coroutineScope: CoroutineScope
 
-        fun scrollTasksRecyclerView(binding: ItemTaskListBinding, scrollDistance: Int) {
+        private fun scrollTasksRecyclerView(binding: ItemTaskListBinding, scrollDistance: Int) {
             scrollJob = coroutineScope.launch {
                 while (true) {
                     binding.rvTasks.scrollBy(0, scrollDistance)
@@ -75,8 +74,15 @@ class ItemTaskListViewHolder(
             }
         )
 
-        Log.d("TasksAdapter", "ItemBoardListViewHolder init:\ttasksAdapter: $tasksAdapter")
+        Log.d("ItemTaskViewHolder", "tasksAdapter: $tasksAdapter")
         binding.rvTasks.adapter = tasksAdapter
+        binding.rvTasks.setOnDragListener { view, event ->
+            ItemTaskViewHolder.TaskDragAndDropHelper.taskListDragEventHandler(
+                tasksAdapter,
+                view,
+                event
+            )
+        }
 
         // scrolls the tasks RV to the top
         binding.topSide.setOnDragListener(
@@ -165,7 +171,12 @@ class ItemTaskListViewHolder(
             }
         }
 
-        fun startListDragging(view: View, position: Int, draggableView: View, dropArea: View): Boolean {
+        fun startListDragging(
+            view: View,
+            position: Int,
+            draggableView: View,
+            dropArea: View
+        ): Boolean {
             oldPosition = position
             isActionDragEndedHandled = false
 

@@ -30,6 +30,7 @@ import com.example.kanbun.common.moshi
 import com.example.kanbun.databinding.FragmentBoardBinding
 import com.example.kanbun.domain.model.Task
 import com.example.kanbun.domain.model.TaskList
+import com.example.kanbun.domain.model.TaskListInfo
 import com.example.kanbun.domain.model.Workspace
 import com.example.kanbun.ui.BaseFragment
 import com.example.kanbun.ui.StateHandler
@@ -152,7 +153,11 @@ class BoardFragment : BaseFragment(), StateHandler {
                     buildCreateListDialog()
                 }
 
-                override fun onTaskListMenuClicked(taskList: TaskList, taskLists: List<TaskList>, isEnabled: Boolean) {
+                override fun onTaskListMenuClicked(
+                    taskList: TaskList,
+                    taskLists: List<TaskList>,
+                    isEnabled: Boolean
+                ) {
                     val taskListMenuDialog = TaskListMenuDialog.init(taskList, taskLists, isEnabled)
                     taskListMenuDialog.show(childFragmentManager, "board_list_menu")
                 }
@@ -188,19 +193,20 @@ class BoardFragment : BaseFragment(), StateHandler {
 
     private val taskDropCallbacks = object : TaskDropCallbacks {
         override fun dropToInsert(
-            adapter: TasksAdapter,
+            tasks: List<Task>,
+            taskListInfo: TaskListInfo,
             dragItem: DragAndDropTaskItem,
             position: Int
         ) {
-            boardViewModel.deleteAndInsert(adapter, dragItem, position)
+            boardViewModel.deleteAndInsert(tasks, taskListInfo, dragItem, position)
         }
 
-        override fun dropToMove(adapter: TasksAdapter, from: Int, to: Int) {
+        override fun dropToMove(tasks: List<Task>, taskListInfo: TaskListInfo, from: Int, to: Int) {
             if (from != to && to != -1) {
                 boardViewModel.rearrangeTasks(
-                    listPath = adapter.listInfo.path,
-                    listId = adapter.listInfo.id,
-                    tasks = adapter.tasks,
+                    listPath = taskListInfo.path,
+                    listId = taskListInfo.id,
+                    tasks = tasks,
                     from = from,
                     to = to
                 )
