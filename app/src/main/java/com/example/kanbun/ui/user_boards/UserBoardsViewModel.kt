@@ -126,11 +126,6 @@ class UserBoardsViewModel @Inject constructor(
     }
 
     fun createWorkspace(name: String, user: User) = viewModelScope.launch {
-        if (user.workspaces.any { it.name == name }) {
-            _message.value = "Workspace with the same name already exists!"
-            return@launch
-        }
-
         val workspace = Workspace(
             name = name,
             owner = user.id,
