@@ -329,6 +329,11 @@ class BoardFragment : BaseFragment(), StateHandler {
             taskListsAdapter?.lists = lists.sortedBy { it.position }
             taskListsAdapter?.boardTags = board.tags
             binding.loading.root.isVisible = isLoading
+            with(binding.topAppBar.toolbar) {
+              if (title != board.name) {
+                  title = board.name
+              }
+            }
 
             message?.let {
                 showToast(it)
