@@ -26,6 +26,7 @@ import androidx.recyclerview.widget.PagerSnapHelper
 import androidx.recyclerview.widget.RecyclerView
 import com.example.kanbun.R
 import com.example.kanbun.common.HORIZONTAL_SCROLL_DISTANCE
+import com.example.kanbun.common.TAG
 import com.example.kanbun.common.moshi
 import com.example.kanbun.databinding.FragmentBoardBinding
 import com.example.kanbun.domain.model.Task
@@ -39,7 +40,6 @@ import com.example.kanbun.ui.board.task_list.ItemTaskListViewHolder
 import com.example.kanbun.ui.board.task_list.TaskListMenuDialog
 import com.example.kanbun.ui.board.task_list.TaskListsAdapter
 import com.example.kanbun.ui.board.task_list.TaskListsAdapterCallbacks
-import com.example.kanbun.ui.board.tasks_adapter.TasksAdapter
 import com.example.kanbun.ui.main_activity.MainActivity
 import com.example.kanbun.ui.model.DragAndDropListItem
 import com.example.kanbun.ui.model.DragAndDropTaskItem
@@ -145,6 +145,7 @@ class BoardFragment : BaseFragment(), StateHandler {
 
     private fun setUpTaskListsAdapter() {
         taskListsAdapter = TaskListsAdapter(
+            parent = binding.rvLists,
             coroutineScope = lifecycleScope,
             taskDropCallbacks = taskDropCallbacks,
             taskListDropCallback = taskListDropCallback,
@@ -334,6 +335,7 @@ class BoardFragment : BaseFragment(), StateHandler {
                   title = board.name
               }
             }
+            Log.d(this@BoardFragment.TAG, "${requireActivity().findViewById<RecyclerView>(R.id.rvTasks)}")
 
             message?.let {
                 showToast(it)

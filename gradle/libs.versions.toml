@@ -1,6 +1,7 @@
 [versions]
 activityKtx = "1.7.0"
 appcompat = "1.6.1"
+asynclayoutinflater = "1.0.0"
 constraintlayout = "2.1.4"
 datastorePreferences = "1.0.0"
 espressoCore = "3.5.1"
@@ -26,6 +27,7 @@ truth = "1.2.0"
 [libraries]
 androidx-activity-ktx = { module = "androidx.activity:activity-ktx", version.ref = "activityKtx" }
 androidx-appcompat = { module = "androidx.appcompat:appcompat", version.ref = "appcompat" }
+androidx-asynclayoutinflater = { module = "androidx.asynclayoutinflater:asynclayoutinflater", version.ref = "asynclayoutinflater" }
 androidx-constraintlayout = { module = "androidx.constraintlayout:constraintlayout", version.ref = "constraintlayout" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "kotlin" }
 androidx-datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastorePreferences" }

@@ -64,15 +64,23 @@ class ItemTaskListViewHolder(
             callbacks.openMenu(adapterPosition)
         }
 
-        tasksAdapter = TasksAdapter(
-            taskDropCallbacks = taskDropCallbacks,
-            onTaskClicked = { task ->
-                callbacks.onTaskClicked(task, taskList!!)
-            },
-            loadTaskTags = { tagIds ->
-                taskListsAdapter.boardTags.filter { tag -> tag.id in tagIds }
-            }
-        )
+        tasksAdapter = if (taskListsAdapter.tasksAdapters.hasNext()) {
+            val adapter = taskListsAdapter.tasksAdapters.next()
+            Log.d(TAG, "init: task adapter $adapter is obtained from tasksAdapters")
+            adapter
+        } else {
+            TasksAdapter(
+                parent = binding.rvTasks,
+                taskDropCallbacks = taskDropCallbacks,
+                onTaskClicked = { task ->
+                    callbacks.onTaskClicked(task, taskList!!)
+                },
+                loadTaskTags = { tagIds ->
+                    taskListsAdapter.boardTags.filter { tag -> tag.id in tagIds }
+                }
+            )
+        }
+
 
         Log.d("ItemTaskViewHolder", "tasksAdapter: $tasksAdapter")
         binding.rvTasks.adapter = tasksAdapter

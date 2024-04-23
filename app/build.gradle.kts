@@ -81,6 +81,7 @@ dependencies {
     implementation(libs.flexbox)
     implementation(libs.androidx.preference.ktx)
     implementation(libs.androidx.activity.ktx)
+    implementation(libs.androidx.asynclayoutinflater)
 
     testImplementation(libs.junit)
     testImplementation(libs.kotlinx.coroutines.test)

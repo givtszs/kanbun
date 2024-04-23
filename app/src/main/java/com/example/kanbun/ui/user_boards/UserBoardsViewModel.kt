@@ -125,7 +125,7 @@ class UserBoardsViewModel @Inject constructor(
         }
     }
 
-    fun createWorkspace(name: String, user: User) = viewModelScope.launch {
+    fun createWorkspace(name: String, user: User) = viewModelScope.launch {5
         val workspace = Workspace(
             name = name,
             owner = user.id,
