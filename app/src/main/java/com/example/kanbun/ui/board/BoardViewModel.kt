@@ -133,10 +133,6 @@ class BoardViewModel @Inject constructor(
         _message.value = null
     }
 
-    fun stopLoading() {
-        _isLoading.value = false
-    }
-
     fun createTaskList(listName: String) = viewModelScope.launch {
         val board = _board.value
         taskListRepository.createTaskList(
@@ -149,28 +145,6 @@ class BoardViewModel @Inject constructor(
             ),
             board = _board.value
         )
-    }
-
-    // TODO: Remove if not used
-    fun createTask(name: String, taskList: TaskList) = viewModelScope.launch {
-        val task = Task(
-            position = taskList.tasks.size.toLong(),
-            name = name,
-            author = when (val result = userRepository.getUser(_board.value.owner)) {
-                is Result.Success -> result.data.name!!
-                is Result.Error -> {
-                    _message.value = result.message
-                    return@launch
-                }
-            }
-        )
-
-//        firestoreRepository.createTask(
-//            task = task,
-//            listId = taskList.id,
-//            boardId = _board.value.id,
-//            workspaceId = _board.value.settings.workspace.id
-//        )
     }
 
     fun rearrangeTasks(listPath: String, listId: String, tasks: List<Task>, from: Int, to: Int) =

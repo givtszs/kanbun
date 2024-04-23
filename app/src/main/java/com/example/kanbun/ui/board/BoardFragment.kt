@@ -238,39 +238,15 @@ class BoardFragment : BaseFragment(), StateHandler {
     }
 
     private fun buildCreateListDialog() {
-        buildAlertDialog(
-            dialogTitle = "Create list",
-            editTextHint = "Enter a new list name",
-            createCallback = { name ->
-                boardViewModel.createTaskList(name)
-            }
-        )
-    }
-
-    private fun buildCreateTaskDialog(taskList: TaskList) {
-        buildAlertDialog(
-            dialogTitle = "Create task",
-            editTextHint = "Enter a new task name",
-            createCallback = { name ->
-                boardViewModel.createTask(name, taskList)
-            }
-        )
-    }
-
-    private fun buildAlertDialog(
-        dialogTitle: String,
-        editTextHint: String,
-        createCallback: (String) -> Unit
-    ) {
         val editText = EditText(requireContext()).apply {
-            hint = editTextHint
+            hint = resources.getString(R.string.create_task_list_hint)
         }
 
         MaterialAlertDialogBuilder(requireContext())
-            .setTitle(dialogTitle)
+            .setTitle(resources.getString(R.string.create_task_list))
             .setView(editText)
             .setPositiveButton("Create") { _, _ ->
-                createCallback(editText.text.trim().toString())
+                boardViewModel.createTaskList((editText.text.trim().toString()))
             }
             .setNegativeButton("Cancel") { dialog, _ ->
                 dialog.cancel()
