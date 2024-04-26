@@ -380,7 +380,7 @@ abstract class TaskEditorFragment : BaseFragment(), StateHandler {
         }
         binding.rvFoundUsers.adapter = searchUsersAdapter
 
-        taskMembersAdapter = MembersAdapter() { member ->
+        taskMembersAdapter = MembersAdapter { member ->
             viewModel.removeMember(member.user)
         }
         binding.rvMembers.adapter = taskMembersAdapter

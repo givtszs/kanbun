@@ -13,7 +13,7 @@ import com.example.kanbun.ui.model.Member
 
 class MembersAdapter(
     private val ownerId: String? = null,
-    private val onRemoveClicked: (Member) -> Unit = {}
+    private val onRemoveClicked: ((Member) -> Unit)? = null
 ) : RecyclerView.Adapter<MembersAdapter.MemberViewHolder>() {
 
     private var isCurrentUserAdmin = false
@@ -42,9 +42,10 @@ class MembersAdapter(
                 parent,
                 false
             ),
-            ownerId = ownerId
+            ownerId = ownerId,
+            isRemovingEnabled = onRemoveClicked != null
         ) { position ->
-            onRemoveClicked(members[position])
+            onRemoveClicked?.invoke(members[position])
         }
     }
 
@@ -56,6 +57,7 @@ class MembersAdapter(
 
     class MemberViewHolder(
         val ownerId: String?,
+        val isRemovingEnabled: Boolean,
         val binding: ItemMemberChipBinding,
         private val clickAtPosition: (Int) -> Unit
     ) : RecyclerView.ViewHolder(binding.root) {
@@ -69,7 +71,9 @@ class MembersAdapter(
         fun bind(member: Member, isAdmin: Boolean) {
             binding.apply {
                 tvName.text = member.user.name
-                btnRemove.isVisible = member.user.id != ownerId && isAdmin
+                if (isRemovingEnabled && ownerId != null) {
+                    btnRemove.isVisible = member.user.id != ownerId && isAdmin
+                } else btnRemove.isVisible = isRemovingEnabled
 
                 loadProfilePicture(
                     context = itemView.context,
