@@ -179,10 +179,6 @@ class BoardFragment : BaseFragment(), StateHandler {
                         )
                     )
                 }
-
-                override fun loadingComplete() {
-//                    viewModel.stopLoading()
-                }
             }
         )
 

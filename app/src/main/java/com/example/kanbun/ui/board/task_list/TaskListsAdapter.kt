@@ -53,20 +53,22 @@ class TaskListsAdapter(
         set(value) {
             if (field != value) {
                 field = value
-                tasksAdapters = value.map { taskList ->
-                    TasksAdapter(
-                        parent = parent,
-                        taskDropCallbacks = taskDropCallbacks,
-                        onTaskClicked = { task ->
-                            callbacks.onTaskClicked(task, taskList)
-                        },
-                        loadTaskTags = { tagIds ->
-                            boardTags.filter { tag -> tag.id in tagIds }
-                        }
-                    )
-                }.iterator()
+                if (!tasksAdapters.hasNext()) {
+                    Log.d(TAG, "taskAdapters is empty. Filling In")
+                    tasksAdapters = value.map { taskList ->
+                        TasksAdapter(
+                            parent = parent,
+                            taskDropCallbacks = taskDropCallbacks,
+                            onTaskClicked = { task ->
+                                callbacks.onTaskClicked(task, taskList)
+                            },
+                            loadTaskTags = { tagIds ->
+                                boardTags.filter { tag -> tag.id in tagIds }
+                            }
+                        )
+                    }.iterator()
+                }
                 notifyDataSetChanged()
-                callbacks.loadingComplete()
             }
         }
 

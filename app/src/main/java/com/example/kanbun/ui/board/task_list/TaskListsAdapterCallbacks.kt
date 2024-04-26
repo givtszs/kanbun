@@ -11,6 +11,4 @@ interface TaskListsAdapterCallbacks {
     fun createTask(taskList: TaskList)
 
     fun onTaskClicked(task: Task, taskList: TaskList)
-
-    fun loadingComplete()
 }
