@@ -24,7 +24,7 @@ import com.example.kanbun.ui.user_boards.UserBoardsFragment
  * @property loadTaskTags the callback to load tags of a task
  */
 class TasksAdapter(
-    private val parent: ViewGroup,
+    parent: ViewGroup,
     val taskDropCallbacks: TaskDropCallbacks,
     private val onTaskClicked: (Task) -> Unit,
     private val loadTaskTags: (List<String>) -> List<Tag>

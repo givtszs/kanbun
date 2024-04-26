@@ -300,6 +300,7 @@ class BoardFragment : BaseFragment(), StateHandler {
     override fun processState(state: ViewState) {
         with(state as ViewState.BoardViewState) {
             taskListsAdapter?.lists = lists.sortedBy { it.position }
+            binding.rvLists.setItemViewCacheSize(lists.size)
             taskListsAdapter?.boardTags = board.tags
             binding.loading.root.isVisible = isLoading
             with(binding.topAppBar.toolbar) {

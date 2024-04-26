@@ -84,6 +84,7 @@ class ItemTaskListViewHolder(
 
         Log.d("ItemTaskViewHolder", "tasksAdapter: $tasksAdapter")
         binding.rvTasks.adapter = tasksAdapter
+
         binding.rvTasks.setOnDragListener { view, event ->
             ItemTaskViewHolder.TaskDragAndDropHelper.taskListDragEventHandler(
                 tasksAdapter,
@@ -142,6 +143,7 @@ class ItemTaskListViewHolder(
         tasksAdapter.listInfo = TaskListInfo(list.id, list.path)
 
         taskList = list
+        binding.rvTasks.setItemViewCacheSize(list.tasks.size)
     }
 
     private object ListDragAndDropHelper {
