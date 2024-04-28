@@ -7,95 +7,13 @@
     android:paddingHorizontal="8dp"
     android:paddingVertical="4dp">
 
-    <com.google.android.material.card.MaterialCardView
+    <com.example.kanbun.ui.custom_views.ItemTaskView
         android:id="@+id/taskCard"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:clickable="true"
+        app:strokeWidth="0dp"
         android:focusable="true"
-        android:visibility="visible"
-        app:cardBackgroundColor="@color/white"
-        app:strokeWidth="0dp">
-
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:paddingHorizontal="8dp"
-            android:paddingVertical="6dp">
-
-            <com.google.android.flexbox.FlexboxLayout
-                android:id="@+id/flexTags"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                app:alignContent="flex_start"
-                app:alignItems="baseline"
-                app:flexWrap="wrap"
-                app:justifyContent="flex_start"
-                app:layout_constraintTop_toTopOf="parent" />
-
-            <TextView
-                android:id="@+id/tvName"
-                style="?attr/textAppearanceHeadline6"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                app:layout_constraintTop_toBottomOf="@id/flexTags"
-                tools:text="Task title" />
-
-            <TextView
-                android:id="@+id/tvDescription"
-                style="?textAppearanceBody1"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="6dp"
-                android:maxLines="4"
-                app:layout_constraintTop_toBottomOf="@id/tvName"
-                tools:text="Description example" />
-
-            <View
-                android:id="@+id/separatorHorizontal"
-                android:layout_width="match_parent"
-                android:layout_height="2dp"
-                android:layout_marginTop="6dp"
-                android:background="@color/platinum_1"
-                app:layout_constraintTop_toBottomOf="@id/tvDescription" />
-
-            <TextView
-                android:id="@+id/tvDate"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:drawablePadding="4dp"
-                android:text="@string/task_date"
-                android:textColor="@color/dim_gray"
-                app:drawableStartCompat="@drawable/ic_calendar_outlined_18"
-                app:drawableTint="@color/dim_gray"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/separatorHorizontal"
-                tools:text="29 Feb 2024, 08:00 - 29 Feb 2024, 09:00" />
-        </androidx.constraintlayout.widget.ConstraintLayout>
-
-    </com.google.android.material.card.MaterialCardView>
-
-    <LinearLayout
-        android:id="@+id/dropArea"
+        android:clickable="true"
         android:layout_width="match_parent"
-        android:layout_height="100dp"
-        android:background="@drawable/drop_area"
-        android:visibility="gone"
-        android:orientation="vertical"
-        android:gravity="center"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
-
-        <TextView
-            android:id="@+id/tvDropText"
-            style="?textAppearanceHeadline6"
-            android:textColor="@color/md_theme_light_primary"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Drop the task here" />
-
-    </LinearLayout>
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>
