@@ -15,6 +15,7 @@ import com.example.kanbun.domain.model.TaskList
 import com.example.kanbun.domain.model.TaskListInfo
 import com.example.kanbun.ui.board.TaskDropCallbacks
 import com.example.kanbun.ui.board.tasks_adapter.ItemTaskViewHolder
+import com.example.kanbun.ui.board.tasks_adapter.TaskDragAndDropHelper
 import com.example.kanbun.ui.board.tasks_adapter.TasksAdapter
 import com.example.kanbun.ui.model.DragAndDropListItem
 import kotlinx.coroutines.CoroutineScope
@@ -84,9 +85,8 @@ class ItemTaskListViewHolder(
 
         Log.d("ItemTaskViewHolder", "tasksAdapter: $tasksAdapter")
         binding.rvTasks.adapter = tasksAdapter
-
         binding.rvTasks.setOnDragListener { view, event ->
-            ItemTaskViewHolder.TaskDragAndDropHelper.taskListDragEventHandler(
+            TaskDragAndDropHelper.taskListDragEventHandler(
                 tasksAdapter,
                 view,
                 event
@@ -117,7 +117,7 @@ class ItemTaskListViewHolder(
                     view = view,
                     position = adapterPosition,
                     draggableView = binding.listCard,
-                    dropArea = binding.dropArea
+                    dropArea = binding.taskListDropArea
                 )
             }
         }
@@ -127,8 +127,8 @@ class ItemTaskListViewHolder(
             ListDragAndDropHelper.handleDragEvent(view, event, adapterPosition)
         }
 
-        binding.dropArea.setOnDragListener { _, event ->
-            ListDragAndDropHelper.handleDragEvent(event, binding.dropArea)
+        binding.taskListDropArea.setOnDragListener { _, event ->
+            ListDragAndDropHelper.handleDragEvent(event, binding.taskListDropArea)
         }
     }
 
