@@ -14,7 +14,6 @@ import com.example.kanbun.domain.model.TaskList
 import com.example.kanbun.ui.board.BoardFragment
 import com.example.kanbun.ui.board.DropCallback
 import com.example.kanbun.ui.board.TaskDropCallbacks
-import com.example.kanbun.ui.board.tasks_adapter.TasksAdapter
 import com.example.kanbun.ui.user_boards.UserBoardsFragment
 import kotlinx.coroutines.CoroutineScope
 
@@ -47,27 +46,10 @@ class TaskListsAdapter(
             }
         }
 
-    var tasksAdapters: Iterator<TasksAdapter> = emptyList<TasksAdapter>().iterator()
-
     var lists: List<TaskList> = emptyList()
         set(value) {
             if (field != value) {
                 field = value
-                if (!tasksAdapters.hasNext()) {
-                    Log.d(TAG, "taskAdapters is empty. Filling In")
-                    tasksAdapters = value.map { taskList ->
-                        TasksAdapter(
-                            parent = parent,
-                            taskDropCallbacks = taskDropCallbacks,
-                            onTaskClicked = { task ->
-                                callbacks.onTaskClicked(task, taskList)
-                            },
-                            loadTaskTags = { tagIds ->
-                                boardTags.filter { tag -> tag.id in tagIds }
-                            }
-                        )
-                    }.iterator()
-                }
                 notifyDataSetChanged()
             }
         }

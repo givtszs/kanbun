@@ -14,7 +14,6 @@ import com.example.kanbun.databinding.ItemTaskListBinding
 import com.example.kanbun.domain.model.TaskList
 import com.example.kanbun.domain.model.TaskListInfo
 import com.example.kanbun.ui.board.TaskDropCallbacks
-import com.example.kanbun.ui.board.tasks_adapter.ItemTaskViewHolder
 import com.example.kanbun.ui.board.tasks_adapter.TaskDragAndDropHelper
 import com.example.kanbun.ui.board.tasks_adapter.TasksAdapter
 import com.example.kanbun.ui.model.DragAndDropListItem
@@ -65,23 +64,16 @@ class ItemTaskListViewHolder(
             callbacks.openMenu(adapterPosition)
         }
 
-        tasksAdapter = if (taskListsAdapter.tasksAdapters.hasNext()) {
-            val adapter = taskListsAdapter.tasksAdapters.next()
-            Log.d(TAG, "init: task adapter $adapter is obtained from tasksAdapters")
-            adapter
-        } else {
-            TasksAdapter(
-                parent = binding.rvTasks,
-                taskDropCallbacks = taskDropCallbacks,
-                onTaskClicked = { task ->
-                    callbacks.onTaskClicked(task, taskList!!)
-                },
-                loadTaskTags = { tagIds ->
-                    taskListsAdapter.boardTags.filter { tag -> tag.id in tagIds }
-                }
-            )
-        }
-
+        tasksAdapter = TasksAdapter(
+            parent = binding.rvTasks,
+            taskDropCallbacks = taskDropCallbacks,
+            onTaskClicked = { task ->
+                callbacks.onTaskClicked(task, taskList!!)
+            },
+            loadTaskTags = { tagIds ->
+                taskListsAdapter.boardTags.filter { tag -> tag.id in tagIds }
+            }
+        )
 
         Log.d("ItemTaskViewHolder", "tasksAdapter: $tasksAdapter")
         binding.rvTasks.adapter = tasksAdapter

@@ -3,11 +3,8 @@ package com.example.kanbun.ui.board.tasks_adapter
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import androidx.asynclayoutinflater.view.AsyncLayoutInflater
 import androidx.recyclerview.widget.RecyclerView
-import com.example.kanbun.R
 import com.example.kanbun.common.Role
-import com.example.kanbun.common.TAG
 import com.example.kanbun.databinding.ItemTaskBinding
 import com.example.kanbun.domain.model.Tag
 import com.example.kanbun.domain.model.Task
@@ -38,20 +35,6 @@ class TasksAdapter(
     private val isWorkspaceAdminOrBoardMember get() =
         UserBoardsFragment.workspaceRole == Role.Workspace.Admin || BoardFragment.isBoardMember
 
-    private var preInflatedViews: Iterator<ItemTaskBinding> = emptyList<ItemTaskBinding>().iterator()
-
-    init {
-        val views = mutableListOf<ItemTaskBinding>()
-        val layoutInflater = AsyncLayoutInflater(parent.context)
-        repeat(10) {
-            layoutInflater.inflate(R.layout.item_task, parent) { view, _, _ ->
-                views.add(ItemTaskBinding.bind(view))
-                preInflatedViews = views.iterator()
-                Log.d(TAG, "preInflatedViews: ${views.size}")
-            }
-        }
-    }
-
     fun setData(data: List<Task>) {
         tasks = data.toMutableList()
         Log.d("TasksAdapter", "adapter: ${this}\tsetData: $data")
@@ -65,14 +48,8 @@ class TasksAdapter(
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ItemTaskViewHolder {
-        val binding = if (preInflatedViews.hasNext()) {
-            Log.d(TAG, "onCreateViewHolder: use pre inflated view")
-            preInflatedViews.next()
-        } else {
-            ItemTaskBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-        }
         return ItemTaskViewHolder(
-            binding = binding,
+            binding = ItemTaskBinding.inflate(LayoutInflater.from(parent.context), parent, false),
             tasksAdapter = this@TasksAdapter,
             clickAtPosition = { position ->
                 onTaskClicked(tasks[position])
