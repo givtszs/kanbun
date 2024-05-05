@@ -22,6 +22,7 @@ import com.example.kanbun.ui.StateHandler
 import com.example.kanbun.ui.ViewState
 import com.example.kanbun.ui.board.common_adapters.TagsAdapter
 import com.example.kanbun.ui.board_settings.edit_tags.EditTagsBottomSheet
+import com.example.kanbun.ui.buildDeleteConfirmationDialog
 import com.example.kanbun.ui.main_activity.MainActivity
 import com.example.kanbun.ui.manage_members.MembersAdapter
 import com.example.kanbun.ui.manage_members.MembersBottomSheet
@@ -112,9 +113,14 @@ class BoardSettingsFragment : BaseFragment(), StateHandler {
 
             btnDeleteBoard.isEnabled = isUserAdmin
             btnDeleteBoard.setOnClickListener {
-                boardSettingsViewModel.deleteBoard(board) {
-                    navController.popBackStack(R.id.userBoardsFragment, false)
-                }
+                buildDeleteConfirmationDialog(
+                    requireContext(),
+                    R.string.delete_board_dialog_title
+                ) {
+                    boardSettingsViewModel.deleteBoard(board) {
+                        navController.popBackStack(R.id.userBoardsFragment, false)
+                    }
+                }.show()
             }
 
             btnSave.setOnClickListener {

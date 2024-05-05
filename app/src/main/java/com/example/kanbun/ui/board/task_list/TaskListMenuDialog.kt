@@ -12,6 +12,7 @@ import androidx.fragment.app.viewModels
 import com.example.kanbun.R
 import com.example.kanbun.databinding.TaskListMenuDialogBinding
 import com.example.kanbun.domain.model.TaskList
+import com.example.kanbun.ui.buildDeleteConfirmationDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import dagger.hilt.android.AndroidEntryPoint
@@ -54,7 +55,12 @@ class TaskListMenuDialog : BottomSheetDialogFragment() {
         binding.apply {
             btnDelete.isEnabled = areOptionsEnabled
             btnDelete.setOnClickListener {
-                viewModel.deleteTaskList(taskList, taskLists) { dismiss() }
+                buildDeleteConfirmationDialog(
+                    requireContext(),
+                    R.string.delete_task_list_dialog_title
+                ) {
+                    viewModel.deleteTaskList(taskList, taskLists) { dismiss() }
+                }.show()
             }
 
             btnEditName.isEnabled = areOptionsEnabled

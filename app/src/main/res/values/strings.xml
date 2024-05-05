@@ -87,4 +87,9 @@
     <string name="about">About</string>
     <string name="feedback">Feedback</string>
     <string name="terms_and_conditions">Terms and Conditions</string>
+    <string name="delete_workspace_dialog_title">Delete workspace?</string>
+    <string name="delete_board_dialog_title">Delete board?</string>
+    <string name="delete_task_list_dialog_title">Delete task list?</string>
+    <string name="delete_task_dialog_title">Delete task?</string>
+    <string name="delete_dialog_description">This action cannot be undone</string>
 </resources>

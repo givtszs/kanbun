@@ -20,6 +20,7 @@ import com.example.kanbun.domain.model.Workspace
 import com.example.kanbun.ui.BaseFragment
 import com.example.kanbun.ui.StateHandler
 import com.example.kanbun.ui.ViewState
+import com.example.kanbun.ui.buildDeleteConfirmationDialog
 import com.example.kanbun.ui.main_activity.MainActivity
 import com.example.kanbun.ui.manage_members.MembersAdapter
 import com.example.kanbun.ui.manage_members.MembersBottomSheet
@@ -129,7 +130,14 @@ class WorkspaceSettingsFragment : BaseFragment(), StateHandler {
 
             btnDeleteWorkspace.apply {
                 setOnClickListener {
-                    buildConfirmationDialog()
+                    buildDeleteConfirmationDialog(
+                        requireContext(),
+                        R.string.delete_workspace_dialog_title
+                    ) {
+                        viewModel.deleteWorkspaceCloudFn(workspace) {
+                            navController.popBackStack()
+                        }
+                    }.show()
                 }
                 isEnabled = isUserAdmin
             }
@@ -139,7 +147,7 @@ class WorkspaceSettingsFragment : BaseFragment(), StateHandler {
                     MembersBottomSheet.init(
                         members = viewModel.workspaceSettingsState.value.members,
                         ownerId = workspace.owner,
-                        ) { members ->
+                    ) { members ->
                         viewModel.setMembers(members)
                     }
                 membersBottomSheet.show(childFragmentManager, "workspace_members")
@@ -195,19 +203,19 @@ class WorkspaceSettingsFragment : BaseFragment(), StateHandler {
         binding.rvMembers.adapter = workspaceMembersAdapter
     }
 
-    private fun buildConfirmationDialog() {
-        MaterialAlertDialogBuilder(requireContext())
-            .setTitle("Delete ${workspace.name} workspace?")
-            .setPositiveButton("Delete") { _, _ ->
-                viewModel.deleteWorkspaceCloudFn(workspace) {
-                    navController.popBackStack()
-                }
-            }
-            .setNegativeButton("Cancel") { dialog, _ ->
-                dialog.cancel()
-            }
-            .show()
-    }
+//    private fun buildConfirmationDialog() {
+//        MaterialAlertDialogBuilder(requireContext())
+//            .setTitle("Delete ${workspace.name} workspace?")
+//            .setPositiveButton("Delete") { _, _ ->
+//                viewModel.deleteWorkspaceCloudFn(workspace) {
+//                    navController.popBackStack()
+//                }
+//            }
+//            .setNegativeButton("Cancel") { dialog, _ ->
+//                dialog.cancel()
+//            }
+//            .show()
+//    }
 
     override fun onDestroyView() {
         super.onDestroyView()

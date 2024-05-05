@@ -30,6 +30,7 @@ import com.example.kanbun.ui.StateHandler
 import com.example.kanbun.ui.ViewState
 import com.example.kanbun.ui.board.BoardFragment
 import com.example.kanbun.ui.board.common_adapters.TagsAdapter
+import com.example.kanbun.ui.buildDeleteConfirmationDialog
 import com.example.kanbun.ui.manage_members.MembersAdapter
 import com.example.kanbun.ui.model.Member
 import com.example.kanbun.ui.model.TagUi
@@ -183,11 +184,17 @@ class TaskDetailsFragment : BaseFragment(), StateHandler {
             override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
                 return when (menuItem.itemId) {
                     R.id.menu_item_delete -> {
-                        taskDetailsViewModel.deleteTask(
-                            taskPosition = args.task.position.toInt(),
-                            taskList = args.taskList,
-                            navigateOnDelete = { navController.popBackStack() }
-                        )
+                        buildDeleteConfirmationDialog(
+                            requireContext(),
+                            R.string.delete_task_dialog_title
+                        ) {
+                            taskDetailsViewModel.
+                            deleteTask(
+                                taskPosition = args.task.position.toInt(),
+                                taskList = args.taskList,
+                                navigateOnDelete = { navController.popBackStack() }
+                            )
+                        }.show()
                         true
                     }
 
