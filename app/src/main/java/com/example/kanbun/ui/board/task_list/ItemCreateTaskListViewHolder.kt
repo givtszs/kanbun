@@ -4,8 +4,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.kanbun.databinding.ItemCreateTaskListBinding
 
 class ItemCreateTaskListViewHolder(
-    binding: ItemCreateTaskListBinding,
-    isWorkspaceAdminOrBoardMember: Boolean,
+    private val binding: ItemCreateTaskListBinding,
     private val onClickListener: () -> Unit
 ) : RecyclerView.ViewHolder(binding.root) {
 
@@ -13,6 +12,10 @@ class ItemCreateTaskListViewHolder(
         binding.cardView.setOnClickListener {
             onClickListener()
         }
+    }
+
+    fun bind(isWorkspaceAdminOrBoardMember: Boolean) {
         binding.cardView.isEnabled = isWorkspaceAdminOrBoardMember
     }
+
 }

@@ -48,13 +48,16 @@ class TaskListsAdapter(
 
     var lists: List<TaskList> = emptyList()
         set(value) {
-            if (field != value) {
+            if (value.isEmpty() && field.isEmpty()) {
+                notifyItemChanged(0)
+            } else if (field != value) {
                 field = value
                 notifyDataSetChanged()
             }
         }
 
-    private val isWorkspaceAdminOrBoardMember get() = UserBoardsFragment.workspaceRole == Role.Workspace.Admin || BoardFragment.isBoardMember
+    val isWorkspaceAdminOrBoardMember get() = UserBoardsFragment.workspaceRole == Role.Workspace.Admin || BoardFragment.isBoardMember
+
     private val taskListViewHolderCallbacks = object : TaskListViewHolderCallbacks {
         override fun createTask(position: Int) {
             callbacks.createTask(lists[position])
@@ -88,7 +91,6 @@ class TaskListsAdapter(
                 }
                 ItemTaskListViewHolder(
                     binding = binding,
-                    isWorkspaceAdminOrBoardMember = isWorkspaceAdminOrBoardMember,
                     coroutineScope = coroutineScope,
                     taskDropCallbacks = taskDropCallbacks,
                     taskListsAdapter = this@TaskListsAdapter,
@@ -101,8 +103,7 @@ class TaskListsAdapter(
                     LayoutInflater.from(parent.context),
                     parent,
                     false
-                ),
-                isWorkspaceAdminOrBoardMember = isWorkspaceAdminOrBoardMember
+                )
             ) {
                 callbacks.createTaskList()
             }
@@ -122,6 +123,8 @@ class TaskListsAdapter(
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         if (holder is ItemTaskListViewHolder) {
             holder.bind(lists[position])
+        } else if (holder is ItemCreateTaskListViewHolder) {
+            holder.bind(isWorkspaceAdminOrBoardMember)
         }
     }
 

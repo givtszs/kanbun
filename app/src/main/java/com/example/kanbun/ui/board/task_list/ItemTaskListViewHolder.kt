@@ -24,7 +24,6 @@ import kotlinx.coroutines.launch
 
 class ItemTaskListViewHolder(
     coroutineScope: CoroutineScope,
-    isWorkspaceAdminOrBoardMember: Boolean,
     taskDropCallbacks: TaskDropCallbacks,
     val binding: ItemTaskListBinding,
     private val taskListsAdapter: TaskListsAdapter,
@@ -55,7 +54,7 @@ class ItemTaskListViewHolder(
     init {
         ItemTaskListViewHolder.coroutineScope = coroutineScope
 
-        binding.btnCreateTask.isEnabled = isWorkspaceAdminOrBoardMember
+        binding.btnCreateTask.isEnabled = taskListsAdapter.isWorkspaceAdminOrBoardMember
         binding.btnCreateTask.setOnClickListener {
             callbacks.createTask(adapterPosition)
         }
@@ -102,7 +101,7 @@ class ItemTaskListViewHolder(
         )
 
         // starts the drag and drop action
-        if (isWorkspaceAdminOrBoardMember) {
+        if (taskListsAdapter.isWorkspaceAdminOrBoardMember) {
             binding.tvListName.setOnLongClickListener { view ->
                 ListDragAndDropHelper.currentAdapter = taskListsAdapter
                 ListDragAndDropHelper.startListDragging(
@@ -125,9 +124,7 @@ class ItemTaskListViewHolder(
     }
 
     fun bind(list: TaskList) {
-        binding.apply {
-            tvListName.text = list.name
-        }
+        binding.tvListName.text = list.name
 
         Log.d("TasksAdapter", "bind:\ttasks: ${list.tasks}")
 

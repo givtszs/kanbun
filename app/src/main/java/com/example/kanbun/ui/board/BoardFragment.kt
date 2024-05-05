@@ -55,8 +55,8 @@ import kotlinx.coroutines.launch
 class BoardFragment : BaseFragment(), StateHandler {
 
     companion object {
-        private var _isBoardMember = false
-        val isBoardMember: Boolean get() = _isBoardMember
+        var isBoardMember: Boolean = false
+            private set
     }
 
     private var _binding: FragmentBoardBinding? = null
@@ -96,7 +96,7 @@ class BoardFragment : BaseFragment(), StateHandler {
         if (isBoardFetched) return
         boardViewModel.getBoard(boardId, workspaceId) { board ->
             isBoardFetched = true
-            _isBoardMember = board.members.any { it.id == MainActivity.firebaseUser?.uid }
+            isBoardMember = board.members.any { it.id == MainActivity.firebaseUser?.uid }
         }
     }
 
@@ -328,6 +328,6 @@ class BoardFragment : BaseFragment(), StateHandler {
 
     override fun onDestroy() {
         super.onDestroy()
-        _isBoardMember = false
+        isBoardMember = false
     }
 }
