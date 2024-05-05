@@ -20,6 +20,7 @@ import com.example.kanbun.domain.model.Board
 import com.example.kanbun.ui.BaseFragment
 import com.example.kanbun.ui.StateHandler
 import com.example.kanbun.ui.ViewState
+import com.example.kanbun.ui.board.BoardFragment
 import com.example.kanbun.ui.board.common_adapters.TagsAdapter
 import com.example.kanbun.ui.board_settings.edit_tags.EditTagsBottomSheet
 import com.example.kanbun.ui.buildDeleteConfirmationDialog
@@ -121,6 +122,22 @@ class BoardSettingsFragment : BaseFragment(), StateHandler {
                         navController.popBackStack(R.id.userBoardsFragment, false)
                     }
                 }.show()
+            }
+
+            btnLeaveBoard.isVisible = BoardFragment.isBoardMember && !isUserAdmin
+            btnLeaveBoard.setOnClickListener {
+                val newBoard = board.copy(
+                    members = boardSettingsViewModel.boardSettingsState.value.boardMembers
+                        .filterNot { it.user.id == MainActivity.firebaseUser?.uid }
+                        .map { member ->
+                            Log.d(TAG, "cast members: $member")
+                            Board.BoardMember(id = member.user.id, role = member.role as Role.Board)
+                        }
+                )
+
+                boardSettingsViewModel.updateBoard(board, newBoard) {
+                    navController.navigate(R.id.action_to_userBoardsFragment)
+                }
             }
 
             btnSave.setOnClickListener {
