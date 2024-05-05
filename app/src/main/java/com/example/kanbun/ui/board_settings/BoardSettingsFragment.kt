@@ -124,18 +124,10 @@ class BoardSettingsFragment : BaseFragment(), StateHandler {
                 }.show()
             }
 
-            btnLeaveBoard.isVisible = BoardFragment.isBoardMember && !isUserAdmin
+            btnLeaveBoard.isVisible =
+                BoardFragment.isBoardMember && MainActivity.firebaseUser?.uid != board.owner
             btnLeaveBoard.setOnClickListener {
-                val newBoard = board.copy(
-                    members = boardSettingsViewModel.boardSettingsState.value.boardMembers
-                        .filterNot { it.user.id == MainActivity.firebaseUser?.uid }
-                        .map { member ->
-                            Log.d(TAG, "cast members: $member")
-                            Board.BoardMember(id = member.user.id, role = member.role as Role.Board)
-                        }
-                )
-
-                boardSettingsViewModel.updateBoard(board, newBoard) {
+                boardSettingsViewModel.leaveBoard(board, MainActivity.firebaseUser?.uid) {
                     navController.navigate(R.id.action_to_userBoardsFragment)
                 }
             }

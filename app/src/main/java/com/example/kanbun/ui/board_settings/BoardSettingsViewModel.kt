@@ -127,6 +127,23 @@ class BoardSettingsViewModel @Inject constructor(
         }
     }
 
+    fun leaveBoard(board: Board, userId: String?, onSuccess: () -> Unit) {
+        viewModelScope.launch {
+            boardRepository.updateBoard(
+                oldBoard = board,
+                newBoard = board.copy(
+                    members = board.members.filterNot {
+                        it.id == userId
+                    }
+                )
+            ).onSuccess {
+                onSuccess()
+            }.onError { message, _ ->
+                _message.value = message
+            }
+        }
+    }
+
     fun searchUser(tag: String) = viewModelScope.launch {
         when (val result = searchUserUseCase(tag)) {
             is Result.Success -> _foundUsers.value = result.data.map { user ->
