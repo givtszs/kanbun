@@ -41,6 +41,7 @@
             android:layout_height="wrap_content"
             android:text="Create workspace"
             android:insetTop="0dp"
+            android:layout_marginHorizontal="@dimen/item_workspace_padding_horizontal"
             android:insetBottom="0dp"
             app:icon="@drawable/ic_add_24"
             app:iconGravity="textStart"
