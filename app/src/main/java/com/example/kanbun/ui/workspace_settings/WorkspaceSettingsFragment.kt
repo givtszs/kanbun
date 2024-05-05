@@ -16,10 +16,12 @@ import com.example.kanbun.R
 import com.example.kanbun.common.Role
 import com.example.kanbun.common.getColor
 import com.example.kanbun.databinding.FragmentWorkspaceSettingsBinding
+import com.example.kanbun.domain.model.Board
 import com.example.kanbun.domain.model.Workspace
 import com.example.kanbun.ui.BaseFragment
 import com.example.kanbun.ui.StateHandler
 import com.example.kanbun.ui.ViewState
+import com.example.kanbun.ui.board.BoardFragment
 import com.example.kanbun.ui.buildDeleteConfirmationDialog
 import com.example.kanbun.ui.main_activity.MainActivity
 import com.example.kanbun.ui.manage_members.MembersAdapter
@@ -140,6 +142,14 @@ class WorkspaceSettingsFragment : BaseFragment(), StateHandler {
                     }.show()
                 }
                 isEnabled = isUserAdmin
+            }
+
+            btnLeaveWorkspace.isVisible = MainActivity.firebaseUser?.uid != workspace.owner
+            btnLeaveWorkspace.setOnClickListener {
+                viewModel.leaveWorkspace(workspace, MainActivity.firebaseUser?.uid) {
+                    showToast("Workspace settings have been updated", requireActivity())
+                    navController.popBackStack()
+                }
             }
 
             btnViewAllMembers.setOnClickListener {

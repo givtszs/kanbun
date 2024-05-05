@@ -5,7 +5,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.kanbun.common.Result
 import com.example.kanbun.common.Role
-import com.example.kanbun.common.TAG
 import com.example.kanbun.common.moveOwnerToTheTop
 import com.example.kanbun.data.local.PreferenceDataStoreHelper
 import com.example.kanbun.data.local.PreferenceDataStoreKeys
@@ -105,6 +104,25 @@ class WorkspaceSettingsViewModel @Inject constructor(
                 }
 
                 is Result.Error -> Log.e("WorkspaceSettingsViewModel", result.message, result.e)
+            }
+        }
+    }
+
+    fun leaveWorkspace(workspace: Workspace, userId: String?, onSuccess: () -> Unit) {
+        viewModelScope.launch {
+            workspaceRepository.updateWorkspace(
+                oldWorkspace = workspace,
+                newWorkspace = workspace.copy(
+                    members = workspace.members
+                        .filterNot {
+                            it.key == userId
+                        }
+                )
+            ).onSuccess {
+                dataStore.setPreference(PreferenceDataStoreKeys.CURRENT_WORKSPACE_ID, "")
+                onSuccess()
+            }.onError { message, _ ->
+                _message.value = message
             }
         }
     }
