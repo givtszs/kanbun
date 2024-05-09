@@ -19,6 +19,8 @@ interface TaskRepository {
         taskListPath: String
     ): Result<Unit>
 
+    suspend fun getTask(taskId: String,  taskListId: String, taskListPath: String): Result<Task>
+
     suspend fun updateTask(
         oldTask: Task,
         newTask: Task,
