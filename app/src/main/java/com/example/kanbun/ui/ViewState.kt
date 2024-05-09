@@ -3,6 +3,7 @@ package com.example.kanbun.ui
 import com.example.kanbun.domain.model.Board
 import com.example.kanbun.domain.model.TaskList
 import com.example.kanbun.domain.model.Tag
+import com.example.kanbun.domain.model.Task
 import com.example.kanbun.domain.model.User
 import com.example.kanbun.domain.model.Workspace
 import com.example.kanbun.ui.model.Member
@@ -41,6 +42,13 @@ sealed class ViewState {
     data class UserBoardsViewState(
         val user: User? = null,
         val currentWorkspace: Workspace? = null,
+        val isLoading: Boolean = true,
+        val message: String? = null
+    ) : ViewState()
+
+    data class UserTasksViewState(
+        val user: User? = null,
+        val tasks: List<Task> = emptyList(),
         val isLoading: Boolean = true,
         val message: String? = null
     ) : ViewState()

@@ -26,4 +26,8 @@
         app:layout_constraintTop_toBottomOf="@id/topAppBar"
         tools:listitem="@layout/item_task" />
 
+    <include
+        android:id="@+id/loading"
+        layout="@layout/loading_state" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>
