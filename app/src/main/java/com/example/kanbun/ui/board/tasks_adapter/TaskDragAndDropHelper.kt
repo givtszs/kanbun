@@ -180,7 +180,7 @@ object TaskDragAndDropHelper {
 
             DragEvent.ACTION_DROP -> {
                 Log.d(TAG, "ACTION_DROP")
-                handleDrop(clipData = event.clipData, adapter.taskDropCallbacks)
+                handleDrop(clipData = event.clipData, adapter.taskDropCallbacks!!)
             }
 
             else -> false
@@ -204,7 +204,7 @@ object TaskDragAndDropHelper {
                 Log.d(TAG, "DropArea#ACTION_DROP at $this")
                 handleDrop(
                     event.clipData,
-                    currentAdapter!!.taskDropCallbacks
+                    currentAdapter!!.taskDropCallbacks!!
                 )
             }
 

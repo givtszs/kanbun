@@ -39,7 +39,6 @@ class EmailVerificationFragment : BaseFragment(), StateHandler {
         super.onViewCreated(view, savedInstanceState)
         setStatusBarColor(ContextCompat.getColor(requireContext(), R.color.white))
         setUpActionBar(binding.topAppBar.toolbar)
-        setUpListeners()
         collectState()
         waitForEmailVerification()
     }

@@ -21,19 +21,30 @@ import com.example.kanbun.ui.user_boards.UserBoardsFragment
  * @property loadTaskTags the callback to load tags of a task
  */
 class TasksAdapter(
-    parent: ViewGroup,
-    val taskDropCallbacks: TaskDropCallbacks,
     private val onTaskClicked: (Task) -> Unit,
-    private val loadTaskTags: (List<String>) -> List<Tag>
 ) : RecyclerView.Adapter<ItemTaskViewHolder>() {
+
+    var taskDropCallbacks: TaskDropCallbacks? = null
+        private set
+    private var loadTaskTags: ((List<String>) -> List<Tag>)? = null
+
+    constructor(
+        taskDropCallbacks: TaskDropCallbacks,
+        onTaskClicked: (Task) -> Unit,
+        loadTaskTags: (List<String>) -> List<Tag>
+    ) : this(onTaskClicked = onTaskClicked) {
+        this.taskDropCallbacks = taskDropCallbacks
+        this.loadTaskTags = loadTaskTags
+    }
 
     var tasks: MutableList<Task> = mutableListOf()
         private set
 
     lateinit var listInfo: TaskListInfo
 
-    private val isWorkspaceAdminOrBoardMember get() =
-        UserBoardsFragment.workspaceRole == Role.Workspace.Admin || BoardFragment.isBoardMember
+    private val isWorkspaceAdminOrBoardMember
+        get() =
+            UserBoardsFragment.workspaceRole == Role.Workspace.Admin || BoardFragment.isBoardMember
 
     fun setData(data: List<Task>) {
         tasks = data.toMutableList()

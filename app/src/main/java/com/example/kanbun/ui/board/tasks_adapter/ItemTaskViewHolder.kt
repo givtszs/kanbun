@@ -19,7 +19,7 @@ class ItemTaskViewHolder(
     private val binding: ItemTaskBinding,
     private val tasksAdapter: TasksAdapter,
     private val clickAtPosition: (Int) -> Unit,
-    private val loadTags: (List<String>) -> List<Tag>
+    private val loadTags: ((List<String>) -> List<Tag>)?
 ) : RecyclerView.ViewHolder(binding.root) {
 
     private var task: Task? = null
@@ -29,7 +29,7 @@ class ItemTaskViewHolder(
             clickAtPosition(adapterPosition)
         }
 
-        if (isWorkspaceAdminOrBoardMember) {
+        if (isWorkspaceAdminOrBoardMember && tasksAdapter.taskDropCallbacks != null) {
             // initiates dragging action
             binding.taskCard.setOnLongClickListener { _ ->
                 Log.d(TAG, "long clicked perform at: $adapterPosition")
@@ -122,10 +122,11 @@ class ItemTaskViewHolder(
     }
 
     private fun setUpTagsFlexbox(task: Task) {
-        val tags = loadTags(task.tags)
+
+        val tags = loadTags?.invoke(task.tags)
 //        Log.d(TAG, "tags: $tags")
 
-        if (tags.isEmpty()) {
+        if (tags.isNullOrEmpty()) {
             binding.taskCard.taskTags.isVisible = false
             return
         }

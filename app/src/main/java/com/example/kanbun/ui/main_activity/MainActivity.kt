@@ -60,7 +60,6 @@ class MainActivity : AppCompatActivity() {
         navController = navHostFragment.navController
         appBarConfiguration = AppBarConfiguration(navController.graph, activityMainBinding.root)
 
-
         // destinations that should hide navigation bar
         val navBarlessDestinations = setOf(
             R.id.registrationPromptFragment,

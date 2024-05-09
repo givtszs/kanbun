@@ -64,7 +64,6 @@ class ItemTaskListViewHolder(
         }
 
         tasksAdapter = TasksAdapter(
-            parent = binding.rvTasks,
             taskDropCallbacks = taskDropCallbacks,
             onTaskClicked = { task ->
                 callbacks.onTaskClicked(task, taskList!!)
