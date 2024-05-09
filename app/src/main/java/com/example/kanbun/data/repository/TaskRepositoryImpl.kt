@@ -12,6 +12,7 @@ import com.example.kanbun.common.updateIfChanged
 import com.example.kanbun.data.model.FirestoreTaskList
 import com.example.kanbun.di.IoDispatcher
 import com.example.kanbun.domain.model.Task
+import com.example.kanbun.domain.model.WorkspaceInfo
 import com.example.kanbun.domain.repository.TaskRepository
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
@@ -52,6 +53,14 @@ class TaskRepositoryImpl @Inject constructor(
         }
     }
 
+    private fun removeTaskFromUsers(taskId: String, users: List<String>) {
+        val collectionRef = firestore.collection(FirestoreCollection.USERS)
+        Log.d(this@TaskRepositoryImpl.TAG, "current thread: ${Thread.currentThread().name}")
+        users.forEach {  userId ->
+            collectionRef.document(userId).update("tasks.$taskId", FieldValue.delete())
+        }
+    }
+
     override suspend fun getTask(taskId: String, taskListId: String, taskListPath: String): Result<Task> = runCatching {
         withContext(dispatcher) {
             firestore.collection(taskListPath).document(taskListId)
@@ -79,6 +88,19 @@ class TaskRepositoryImpl @Inject constructor(
             firestore.collection(taskListPath)
                 .document(taskListId)
                 .update(taskUpdates)
+                .getResult {
+                    if ("${FirestoreCollection.TASKS}.${newTask.id}.members" in taskUpdates) {
+                        val oldMembers = oldTask.members
+                        val newMembers = newTask.members
+                        if (oldMembers != newMembers) {
+                            val membersToAdd = newMembers.filterNot { it in oldMembers }
+                            addTasksToUser(newTask.id, "$taskListPath/$taskListId", membersToAdd)
+
+                            val membersToDelete = oldMembers.filterNot { it in newMembers }
+                            removeTaskFromUsers(newTask.id, membersToDelete)
+                        }
+                    }
+                }
         }
     }
 
