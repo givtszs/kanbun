@@ -5,10 +5,10 @@
         android:title="@string/boards"
         android:icon="@drawable/ic_boards_selector" />
 
-    <item android:id="@+id/userCardsFragment"
+    <item android:id="@+id/userTasksFragment"
         android:enabled="true"
-        android:title="@string/cards"
-        android:icon="@drawable/ic_cards_selector" />
+        android:title="@string/tasks"
+        android:icon="@drawable/ic_tasks_selector" />
 
     <item android:id="@+id/inboxFragment"
         android:enabled="true"

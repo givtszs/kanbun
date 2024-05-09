@@ -16,7 +16,7 @@ object TestData {
         workspaces = listOf(WorkspaceInfo("work1", "Test Workspace 1")),
         sharedWorkspaces = emptyList(),
         sharedBoards = emptyMap(),
-        cards = listOf("card1", "card2")
+        tasks = listOf("card1", "card2")
     )
 
     val firestoreUser = FirestoreUser(
@@ -25,6 +25,6 @@ object TestData {
         profilePicture = null,
         authProvider = AuthProvider.GOOGLE.providerId,
         workspaces = mapOf("id" to "workspaces/work1"),
-        cards = listOf("workspaces/work1/boards/board1/columns/col1/card1")
+        tasks = listOf("workspaces/work1/boards/board1/columns/col1/card1")
     )
 }

@@ -79,7 +79,7 @@ class FirestoreTestUtil {
                 workspaces = emptyList(),
                 sharedWorkspaces = emptyList(),
                 sharedBoards = emptyMap(),
-                cards = emptyList()
+                tasks = emptyList()
             )
         }
 

@@ -9,5 +9,5 @@ data class FirestoreUser(
     val workspaces: Map<String, String> = emptyMap(),
     val sharedWorkspaces: Map<String, String> = emptyMap(),
     val sharedBoards: Map<String, String> = emptyMap(),
-    val cards: List<String> = emptyList()
+    val tasks: List<String> = emptyList()
 )

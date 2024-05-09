@@ -84,10 +84,10 @@
             app:destination="@id/board_graph" />
     </fragment>
     <fragment
-        android:id="@+id/userCardsFragment"
-        android:name="com.example.kanbun.ui.user_cards.UserCardsFragment"
-        android:label="UserCardsFragment"
-        tools:layout="@layout/fragment_user_cards" />
+        android:id="@+id/userTasksFragment"
+        android:name="com.example.kanbun.ui.user_tasks.UserTasksFragment"
+        android:label="@string/tasks"
+        tools:layout="@layout/fragment_user_tasks" />
     <fragment
         android:id="@+id/inboxFragment"
         android:name="com.example.kanbun.ui.inbox.InboxFragment"
