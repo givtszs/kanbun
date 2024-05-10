@@ -62,5 +62,5 @@
     <include
         android:id="@+id/loading"
         layout="@layout/loading_state"
-        android:visibility="invisible" />
+        android:visibility="visible" />
 </androidx.constraintlayout.widget.ConstraintLayout>

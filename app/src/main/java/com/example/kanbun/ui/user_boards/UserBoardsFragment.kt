@@ -169,83 +169,94 @@ class UserBoardsFragment : BaseFragment(), StateHandler {
 
     override fun processState(state: ViewState) {
         with(state as ViewState.UserBoardsViewState) {
-//            Log.d(this@UserBoardsFragment.TAG, "State: $this")
-            user?.let { _user ->
-                setUpDrawer(_user)
-                activity.userWorkspacesAdapter?.workspaces = _user.workspaces.map { workspace ->
-                    DrawerAdapter.DrawerWorkspace(
-                        workspace,
-                        workspace.id == currentWorkspace?.id
-                    )
-                }.sortedBy { drawerWorkspace ->
-                    drawerWorkspace.workspace.name
-                }
-
-                Log.d(TAG, "processState: sharedWorkspaces: ${_user.sharedWorkspaces}")
-                activity.sharedWorkspacesAdapter?.workspaces =
-                    _user.sharedWorkspaces.map { workspace ->
-                        DrawerAdapter.DrawerWorkspace(
-                            workspace,
-                            workspace.id == currentWorkspace?.id
-                        )
-                    }.sortedBy { drawerWorkspace ->
-                        drawerWorkspace.workspace.name
-                    }
-            }
-
-            binding.apply {
-                // create options menu
-                if (!isMenuProviderAdded && currentWorkspace != null && currentWorkspace.id != DrawerItem.SHARED_BOARDS) {
-                    createOptionsMenu()
-                    isMenuProviderAdded = true
-                } else if (currentWorkspace == null || currentWorkspace.id == DrawerItem.SHARED_BOARDS) {
-                    removeOptionsMenu()
-                }
-
-                // set workspace data
-                if (currentWorkspace != null) {
-                    Log.d(this@UserBoardsFragment.TAG, "boards: ${currentWorkspace.boards}")
-                    boardsAdapter?.setData(currentWorkspace.boards)
-                    DrawerAdapter.prevSelectedWorkspaceId = currentWorkspace.id
-
-                    if (currentWorkspace.boards.isEmpty()) {
-                        tvTip.text = if (currentWorkspace.id != DrawerItem.SHARED_BOARDS) {
-                            resources.getString(R.string.empty_workspace_tip)
-                        } else {
-                            "Shared boards will appear here"
-                        }
-                    }
-                } else {
-                    boardsAdapter?.clear()
-                    tvTip.text = resources.getString(R.string.workspace_selection_tip)
-                }
-
-                rvBoards.isVisible = currentWorkspace != null
-                workspaceRole = currentWorkspace?.members?.get(MainActivity.firebaseUser?.uid)
-                fabCreateBoard.isVisible = currentWorkspace != null &&
-                        currentWorkspace.id != DrawerItem.SHARED_BOARDS &&
-                        workspaceRole == Role.Workspace.Admin
-                activity.isSharedBoardsSelected = currentWorkspace?.id == DrawerItem.SHARED_BOARDS
-
-                // empty screen
-                tvTip.isVisible = currentWorkspace == null || currentWorkspace.boards.isEmpty()
-                ivContextImage.isVisible = tvTip.isVisible
-                ivContextImage.setImageResource(
-                    if (currentWorkspace == null) {
-                        R.drawable.undraw_select_option_menu
-                    } else {
-                        // TODO: update image for empty boards state
-                        R.drawable.undraw_no_workspace
-                    }
-                )
-
-                toolbar.title = currentWorkspace?.name ?: resources.getString(R.string.boards)
-                loading.root.isVisible = isLoading
-            }
+            setUserState()
+            setOptionsMenuState()
+            setWorkspaceState()
+            setEmptyState()
 
             message?.let {
                 showToast(it)
                 viewModel.messageShown()
+            }
+
+            binding.apply {
+                workspaceRole = currentWorkspace?.members?.get(MainActivity.firebaseUser?.uid)
+                activity.isSharedBoardsSelected = currentWorkspace?.id == DrawerItem.SHARED_BOARDS
+
+                rvBoards.isVisible = currentWorkspace != null
+                fabCreateBoard.isVisible = currentWorkspace != null &&
+                        currentWorkspace.id != DrawerItem.SHARED_BOARDS &&
+                        workspaceRole == Role.Workspace.Admin
+
+                toolbar.title = currentWorkspace?.name ?: resources.getString(R.string.boards)
+                loading.root.isVisible = isLoading
+            }
+        }
+    }
+
+    private fun ViewState.UserBoardsViewState.setUserState() {
+        if (user == null) {
+            return
+        }
+
+        setUpDrawer(user)
+        activity.userWorkspacesAdapter?.workspaces = user.workspaces.map { workspace ->
+            DrawerAdapter.DrawerWorkspace(
+                workspace,
+                workspace.id == currentWorkspace?.id
+            )
+        }.sortedBy { drawerWorkspace ->
+            drawerWorkspace.workspace.name
+        }
+
+        Log.d(TAG, "processState: sharedWorkspaces: ${user.sharedWorkspaces}")
+        activity.sharedWorkspacesAdapter?.workspaces =
+            user.sharedWorkspaces.map { workspace ->
+                DrawerAdapter.DrawerWorkspace(
+                    workspace,
+                    workspace.id == currentWorkspace?.id
+                )
+            }.sortedBy { drawerWorkspace ->
+                drawerWorkspace.workspace.name
+            }
+    }
+
+    private fun ViewState.UserBoardsViewState.setOptionsMenuState() {
+        if (!isMenuProviderAdded && currentWorkspace != null && currentWorkspace.id != DrawerItem.SHARED_BOARDS) {
+            createOptionsMenu()
+            isMenuProviderAdded = true
+        } else if (currentWorkspace == null || currentWorkspace.id == DrawerItem.SHARED_BOARDS) {
+            removeOptionsMenu()
+        }
+    }
+
+    private fun ViewState.UserBoardsViewState.setWorkspaceState() {
+        if (currentWorkspace != null) {
+            Log.d(this@UserBoardsFragment.TAG, "boards: ${currentWorkspace.boards}")
+            boardsAdapter?.setData(currentWorkspace.boards)
+            DrawerAdapter.prevSelectedWorkspaceId = currentWorkspace.id
+
+            if (currentWorkspace.boards.isEmpty()) {
+                binding.tvTip.text = if (currentWorkspace.id != DrawerItem.SHARED_BOARDS) {
+                    resources.getString(R.string.empty_workspace_tip)
+                } else {
+                    "Shared boards will appear here"
+                }
+            }
+        } else {
+            boardsAdapter?.clear()
+            binding.tvTip.text = resources.getString(R.string.workspace_selection_tip)
+        }
+    }
+
+    private fun ViewState.UserBoardsViewState.setEmptyState() {
+        binding.apply {
+            tvTip.isVisible = currentWorkspace == null || currentWorkspace.boards.isEmpty()
+            ivContextImage.isVisible = tvTip.isVisible
+            if (currentWorkspace == null) {
+                ivContextImage.setImageResource(R.drawable.undraw_select_option_menu)
+            } else if (currentWorkspace.boards.isEmpty()) {
+                ivContextImage.setImageResource(R.drawable.undraw_board)
             }
         }
     }

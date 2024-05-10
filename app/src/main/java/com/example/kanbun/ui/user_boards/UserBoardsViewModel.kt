@@ -20,6 +20,7 @@ import com.example.kanbun.domain.model.WorkspaceInfo
 import com.example.kanbun.domain.repository.BoardRepository
 import com.example.kanbun.domain.repository.UserRepository
 import com.example.kanbun.domain.repository.WorkspaceRepository
+import com.example.kanbun.ui.MessageHandler
 import com.example.kanbun.ui.ViewState
 import com.example.kanbun.ui.main_activity.MainActivity
 import com.example.kanbun.ui.main_activity.MainActivity.Companion.firebaseUser
@@ -45,7 +46,7 @@ class UserBoardsViewModel @Inject constructor(
     private val workspaceRepository: WorkspaceRepository,
     private val boardRepository: BoardRepository,
     private val dataStore: PreferenceDataStoreHelper,
-) : ViewModel() {
+) : ViewModel(), MessageHandler {
 
     private val _user = userRepository.getUserStream(firebaseUser?.uid).distinctUntilChanged()
     private val _currentWorkspace = MutableStateFlow<Workspace?>(null)
@@ -104,7 +105,7 @@ class UserBoardsViewModel @Inject constructor(
         }
     }
 
-    fun messageShown() {
+    override fun messageShown() {
         _message.value = null
     }
 
