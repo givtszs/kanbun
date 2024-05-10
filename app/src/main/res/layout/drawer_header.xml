@@ -2,9 +2,9 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:background="@color/md_theme_light_surface"
+    android:background="@color/background_primary"
     android:layout_width="match_parent"
-    android:layout_height="140dp"
+    android:layout_height="wrap_content"
     android:paddingStart="28dp">
 
     <com.google.android.material.imageview.ShapeableImageView
@@ -24,11 +24,27 @@
         android:layout_marginBottom="4dp"
         android:ellipsize="end"
         android:maxLines="1"
+        android:layout_marginTop="8dp"
+        app:layout_constraintTop_toBottomOf="@id/ivProfilePicture"
+        style="?textAppearanceSubtitle1"
+        app:layout_constraintBottom_toTopOf="@id/tvTag"
+        app:layout_constraintEnd_toEndOf="@id/tvEmail"
+        app:layout_constraintStart_toStartOf="@id/ivProfilePicture"
+        tools:text="Some Name" />
+
+    <TextView
+        android:id="@+id/tvTag"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="4dp"
+        android:ellipsize="end"
+        android:maxLines="1"
+        android:textSize="14sp"
         style="?textAppearanceSubtitle1"
         app:layout_constraintBottom_toTopOf="@id/tvEmail"
         app:layout_constraintEnd_toEndOf="@id/tvEmail"
         app:layout_constraintStart_toStartOf="@id/ivProfilePicture"
-        tools:text="Some Name" />
+        tools:text="\@user_2931" />
 
     <TextView
         android:id="@+id/tvEmail"
@@ -65,13 +81,12 @@
         style="?attr/materialIconButtonStyle"
         app:icon="@drawable/ic_sign_out_outlined_24"
         android:insetRight="0dp"
-        android:layout_marginBottom="4dp"
         android:layout_marginEnd="4dp"
         app:iconSize="24dp"
         app:iconTint="@color/md_theme_light_onSurface"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toBottomOf="@id/tvEmail"
         app:srcCompat="@drawable/ic_settings_outlined_24" />
 </androidx.constraintlayout.widget.ConstraintLayout>

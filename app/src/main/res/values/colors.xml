@@ -12,6 +12,7 @@
     <color name="platinum_1">#E5E4E2</color>
     <color name="anti_flash_white">#F0F0F0</color>
 
+    <color name="background_primary">@color/white</color>
     <color name="background_secondary">@color/white_secondary</color>
     <color name="text_light">#737373</color>
 

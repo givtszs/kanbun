@@ -15,6 +15,7 @@ import androidx.core.view.MenuProvider
 import androidx.core.view.isEmpty
 import androidx.core.view.isVisible
 import androidx.core.widget.doOnTextChanged
+import androidx.drawerlayout.widget.DrawerLayout.DrawerListener
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -259,8 +260,30 @@ class UserBoardsFragment : BaseFragment(), StateHandler {
     private fun setUpDrawer(user: User) {
         with(activity) {
             // set up header layout
+
+            activityMainBinding.drawerLayout.addDrawerListener(object : DrawerListener {
+                override fun onDrawerSlide(drawerView: View, slideOffset: Float) {
+//                    TODO("Not yet implemented")
+                    setStatusBarColor(getColor(requireContext(), R.color.background_primary))
+                }
+
+                override fun onDrawerOpened(drawerView: View) {
+//                    TODO("Not yet implemented")
+
+                }
+
+                override fun onDrawerClosed(drawerView: View) {
+//                    TODO("Not yet implemented")
+                    setStatusBarColor(getColor(requireContext(), R.color.background_secondary))
+                }
+
+                override fun onDrawerStateChanged(newState: Int) {
+//                    TODO("Not yet implemented")
+                }
+            })
             activityMainBinding.drawerContent.headerLayout.apply {
                 tvName.text = user.name
+                tvTag.text = user.tag
                 tvEmail.text = user.email
                 loadProfilePicture(requireContext(), user.profilePicture, ivProfilePicture)
             }
