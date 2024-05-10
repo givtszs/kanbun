@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFF</color>
+    <color name="white_secondary">#FAFAFA</color>
+    <color name="white_border">#E3E3E3</color>
+    <color name="black">#000000</color>
     <color name="black_dimmed">#20000000</color>
-    <color name="white">#FFFFFFFF</color>
     <color name="dark_red">#8D0801</color>
     <color name="platinum">#E5E5E5</color>
     <color name="gray">#808080</color>
@@ -10,7 +12,10 @@
     <color name="platinum_1">#E5E4E2</color>
     <color name="anti_flash_white">#F0F0F0</color>
 
-    <!-- Theme colors -->
+    <color name="background_secondary">@color/white_secondary</color>
+    <color name="text_light">#737373</color>
+
+    <!-- Theme colors (Old) -->
     <color name="md_theme_light_primary">#FF6110</color>
     <color name="md_theme_light_primary_variant">#FFDBD3</color>
     <color name="md_theme_light_onPrimary">#FFFFFF</color>
@@ -44,7 +49,6 @@
     <color name="md_theme_light_surfaceTint">#855300</color>
     <color name="md_theme_light_outlineVariant">#D4C4B5</color>
     <color name="md_theme_light_scrim">#000000</color>
-
 
     <!-- Tag default colors -->
     <color name="red">#FF0000</color>
