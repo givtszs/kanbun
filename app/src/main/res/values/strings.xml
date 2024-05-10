@@ -32,6 +32,7 @@
     <string name="delete_workspace">Delete workspace</string>
     <string name="workspace_selection_tip">Tap the menu icon to select or create a workspace</string>
     <string name="empty_workspace_tip">Boards will appear here once created</string>
+    <string name="empty_shared_boards_tip">Shared boards will appear here</string>
     <string name="fab_new_board">New board</string>
     <string name="create_task">Create task</string>
     <string name="create_task_list">Create list</string>

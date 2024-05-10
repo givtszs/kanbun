@@ -91,6 +91,7 @@ class UserBoardsFragment : BaseFragment(), StateHandler {
 
     private var isMenuProviderAdded = false
     private var boardsAdapter: BoardsAdapter? = null
+    private var signOutPerformed = false
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -99,6 +100,7 @@ class UserBoardsFragment : BaseFragment(), StateHandler {
     ): View {
         _binding = FragmentUserBoardsBinding.inflate(inflater, container, false)
         activity = requireActivity() as MainActivity
+        signOutPerformed = false
         return binding.root
     }
 
@@ -129,7 +131,8 @@ class UserBoardsFragment : BaseFragment(), StateHandler {
                 btnSignOut.setOnClickListener {
                     viewModel.signOutUser(requireContext()) {
                         DrawerAdapter.prevSelectedWorkspaceId = null
-                        navController.navigate(R.id.registrationPromptFragment)
+                        signOutPerformed = true
+                        activityMainBinding.drawerLayout.closeDrawer(GravityCompat.START)
                     }
                 }
 
@@ -196,7 +199,7 @@ class UserBoardsFragment : BaseFragment(), StateHandler {
                             if (workspace.workspace.id != DrawerItem.SHARED_BOARDS) {
                                 resources.getString(R.string.empty_workspace_tip)
                             } else {
-                                "Shared boards will appear here"
+                                resources.getString(R.string.empty_shared_boards_tip)
                             }
                         binding.ivContextImage.setImageResource(R.drawable.undraw_board)
                     }
@@ -223,8 +226,9 @@ class UserBoardsFragment : BaseFragment(), StateHandler {
                 fabCreateBoard.isVisible = workspace is ViewState.WorkspaceState.WorkspaceReady &&
                         workspace.workspace.id != DrawerItem.SHARED_BOARDS &&
                         workspaceRole == Role.Workspace.Admin
-                toolbar.title = (workspace as? ViewState.WorkspaceState.WorkspaceReady)?.workspace?.name
-                    ?: resources.getString(R.string.boards)
+                toolbar.title =
+                    (workspace as? ViewState.WorkspaceState.WorkspaceReady)?.workspace?.name
+                        ?: resources.getString(R.string.boards)
                 loading.root.isVisible = isLoading
             }
         }
@@ -260,21 +264,32 @@ class UserBoardsFragment : BaseFragment(), StateHandler {
     private fun setUpDrawer(user: User) {
         with(activity) {
             // set up header layout
+            var offset = 0.0
 
             activityMainBinding.drawerLayout.addDrawerListener(object : DrawerListener {
                 override fun onDrawerSlide(drawerView: View, slideOffset: Float) {
 //                    TODO("Not yet implemented")
-                    setStatusBarColor(getColor(requireContext(), R.color.background_primary))
+                    Log.d(this@UserBoardsFragment.TAG, "drawer slideOffset: $slideOffset")
+                    if (slideOffset > offset) {
+                        setStatusBarColor(getColor(requireContext(), R.color.background_primary))
+                    } else {
+                        setStatusBarColor(getColor(requireContext(), R.color.background_secondary))
+                    }
                 }
 
                 override fun onDrawerOpened(drawerView: View) {
 //                    TODO("Not yet implemented")
-
+                    offset = 1.0
                 }
 
                 override fun onDrawerClosed(drawerView: View) {
 //                    TODO("Not yet implemented")
-                    setStatusBarColor(getColor(requireContext(), R.color.background_secondary))
+                    Log.d(this@UserBoardsFragment.TAG, "drawer is closed")
+                    offset = 0.0
+                    if (signOutPerformed) {
+                        navController.navigate(R.id.registrationPromptFragment)
+//                        setStatusBarColor(getColor(requireContext(), R.color.md_theme_light_primary_variant))
+                    }
                 }
 
                 override fun onDrawerStateChanged(newState: Int) {
@@ -283,7 +298,7 @@ class UserBoardsFragment : BaseFragment(), StateHandler {
             })
             activityMainBinding.drawerContent.headerLayout.apply {
                 tvName.text = user.name
-                tvTag.text = user.tag
+                tvTag.text = resources.getString(R.string.user_tag, user.tag)
                 tvEmail.text = user.email
                 loadProfilePicture(requireContext(), user.profilePicture, ivProfilePicture)
             }
