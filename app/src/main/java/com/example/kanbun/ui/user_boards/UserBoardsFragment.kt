@@ -104,8 +104,8 @@ class UserBoardsFragment : BaseFragment(), StateHandler {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         addOnBackPressedAction { requireActivity().finish() }
-        setUpActionBar(binding.topAppBar.toolbar)
-        setStatusBarColor(getColor(requireContext(), R.color.md_theme_light_surface))
+        setUpActionBar(binding.toolbar)
+        setStatusBarColor(getColor(requireContext(), R.color.background_secondary))
         setUpBoardsAdapter()
         viewModel.init()
         viewModel.checkUserVerification(
@@ -226,8 +226,20 @@ class UserBoardsFragment : BaseFragment(), StateHandler {
                         currentWorkspace.id != DrawerItem.SHARED_BOARDS &&
                         workspaceRole == Role.Workspace.Admin
                 activity.isSharedBoardsSelected = currentWorkspace?.id == DrawerItem.SHARED_BOARDS
+
+                // empty screen
                 tvTip.isVisible = currentWorkspace == null || currentWorkspace.boards.isEmpty()
-                topAppBar.toolbar.title = currentWorkspace?.name ?: resources.getString(R.string.boards)
+                ivContextImage.isVisible = tvTip.isVisible
+                ivContextImage.setImageResource(
+                    if (currentWorkspace == null) {
+                        R.drawable.undraw_select_option_menu
+                    } else {
+                        // TODO: update image for empty boards state
+                        R.drawable.undraw_no_workspace
+                    }
+                )
+
+                toolbar.title = currentWorkspace?.name ?: resources.getString(R.string.boards)
                 loading.root.isVisible = isLoading
             }
 
