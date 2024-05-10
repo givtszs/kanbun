@@ -49,21 +49,21 @@ class UserBoardsViewModel @Inject constructor(
 ) : ViewModel(), MessageHandler {
 
     private val _user = userRepository.getUserStream(firebaseUser?.uid).distinctUntilChanged()
-    private val _currentWorkspace = MutableStateFlow<Workspace?>(null)
     private val _isLoading = MutableStateFlow(true)
     private val _message = MutableStateFlow<String?>(null)
+    private val _workspaceState = MutableStateFlow<ViewState.WorkspaceState>(ViewState.WorkspaceState.NullWorkspace)
 
-    val userBoardsState: StateFlow<ViewState.UserBoardsViewState> = combine(
-        _user, _currentWorkspace, _isLoading, _message
-    ) { user, currentWorkspace, isLoading, message ->
+    val userBoardsState: StateFlow<ViewState.UserBoardsState> = combine(
+        _isLoading, _message, _user, _workspaceState
+    ) { isLoading, message, user, workspace ->
         Log.d(TAG, "The state is triggered")
-        ViewState.UserBoardsViewState(
-            user = user,
-            currentWorkspace = currentWorkspace,
+        ViewState.UserBoardsState(
             isLoading = isLoading,
-            message = message
+            message = message,
+            user = user,
+            workspace = workspace
         )
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), ViewState.UserBoardsViewState())
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), ViewState.UserBoardsState())
 
     fun init() {
         getCurrentWorkspace()
@@ -98,8 +98,10 @@ class UserBoardsViewModel @Inject constructor(
                 ""
             )
             Log.d(this@UserBoardsViewModel.TAG, "getCurrentWorkspace: workspaceId: $workspaceId")
-            if (_currentWorkspace.value?.id == workspaceId) {
-                return@launch
+            (_workspaceState.value as? ViewState.WorkspaceState.WorkspaceReady)?.let { workspace ->
+                if (workspace.workspace.id == workspaceId) {
+                    return@launch
+                }
             }
             selectWorkspace(workspaceId)
         }
@@ -146,7 +148,11 @@ class UserBoardsViewModel @Inject constructor(
             flow.collectLatest { result ->
                 result
                     .onSuccess { workspace ->
-                        _currentWorkspace.value = workspace
+                        _workspaceState.value = if (workspace == null) {
+                            ViewState.WorkspaceState.NullWorkspace
+                        } else {
+                            ViewState.WorkspaceState.WorkspaceReady(workspace)
+                        }
                         _isLoading.value = false
                     }.onError { message, _ ->
                         _message.value = message
@@ -176,10 +182,12 @@ class UserBoardsViewModel @Inject constructor(
     }
 
     private suspend fun onSharedBoardsSelected() {
-        _currentWorkspace.value = Workspace(
-            id = DrawerItem.SHARED_BOARDS,
-            name = "Shared boards",
-            boards = getSharedBoards()
+        _workspaceState.value = ViewState.WorkspaceState.WorkspaceReady(
+            Workspace(
+                id = DrawerItem.SHARED_BOARDS,
+                name = "Shared boards",
+                boards = getSharedBoards()
+            )
         )
         _isLoading.value = false
     }

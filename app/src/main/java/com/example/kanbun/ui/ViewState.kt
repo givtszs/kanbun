@@ -39,12 +39,17 @@ sealed class ViewState {
         val message: String? = null
     ) : ViewState()
 
-    data class UserBoardsViewState(
-        val user: User? = null,
-        val currentWorkspace: Workspace? = null,
+    data class UserBoardsState(
+        val message: String? = null,
         val isLoading: Boolean = true,
-        val message: String? = null
+        val user: User? = null,
+        val workspace: WorkspaceState = WorkspaceState.NullWorkspace
     ) : ViewState()
+
+    sealed interface WorkspaceState {
+        data object NullWorkspace : WorkspaceState
+        data class WorkspaceReady(val workspace: Workspace) : WorkspaceState
+    }
 
     data class UserTasksViewState(
         val user: User? = null,
