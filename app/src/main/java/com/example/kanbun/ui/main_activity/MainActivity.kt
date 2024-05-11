@@ -1,6 +1,7 @@
 package com.example.kanbun.ui.main_activity
 
 import android.os.Bundle
+import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
 import androidx.drawerlayout.widget.DrawerLayout
@@ -9,6 +10,7 @@ import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupWithNavController
+import androidx.recyclerview.widget.RecyclerView
 import com.example.kanbun.R
 import com.example.kanbun.common.DrawerItem
 import com.example.kanbun.databinding.ActivityMainBinding
@@ -104,11 +106,11 @@ class MainActivity : AppCompatActivity() {
 
             userWorkspacesHeadline.tvHeadline.text = resources.getString(R.string.user_workspaces_headline)
             userWorkspacesHeadline.btnRecyclerViewToggle.setOnClickListener {
-                rvUserWorkspaces.isVisible = !rvUserWorkspaces.isVisible
+                toggleRecyclerView(rvUserWorkspaces, userWorkspacesHeadline.btnRecyclerViewToggle)
             }
             sharedWorkspacesHeadline.tvHeadline.text = resources.getString(R.string.shared_workspaces_headline)
             sharedWorkspacesHeadline.btnRecyclerViewToggle.setOnClickListener {
-                rvSharedWorkspaces.isVisible = !rvSharedWorkspaces.isVisible
+                toggleRecyclerView(rvSharedWorkspaces, sharedWorkspacesHeadline.btnRecyclerViewToggle)
             }
 
             sharedBoards.card.setOnClickListener {
@@ -117,6 +119,15 @@ class MainActivity : AppCompatActivity() {
             sharedBoards.tvName.text = resources.getString(R.string.shared_boards_headline)
             sharedBoards.ivLeadingIcon.setImageResource(R.drawable.ic_kanban_board_selector)
         }
+    }
+
+    private fun toggleRecyclerView(recyclerView: RecyclerView, view: View) {
+        if (recyclerView.isVisible) {
+            view.animate().setDuration(200).rotation(90.0f)
+        } else {
+            view.animate().setDuration(200).rotation(0.0f)
+        }
+        recyclerView.isVisible = !recyclerView.isVisible
     }
 
     override fun onSupportNavigateUp(): Boolean {
