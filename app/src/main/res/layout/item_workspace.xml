@@ -12,7 +12,7 @@
         android:layout_height="match_parent"
         android:clickable="true"
         android:focusable="true"
-        app:cardCornerRadius="30dp"
+        app:cardCornerRadius="10dp"
         app:strokeWidth="0dp">
 
         <androidx.constraintlayout.widget.ConstraintLayout
@@ -26,16 +26,17 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
+
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:srcCompat="@drawable/ic_workspaces_selector" />
+                app:srcCompat="@drawable/ic_folder_selector" />
 
             <TextView
                 android:id="@+id/tvName"
                 style="@style/TextAppearance.Material3.LabelLarge"
                 android:layout_width="0dp"
-                android:layout_height="50dp"
+                android:layout_height="match_parent"
                 android:layout_marginHorizontal="12dp"
                 android:ellipsize="end"
                 android:gravity="center_vertical"

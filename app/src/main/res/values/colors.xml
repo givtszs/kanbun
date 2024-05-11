@@ -18,6 +18,8 @@
 
     <!-- Theme colors (Old) -->
     <color name="md_theme_light_primary">#FF6110</color>
+    <color name="md_theme_light_primary_light">#FFE8DD</color>
+    <color name="md_theme_light_primary_text">#DE4A00</color>
     <color name="md_theme_light_primary_variant">#FFDBD3</color>
     <color name="md_theme_light_onPrimary">#FFFFFF</color>
     <color name="md_theme_light_primaryContainer">#FFDDB8</color>
