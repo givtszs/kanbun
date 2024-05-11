@@ -73,7 +73,7 @@
         android:layout_marginEnd="@dimen/drawer_header_icon_padding_end"
         app:icon="@drawable/ic_settings_outlined_24"
         app:iconSize="24dp"
-        app:iconTint="@color/icon_black"
+        app:iconTint="@color/icon_primary_dark"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@drawable/ic_settings_outlined_24" />
@@ -86,7 +86,7 @@
         android:layout_marginEnd="@dimen/drawer_header_icon_padding_end"
         app:icon="@drawable/ic_sign_out_outlined_24"
         app:iconSize="24dp"
-        app:iconTint="@color/icon_black"
+        app:iconTint="@color/icon_primary_dark"
         app:layout_constraintBaseline_toBaselineOf="@id/tvEmail"
         app:layout_constraintEnd_toEndOf="parent"
         app:srcCompat="@drawable/ic_settings_outlined_24" />

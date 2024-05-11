@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    app:cardBackgroundColor="@color/background_light"
     app:cardCornerRadius="0dp"
     app:strokeWidth="0dp">
 
@@ -16,20 +17,20 @@
         <com.google.android.material.imageview.ShapeableImageView
             android:id="@+id/ivCover"
             android:layout_width="match_parent"
-            android:layout_height="160dp"
-            app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.App.ImageViewSlightRounding"
-            android:background="@color/md_theme_light_primaryContainer"
+            android:layout_height="130dp"
+            app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.ImageView.MediumRounding"
+            android:background="@color/md_theme_light_primary_tint"
             app:layout_constraintTop_toTopOf="parent"
             tools:src="@tools:sample/backgrounds/scenic" />
 
         <TextView
             android:id="@+id/tvName"
             style="?attr/textAppearanceHeadline6"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:ellipsize="end"
             android:layout_marginTop="8dp"
-            android:maxLines="1"
+            android:maxLines="2"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/ivCover"

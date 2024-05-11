@@ -17,10 +17,12 @@
     <color name="background_light">@color/white_secondary</color>
     <color name="border_primary">#D4D4D4</color>
     <color name="border_light">#E3E3E3</color>
-    <color name="icon_black">#141414</color>
+    <color name="icon_primary_dark">#141414</color>
+    <color name="icon_primary_light">#A3A3A3</color>
 
     <!-- Theme colors (Old) -->
     <color name="md_theme_light_primary">#FF6110</color>
+    <color name="md_theme_light_primary_tint">#FFC6A9</color>
     <color name="md_theme_light_primary_light">#FFE8DD</color>
     <color name="md_theme_light_primary_text">#DE4A00</color>
     <color name="md_theme_light_primary_variant">#FFDBD3</color>
