@@ -2,7 +2,7 @@ package com.example.kanbun.ui.user_boards
 
 import android.content.Context
 import android.util.Log
-import androidx.lifecycle.ViewModel
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.viewModelScope
 import com.example.kanbun.BuildConfig
 import com.example.kanbun.common.AuthProvider
@@ -20,6 +20,7 @@ import com.example.kanbun.domain.model.WorkspaceInfo
 import com.example.kanbun.domain.repository.BoardRepository
 import com.example.kanbun.domain.repository.UserRepository
 import com.example.kanbun.domain.repository.WorkspaceRepository
+import com.example.kanbun.ui.BaseViewModel
 import com.example.kanbun.ui.MessageHandler
 import com.example.kanbun.ui.ViewState
 import com.example.kanbun.ui.main_activity.MainActivity
@@ -34,9 +35,9 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -46,27 +47,31 @@ class UserBoardsViewModel @Inject constructor(
     private val workspaceRepository: WorkspaceRepository,
     private val boardRepository: BoardRepository,
     private val dataStore: PreferenceDataStoreHelper,
-) : ViewModel(), MessageHandler {
+) : BaseViewModel(), MessageHandler {
 
-    private val _user = userRepository.getUserStream(firebaseUser?.uid).distinctUntilChanged()
+    private val _user = userRepository.getUserStream(firebaseUser?.uid)
     private val _isLoading = MutableStateFlow(true)
     private val _message = MutableStateFlow<String?>(null)
-    private val _workspaceState = MutableStateFlow<ViewState.WorkspaceState>(ViewState.WorkspaceState.NullWorkspace)
+    private val _workspaceState =
+        MutableStateFlow<ViewState.WorkspaceState>(ViewState.WorkspaceState.NullWorkspace)
 
     val userBoardsState: StateFlow<ViewState.UserBoardsState> = combine(
-        _isLoading, _message, _user, _workspaceState
-    ) { isLoading, message, user, workspace ->
+        _isLoading, _message, _workspaceState
+    ) { isLoading, message, workspace ->
         Log.d(TAG, "The state is triggered")
         ViewState.UserBoardsState(
             isLoading = isLoading,
             message = message,
-            user = user,
             workspace = workspace
         )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), ViewState.UserBoardsState())
 
-    fun init() {
-        getCurrentWorkspace()
+    private var _drawerState = MutableStateFlow(ViewState.DrawerState())
+    val drawerState: StateFlow<ViewState.DrawerState> = _drawerState
+
+    init {
+        collectUserUpdates()
+        collectCurrentWorkspaceUpdates()
     }
 
     fun checkUserVerification(
@@ -91,19 +96,36 @@ class UserBoardsViewModel @Inject constructor(
         }
     }
 
-    private fun getCurrentWorkspace() {
+    private fun collectUserUpdates() {
         viewModelScope.launch {
-            val workspaceId = dataStore.getPreferenceFirst(
-                PreferenceDataStoreKeys.CURRENT_WORKSPACE_ID,
-                ""
-            )
-            Log.d(this@UserBoardsViewModel.TAG, "getCurrentWorkspace: workspaceId: $workspaceId")
-            (_workspaceState.value as? ViewState.WorkspaceState.WorkspaceReady)?.let { workspace ->
-                if (workspace.workspace.id == workspaceId) {
-                    return@launch
+            _user.collectLatest { user ->
+                Log.d(this@UserBoardsViewModel.TAG, "user: $user")
+                _drawerState.update {
+                    it.copy(user = user)
                 }
             }
-            selectWorkspace(workspaceId)
+        }
+    }
+
+    private fun collectCurrentWorkspaceUpdates() {
+        viewModelScope.launch {
+//            val workspaceId = dataStore.getPreferenceFirst(
+//                PreferenceDataStoreKeys.CURRENT_WORKSPACE_ID,
+//                ""
+//            )
+//            Log.d(this@UserBoardsViewModel.TAG, "getCurrentWorkspace: workspaceId: $workspaceId")
+//            (_workspaceState.value as? ViewState.WorkspaceState.WorkspaceReady)?.let { workspace ->
+//                if (workspace.workspace.id == workspaceId) {
+//                    return@launch
+//                }
+//            }
+
+            dataStore.getPreference(PreferenceDataStoreKeys.CURRENT_WORKSPACE_ID, "")
+                .whenAtLeast(Lifecycle.State.STARTED)
+                .collectLatest { workspaceId ->
+                    _drawerState.update { it.copy(selectedWorkspace = workspaceId) }
+                    selectWorkspace(workspaceId)
+                }
         }
     }
 
@@ -128,7 +150,8 @@ class UserBoardsViewModel @Inject constructor(
         }
     }
 
-    fun createWorkspace(name: String, user: User) = viewModelScope.launch {5
+    fun createWorkspace(name: String, user: User) = viewModelScope.launch {
+        5
         val workspace = Workspace(
             name = name,
             owner = user.id,
@@ -145,24 +168,26 @@ class UserBoardsViewModel @Inject constructor(
     private fun getWorkspace(flow: Flow<Result<Workspace?>>) {
         collectionJob?.cancel()
         collectionJob = viewModelScope.launch {
-            flow.collectLatest { result ->
-                result
-                    .onSuccess { workspace ->
-                        _workspaceState.value = if (workspace == null) {
-                            ViewState.WorkspaceState.NullWorkspace
-                        } else {
-                            ViewState.WorkspaceState.WorkspaceReady(workspace)
+            flow.whenAtLeast(Lifecycle.State.STARTED)
+                .collectLatest { result ->
+                    result
+                        .onSuccess { workspace ->
+                            _workspaceState.value = if (workspace == null) {
+                                ViewState.WorkspaceState.NullWorkspace
+                            } else {
+                                ViewState.WorkspaceState.WorkspaceReady(workspace)
+                            }
+                            _isLoading.value = false
+                        }.onError { message, _ ->
+                            _message.value = message
+                            _isLoading.value = false
                         }
-                        _isLoading.value = false
-                    }.onError { message, _ ->
-                        _message.value = message
-                        _isLoading.value = false
-                    }
-            }
+                }
         }
     }
 
     fun selectWorkspace(workspaceId: String, isPreferenceSaved: Boolean = true) {
+        Log.d(TAG, "selectWorkspace is called")
         viewModelScope.launch {
             _isLoading.value = true
 

@@ -107,7 +107,8 @@ class UserBoardsFragment : BaseFragment(), StateHandler {
         setUpActionBar(binding.toolbar)
         setStatusBarColor(getColor(requireContext(), R.color.background_light))
         setUpBoardsAdapter()
-        viewModel.init()
+        viewModel.startObservingLifecycle(viewLifecycleOwner.lifecycle)
+//        viewModel.init()
         viewModel.checkUserVerification(
             nullUserCallback = {
                 showToast("Firebase user is null")
@@ -122,8 +123,148 @@ class UserBoardsFragment : BaseFragment(), StateHandler {
     }
 
     override fun setUpListeners() {
-        // set up drawers listeners
+        setUpDrawer()
+
+        binding.fabCreateBoard.setOnClickListener {
+            val workspace = viewModel.userBoardsState.value.workspace
+            val user = viewModel.drawerState.value.user
+            if (workspace is ViewState.WorkspaceState.WorkspaceReady) {
+                buildBoardCreationDialog(user?.id ?: "", workspace.workspace)
+            }
+        }
+
+    }
+
+    override fun setUpActionBar(toolbar: MaterialToolbar) {
         activity.apply {
+            setSupportActionBar(toolbar)
+            setupActionBarWithNavController(navController, appBarConfiguration)
+        }
+    }
+
+    override fun collectState() {
+        lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.userBoardsState.collectLatest {
+                    processState(it)
+                }
+            }
+        }
+
+        lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.drawerState.collectLatest {
+                    processState(it)
+                }
+            }
+        }
+    }
+
+    override fun processState(state: ViewState) {
+        Log.d(TAG, "state: $state")
+        when (state) {
+            is ViewState.UserBoardsState -> state.process()
+            is ViewState.DrawerState -> state.process()
+            else -> false
+        }
+    }
+
+    private fun ViewState.UserBoardsState.process() {
+        when (workspace) {
+            ViewState.WorkspaceState.NullWorkspace -> {
+                removeOptionsMenu()
+                boardsAdapter?.clear()
+                binding.tvTip.text = resources.getString(R.string.workspace_selection_tip)
+                binding.ivContextImage.setImageResource(R.drawable.undraw_select_option_menu)
+            }
+
+            is ViewState.WorkspaceState.WorkspaceReady -> {
+                // set options menu
+                if (!isMenuProviderAdded && workspace.workspace.id != DrawerItem.SHARED_BOARDS) {
+                    createOptionsMenu()
+                    isMenuProviderAdded = true
+                } else if (workspace.workspace.id == DrawerItem.SHARED_BOARDS) {
+                    removeOptionsMenu()
+                }
+
+                if (workspace.workspace.boards.isEmpty()) {
+                    binding.tvTip.text =
+                        if (workspace.workspace.id != DrawerItem.SHARED_BOARDS) {
+                            resources.getString(R.string.empty_workspace_tip)
+                        } else {
+                            resources.getString(R.string.empty_shared_boards_tip)
+                        }
+                    binding.ivContextImage.setImageResource(R.drawable.undraw_board)
+                }
+
+                workspaceRole = workspace.workspace.members[MainActivity.firebaseUser?.uid]
+                Log.d(this@UserBoardsFragment.TAG, "boards: ${workspace.workspace.boards}")
+                boardsAdapter?.setData(workspace.workspace.boards)
+                DrawerAdapter.prevSelectedWorkspaceId = workspace.workspace.id
+            }
+        }
+
+        message?.let {
+            showToast(it)
+            viewModel.messageShown()
+        }
+
+        binding.apply {
+            activity.isSharedBoardsSelected =
+                (workspace as? ViewState.WorkspaceState.WorkspaceReady)?.workspace?.id == DrawerItem.SHARED_BOARDS
+            tvTip.isVisible = workspace is ViewState.WorkspaceState.NullWorkspace ||
+                    (workspace as ViewState.WorkspaceState.WorkspaceReady).workspace.boards.isEmpty()
+            ivContextImage.isVisible = tvTip.isVisible
+            rvBoards.isVisible = workspace !is ViewState.WorkspaceState.NullWorkspace
+            fabCreateBoard.isVisible = workspace is ViewState.WorkspaceState.WorkspaceReady &&
+                    workspace.workspace.id != DrawerItem.SHARED_BOARDS &&
+                    workspaceRole == Role.Workspace.Admin
+            toolbar.title =
+                (workspace as? ViewState.WorkspaceState.WorkspaceReady)?.workspace?.name
+                    ?: resources.getString(R.string.boards)
+            loading.root.isVisible = isLoading
+        }
+    }
+
+    private fun ViewState.DrawerState.process() {
+        if (user == null) {
+            return
+        }
+
+        val currentWorkspace = (viewModel.userBoardsState.value.workspace as? ViewState.WorkspaceState.WorkspaceReady)?.workspace
+
+        activity.userWorkspacesAdapter?.workspaces = user.workspaces.map { workspace ->
+            DrawerAdapter.DrawerWorkspace(
+                workspace,
+                workspace.id == selectedWorkspace
+            )
+        }.sortedBy { drawerWorkspace ->
+            drawerWorkspace.workspace.name
+        }
+
+        Log.d(TAG, "processState: sharedWorkspaces: ${user.sharedWorkspaces}")
+        activity.sharedWorkspacesAdapter?.workspaces =
+            user.sharedWorkspaces.map { workspace ->
+                DrawerAdapter.DrawerWorkspace(
+                    workspace,
+                    workspace.id == selectedWorkspace
+                )
+            }.sortedBy { drawerWorkspace ->
+                drawerWorkspace.workspace.name
+            }
+
+        activity.activityMainBinding.drawerContent.headerLayout.apply {
+            tvName.text = user.name
+            tvTag.text = resources.getString(R.string.user_tag, user.tag)
+            tvEmail.text = user.email
+            loadProfilePicture(requireContext(), user.profilePicture, ivProfilePicture)
+        }
+    }
+
+    private fun setUpDrawer() {
+//        TODO: OPTIMIZE THIS FUNCTION
+        with(activity) {
+            // set up drawer header buttons listeners
             activityMainBinding.drawerContent.headerLayout.apply {
                 btnSignOut.setOnClickListener {
                     viewModel.signOutUser(requireContext()) {
@@ -142,131 +283,12 @@ class UserBoardsFragment : BaseFragment(), StateHandler {
                 viewModel.selectWorkspace(workspaceId, false)
                 activityMainBinding.drawerLayout.closeDrawer(GravityCompat.START)
             }
-        }
 
-        binding.fabCreateBoard.setOnClickListener {
-            with(viewModel.userBoardsState.value) {
-                (workspace as? ViewState.WorkspaceState.WorkspaceReady)?.let { workspace ->
-                    buildBoardCreationDialog(user?.id ?: "", workspace.workspace)
-                }
-            }
-        }
-    }
-
-    override fun setUpActionBar(toolbar: MaterialToolbar) {
-        activity.apply {
-            setSupportActionBar(toolbar)
-            setupActionBarWithNavController(navController, appBarConfiguration)
-        }
-    }
-
-    override fun collectState() {
-        lifecycleScope.launch {
-            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.userBoardsState.collectLatest {
-                    processState(it)
-                }
-            }
-        }
-    }
-
-    override fun processState(state: ViewState) {
-        with(state as ViewState.UserBoardsState) {
-            setUserState()
-
-            when (workspace) {
-                ViewState.WorkspaceState.NullWorkspace -> {
-                    removeOptionsMenu()
-                    boardsAdapter?.clear()
-                    binding.tvTip.text = resources.getString(R.string.workspace_selection_tip)
-                    binding.ivContextImage.setImageResource(R.drawable.undraw_select_option_menu)
-                }
-
-                is ViewState.WorkspaceState.WorkspaceReady -> {
-                    // set options menu
-                    if (!isMenuProviderAdded && workspace.workspace.id != DrawerItem.SHARED_BOARDS) {
-                        createOptionsMenu()
-                        isMenuProviderAdded = true
-                    } else if (workspace.workspace.id == DrawerItem.SHARED_BOARDS) {
-                        removeOptionsMenu()
-                    }
-
-                    if (workspace.workspace.boards.isEmpty()) {
-                        binding.tvTip.text =
-                            if (workspace.workspace.id != DrawerItem.SHARED_BOARDS) {
-                                resources.getString(R.string.empty_workspace_tip)
-                            } else {
-                                resources.getString(R.string.empty_shared_boards_tip)
-                            }
-                        binding.ivContextImage.setImageResource(R.drawable.undraw_board)
-                    }
-
-                    workspaceRole = workspace.workspace.members[MainActivity.firebaseUser?.uid]
-                    Log.d(this@UserBoardsFragment.TAG, "boards: ${workspace.workspace.boards}")
-                    boardsAdapter?.setData(workspace.workspace.boards)
-                    DrawerAdapter.prevSelectedWorkspaceId = workspace.workspace.id
-                }
-            }
-
-            message?.let {
-                showToast(it)
-                viewModel.messageShown()
-            }
-
-            binding.apply {
-                activity.isSharedBoardsSelected =
-                    (workspace as? ViewState.WorkspaceState.WorkspaceReady)?.workspace?.id == DrawerItem.SHARED_BOARDS
-                tvTip.isVisible = workspace is ViewState.WorkspaceState.NullWorkspace ||
-                        (workspace as ViewState.WorkspaceState.WorkspaceReady).workspace.boards.isEmpty()
-                ivContextImage.isVisible = tvTip.isVisible
-                rvBoards.isVisible = workspace !is ViewState.WorkspaceState.NullWorkspace
-                fabCreateBoard.isVisible = workspace is ViewState.WorkspaceState.WorkspaceReady &&
-                        workspace.workspace.id != DrawerItem.SHARED_BOARDS &&
-                        workspaceRole == Role.Workspace.Admin
-                toolbar.title =
-                    (workspace as? ViewState.WorkspaceState.WorkspaceReady)?.workspace?.name
-                        ?: resources.getString(R.string.boards)
-                loading.root.isVisible = isLoading
-            }
-        }
-    }
-
-    private fun ViewState.UserBoardsState.setUserState() {
-        if (user == null) {
-            return
-        }
-
-        setUpDrawer(user)
-        activity.userWorkspacesAdapter?.workspaces = user.workspaces.map { workspace ->
-            DrawerAdapter.DrawerWorkspace(
-                workspace,
-                workspace.id == (this.workspace as? ViewState.WorkspaceState.WorkspaceReady)?.workspace?.id
-            )
-        }.sortedBy { drawerWorkspace ->
-            drawerWorkspace.workspace.name
-        }
-
-        Log.d(TAG, "processState: sharedWorkspaces: ${user.sharedWorkspaces}")
-        activity.sharedWorkspacesAdapter?.workspaces =
-            user.sharedWorkspaces.map { workspace ->
-                DrawerAdapter.DrawerWorkspace(
-                    workspace,
-                    workspace.id == (this.workspace as? ViewState.WorkspaceState.WorkspaceReady)?.workspace?.id
-                )
-            }.sortedBy { drawerWorkspace ->
-                drawerWorkspace.workspace.name
-            }
-    }
-
-    private fun setUpDrawer(user: User) {
-//        TODO: OPTIMIZE THIS FUNCTION
-        with(activity) {
             // set up header layout
             var offset = 0.0
 
             activityMainBinding.drawerLayout.addDrawerListener(object : DrawerListener {
                 override fun onDrawerSlide(drawerView: View, slideOffset: Float) {
-//                    TODO("Not yet implemented")
                     Log.d(this@UserBoardsFragment.TAG, "drawer slideOffset: $slideOffset")
                     if (slideOffset > offset) {
                         setStatusBarColor(getColor(requireContext(), R.color.background_primary))
@@ -276,12 +298,10 @@ class UserBoardsFragment : BaseFragment(), StateHandler {
                 }
 
                 override fun onDrawerOpened(drawerView: View) {
-//                    TODO("Not yet implemented")
                     offset = 1.0
                 }
 
                 override fun onDrawerClosed(drawerView: View) {
-//                    TODO("Not yet implemented")
                     Log.d(this@UserBoardsFragment.TAG, "drawer is closed")
                     offset = 0.0
                     if (signOutPerformed) {
@@ -294,15 +314,9 @@ class UserBoardsFragment : BaseFragment(), StateHandler {
 //                    TODO("Not yet implemented")
                 }
             })
-            activityMainBinding.drawerContent.headerLayout.apply {
-                tvName.text = user.name
-                tvTag.text = resources.getString(R.string.user_tag, user.tag)
-                tvEmail.text = user.email
-                loadProfilePicture(requireContext(), user.profilePicture, ivProfilePicture)
-            }
 
             activityMainBinding.drawerContent.btnCreateWorkspace.setOnClickListener {
-                buildWorkspaceCreationDialog(user)
+                viewModel.drawerState.value.user?.let { buildWorkspaceCreationDialog(it) }
             }
         }
     }
@@ -336,7 +350,7 @@ class UserBoardsFragment : BaseFragment(), StateHandler {
             R.string.board
         ) { text ->
             Log.d(TAG, "create is clicked: $text, $userId, $workspace")
-                viewModel.createBoard(text, userId, workspace)
+            viewModel.createBoard(text, userId, workspace)
         }
     }
 

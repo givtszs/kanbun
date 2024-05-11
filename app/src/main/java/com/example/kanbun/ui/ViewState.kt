@@ -42,9 +42,14 @@ sealed class ViewState {
     data class UserBoardsState(
         val message: String? = null,
         val isLoading: Boolean = true,
-        val user: User? = null,
         val workspace: WorkspaceState = WorkspaceState.NullWorkspace
     ) : ViewState()
+
+    data class DrawerState(
+        val user: User? = null,
+        val selectedWorkspace: String? = null
+    ) : ViewState()
+
 
     sealed interface WorkspaceState {
         data object NullWorkspace : WorkspaceState
