@@ -2,7 +2,6 @@
 <resources>
     <color name="white">#FFFFFF</color>
     <color name="white_secondary">#FAFAFA</color>
-    <color name="white_border">#E3E3E3</color>
     <color name="black">#000000</color>
     <color name="black_dimmed">#20000000</color>
     <color name="dark_red">#8D0801</color>
@@ -12,9 +11,12 @@
     <color name="platinum_1">#E5E4E2</color>
     <color name="anti_flash_white">#F0F0F0</color>
 
+    <color name="text_primary">#141414</color>
     <color name="background_primary">@color/white</color>
     <color name="background_secondary">@color/white_secondary</color>
     <color name="text_light">#737373</color>
+    <color name="border_primary">#D4D4D4</color>
+    <color name="border_light">#E3E3E3</color>
 
     <!-- Theme colors (Old) -->
     <color name="md_theme_light_primary">#FF6110</color>
@@ -26,7 +28,8 @@
     <color name="md_theme_light_onPrimaryContainer">#2A1700</color>
     <color name="md_theme_light_secondary">#EFBFBF</color>
     <color name="md_theme_light_onSecondary">#FFFFFF</color>
-    <color name="md_theme_light_secondaryContainer">#FFDDB8</color>
+<!--    <color name="md_theme_light_secondaryContainer">#FFDDB8</color>-->
+    <color name="md_theme_light_secondaryContainer">@color/md_theme_light_primary_light</color>
     <color name="md_theme_light_onSecondaryContainer">#2A1700</color>
     <color name="md_theme_light_tertiary">#2E5266</color>
     <color name="md_theme_light_onTertiary">#FFFFFF</color>

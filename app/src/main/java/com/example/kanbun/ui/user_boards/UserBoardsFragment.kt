@@ -1,6 +1,5 @@
 package com.example.kanbun.ui.user_boards
 
-import android.app.AlertDialog
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -9,12 +8,10 @@ import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
-import android.widget.EditText
 import androidx.core.view.GravityCompat
 import androidx.core.view.MenuProvider
 import androidx.core.view.isEmpty
 import androidx.core.view.isVisible
-import androidx.core.widget.doOnTextChanged
 import androidx.drawerlayout.widget.DrawerLayout.DrawerListener
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
@@ -35,10 +32,10 @@ import com.example.kanbun.domain.model.Workspace
 import com.example.kanbun.ui.BaseFragment
 import com.example.kanbun.ui.StateHandler
 import com.example.kanbun.ui.ViewState
+import com.example.kanbun.ui.buildCreateItemDialog
 import com.example.kanbun.ui.main_activity.DrawerAdapter
 import com.example.kanbun.ui.main_activity.MainActivity
 import com.google.android.material.appbar.MaterialToolbar
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -323,66 +320,28 @@ class UserBoardsFragment : BaseFragment(), StateHandler {
     }
 
     private fun buildWorkspaceCreationDialog(user: User) {
-        val editText = EditText(requireContext()).apply {
-            hint = "Enter a new workspace name"
+        buildCreateItemDialog(
+            requireContext(),
+            R.string.workspace
+        ) { text ->
+            viewModel.createWorkspace(text, user)
+            activity.activityMainBinding.drawerLayout.closeDrawer(GravityCompat.START)
         }
-
-        MaterialAlertDialogBuilder(requireContext())
-            .setTitle("Create workspace")
-            .setView(editText)
-            .setPositiveButton("Create") { _, _ ->
-                viewModel.createWorkspace(editText.text.toString(), user)
-                activity.activityMainBinding.drawerLayout.closeDrawer(GravityCompat.START)
-            }
-            .setNegativeButton("Cancel") { dialog, which ->
-                dialog.cancel()
-            }
-            .create().apply {
-                setOnShowListener {
-                    val posButton =
-                        getButton(AlertDialog.BUTTON_POSITIVE).apply { isEnabled = false }
-
-                    editText.doOnTextChanged { text, _, _, _ ->
-                        posButton.isEnabled = text?.trim().isNullOrEmpty() == false
-                    }
-                }
-            }
-            .show()
     }
 
     private fun buildBoardCreationDialog(userId: String, workspace: Workspace) {
-        val editText = EditText(requireContext()).apply {
-            hint = "Enter a new board name"
+        buildCreateItemDialog(
+            requireContext(),
+            R.string.board
+        ) { text ->
+            Log.d(TAG, "create is clicked: $text, $userId, $workspace")
+                viewModel.createBoard(text, userId, workspace)
         }
-
-        MaterialAlertDialogBuilder(requireContext())
-            .setTitle("Create board")
-            .setView(editText)
-            .setPositiveButton("Create") { _, _ ->
-                Log.d(TAG, "create is clicked: ${editText.text.toString()}, $userId, $workspace")
-                viewModel.createBoard(editText.text.toString(), userId, workspace)
-            }
-            .setNegativeButton("Cancel") { dialog, _ ->
-                dialog.cancel()
-            }
-            .create()
-            .apply {
-                setOnShowListener {
-                    val posButton =
-                        getButton(AlertDialog.BUTTON_POSITIVE).apply { isEnabled = false }
-
-                    editText.doOnTextChanged { text, _, _, _ ->
-                        posButton.isEnabled = text?.trim().isNullOrEmpty() == false
-                    }
-                }
-            }
-            .show()
     }
 
     private fun setUpBoardsAdapter() {
         boardsAdapter = BoardsAdapter { boardInfo ->
             navController.navigate(
-//                UserBoardsFragmentDirections.actionUserBoardsFragmentToBoardFragment(boardInfo = boardInfo)
                 UserBoardsFragmentDirections.actionUserBoardsFragmentToBoardGraph(boardInfo = boardInfo)
             )
         }
