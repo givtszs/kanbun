@@ -29,25 +29,29 @@
         style="?attr/textAppearanceSubtitle1"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="center"
-        android:textSize="18sp"
         android:layout_marginHorizontal="@dimen/main_horizontal_margin"
         android:layout_marginTop="50dp"
+        android:gravity="center"
+        android:textSize="18sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/ivContextImage"
         tools:text="Created boards will appear here" />
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
+    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
         android:id="@+id/fabCreateBoard"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="50dp"
         android:layout_margin="16dp"
+        android:backgroundTint="@color/md_theme_light_primary"
         android:contentDescription="@string/fab_new_board"
-        android:visibility="gone"
+        android:text="@string/board"
+        android:textColor="@color/white"
+        android:visibility="visible"
+        app:icon="@drawable/ic_add_circle_outline_24"
+        app:iconTint="@color/white"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:srcCompat="@drawable/ic_add_24" />
+        app:layout_constraintEnd_toEndOf="parent" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvBoards"
@@ -62,5 +66,5 @@
     <include
         android:id="@+id/loading"
         layout="@layout/loading_state"
-        android:visibility="visible" />
+        android:visibility="invisible" />
 </androidx.constraintlayout.widget.ConstraintLayout>

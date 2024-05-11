@@ -22,6 +22,7 @@
     <string name="resend_email">Resend email</string>
     <string name="try_again_countdown">Try again in %d sec</string>
     <string name="boards">Boards</string>
+    <string name="board">Board</string>
     <string name="tasks">Tasks</string>
     <string name="inbox">Inbox</string>
     <string name="user_workspaces_headline">My workspaces</string>
