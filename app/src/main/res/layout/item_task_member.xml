@@ -17,7 +17,7 @@
             android:id="@+id/ivProfilePicture"
             android:layout_width="80dp"
             android:layout_height="80dp"
-            app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.App.CircleImageView"
+            app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.ImageView.Circle"
             tools:src="@tools:sample/avatars" />
 
     </com.google.android.material.card.MaterialCardView>

@@ -1,11 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="ShapeAppearanceOverlay.App.CircleImageView" parent="">
+    <style name="ShapeAppearanceOverlay.ImageView.Circle" parent="">
         <item name="cornerSize">50%</item>
     </style>
 
     <style name="ShapeAppearanceOverlay.App.ImageViewSlightRounding" parent="">
         <item name="cornerSize">5%</item>
+    </style>
+
+    <style name="ShapeAppearanceOverlay.ImageView.MediumRounding" parent="">
+        <item name="cornerSize">10dp</item>
     </style>
 
     <style name="BottomSheetDialog.Option.Button" parent="Widget.Material3.Button">

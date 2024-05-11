@@ -12,11 +12,12 @@
     <color name="anti_flash_white">#F0F0F0</color>
 
     <color name="text_primary">#141414</color>
-    <color name="background_primary">@color/white</color>
-    <color name="background_secondary">@color/white_secondary</color>
     <color name="text_light">#737373</color>
+    <color name="background_primary">@color/white</color>
+    <color name="background_light">@color/white_secondary</color>
     <color name="border_primary">#D4D4D4</color>
     <color name="border_light">#E3E3E3</color>
+    <color name="icon_black">#141414</color>
 
     <!-- Theme colors (Old) -->
     <color name="md_theme_light_primary">#FF6110</color>

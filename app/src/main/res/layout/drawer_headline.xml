@@ -1,21 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    xmlns:tools="http://schemas.android.com/tools">
+    android:paddingVertical="@dimen/drawer_headline_padding_vertical">
 
     <TextView
         android:id="@+id/tvHeadline"
         style="@style/TextAppearance.Material3.TitleSmall"
-        tools:text="Headline"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="28dp"
-        android:layout_marginTop="@dimen/drawer_headline_top_margin"
-        android:textColor="@color/md_theme_light_onSurfaceVariant"
+        android:layout_marginStart="@dimen/drawer_padding_start"
+        android:textColor="@color/text_light"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="Headline" />
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btnRecyclerViewToggle"
@@ -23,7 +24,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:icon="@drawable/ic_keyboard_arrow_right_24"
-        app:iconTint="@color/black"
+        app:iconTint="@color/icon_black"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />

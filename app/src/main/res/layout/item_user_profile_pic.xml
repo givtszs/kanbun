@@ -8,7 +8,7 @@
     android:paddingVertical="2dp">
 
     <com.google.android.material.imageview.ShapeableImageView
-        app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.App.CircleImageView"
+        app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.ImageView.Circle"
         android:layout_width="60dp"
         android:layout_height="60dp"
         tools:srcCompat="@tools:sample/avatars" />

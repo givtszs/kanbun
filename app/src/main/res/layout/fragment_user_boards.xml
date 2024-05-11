@@ -6,13 +6,13 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:layout_marginBottom="@dimen/nav_bar_height"
-    android:background="@color/background_secondary">
+    android:background="@color/background_light">
 
     <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/background_secondary"
+        android:background="@color/background_light"
         android:minHeight="?attr/actionBarSize"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -47,7 +47,7 @@
         android:contentDescription="@string/fab_new_board"
         android:text="@string/board"
         android:textColor="@color/white"
-        android:visibility="visible"
+        android:visibility="gone"
         app:icon="@drawable/ic_add_circle_outline_24"
         app:iconTint="@color/white"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -66,5 +66,5 @@
     <include
         android:id="@+id/loading"
         layout="@layout/loading_state"
-        android:visibility="invisible" />
+        android:visibility="visible" />
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -30,7 +30,7 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:srcCompat="@drawable/ic_folder_selector" />
+                app:srcCompat="@drawable/ic_workspaces_selector" />
 
             <TextView
                 android:id="@+id/tvName"

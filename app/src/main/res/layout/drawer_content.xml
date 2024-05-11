@@ -39,10 +39,11 @@
             style="@style/Widget.Material3.Button.TextButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Create workspace"
-            android:insetTop="0dp"
             android:layout_marginHorizontal="@dimen/item_workspace_padding_horizontal"
+            android:insetTop="0dp"
             android:insetBottom="0dp"
+            app:cornerRadius="10dp"
+            android:text="Create workspace"
             app:icon="@drawable/ic_add_24"
             app:iconGravity="textStart"
             app:layout_constraintStart_toStartOf="parent"
@@ -65,7 +66,7 @@
             tools:listitem="@layout/item_workspace" />
 
         <include
-            android:id="@+id/separator1"
+            android:id="@+id/separator"
             layout="@layout/separator_horizontal"
             android:layout_width="match_parent"
             android:layout_height="@dimen/separator_horizontal_height"
@@ -78,6 +79,6 @@
             android:layout_width="match_parent"
             android:layout_height="@dimen/item_workspace_height"
             android:layout_marginTop="8dp"
-            app:layout_constraintTop_toBottomOf="@id/separator1" />
+            app:layout_constraintTop_toBottomOf="@id/separator" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </ScrollView>

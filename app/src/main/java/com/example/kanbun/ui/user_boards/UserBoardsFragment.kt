@@ -105,7 +105,7 @@ class UserBoardsFragment : BaseFragment(), StateHandler {
         super.onViewCreated(view, savedInstanceState)
         addOnBackPressedAction { requireActivity().finish() }
         setUpActionBar(binding.toolbar)
-        setStatusBarColor(getColor(requireContext(), R.color.background_secondary))
+        setStatusBarColor(getColor(requireContext(), R.color.background_light))
         setUpBoardsAdapter()
         viewModel.init()
         viewModel.checkUserVerification(
@@ -259,6 +259,7 @@ class UserBoardsFragment : BaseFragment(), StateHandler {
     }
 
     private fun setUpDrawer(user: User) {
+//        TODO: OPTIMIZE THIS FUNCTION
         with(activity) {
             // set up header layout
             var offset = 0.0
@@ -270,7 +271,7 @@ class UserBoardsFragment : BaseFragment(), StateHandler {
                     if (slideOffset > offset) {
                         setStatusBarColor(getColor(requireContext(), R.color.background_primary))
                     } else {
-                        setStatusBarColor(getColor(requireContext(), R.color.background_secondary))
+                        setStatusBarColor(getColor(requireContext(), R.color.background_light))
                     }
                 }
 
