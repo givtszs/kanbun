@@ -16,11 +16,17 @@
     <dimen name="drawer_headline_margin_top">20dp</dimen>
     <dimen name="drawer_headline_padding_vertical">4dp</dimen>
 
-    <dimen name="task_name_top_margin">4dp</dimen>
+    <dimen name="task_name_top_margin">8dp</dimen>
     <dimen name="task_date_padding_top">12dp</dimen>
     <dimen name="task_description_padding_top">6dp</dimen>
-    <dimen name="task_padding_horizontal">12dp</dimen>
-    <dimen name="task_padding_vertical">10dp</dimen>
+    <dimen name="task_padding_horizontal">16dp</dimen>
+    <dimen name="task_padding_vertical">14dp</dimen>
+    <dimen name="task_drop_area_height">100dp</dimen>
+
+    <dimen name="task_list_width">340dp</dimen>
+
+    <dimen name="tag_margin_vertical">4dp</dimen>
+    <dimen name="tag_margin_horizontal">8dp</dimen>
 
     <dimen name="item_workspace_height">46dp</dimen>
     <dimen name="item_workspace_padding_horizontal">12dp</dimen>

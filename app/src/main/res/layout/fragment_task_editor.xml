@@ -210,7 +210,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@id/separator"
             app:layout_constraintTop_toTopOf="@id/tvCreateTag"
-            tools:listitem="@layout/item_task_tag_big" />
+            tools:listitem="@layout/tag_task_view" />
 
         <Button
             android:id="@+id/btnCreateTask"

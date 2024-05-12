@@ -21,13 +21,13 @@ class TagView @JvmOverloads constructor(
 
     init {
         if (isBig) {
-            LayoutInflater.from(context).inflate(R.layout.item_task_tag_big, this, true)
-            tvTag = findViewById(R.id.tvTagBig)
-            cardTag = findViewById(R.id.cardTagBig)
+            LayoutInflater.from(context).inflate(R.layout.tag_task_view, this, true)
+            tvTag = findViewById(R.id.tvTagTask)
+            cardTag = findViewById(R.id.tagTaskCard)
         } else {
-            LayoutInflater.from(context).inflate(R.layout.item_task_tag_small, this, true)
-            tvTag = findViewById(R.id.tvTagSmall)
-            cardTag = findViewById(R.id.cardTagSmall)
+            LayoutInflater.from(context).inflate(R.layout.tag_badge_view, this, true)
+            tvTag = findViewById(R.id.tvTagBadgeName)
+            cardTag = findViewById(R.id.tagBadgeCard)
         }
     }
 
@@ -47,7 +47,7 @@ class TagView @JvmOverloads constructor(
             strokeColor = if (isSelected) {
                 getColor(context, R.color.md_theme_light_primary)
             } else {
-                getColor(context, R.color.white)
+                getColor(context, android.R.color.transparent)
             }
         }
     }

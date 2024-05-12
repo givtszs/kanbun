@@ -26,6 +26,8 @@
                 android:id="@+id/taskTags"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:visibility="gone"
                 android:orientation="horizontal"
                 app:alignContent="flex_start"
                 app:alignItems="baseline"
@@ -46,7 +48,7 @@
 
             <TextView
                 android:id="@+id/taskDescription"
-                style="?textAppearanceBody2"
+                style="?textAppearanceBody1"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/task_description_padding_top"
@@ -76,7 +78,7 @@
     <View
         android:id="@+id/taskDropArea"
         android:layout_width="match_parent"
-        android:layout_height="100dp"
+        android:layout_height="@dimen/task_drop_area_height"
         android:background="@drawable/drop_area"
         android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"

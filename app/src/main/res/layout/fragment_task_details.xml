@@ -80,7 +80,7 @@
             android:visibility="invisible"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
             app:layout_constraintTop_toBottomOf="@id/tvTagsLabel"
-            tools:listitem="@layout/item_task_tag_big" />
+            tools:listitem="@layout/tag_task_view" />
 
         <TextView
             android:id="@+id/tvNoTags"
