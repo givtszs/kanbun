@@ -185,6 +185,7 @@ abstract class TaskEditorFragment : BaseFragment(), StateHandler {
                     }
                 }
                 taskMembersAdapter?.members = taskMembers.map { Member(it, null) }
+                rvMembers.isVisible = taskMembers.isNotEmpty()
             }
 
             message?.let {

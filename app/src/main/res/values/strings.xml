@@ -63,7 +63,7 @@
     <string name="hint_name_required">Name*</string>
     <string name="hint_item">%s name</string>
     <string name="add_members">Add members</string>
-    <string name="search_members">Enter member name...</string>
+    <string name="search_members_hint">Member name</string>
     <string name="add_tags">Add tags</string>
     <string name="create_new_tag">Create new tag</string>
     <string name="edit_task">Edit task</string>

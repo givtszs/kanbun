@@ -3,13 +3,14 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@color/background_primary">
 
-    <include
-        android:id="@+id/topAppBar"
-        layout="@layout/top_app_bar"
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="@color/background_primary"
         app:layout_constraintTop_toTopOf="parent" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -18,11 +19,11 @@
         android:paddingHorizontal="16dp"
         android:paddingVertical="8dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/topAppBar">
+        app:layout_constraintTop_toBottomOf="@id/toolbar">
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/tfName"
-            style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+            style="@style/TextInputLayout.Outlined.Dense"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:layout_constraintTop_toTopOf="parent">
@@ -36,7 +37,7 @@
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/tfDescription"
-            style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+            style="@style/TextInputLayout.Outlined.Dense"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
@@ -54,7 +55,7 @@
             style="?textAppearanceTitleMedium"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
+            android:layout_marginTop="@dimen/task_editor_divider_margin_top"
             android:labelFor="@id/etSearchMembers"
             android:text="@string/add_members"
             android:textSize="18sp"
@@ -75,7 +76,7 @@
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/tfSearchMembers"
-            style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+            style="@style/TextInputLayout.Outlined.Dense"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="6dp"
@@ -86,7 +87,7 @@
                 android:id="@+id/etSearchMembers"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="@string/search_members" />
+                android:hint="@string/search_members_hint" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <androidx.recyclerview.widget.RecyclerView
@@ -96,6 +97,7 @@
             android:layout_marginTop="8dp"
             android:clipToPadding="false"
             android:orientation="horizontal"
+            android:visibility="gone"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
             app:layout_constraintTop_toBottomOf="@id/tfSearchMembers"
             tools:listitem="@layout/item_member_chip" />
@@ -105,7 +107,7 @@
             style="?textAppearanceTitleMedium"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
+            android:layout_marginTop="@dimen/task_editor_divider_margin_top"
             android:labelFor="@id/tvDateStarts"
             android:text="@string/date_starts_label"
             android:textSize="18sp"
@@ -114,13 +116,11 @@
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/tfDateStarts"
-            style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+            style="@style/TextInputLayout.Outlined.Dense.DateTimePicker"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="6dp"
             app:endIconDrawable="@drawable/ic_calendar_outlined_24"
-            app:endIconMode="custom"
-            app:hintEnabled="false"
             app:layout_constraintTop_toBottomOf="@id/tvStarts">
 
             <AutoCompleteTextView
@@ -137,7 +137,7 @@
             style="?textAppearanceTitleMedium"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
+            android:layout_marginTop="@dimen/task_editor_divider_margin_top"
             android:labelFor="@id/tvDateEnds"
             android:text="@string/date_ends_label"
             android:textSize="18sp"
@@ -146,13 +146,11 @@
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/tfDateEnds"
-            style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+            style="@style/TextInputLayout.Outlined.Dense.DateTimePicker"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="6dp"
             app:endIconDrawable="@drawable/ic_calendar_outlined_24"
-            app:endIconMode="custom"
-            app:hintEnabled="false"
             app:layout_constraintTop_toBottomOf="@id/tvEnds">
 
             <AutoCompleteTextView
@@ -168,7 +166,7 @@
             style="?textAppearanceTitleMedium"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
+            android:layout_marginTop="@dimen/task_editor_divider_margin_top"
             android:text="@string/add_tags"
             android:textSize="18sp"
             app:layout_constraintStart_toStartOf="parent"
@@ -226,8 +224,8 @@
             android:id="@+id/pbCreatingTask"
             android:layout_width="wrap_content"
             android:layout_height="30dp"
-            android:visibility="visible"
             android:layout_marginEnd="16dp"
+            android:visibility="visible"
             app:layout_constraintBottom_toBottomOf="@id/btnCreateTask"
             app:layout_constraintEnd_toEndOf="@id/btnCreateTask"
             app:layout_constraintTop_toTopOf="@id/btnCreateTask" />

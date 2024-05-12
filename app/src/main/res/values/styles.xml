@@ -66,6 +66,18 @@
         <item name="boxStrokeColor">@color/text_input_box_stroke_color</item>
     </style>
 
+    <style name="TextInputLayout.Outlined.Dense.DateTimePicker" parent="Widget.Material3.TextInputLayout.OutlinedBox.Dense.ExposedDropdownMenu">
+        <item name="boxCornerRadiusTopStart">10dp</item>
+        <item name="boxCornerRadiusTopEnd">10dp</item>
+        <item name="boxCornerRadiusBottomStart">10dp</item>
+        <item name="boxCornerRadiusBottomEnd">10dp</item>
+        <item name="boxStrokeColor">@color/text_input_box_stroke_color</item>
+        <item name="endIconMode">custom</item>
+        <item name="endIconTint">@color/icon_primary_light</item>
+        <item name="hintEnabled">false</item>
+    </style>
+
+
     <style name="MaterialToolbar" parent="Widget.Material3.Toolbar">
         <item name="backgroundColor">@color/background_light</item>
     </style>
@@ -78,12 +90,13 @@
         <item name="android:textColor">@color/white</item>
     </style>
 
-    <style name="Material.Button.CreateTaskList" parent="Widget.Material3.Button">
+    <style name="Material.Button.CreateTaskList" parent="Widget.Material3.Button.OutlinedButton">
         <item name="cornerRadius">10dp</item>
-        <item name="backgroundTint">@color/md_theme_light_primary_light</item>
-        <item name="iconTint">@color/md_theme_light_primary</item>
+        <item name="backgroundTint">@color/background_primary</item>
+        <item name="iconTint">@color/icon_primary_dark</item>
         <item name="iconGravity">textStart</item>
-        <item name="android:textColor">@color/md_theme_light_primary</item>
+        <item name="android:textColor">@color/text_primary</item>
+        <item name="strokeColor">@color/border_primary</item>
     </style>
 
     <style name="Task.Material.CardView" parent="Widget.Material3.CardView.Outlined">

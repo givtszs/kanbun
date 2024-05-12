@@ -30,7 +30,7 @@ class EditTaskFragment : TaskEditorFragment(){
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         Log.d(TAG, "onViewCreated")
         super.onViewCreated(view, savedInstanceState)
-        setUpActionBar(binding.topAppBar.toolbar, "Edit task")
+        setUpActionBar(binding.toolbar, "Edit task")
     }
 
     override fun setUpListeners() {
