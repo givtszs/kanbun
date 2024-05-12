@@ -74,7 +74,7 @@
     </com.google.android.material.card.MaterialCardView>
 
     <View
-        android:id="@+id/dropArea"
+        android:id="@+id/taskDropArea"
         android:layout_width="match_parent"
         android:layout_height="100dp"
         android:background="@drawable/drop_area"

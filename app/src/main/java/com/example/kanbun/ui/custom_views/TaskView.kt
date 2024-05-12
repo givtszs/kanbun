@@ -34,7 +34,7 @@ class TaskView(
     init {
         inflate(context, R.layout.task_view, this)
         taskCard = findViewById(R.id.taskCard)
-        dropArea = findViewById(R.id.dropArea)
+        dropArea = findViewById(R.id.taskDropArea)
         taskName = findViewById(R.id.taskName)
         taskDescription = findViewById(R.id.taskDescription)
         taskTags = findViewById(R.id.taskTags)
