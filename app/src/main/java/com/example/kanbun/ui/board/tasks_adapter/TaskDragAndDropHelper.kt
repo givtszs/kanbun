@@ -9,7 +9,7 @@ import androidx.core.view.isVisible
 import com.example.kanbun.common.moshi
 import com.example.kanbun.domain.model.Task
 import com.example.kanbun.ui.board.TaskDropCallbacks
-import com.example.kanbun.ui.custom_views.ItemTaskView
+import com.example.kanbun.ui.custom_views.TaskView
 import com.example.kanbun.ui.model.DragAndDropTaskItem
 import com.squareup.moshi.Moshi
 
@@ -50,7 +50,7 @@ object TaskDragAndDropHelper {
     fun startDrag(
         position: Int,
         adapter: TasksAdapter,
-        draggedView: ItemTaskView,
+        draggedView: TaskView,
         task: Task?
     ): Boolean {
         draggedTaskInitPosition = position
@@ -61,11 +61,11 @@ object TaskDragAndDropHelper {
         isNewAdapter = false
 
         val dragData = prepareDragData(adapter, task) ?: return false
-        val taskShadow = View.DragShadowBuilder(draggedView)
+        val taskShadow = View.DragShadowBuilder(draggedView.taskCard)
 
         val isSuccess = draggedView.startDragAndDrop(dragData, taskShadow, draggedView, 0)
         if (isSuccess) {
-            draggedView.task.isVisible = false
+            draggedView.taskCard.isVisible = false
             draggedView.dropArea.isVisible = true
 
         }
@@ -98,7 +98,7 @@ object TaskDragAndDropHelper {
     private var isMovedDown = false
     private var isInsertHandled = false
 
-    fun taskCardViewDragEventHandler(
+    fun taskViewDragEventHandler(
         adapter: TasksAdapter,
         receiverView: View,
         event: DragEvent,
@@ -268,7 +268,7 @@ object TaskDragAndDropHelper {
 
             DragEvent.ACTION_DRAG_ENDED -> {
                 Log.d(TAG, "RecyclerView#ACTION_DRAG_ENDED")
-                val draggedView = event.localState as ItemTaskView
+                val draggedView = event.localState as TaskView
                 handleDragEnded(event.result, draggedView)
                 true
             }
@@ -418,10 +418,10 @@ object TaskDragAndDropHelper {
         }
     }
 
-    private fun handleDragEnded(eventResult: Boolean, draggedView: ItemTaskView) {
+    private fun handleDragEnded(eventResult: Boolean, draggedView: TaskView) {
         if (!isActionDragEndedHandled) {
             Log.d(TAG, "DropArea#ACTION_DRAG_ENDED: handle action")
-            draggedView.task.isVisible = true
+            draggedView.taskCard.isVisible = true
             draggedView.dropArea.isVisible = false
 
             // if the drag and drop failed

@@ -25,25 +25,25 @@ class ItemTaskViewHolder(
     private var task: Task? = null
 
     init {
-        binding.taskCard.setOnClickListener {
+        binding.taskView.taskCard.setOnClickListener {
             clickAtPosition(adapterPosition)
         }
 
         if (isWorkspaceAdminOrBoardMember && tasksAdapter.taskDropCallbacks != null) {
             // initiates dragging action
-            binding.taskCard.setOnLongClickListener { _ ->
+            binding.taskView.taskCard.setOnLongClickListener { _ ->
                 Log.d(TAG, "long clicked perform at: $adapterPosition")
                 TaskDragAndDropHelper.startDrag(
                     adapterPosition,
                     tasksAdapter,
-                    binding.taskCard,
+                    binding.taskView,
                     task
                 )
             }
         }
 
-        binding.taskCard.setOnDragListener { receiverView, event ->
-            TaskDragAndDropHelper.taskCardViewDragEventHandler(
+        binding.taskView.taskCard.setOnDragListener { receiverView, event ->
+            TaskDragAndDropHelper.taskViewDragEventHandler(
                 tasksAdapter,
                 receiverView,
                 event,
@@ -51,7 +51,7 @@ class ItemTaskViewHolder(
             )
         }
 
-        binding.taskCard.dropArea.setOnDragListener { view, event ->
+        binding.taskView.dropArea.setOnDragListener { view, event ->
             TaskDragAndDropHelper.dropAreaViewDragEventHandler(
                 event,
                 view
@@ -63,28 +63,28 @@ class ItemTaskViewHolder(
         Log.d("TasksAdapter", "bind:\ttask: $task")
         this.task = task
 
-        binding.apply {
-            taskCard.task.isVisible = task.id != TaskDragAndDropHelper.DROP_ZONE_TASK
-            taskCard.dropArea.isVisible = task.id == TaskDragAndDropHelper.DROP_ZONE_TASK
+        binding.taskView.apply {
+            taskCard.isVisible = task.id != TaskDragAndDropHelper.DROP_ZONE_TASK
+            dropArea.isVisible = task.id == TaskDragAndDropHelper.DROP_ZONE_TASK
 
             setUpTagsFlexbox(task)
 
-            taskCard.taskName.text = task.name
-            taskCard.taskName.layoutParams = (taskCard.taskName.layoutParams as ConstraintLayout.LayoutParams).apply {
-                topMargin = if (taskCard.taskTags.visibility == View.GONE) {
+            taskName.text = task.name
+            taskName.layoutParams = (taskName.layoutParams as ConstraintLayout.LayoutParams).apply {
+                topMargin = if (taskTags.visibility == View.GONE) {
                     0
                 } else {
-                    taskCard.taskTags.resources.getDimensionPixelSize(R.dimen.task_name_top_margin)
+                    taskTags.resources.getDimensionPixelSize(R.dimen.task_name_top_margin)
                 }
             }
 
-            taskCard.taskDescription.isVisible = task.description.isNotEmpty()
-            taskCard.taskDescription.text = task.description
+            taskDescription.isVisible = task.description.isNotEmpty()
+            taskDescription.text = task.description
 
             // set up date
             getDisplayDate(task.dateStarts, task.dateEnds).also { date ->
-                taskCard.taskDate.text = date
-                taskCard.taskDate.isVisible = date != null
+                taskDate.text = date
+                taskDate.isVisible = date != null
             }
         }
     }
@@ -126,19 +126,19 @@ class ItemTaskViewHolder(
 //        Log.d(TAG, "tags: $tags")
 
         if (tags.isNullOrEmpty()) {
-            binding.taskCard.taskTags.isVisible = false
+            binding.taskView.taskTags.isVisible = false
             return
         }
 
-        binding.apply {
-            taskCard.taskTags.isVisible = true
-            taskCard.taskTags.removeAllViews()
+        binding.taskView.apply {
+            taskTags.isVisible = true
+            taskTags.removeAllViews()
 
             tags.forEach { tag ->
                 val tagView = TagView(context = itemView.context, isBig = false).also {
                     it.bind(tag, isClickable = false, isSelected = false)
                 }
-                taskCard.taskTags.addView(tagView)
+                taskTags.addView(tagView)
             }
         }
     }

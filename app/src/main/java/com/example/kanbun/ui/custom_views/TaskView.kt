@@ -3,21 +3,20 @@ package com.example.kanbun.ui.custom_views
 import android.content.Context
 import android.util.AttributeSet
 import android.view.View
-import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.core.view.isVisible
 import com.example.kanbun.R
 import com.google.android.flexbox.FlexboxLayout
 import com.google.android.material.card.MaterialCardView
 
-class ItemTaskView(
-    context: Context, attrSet: AttributeSet
-) : MaterialCardView(context, attrSet) {
+class TaskView(
+    context: Context, attrSet: AttributeSet? = null
+) : ConstraintLayout(context, attrSet) {
 
-    var task: ConstraintLayout
+    var taskCard: MaterialCardView
         private set
-    var dropArea: LinearLayout
+
+    var dropArea: View
         private set
 
     var taskName: TextView
@@ -33,8 +32,8 @@ class ItemTaskView(
         private set
 
     init {
-        inflate(context, R.layout.item_task_view, this)
-        task = findViewById(R.id.task)
+        inflate(context, R.layout.task_view, this)
+        taskCard = findViewById(R.id.taskCard)
         dropArea = findViewById(R.id.dropArea)
         taskName = findViewById(R.id.taskName)
         taskDescription = findViewById(R.id.taskDescription)
