@@ -12,6 +12,7 @@ import androidx.fragment.app.viewModels
 import com.example.kanbun.R
 import com.example.kanbun.databinding.TaskListMenuDialogBinding
 import com.example.kanbun.domain.model.TaskList
+import com.example.kanbun.ui.buildTextInputDialog
 import com.example.kanbun.ui.buildDeleteConfirmationDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -65,56 +66,21 @@ class TaskListMenuDialog : BottomSheetDialogFragment() {
 
             btnEditName.isEnabled = areOptionsEnabled
             btnEditName.setOnClickListener {
-                buildEditNameDialog()
-            }
-        }
-    }
-
-    private fun buildEditNameDialog() {
-        val editTextName = EditText(requireContext()).apply {
-            setText(taskList.name)
-            hint = "Enter list's name"
-
-            // Create layout parameters
-            val layoutParams = LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT
-            ).apply {
-                // Set margins (adjust these values as needed)
-                val horizontalMarginInPixels =
-                    resources.getDimensionPixelSize(R.dimen.alert_dialog_edit_text_horizontal_margin)
-                setMargins(horizontalMarginInPixels, 0, horizontalMarginInPixels, 0)
-            }
-
-            // Apply layout parameters to the EditText
-            this.layoutParams = layoutParams
-        }
-
-        MaterialAlertDialogBuilder(requireContext())
-            .setTitle("Edit list's name")
-            .setView(editTextName)
-            .setPositiveButton("Save") { _, _ ->
-                viewModel.editTaskListName(
-                    newName = editTextName.text.trim().toString(),
-                    taskListPath = taskList.path,
-                    taskListId = taskList.id
-                ) {
-                    this@TaskListMenuDialog.dismiss()
-                }
-            }
-            .setNegativeButton("Cancel") { _, _ ->
-                dismiss()
-            }
-            .create()
-            .apply {
-                setOnShowListener {
-                    val positiveButton = getButton(AlertDialog.BUTTON_POSITIVE)
-                    editTextName.doOnTextChanged { text, _, _, _ ->
-                        positiveButton.isEnabled = text.isNullOrEmpty() == false
+                buildTextInputDialog(
+                    context = requireContext(),
+                    item = R.string.task_list,
+                    title = R.string.edit_task_list_name
+                ) { text ->
+                    viewModel.editTaskListName(
+                        newName = text,
+                        taskListPath = taskList.path,
+                        taskListId = taskList.id
+                    ) {
+                        this@TaskListMenuDialog.dismiss()
                     }
                 }
             }
-            .show()
+        }
     }
 
     override fun onDestroyView() {

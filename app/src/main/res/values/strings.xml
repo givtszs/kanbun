@@ -24,6 +24,7 @@
     <string name="boards">Boards</string>
     <string name="board">Board</string>
     <string name="workspace">Workspace</string>
+    <string name="task_list">Task list</string>
     <string name="tasks">Tasks</string>
     <string name="inbox">Inbox</string>
     <string name="user_workspaces_headline">My workspaces</string>
@@ -37,9 +38,11 @@
     <string name="empty_shared_boards_tip">Shared boards will appear here</string>
     <string name="fab_new_board">New board</string>
     <string name="create_task">Create task</string>
-    <string name="create_item">Create %s</string>
+    <string name="create_workspace">Create workspace</string>
+    <string name="create_board">Create board</string>
     <string name="create_board_hint">Enter a new board name</string>
-    <string name="create_task_list">Create list</string>
+    <string name="create_task_list">Create task list</string>
+    <string name="edit_task_list_name">Edit task list name</string>
     <string name="create_task_list_hint">Enter a new list name</string>
     <string name="created_by">Created by: %s</string>
     <string name="tags_label">Tags</string>
@@ -58,7 +61,7 @@
     <string name="no_description">No description</string>
     <string name="hint_description">Description</string>
     <string name="hint_name_required">Name*</string>
-    <string name="hint_item">%s Name</string>
+    <string name="hint_item">%s name</string>
     <string name="add_members">Add members</string>
     <string name="search_members">Enter member name...</string>
     <string name="add_tags">Add tags</string>

@@ -25,13 +25,13 @@ fun buildDeleteConfirmationDialog(
         .create()
 }
 
-fun buildCreateItemDialog(
+fun buildTextInputDialog(
     context: Context,
     @StringRes item: Int,
+    @StringRes title: Int,
     onPositiveButtonClicked: (String) -> Unit
 ) {
     val itemStr = context.resources.getString(item)
-    val title = context.resources.getString(R.string.create_item, itemStr)
     val dialogBinding = AlertDialogCreateItemBinding.inflate(
         LayoutInflater.from(context),
         null,
@@ -41,12 +41,11 @@ fun buildCreateItemDialog(
         tvHint.text = context.resources.getString(R.string.hint_item, itemStr)
     }
 
-
     MaterialAlertDialogBuilder(context, R.style.MaterialDialog)
         .setTitle(title)
         .setView(dialogBinding.root)
         .setPositiveButton(R.string.positive_button_create) { _, _ ->
-            onPositiveButtonClicked(dialogBinding.etName.text.toString())
+            onPositiveButtonClicked(dialogBinding.etName.text?.trim().toString())
         }
         .setNegativeButton(R.string.negative_button_cancel) { dialog, _ ->
             dialog.cancel()

@@ -12,7 +12,6 @@ import androidx.core.view.GravityCompat
 import androidx.core.view.MenuProvider
 import androidx.core.view.isEmpty
 import androidx.core.view.isVisible
-import androidx.drawerlayout.widget.DrawerLayout.DrawerListener
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -32,7 +31,7 @@ import com.example.kanbun.domain.model.Workspace
 import com.example.kanbun.ui.BaseFragment
 import com.example.kanbun.ui.StateHandler
 import com.example.kanbun.ui.ViewState
-import com.example.kanbun.ui.buildCreateItemDialog
+import com.example.kanbun.ui.buildTextInputDialog
 import com.example.kanbun.ui.main_activity.DrawerAdapter
 import com.example.kanbun.ui.main_activity.DrawerListeners
 import com.example.kanbun.ui.main_activity.MainActivity
@@ -297,9 +296,10 @@ class UserBoardsFragment : BaseFragment(), StateHandler {
     }
 
     private fun buildWorkspaceCreationDialog(user: User) {
-        buildCreateItemDialog(
-            requireContext(),
-            R.string.workspace
+        buildTextInputDialog(
+            context = requireContext(),
+            item = R.string.workspace,
+            title = R.string.create_workspace
         ) { text ->
             viewModel.createWorkspace(text, user)
             activity.activityMainBinding.drawerLayout.closeDrawer(GravityCompat.START)
@@ -307,9 +307,10 @@ class UserBoardsFragment : BaseFragment(), StateHandler {
     }
 
     private fun buildBoardCreationDialog(userId: String, workspace: Workspace) {
-        buildCreateItemDialog(
-            requireContext(),
-            R.string.board
+        buildTextInputDialog(
+            context = requireContext(),
+            item = R.string.board,
+            title = R.string.create_board
         ) { text ->
             Log.d(TAG, "create is clicked: $text, $userId, $workspace")
             viewModel.createBoard(text, userId, workspace)

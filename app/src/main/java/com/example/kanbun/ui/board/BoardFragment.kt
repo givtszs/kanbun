@@ -40,6 +40,7 @@ import com.example.kanbun.ui.board.task_list.ItemTaskListViewHolder
 import com.example.kanbun.ui.board.task_list.TaskListMenuDialog
 import com.example.kanbun.ui.board.task_list.TaskListsAdapter
 import com.example.kanbun.ui.board.task_list.TaskListsAdapterCallbacks
+import com.example.kanbun.ui.buildTextInputDialog
 import com.example.kanbun.ui.main_activity.MainActivity
 import com.example.kanbun.ui.model.DragAndDropListItem
 import com.example.kanbun.ui.model.DragAndDropTaskItem
@@ -151,7 +152,14 @@ class BoardFragment : BaseFragment(), StateHandler {
             taskListDropCallback = taskListDropCallback,
             callbacks = object : TaskListsAdapterCallbacks {
                 override fun createTaskList() {
-                    buildCreateListDialog()
+                    buildTextInputDialog(
+                        context = requireContext(),
+                        item = R.string.task_list,
+                        title = R.string.create_task_list
+                    ) { text ->
+                        boardViewModel.createTaskList(text)
+                    }
+//                    buildCreateListDialog()
                 }
 
                 override fun onTaskListMenuClicked(
@@ -233,35 +241,6 @@ class BoardFragment : BaseFragment(), StateHandler {
         }
     }
 
-    private fun buildCreateListDialog() {
-        val editText = EditText(requireContext()).apply {
-            hint = resources.getString(R.string.create_task_list_hint)
-        }
-
-        MaterialAlertDialogBuilder(requireContext())
-            .setTitle(resources.getString(R.string.create_task_list))
-            .setView(editText)
-            .setPositiveButton("Create") { _, _ ->
-                boardViewModel.createTaskList((editText.text.trim().toString()))
-            }
-            .setNegativeButton("Cancel") { dialog, _ ->
-                dialog.cancel()
-            }
-            .create()
-            .apply {
-                setOnShowListener {
-                    val posButton = this.getButton(AlertDialog.BUTTON_POSITIVE).apply {
-                        isEnabled = false
-                    }
-
-                    editText.doOnTextChanged { text, _, _, _ ->
-                        posButton.isEnabled = text?.trim().isNullOrEmpty() == false
-                    }
-                }
-            }
-            .show()
-    }
-
     private fun setUpMenu() {
         (requireActivity() as MenuHost).addMenuProvider(
             object : MenuProvider {
@@ -304,11 +283,14 @@ class BoardFragment : BaseFragment(), StateHandler {
             taskListsAdapter?.boardTags = board.tags
             binding.loading.root.isVisible = isLoading
             with(binding.toolbar) {
-              if (title != board.name) {
-                  title = board.name
-              }
+                if (title != board.name) {
+                    title = board.name
+                }
             }
-            Log.d(this@BoardFragment.TAG, "${requireActivity().findViewById<RecyclerView>(R.id.rvTasks)}")
+            Log.d(
+                this@BoardFragment.TAG,
+                "${requireActivity().findViewById<RecyclerView>(R.id.rvTasks)}"
+            )
 
             message?.let {
                 showToast(it)
