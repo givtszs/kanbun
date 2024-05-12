@@ -12,8 +12,7 @@
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/background_light"
-        android:minHeight="?attr/actionBarSize"
+        style="@style/MaterialToolbar"
         app:layout_constraintTop_toTopOf="parent" />
 
     <ImageView

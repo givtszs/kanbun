@@ -85,7 +85,6 @@ class ItemTaskViewHolder(
             getDisplayDate(task.dateStarts, task.dateEnds).also { date ->
                 taskCard.taskDate.text = date
                 taskCard.taskDate.isVisible = date != null
-                taskCard.taskHorSeparator.isVisible = date != null
             }
         }
     }

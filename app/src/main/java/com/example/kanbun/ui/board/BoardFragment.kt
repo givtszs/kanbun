@@ -86,7 +86,7 @@ class BoardFragment : BaseFragment(), StateHandler {
         super.onViewCreated(view, savedInstanceState)
         val boardInfo: Workspace.BoardInfo = args.boardInfo
         getBoard(boardInfo.boardId, boardInfo.workspaceId)
-        setUpActionBar(binding.topAppBar.toolbar, boardInfo.name)
+        setUpActionBar(binding.toolbar, boardInfo.name)
         setUpTaskListsAdapter()
         setUpMenu()
         collectState()
@@ -303,7 +303,7 @@ class BoardFragment : BaseFragment(), StateHandler {
             binding.rvLists.setItemViewCacheSize(lists.size)
             taskListsAdapter?.boardTags = board.tags
             binding.loading.root.isVisible = isLoading
-            with(binding.topAppBar.toolbar) {
+            with(binding.toolbar) {
               if (title != board.name) {
                   title = board.name
               }

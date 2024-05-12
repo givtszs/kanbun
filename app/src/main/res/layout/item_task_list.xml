@@ -10,6 +10,7 @@
         android:id="@+id/taskListCard"
         android:layout_width="match_parent"
         android:layout_height="0dp"
+        app:cardCornerRadius="0dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:strokeWidth="0dp"
@@ -19,28 +20,32 @@
             android:id="@+id/listCard"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@drawable/item_board_list_bg">
+            android:background="@color/background_light">
 
             <TextView
                 android:id="@+id/tvListName"
-                style="?textAppearanceHeadline6"
+                style="?attr/textAppearanceTitleMedium"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="8dp"
                 android:layout_marginTop="20dp"
-                android:ellipsize="end"
-                android:maxLines="2"
+                android:maxHeight="200dp"
+                android:minHeight="30dp"
+                android:scrollbars="vertical"
+                android:textSize="18sp"
                 app:layout_constraintEnd_toStartOf="@id/btnMore"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                tools:text="List name" />
+                tools:text="Name" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnMore"
                 style="?attr/materialIconButtonStyle"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_height="30dp"
                 android:layout_marginEnd="8dp"
+                android:paddingTop="0dp"
+                android:paddingBottom="0dp"
                 app:icon="@drawable/ic_more_horiz_24"
                 app:iconSize="24dp"
                 app:iconTint="@color/black"
@@ -58,19 +63,18 @@
                 app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
                 app:layout_constrainedHeight="true"
                 app:layout_constraintBottom_toTopOf="@id/btnCreateTask"
-                app:layout_constraintTop_toBottomOf="@id/btnMore"
+                app:layout_constraintTop_toBottomOf="@id/tvListName"
                 tools:listitem="@layout/item_task" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnCreateTask"
-                style="@style/Widget.Material3.Button.TextButton"
+                style="@style/TaskList.Button"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="8dp"
                 android:layout_marginBottom="8dp"
                 android:text="@string/create_task"
                 app:icon="@drawable/ic_add_24"
-                app:iconGravity="textStart"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent" />
@@ -109,7 +113,6 @@
             android:layout_height="wrap_content"
             android:text="Drop the task here"
             android:textColor="@color/md_theme_light_primary" />
-
 
     </LinearLayout>
 

@@ -3,11 +3,13 @@ package com.example.kanbun.ui.board.task_list
 import android.content.ClipData
 import android.content.ClipDescription
 import android.graphics.Point
+import android.text.method.ScrollingMovementMethod
 import android.util.Log
 import android.view.DragEvent
 import android.view.View
 import android.view.View.DragShadowBuilder
 import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.RecyclerView.SmoothScroller
 import com.example.kanbun.common.TAG
 import com.example.kanbun.common.moshi
 import com.example.kanbun.databinding.ItemTaskListBinding
@@ -123,7 +125,10 @@ class ItemTaskListViewHolder(
     }
 
     fun bind(list: TaskList) {
-        binding.tvListName.text = list.name
+        binding.tvListName.apply {
+            text = list.name
+            movementMethod = ScrollingMovementMethod()
+        }
 
         Log.d("TasksAdapter", "bind:\ttasks: ${list.tasks}")
 

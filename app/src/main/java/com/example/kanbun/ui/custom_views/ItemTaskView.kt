@@ -32,9 +32,6 @@ class ItemTaskView(
     var taskDate: TextView
         private set
 
-    var taskHorSeparator: View
-     private set
-
     init {
         inflate(context, R.layout.item_task_view, this)
         task = findViewById(R.id.task)
@@ -43,6 +40,5 @@ class ItemTaskView(
         taskDescription = findViewById(R.id.taskDescription)
         taskTags = findViewById(R.id.taskTags)
         taskDate = findViewById(R.id.taskDate)
-        taskHorSeparator = findViewById(R.id.taskHorSeparator)
     }
 }
