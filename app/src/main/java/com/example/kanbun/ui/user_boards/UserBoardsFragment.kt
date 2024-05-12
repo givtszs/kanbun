@@ -34,6 +34,7 @@ import com.example.kanbun.ui.StateHandler
 import com.example.kanbun.ui.ViewState
 import com.example.kanbun.ui.buildCreateItemDialog
 import com.example.kanbun.ui.main_activity.DrawerAdapter
+import com.example.kanbun.ui.main_activity.DrawerListeners
 import com.example.kanbun.ui.main_activity.MainActivity
 import com.google.android.material.appbar.MaterialToolbar
 import dagger.hilt.android.AndroidEntryPoint
@@ -88,7 +89,6 @@ class UserBoardsFragment : BaseFragment(), StateHandler {
 
     private var isMenuProviderAdded = false
     private var boardsAdapter: BoardsAdapter? = null
-    private var signOutPerformed = false
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -97,7 +97,6 @@ class UserBoardsFragment : BaseFragment(), StateHandler {
     ): View {
         _binding = FragmentUserBoardsBinding.inflate(inflater, container, false)
         activity = requireActivity() as MainActivity
-        signOutPerformed = false
         return binding.root
     }
 
@@ -231,8 +230,6 @@ class UserBoardsFragment : BaseFragment(), StateHandler {
             return
         }
 
-        val currentWorkspace = (viewModel.userBoardsState.value.workspace as? ViewState.WorkspaceState.WorkspaceReady)?.workspace
-
         activity.userWorkspacesAdapter?.workspaces = user.workspaces.map { workspace ->
             DrawerAdapter.DrawerWorkspace(
                 workspace,
@@ -262,62 +259,27 @@ class UserBoardsFragment : BaseFragment(), StateHandler {
     }
 
     private fun setUpDrawer() {
-//        TODO: OPTIMIZE THIS FUNCTION
-        with(activity) {
-            // set up drawer header buttons listeners
-            activityMainBinding.drawerContent.headerLayout.apply {
-                btnSignOut.setOnClickListener {
-                    viewModel.signOutUser(requireContext()) {
-                        DrawerAdapter.prevSelectedWorkspaceId = null
-                        signOutPerformed = true
-                        activityMainBinding.drawerLayout.closeDrawer(GravityCompat.START)
-                    }
-                }
-
-                btnSettings.setOnClickListener {
-                    navController.navigate(R.id.action_userBoardsFragment_to_settingsFragment)
+        activity.drawerListeners = object : DrawerListeners {
+            override fun onSignOutClick() {
+                viewModel.signOutUser(requireContext()) {
+                    DrawerAdapter.prevSelectedWorkspaceId = null
+                    activity.activityMainBinding.drawerLayout.closeDrawer(GravityCompat.START)
+                    navController.navigate(R.id.registrationPromptFragment)
                 }
             }
 
-            DrawerAdapter.onItemClickCallback = { workspaceId ->
-                viewModel.selectWorkspace(workspaceId, false)
-                activityMainBinding.drawerLayout.closeDrawer(GravityCompat.START)
+            override fun onSettingsClick() {
+                navController.navigate(R.id.action_userBoardsFragment_to_settingsFragment)
             }
 
-            // set up header layout
-            var offset = 0.0
-
-            activityMainBinding.drawerLayout.addDrawerListener(object : DrawerListener {
-                override fun onDrawerSlide(drawerView: View, slideOffset: Float) {
-                    Log.d(this@UserBoardsFragment.TAG, "drawer slideOffset: $slideOffset")
-                    if (slideOffset > offset) {
-                        setStatusBarColor(getColor(requireContext(), R.color.background_primary))
-                    } else {
-                        setStatusBarColor(getColor(requireContext(), R.color.background_light))
-                    }
-                }
-
-                override fun onDrawerOpened(drawerView: View) {
-                    offset = 1.0
-                }
-
-                override fun onDrawerClosed(drawerView: View) {
-                    Log.d(this@UserBoardsFragment.TAG, "drawer is closed")
-                    offset = 0.0
-                    if (signOutPerformed) {
-                        navController.navigate(R.id.registrationPromptFragment)
-//                        setStatusBarColor(getColor(requireContext(), R.color.md_theme_light_primary_variant))
-                    }
-                }
-
-                override fun onDrawerStateChanged(newState: Int) {
-//                    TODO("Not yet implemented")
-                }
-            })
-
-            activityMainBinding.drawerContent.btnCreateWorkspace.setOnClickListener {
+            override fun onCreateWorkspaceClick() {
                 viewModel.drawerState.value.user?.let { buildWorkspaceCreationDialog(it) }
             }
+        }
+
+        DrawerAdapter.onItemClickCallback = { workspaceId ->
+            viewModel.selectWorkspace(workspaceId, false)
+            activity.activityMainBinding.drawerLayout.closeDrawer(GravityCompat.START)
         }
     }
 

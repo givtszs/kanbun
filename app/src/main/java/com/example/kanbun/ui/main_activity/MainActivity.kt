@@ -18,6 +18,12 @@ import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import dagger.hilt.android.AndroidEntryPoint
 
+interface DrawerListeners {
+    fun onSignOutClick()
+    fun onSettingsClick()
+    fun onCreateWorkspaceClick()
+}
+
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
     companion object {
@@ -30,6 +36,8 @@ class MainActivity : AppCompatActivity() {
 
     }
 
+    var drawerListeners: DrawerListeners? = null
+
     private var _binding: ActivityMainBinding? = null
     val activityMainBinding: ActivityMainBinding get() = _binding!!
     private lateinit var navController: NavController
@@ -37,6 +45,7 @@ class MainActivity : AppCompatActivity() {
 
     var userWorkspacesAdapter: DrawerAdapter? = null
     var sharedWorkspacesAdapter: DrawerAdapter? = null
+
     var isSharedBoardsSelected: Boolean? = null
         set(value) {
             field = value
@@ -98,6 +107,18 @@ class MainActivity : AppCompatActivity() {
 
     private fun setUpNavView() {
         activityMainBinding.drawerContent.apply {
+            headerLayout.btnSignOut.setOnClickListener {
+                drawerListeners?.onSignOutClick()
+            }
+
+            headerLayout.btnSettings.setOnClickListener {
+                drawerListeners?.onSettingsClick()
+            }
+
+            btnCreateWorkspace.setOnClickListener {
+                drawerListeners?.onCreateWorkspaceClick()
+            }
+
             userWorkspacesAdapter = DrawerAdapter()
             rvUserWorkspaces.adapter = userWorkspacesAdapter
 
@@ -114,7 +135,7 @@ class MainActivity : AppCompatActivity() {
             }
 
             sharedBoards.card.setOnClickListener {
-                DrawerAdapter.onItemClickCallback(DrawerItem.SHARED_BOARDS)
+                DrawerAdapter.onItemClickCallback?.invoke(DrawerItem.SHARED_BOARDS)
             }
             sharedBoards.tvName.text = resources.getString(R.string.shared_boards_headline)
             sharedBoards.ivLeadingIcon.setImageResource(R.drawable.ic_kanban_board_selector)

@@ -13,7 +13,7 @@ class DrawerAdapter : RecyclerView.Adapter<DrawerAdapter.ItemWorkspaceViewHolder
     companion object {
         private const val TAG = "DrawerAdapter"
         var prevSelectedWorkspaceId: String? = null
-        var onItemClickCallback: ((String) -> Unit) = {}
+        var onItemClickCallback: ((String) -> Unit)? = null
     }
 
     var workspaces: List<DrawerWorkspace> = emptyList()
@@ -59,7 +59,7 @@ class DrawerAdapter : RecyclerView.Adapter<DrawerAdapter.ItemWorkspaceViewHolder
                     if (item.workspace.id != prevSelectedWorkspaceId) {
                         Log.d(TAG, "Selected workspace: $item")
                         // close the drawer
-                        onItemClickCallback.invoke(item.workspace.id)
+                        onItemClickCallback?.invoke(item.workspace.id)
                         prevSelectedWorkspaceId = item.workspace.id
                     }
                 }
