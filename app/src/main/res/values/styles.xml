@@ -70,12 +70,20 @@
         <item name="backgroundColor">@color/background_light</item>
     </style>
 
-    <style name="TaskList.Button" parent="Widget.Material3.Button">
+    <style name="Material.Button.CreateTask" parent="Widget.Material3.Button">
         <item name="cornerRadius">10dp</item>
         <item name="backgroundTint">@color/md_theme_light_primary</item>
         <item name="iconTint">@color/white</item>
         <item name="iconGravity">textStart</item>
         <item name="android:textColor">@color/white</item>
+    </style>
+
+    <style name="Material.Button.CreateTaskList" parent="Widget.Material3.Button">
+        <item name="cornerRadius">10dp</item>
+        <item name="backgroundTint">@color/md_theme_light_primary_light</item>
+        <item name="iconTint">@color/md_theme_light_primary</item>
+        <item name="iconGravity">textStart</item>
+        <item name="android:textColor">@color/md_theme_light_primary</item>
     </style>
 
     <style name="Task.Material.CardView" parent="Widget.Material3.CardView.Outlined">

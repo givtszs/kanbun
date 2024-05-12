@@ -9,13 +9,13 @@ class ItemCreateTaskListViewHolder(
 ) : RecyclerView.ViewHolder(binding.root) {
 
     init {
-        binding.cardView.setOnClickListener {
+        binding.btnCreateTaskList.setOnClickListener {
             onClickListener()
         }
     }
 
     fun bind(isWorkspaceAdminOrBoardMember: Boolean) {
-        binding.cardView.isEnabled = isWorkspaceAdminOrBoardMember
+        binding.btnCreateTaskList.isEnabled = isWorkspaceAdminOrBoardMember
     }
 
 }

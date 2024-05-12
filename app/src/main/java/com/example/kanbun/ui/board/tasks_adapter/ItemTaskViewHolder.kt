@@ -121,9 +121,7 @@ class ItemTaskViewHolder(
     }
 
     private fun setUpTagsFlexbox(task: Task) {
-
         val tags = loadTags?.invoke(task.tags)
-//        Log.d(TAG, "tags: $tags")
 
         if (tags.isNullOrEmpty()) {
             binding.taskView.taskTags.isVisible = false
