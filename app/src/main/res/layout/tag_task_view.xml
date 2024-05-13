@@ -9,7 +9,7 @@
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/tagTaskCard"
         android:layout_width="wrap_content"
-        android:layout_height="36dp"
+        android:layout_height="@dimen/tag_task_height"
         android:clickable="true"
         android:focusable="true"
         app:cardCornerRadius="8dp"

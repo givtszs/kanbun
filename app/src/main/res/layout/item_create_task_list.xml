@@ -6,7 +6,7 @@
     android:paddingHorizontal="8dp">
 
     <com.google.android.material.button.MaterialButton
-        style="@style/Material.Button.CreateTaskList"
+        style="@style/Material.Button.Outlined"
         android:id="@+id/btnCreateTaskList"
         android:layout_width="match_parent"
         android:layout_height="match_parent"

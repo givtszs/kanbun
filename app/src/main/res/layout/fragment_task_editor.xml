@@ -172,30 +172,18 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/tfDateEnds" />
 
-        <TextView
-            android:id="@+id/tvCreateTag"
-            style="?textAppearanceBodyLarge"
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnCreateTag"
+            style="@style/Material.Button.Light"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:clickable="true"
-            android:drawablePadding="8dp"
-            android:text="@string/create_new_tag"
-            android:textColor="@color/md_theme_light_primary"
-            app:drawableStartCompat="@drawable/ic_add_24"
-            app:drawableTint="@color/md_theme_light_primary"
+            android:layout_height="@dimen/tag_task_height"
+            android:layout_marginTop="6dp"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
+            app:icon="@drawable/ic_add_24"
+            android:text="@string/create_tag"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/tvAddTags" />
-
-        <View
-            android:id="@+id/separator"
-            android:layout_width="1dp"
-            android:layout_height="30dp"
-            android:layout_marginStart="16dp"
-            android:background="@color/black"
-            app:layout_constraintBottom_toBottomOf="@id/tvCreateTag"
-            app:layout_constraintStart_toEndOf="@id/tvCreateTag"
-            app:layout_constraintTop_toTopOf="@id/tvCreateTag" />
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rvTags"
@@ -204,19 +192,21 @@
             android:layout_marginStart="4dp"
             android:orientation="horizontal"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-            app:layout_constraintBottom_toBottomOf="@id/tvCreateTag"
+            app:layout_constraintBottom_toBottomOf="@id/btnCreateTag"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@id/separator"
-            app:layout_constraintTop_toTopOf="@id/tvCreateTag"
+            app:layout_constraintStart_toEndOf="@id/btnCreateTag"
+            app:layout_constraintTop_toTopOf="@id/btnCreateTag"
             tools:listitem="@layout/tag_task_view" />
 
         <Button
             android:id="@+id/btnCreateTask"
+            style="@style/Material.Button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="24dp"
             android:enabled="false"
             android:text=""
+            tools:text="Create task"
             app:layout_constraintBottom_toBottomOf="parent"
             tools:layout_editor_absoluteX="17dp" />
 

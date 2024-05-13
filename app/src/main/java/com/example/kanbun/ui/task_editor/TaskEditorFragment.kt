@@ -117,7 +117,7 @@ abstract class TaskEditorFragment : BaseFragment(), StateHandler {
                 }
             }
 
-            tvCreateTag.setOnClickListener {
+            btnCreateTag.setOnClickListener {
                 val createTagDialog = CreateTagDialog(requireContext()) { tag ->
                     viewModel.createTag(tag, taskListInfo) { newTag ->
                         sharedBoardViewModel.tags += newTag
