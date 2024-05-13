@@ -4,21 +4,32 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:paddingVertical="4dp"
-    android:paddingHorizontal="16dp">
+    android:paddingHorizontal="@dimen/alert_dialog_horizontal_padding"
+    android:paddingVertical="@dimen/alert_dialog_body_vertical_padding">
+
+    <TextView
+        android:id="@+id/tvHint"
+        style="?attr/textAppearanceBodyLarge"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Tag Name"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/tfName"
+        style="@style/TextInputLayout.Outlined.Dense"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        app:layout_constraintTop_toTopOf="parent">
+        android:layout_marginTop="6dp"
+        app:hintEnabled="false"
+        app:layout_constraintTop_toBottomOf="@id/tvHint">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/etName"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="@string/hint_new_tag" />
+            android:hint="@string/hint_tag" />
     </com.google.android.material.textfield.TextInputLayout>
 
     <TextView
@@ -28,20 +39,21 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
         android:text="@string/select_tag_color"
+        android:textColor="@color/text_primary"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tfName" />
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rvTagColors"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
-        app:layout_constrainedHeight="true"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tvSelectColor"
-        tools:listitem="@layout/item_color_preview" />
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvTagColors"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
+            app:layout_constrainedHeight="true"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tvSelectColor"
+            tools:listitem="@layout/item_color_preview" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

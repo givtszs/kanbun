@@ -10,6 +10,7 @@
     <color name="dim_gray">#696969</color>
     <color name="platinum_1">#E5E4E2</color>
     <color name="anti_flash_white">#F0F0F0</color>
+    <color name="red_600">#DC2626</color>
 
     <color name="text_primary">#141414</color>
     <color name="text_light">#737373</color>
@@ -64,8 +65,24 @@
     <color name="md_theme_light_outlineVariant">#D4C4B5</color>
     <color name="md_theme_light_scrim">#000000</color>
 
-    <!-- Tag default colors -->
-    <color name="red">#FF0000</color>
+    <!-- Tag colors -->
+    <color name="tag_red">#EF4444</color>
+    <color name="tag_rose">#F43F5E</color>
+    <color name="tag_pink">#EC4899</color>
+    <color name="tag_fuscia">#D946EF</color>
+    <color name="tag_purple">#A855F7</color>
+    <color name="tag_indigo">#6366F1</color>
+    <color name="tag_blue">#3B82F6</color>
+    <color name="tag_sky">#0EA5E9</color>
+    <color name="tag_cyan">#06B6D4</color>
+    <color name="tag_teal">#14B8A6</color>
+    <color name="tag_emerald">#10B981</color>
+    <color name="tag_green">#22C55E</color>
+    <color name="tag_yellow">#EAB308</color>
+    <color name="tag_amber">#F59E0B</color>
+    <color name="tag_hues">#F97316</color>
+
+
     <color name="orange">#FFA500</color>
     <color name="yellow">#FFFF00</color>
     <color name="violet">#EE82EE</color>

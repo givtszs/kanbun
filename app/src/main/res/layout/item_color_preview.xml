@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:padding="6dp"
-    android:layout_width="60dp"
-    android:layout_height="60dp">
+    android:padding="4dp"
+    android:layout_width="@dimen/item_tag_color_dimens"
+    android:layout_height="@dimen/item_tag_color_dimens">
 
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/cardColor"
@@ -12,6 +12,7 @@
         android:clickable="true"
         android:focusable="true"
         app:strokeWidth="2dp"
+        app:strokeColor="@color/item_color_stroke"
         app:cardBackgroundColor="@color/black"
         app:cardCornerRadius="50dp" />
 

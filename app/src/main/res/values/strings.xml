@@ -82,6 +82,7 @@
     <string name="action_view_all">View all</string>
     <string name="board_settings">Board settings"</string>
     <string name="create_tag">Create tag</string>
+    <string name="edit_tag">Edit tag</string>
     <string name="user_tag">\@%s</string>
     <string name="members">Members</string>
     <string name="workspace_role_admin_description">Can edit workspace settings, manage its members, create and edit boards</string>

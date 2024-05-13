@@ -117,7 +117,7 @@ class FirestoreTestUtil {
         fun createTag(name: String, color: String): Tag =
             Tag(
                 name = name,
-                color = color,
+                colorId = color,
             )
 
         const val black = "#000000"

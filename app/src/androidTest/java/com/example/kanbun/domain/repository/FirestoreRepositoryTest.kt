@@ -851,7 +851,7 @@ class FirestoreRepositoryTest {
     fun upsertTag_newNameNewColor_updatesExistingTag() = runBlocking {
         val board = createBoard("Board")
         val tag = createTag("Tag 1", "#000000", board)
-        val newTag = tag.copy(name = "New Tag", color = "#FFFFFFF")
+        val newTag = tag.copy(name = "New Tag", colorId = "#FFFFFFF")
         val result = repository.upsertTag(
             tag = newTag,
             boardId = board.id,
@@ -865,7 +865,7 @@ class FirestoreRepositoryTest {
         val tagUpdate = boardUpdate.tags.first { it.id == tag.id }
 
         assertThat(tagUpdate.name).isEqualTo(newTag.name)
-        assertThat(tagUpdate.color).isEqualTo(newTag.color)
+        assertThat(tagUpdate.color).isEqualTo(newTag.colorId)
     }
 
     @Test

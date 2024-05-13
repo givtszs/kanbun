@@ -238,7 +238,7 @@ private abstract class SwipeToDeleteCallback(
 ) : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
     private val clearPaint = Paint().apply { xfermode = PorterDuffXfermode(PorterDuff.Mode.CLEAR) }
     private val background = ColorDrawable()
-    private val backgroundColor = getColor(context, R.color.red)
+    private val backgroundColor = getColor(context, R.color.red_600)
     private val iconDelete =
         ContextCompat.getDrawable(context, R.drawable.ic_delete_outlined_24).also {
             it?.setTint(getColor(context, R.color.white))

@@ -13,12 +13,16 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.RecyclerView
+import com.example.kanbun.R
+import com.example.kanbun.common.getColor
+import com.example.kanbun.common.tagColors
 import com.example.kanbun.databinding.EditTagsBottomSheetBinding
 import com.example.kanbun.databinding.ItemEditTagBinding
 import com.example.kanbun.domain.model.Tag
 import com.example.kanbun.ui.StateHandler
 import com.example.kanbun.ui.ViewState
 import com.example.kanbun.ui.create_tag_dialog.CreateTagDialog
+import com.example.kanbun.ui.getBackgroundColor
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -65,7 +69,7 @@ class EditTagsBottomSheet : BottomSheetDialogFragment(), StateHandler {
             val createTagDialog = CreateTagDialog(requireContext()) { tag ->
                 viewModel.upsertTag(tag)
             }
-            createTagDialog.show()
+            createTagDialog.buildDialog(R.string.create_tag)
         }
     }
 
@@ -100,7 +104,7 @@ class EditTagsBottomSheet : BottomSheetDialogFragment(), StateHandler {
                     viewModel.upsertTag(tag)
                 }
                 tagEditor.setTag(clickedTag)
-                tagEditor.show()
+                tagEditor.buildDialog(R.string.edit_tag)
             },
             onDeleteIconClicked = { tagToDelete ->
                 viewModel.deleteTag(tagToDelete)
@@ -183,8 +187,8 @@ private class EditTagsAdapter(
         fun bind(tag: Tag) {
             binding.apply {
                 tvTagName.text = tag.name
-                tvTagName.setTextColor(Color.parseColor(tag.color))
-                cardBackground.setCardBackgroundColor(Color.parseColor(tag.getBackgroundColor()))
+                tvTagName.setTextColor(getColor(itemView.context, tagColors[tag.colorId] ?: R.color.md_theme_light_primary))
+                cardBackground.setCardBackgroundColor(Color.parseColor(getBackgroundColor(itemView.context, tagColors[tag.colorId] ?: R.color.md_theme_light_primary)))
             }
         }
     }

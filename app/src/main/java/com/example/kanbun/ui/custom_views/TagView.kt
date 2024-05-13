@@ -8,7 +8,9 @@ import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
 import com.example.kanbun.R
 import com.example.kanbun.common.getColor
+import com.example.kanbun.common.tagColors
 import com.example.kanbun.domain.model.Tag
+import com.example.kanbun.ui.getBackgroundColor
 import com.google.android.material.card.MaterialCardView
 
 class TagView @JvmOverloads constructor(
@@ -38,12 +40,12 @@ class TagView @JvmOverloads constructor(
     fun bind(tag: Tag, isClickable: Boolean, isSelected: Boolean) {
         tvTag.apply {
             text = tag.name
-            setTextColor(Color.parseColor(tag.color))
+            setTextColor(getColor(context, tagColors[tag.colorId] ?: R.color.md_theme_light_primary))
         }
 
         cardTag.apply {
             this.isClickable = isClickable
-            setCardBackgroundColor(Color.parseColor(tag.getBackgroundColor()))
+            setCardBackgroundColor(Color.parseColor(getBackgroundColor(context, tagColors[tag.colorId] ?: R.color.md_theme_light_primary)))
             strokeColor = if (isSelected) {
                 getColor(context, R.color.md_theme_light_primary)
             } else {

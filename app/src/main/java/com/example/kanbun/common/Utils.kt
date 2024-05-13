@@ -35,9 +35,8 @@ suspend inline fun <T, R> Task<T>.getResult(onSuccess: Task<T>.() -> R): R {
 
 fun getColor(context: Context, @ColorRes color: Int) = ContextCompat.getColor(context, color)
 
-// TODO: Select user's UTC as the base for date/time conversion
-
 fun convertDateStringToTimestamp(format: String, date: String): Long? = try {
+    // TODO: Select user's UTC as the base for date/time conversion
     SimpleDateFormat(format, Locale.getDefault())
         .apply { timeZone = TimeZone.getDefault() }
         .parse(date)

@@ -68,18 +68,37 @@ const val HORIZONTAL_SCROLL_DISTANCE = 5
 const val DATE_FORMAT = "dd MMM yyyy"
 const val TIME_FORMAT = "HH:mm"
 const val DATE_TIME_FORMAT = "dd MMM yyyy, HH:mm"
+const val COLOR_GRID_COLUMNS = 5
 
 object DrawerItem {
     const val SHARED_BOARDS = "shared_boards"
 }
+//
+//val defaultTagColors = listOf(
+//    "#FF0000", // red
+//    "#FFA500", // orange
+//    "#FFFF00", // yellow
+//    "#EE82EE", // violet
+//    "#008000", // green
+//    "#0000FF", // blue
+//)
 
-val defaultTagColors = listOf(
-    "#FF0000", // red
-    "#FFA500", // orange
-    "#FFFF00", // yellow
-    "#EE82EE", // violet
-    "#008000", // green
-    "#0000FF", // blue
+val tagColors = mapOf(
+    0 to R.color.tag_red,
+    1 to R.color.tag_rose,
+    2 to R.color.tag_pink,
+    3 to R.color.tag_fuscia,
+    4 to R.color.tag_purple,
+    5 to R.color.tag_indigo,
+    6 to R.color.tag_blue,
+    7 to R.color.tag_sky,
+    8 to R.color.tag_cyan,
+    9 to R.color.tag_teal,
+    10 to R.color.tag_emerald,
+    11 to R.color.tag_green,
+    12 to R.color.tag_yellow,
+    13 to R.color.tag_amber,
+    14 to R.color.tag_hues,
 )
 
 val moshi: Moshi = Moshi.Builder().build()

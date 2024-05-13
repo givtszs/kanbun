@@ -7,10 +7,5 @@ import kotlinx.parcelize.Parcelize
 data class Tag(
     val id: String = "",
     val name: String = "",
-    val color: String = ""
-) : Parcelable {
-
-    fun getBackgroundColor(): String {
-        return "#33${color.substringAfter("#")}" // 33 - 20% alpha value
-    }
-}
+    val colorId: Int = -1
+) : Parcelable

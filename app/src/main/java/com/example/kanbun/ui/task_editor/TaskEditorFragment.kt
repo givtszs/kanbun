@@ -123,7 +123,7 @@ abstract class TaskEditorFragment : BaseFragment(), StateHandler {
                         sharedBoardViewModel.tags += newTag
                     }
                 }
-                createTagDialog.show()
+                createTagDialog.buildDialog(R.string.create_tag)
             }
 
             tvDateStarts.setOnFocusChangeListener { v, hasFocus ->

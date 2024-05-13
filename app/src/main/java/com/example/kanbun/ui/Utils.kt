@@ -1,7 +1,9 @@
 package com.example.kanbun.ui
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.view.LayoutInflater
+import androidx.annotation.ColorRes
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AlertDialog
 import androidx.core.widget.doOnTextChanged
@@ -62,4 +64,10 @@ fun buildTextInputDialog(
             }
         }
         .show()
+}
+
+@SuppressLint("ResourceType")
+fun getBackgroundColor(context: Context, @ColorRes color: Int): String {
+    val colorStr = context.resources.getString(color)
+    return "#33${colorStr.substring(3, colorStr.length)}" // 33 - 20% alpha value
 }
