@@ -103,6 +103,14 @@ abstract class TaskEditorFragment : BaseFragment(), StateHandler {
                 btnCreateTask.isEnabled = !text.isNullOrEmpty()
             }
 
+            etSearchMembers.setOnClickListener {
+                if (etSearchMembers.isFocused) {
+                    etSearchMembers.clearFocus()
+                    rvFoundUsers.isVisible = false
+                    hideKeyboard(etSearchMembers)
+                }
+            }
+
             etSearchMembers.setOnFocusChangeListener { _, isFocused ->
                 viewModel.resetFoundUsers(!isFocused)
             }

@@ -111,6 +111,13 @@ class BoardSettingsFragment : BaseFragment(), StateHandler {
                     boardSettingsViewModel.resetFoundUsers()
                 }
             }
+            etSearchUser.setOnClickListener {
+                if (etSearchUser.isFocused) {
+                    etSearchUser.clearFocus()
+                    rvFoundUsers.isVisible = false
+                    hideKeyboard(etSearchUser)
+                }
+            }
 
             btnDeleteBoard.isEnabled = isUserAdmin
             btnDeleteBoard.setOnClickListener {

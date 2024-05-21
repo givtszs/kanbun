@@ -106,6 +106,14 @@ class WorkspaceSettingsFragment : BaseFragment(), StateHandler {
                 }
             }
 
+            etSearchUser.setOnClickListener {
+                if (etSearchUser.isFocused) {
+                    etSearchUser.clearFocus()
+                    rvFoundUsers.isVisible = false
+                    hideKeyboard(etSearchUser)
+                }
+            }
+
             btnSave.setOnClickListener {
                 val name = tfName.editText?.text?.trim().toString()
                 if (name.isEmpty()) {
