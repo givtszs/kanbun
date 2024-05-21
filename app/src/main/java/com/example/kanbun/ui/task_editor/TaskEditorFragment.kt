@@ -18,6 +18,7 @@ import com.example.kanbun.common.DATE_FORMAT
 import com.example.kanbun.common.DATE_TIME_FORMAT
 import com.example.kanbun.common.convertDateStringToTimestamp
 import com.example.kanbun.common.convertTimestampToDateString
+import com.example.kanbun.common.getColor
 import com.example.kanbun.databinding.AlertDialogDatetimePickerBinding
 import com.example.kanbun.databinding.FragmentTaskEditorBinding
 import com.example.kanbun.domain.model.TaskList
@@ -77,8 +78,8 @@ abstract class TaskEditorFragment : BaseFragment(), StateHandler {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        Log.d(TAG, "onViewCreated")
         super.onViewCreated(view, savedInstanceState)
+        setStatusBarColor(getColor(requireContext(), R.color.background_light))
         setUpAdapters()
         viewModel.init(task, sharedBoardViewModel.boardMembers, sharedBoardViewModel.tags)
         collectState()
