@@ -172,7 +172,8 @@ class UserBoardsFragment : BaseFragment(), StateHandler {
             ViewState.WorkspaceState.NullWorkspace -> {
                 removeOptionsMenu()
                 boardsAdapter?.clear()
-                binding.tvTip.text = resources.getString(R.string.workspace_selection_tip)
+                binding.tvTipTitle.text = resources.getString(R.string.no_workspace_selected_tip_title)
+                binding.tvTipDescription.text = resources.getString(R.string.workspace_selection_tip)
                 binding.ivContextImage.setImageResource(R.drawable.undraw_select_option_menu)
             }
 
@@ -186,7 +187,7 @@ class UserBoardsFragment : BaseFragment(), StateHandler {
                 }
 
                 if (workspace.workspace.boards.isEmpty()) {
-                    binding.tvTip.text =
+                    binding.tvTipDescription.text =
                         if (workspace.workspace.id != DrawerItem.SHARED_BOARDS) {
                             resources.getString(R.string.empty_workspace_tip)
                         } else {
@@ -197,7 +198,7 @@ class UserBoardsFragment : BaseFragment(), StateHandler {
 
                 workspaceRole = workspace.workspace.members[MainActivity.firebaseUser?.uid]
                 Log.d(this@UserBoardsFragment.TAG, "boards: ${workspace.workspace.boards}")
-                boardsAdapter?.setData(workspace.workspace.boards)
+                boardsAdapter?.setData(workspace.workspace.boards.sortedBy { it.name })
                 DrawerAdapter.prevSelectedWorkspaceId = workspace.workspace.id
             }
         }
@@ -210,9 +211,10 @@ class UserBoardsFragment : BaseFragment(), StateHandler {
         binding.apply {
             activity.isSharedBoardsSelected =
                 (workspace as? ViewState.WorkspaceState.WorkspaceReady)?.workspace?.id == DrawerItem.SHARED_BOARDS
-            tvTip.isVisible = workspace is ViewState.WorkspaceState.NullWorkspace ||
+            tvTipTitle.isVisible = workspace is ViewState.WorkspaceState.NullWorkspace
+            tvTipDescription.isVisible = workspace is ViewState.WorkspaceState.NullWorkspace ||
                     (workspace as ViewState.WorkspaceState.WorkspaceReady).workspace.boards.isEmpty()
-            ivContextImage.isVisible = tvTip.isVisible
+            ivContextImage.isVisible = tvTipDescription.isVisible
             rvBoards.isVisible = workspace !is ViewState.WorkspaceState.NullWorkspace
             fabCreateBoard.isVisible = workspace is ViewState.WorkspaceState.WorkspaceReady &&
                     workspace.workspace.id != DrawerItem.SHARED_BOARDS &&

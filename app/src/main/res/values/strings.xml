@@ -33,7 +33,9 @@
     <string name="workspace_settings">Workspace settings</string>
     <string name="workspace_name_hint">Workspace name</string>
     <string name="delete_workspace">Delete workspace</string>
-    <string name="workspace_selection_tip">Tap the menu icon to select or create a workspace</string>
+    <string name="no_workspace_selected_tip_title">Workspace is not selected</string>
+    <string name="workspace_selection_tip"><b>Tap the menu icon to select or create a workspace</b></string>
+    <string name="empty_workspace_tip_title">Nothing here</string>
     <string name="empty_workspace_tip">Boards will appear here once created</string>
     <string name="empty_shared_boards_tip">Shared boards will appear here</string>
     <string name="fab_new_board">New board</string>
