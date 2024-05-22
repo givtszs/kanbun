@@ -8,6 +8,8 @@ import androidx.annotation.StringRes
 import androidx.appcompat.app.AlertDialog
 import androidx.core.widget.doOnTextChanged
 import com.example.kanbun.R
+import com.example.kanbun.common.DATE_TIME_FORMAT
+import com.example.kanbun.common.convertTimestampToDateString
 import com.example.kanbun.databinding.AlertDialogCreateItemBinding
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 
@@ -70,4 +72,35 @@ fun buildTextInputDialog(
 fun getBackgroundColor(context: Context, @ColorRes color: Int): String {
     val colorStr = context.resources.getString(color)
     return "#33${colorStr.substring(3, colorStr.length)}" // 33 - 20% alpha value
+}
+
+fun getDisplayDate(dateStarts: Long?, dateEnds: Long?, context: Context): String? {
+    return when {
+        dateStarts != null && dateEnds != null ->
+            context.resources.getString(
+                R.string.task_date,
+                convertTimestampToDateString(DATE_TIME_FORMAT, dateStarts),
+                convertTimestampToDateString(DATE_TIME_FORMAT, dateEnds)
+            )
+
+        dateStarts != null ->
+            context.resources.getString(
+                R.string.date_starts,
+                convertTimestampToDateString(
+                    DATE_TIME_FORMAT,
+                    dateStarts
+                )
+            )
+
+        dateEnds != null ->
+            context.resources.getString(
+                R.string.date_ends,
+                convertTimestampToDateString(
+                    DATE_TIME_FORMAT,
+                    dateEnds
+                )
+            )
+
+        else -> null
+    }
 }

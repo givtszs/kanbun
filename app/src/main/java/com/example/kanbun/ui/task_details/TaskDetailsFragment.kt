@@ -31,6 +31,7 @@ import com.example.kanbun.ui.ViewState
 import com.example.kanbun.ui.board.BoardFragment
 import com.example.kanbun.ui.board.common_adapters.TagsAdapter
 import com.example.kanbun.ui.buildDeleteConfirmationDialog
+import com.example.kanbun.ui.getDisplayDate
 import com.example.kanbun.ui.manage_members.MembersAdapter
 import com.example.kanbun.ui.model.Member
 import com.example.kanbun.ui.model.TagUi
@@ -71,7 +72,7 @@ class TaskDetailsFragment : BaseFragment(), StateHandler {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        setUpActionBar(binding.topAppBar.toolbar)
+        setUpActionBar(binding.toolbar)
         setUpOptionsMenu()
         setUpTagsAdapter()
         setUpMembersAdapter()
@@ -97,21 +98,18 @@ class TaskDetailsFragment : BaseFragment(), StateHandler {
 
 
             task.tags.let {
-                rvTags.visibility = if (it.isNotEmpty()) View.VISIBLE else View.INVISIBLE
-                tvNoTags.visibility = if (it.isEmpty()) View.VISIBLE else View.INVISIBLE
+                rvTags.isVisible = it.isNotEmpty()
+                tvNoTags.isVisible = !rvTags.isVisible
             }
 
             task.members.let {
-                tvMembersLabel.text = resources.getString(R.string.task_members_count, it.size)
-                rvMembers.visibility = if (it.isNotEmpty()) View.VISIBLE else View.INVISIBLE
-                tvNoMembers.visibility = if (it.isEmpty()) View.VISIBLE else View.INVISIBLE
+                rvMembers.isVisible = it.isNotEmpty()
+                tvNoMembers.isVisible = !rvMembers.isVisible
+                btnViewAllMembers.isVisible = rvMembers.isVisible
             }
 
-            tvDate.text = resources.getString(
-                R.string.task_date,
-                convertTimestampToDateString(DATE_TIME_FORMAT, task.dateStarts),
-                convertTimestampToDateString(DATE_TIME_FORMAT, task.dateEnds)
-            )
+            tvDate.text = getDisplayDate(task.dateStarts, task.dateEnds, requireContext())
+                ?: getString(R.string.no_datetime)
 
             fabEditTask.isVisible = isWorkspaceAdminOrBoardMember
             fabEditTask.setOnClickListener {
@@ -134,7 +132,8 @@ class TaskDetailsFragment : BaseFragment(), StateHandler {
     }
 
     private fun setUpMembersAdapter() {
-        val members = sharedViewModel.boardMembers.filter { it.id in task.members }.map { Member(it, null) }
+        val members =
+            sharedViewModel.boardMembers.filter { it.id in task.members }.map { Member(it, null) }
         membersAdapter = MembersAdapter().apply {
             this.members = members
         }
@@ -188,8 +187,7 @@ class TaskDetailsFragment : BaseFragment(), StateHandler {
                             requireContext(),
                             R.string.delete_task_dialog_title
                         ) {
-                            taskDetailsViewModel.
-                            deleteTask(
+                            taskDetailsViewModel.deleteTask(
                                 taskPosition = args.task.position.toInt(),
                                 taskList = args.taskList,
                                 navigateOnDelete = { navController.popBackStack() }

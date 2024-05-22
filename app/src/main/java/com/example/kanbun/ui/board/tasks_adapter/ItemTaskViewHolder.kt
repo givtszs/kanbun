@@ -13,6 +13,7 @@ import com.example.kanbun.databinding.ItemTaskBinding
 import com.example.kanbun.domain.model.Tag
 import com.example.kanbun.domain.model.Task
 import com.example.kanbun.ui.custom_views.TagView
+import com.example.kanbun.ui.getDisplayDate
 
 class ItemTaskViewHolder(
     isWorkspaceAdminOrBoardMember: Boolean,
@@ -82,41 +83,10 @@ class ItemTaskViewHolder(
             taskDescription.text = task.description
 
             // set up date
-            getDisplayDate(task.dateStarts, task.dateEnds).also { date ->
+            getDisplayDate(task.dateStarts, task.dateEnds, itemView.context).also { date ->
                 taskDate.text = date
                 taskDate.isVisible = date != null
             }
-        }
-    }
-
-    private fun getDisplayDate(dateStarts: Long?, dateEnds: Long?): String? {
-        return when {
-            dateStarts != null && dateEnds != null ->
-                itemView.resources.getString(
-                    R.string.task_date,
-                    convertTimestampToDateString(DATE_TIME_FORMAT, dateStarts),
-                    convertTimestampToDateString(DATE_TIME_FORMAT, dateEnds)
-                )
-
-            dateStarts != null ->
-                itemView.resources.getString(
-                    R.string.date_starts,
-                    convertTimestampToDateString(
-                        DATE_TIME_FORMAT,
-                        dateStarts
-                    )
-                )
-
-            dateEnds != null ->
-                itemView.resources.getString(
-                    R.string.date_ends,
-                    convertTimestampToDateString(
-                        DATE_TIME_FORMAT,
-                        dateEnds
-                    )
-                )
-
-            else -> null
         }
     }
 
