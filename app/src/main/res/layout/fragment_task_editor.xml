@@ -120,6 +120,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="6dp"
+            app:endIconMode="custom"
             app:endIconDrawable="@drawable/ic_calendar_outlined_24"
             app:layout_constraintTop_toBottomOf="@id/tvStarts">
 
@@ -150,6 +151,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="6dp"
+            app:endIconMode="custom"
             app:endIconDrawable="@drawable/ic_calendar_outlined_24"
             app:layout_constraintTop_toBottomOf="@id/tvEnds">
 

@@ -195,6 +195,7 @@ abstract class TaskEditorFragment : BaseFragment(), StateHandler {
                 }
                 taskMembersAdapter?.members = taskMembers.map { Member(it, null) }
                 rvMembers.isVisible = taskMembers.isNotEmpty()
+                btnViewAllMembers.isVisible = taskMembers.isNotEmpty()
             }
 
             message?.let {
@@ -202,26 +203,6 @@ abstract class TaskEditorFragment : BaseFragment(), StateHandler {
                 viewModel.messageShown()
             }
         }
-    }
-
-    protected fun getUpdatedTask(task: Task): Task {
-        return task.copy(
-            name = binding.etName.text?.trim().toString(),
-            description = binding.etDescription.text?.trim().toString(),
-            author = MainActivity.firebaseUser!!.uid,
-            tags = viewModel.taskEditorState.value.tags
-                .filter { it.isSelected }
-                .map { it.tag.id },
-            dateStarts = convertDateStringToTimestamp(
-                DATE_TIME_FORMAT,
-                binding.tvDateStarts.text.toString()
-            ),
-            dateEnds = convertDateStringToTimestamp(
-                DATE_TIME_FORMAT,
-                binding.tvDateEnds.text.toString()
-            ),
-            members = viewModel.taskEditorState.value.taskMembers.map { it.id }
-        )
     }
 
     protected fun createTask(task: Task? = null): Task {
@@ -252,7 +233,7 @@ abstract class TaskEditorFragment : BaseFragment(), StateHandler {
         setUpDialogBinding(alertDialogBinding, textField)
 
         alertDialogBinding.apply {
-            MaterialAlertDialogBuilder(requireContext())
+            MaterialAlertDialogBuilder(requireContext(), R.style.MaterialDialog)
                 .setView(root)
                 .setPositiveButton("Save") { _, _ ->
                     textField.setText(
@@ -341,6 +322,7 @@ abstract class TaskEditorFragment : BaseFragment(), StateHandler {
         val datePicker = MaterialDatePicker.Builder.datePicker()
             .setCalendarConstraints(constraints)
             .setSelection(dateTimestamp ?: MaterialDatePicker.todayInUtcMilliseconds())
+            .setTheme(R.style.DatePicker)
             .build()
 
         datePicker.addOnPositiveButtonClickListener {
@@ -366,6 +348,7 @@ abstract class TaskEditorFragment : BaseFragment(), StateHandler {
         val timePickerBuilder = MaterialTimePicker.Builder()
             .setTimeFormat(TimeFormat.CLOCK_24H)
             .setInputMode(MaterialTimePicker.INPUT_MODE_CLOCK)
+            .setTheme(R.style.TimePicker)
 
         if (time.isNotEmpty()) {
             Log.d(TAG, "buildTimePicker: initTime: $time")

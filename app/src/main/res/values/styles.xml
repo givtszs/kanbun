@@ -54,6 +54,24 @@
 
     <style name="MaterialDialog.Button.Negative" parent="Material.Button.Outlined" />
 
+    <style name="DatePicker" parent="ThemeOverlay.Material3.MaterialCalendar">
+        <item name="colorSurfaceContainerHigh">@color/white</item>
+    </style>
+
+    <style name="TimePicker" parent="ThemeOverlay.Material3.MaterialTimePicker">
+        <item name="colorSurfaceContainerHigh">@color/background_primary</item>
+        <item name="materialClockStyle">@style/TimePicker.Clock</item>
+        <item name="chipStyle">@style/TimePicker.Clock.Display</item>
+    </style>
+
+    <style name="TimePicker.Clock" parent="Widget.Material3.MaterialTimePicker.Clock">
+        <item name="clockFaceBackgroundColor">@color/md_theme_light_primary_light</item>
+    </style>
+
+    <style name="TimePicker.Clock.Display" parent="Widget.Material3.MaterialTimePicker.Display">
+        <item name="chipBackgroundColor">@color/md_theme_light_primary_light</item>
+    </style>
+
     <style name="TextInputLayout.Outlined.Dense" parent="Widget.Material3.TextInputLayout.OutlinedBox.Dense">
         <item name="boxCornerRadiusTopStart">10dp</item>
         <item name="boxCornerRadiusTopEnd">10dp</item>
@@ -68,7 +86,6 @@
         <item name="boxCornerRadiusBottomStart">10dp</item>
         <item name="boxCornerRadiusBottomEnd">10dp</item>
         <item name="boxStrokeColor">@color/text_input_box_stroke_color</item>
-        <item name="endIconMode">custom</item>
         <item name="endIconTint">@color/icon_primary_light</item>
         <item name="hintEnabled">false</item>
     </style>
