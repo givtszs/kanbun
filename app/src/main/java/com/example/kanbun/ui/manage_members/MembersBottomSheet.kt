@@ -48,13 +48,13 @@ class MembersBottomSheet private constructor() : BottomSheetDialogFragment() {
             members: List<Member>,
             isTaskScreen: Boolean = false,
             ownerId: String? = null,
-            onDismissCallback: (List<Member>) -> Unit
+            onDismissCallback: ((List<Member>) -> Unit)? = null
         ): MembersBottomSheet {
             return MembersBottomSheet().apply {
                 this.members = members.toMutableList()
                 this.isTaskScreen = isTaskScreen
                 this.ownerId = ownerId
-                this.onDismissCallback = onDismissCallback
+                this.onDismissCallback = onDismissCallback ?: {}
             }
         }
     }

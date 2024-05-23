@@ -25,6 +25,7 @@ import com.example.kanbun.common.Role
 import com.example.kanbun.common.convertTimestampToDateString
 import com.example.kanbun.databinding.FragmentTaskDetailsBinding
 import com.example.kanbun.domain.model.Task
+import com.example.kanbun.domain.model.User
 import com.example.kanbun.ui.BaseFragment
 import com.example.kanbun.ui.StateHandler
 import com.example.kanbun.ui.ViewState
@@ -33,6 +34,7 @@ import com.example.kanbun.ui.board.common_adapters.TagsAdapter
 import com.example.kanbun.ui.buildDeleteConfirmationDialog
 import com.example.kanbun.ui.getDisplayDate
 import com.example.kanbun.ui.manage_members.MembersAdapter
+import com.example.kanbun.ui.manage_members.MembersBottomSheet
 import com.example.kanbun.ui.model.Member
 import com.example.kanbun.ui.model.TagUi
 import com.example.kanbun.ui.shared.SharedBoardViewModel
@@ -60,6 +62,17 @@ class TaskDetailsFragment : BaseFragment(), StateHandler {
         UserBoardsFragment.workspaceRole == Role.Workspace.Admin || BoardFragment.isBoardMember
     private var tagsAdapter: TagsAdapter? = null
     private var membersAdapter: MembersAdapter? = null
+    private val taskMembers: List<Member> by lazy {
+        val boardMembersIndexed = sharedViewModel.boardMembers.associateBy { it.id }
+        val taskMembers = mutableListOf<Member>().apply {
+            task.members.forEach { userId ->
+                boardMembersIndexed[userId]?.let { user ->
+                    add(Member(user = user, role = null))
+                }
+            }
+        }
+        taskMembers
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -102,7 +115,7 @@ class TaskDetailsFragment : BaseFragment(), StateHandler {
                 tvNoTags.isVisible = !rvTags.isVisible
             }
 
-            task.members.let {
+            taskMembers.let {
                 rvMembers.isVisible = it.isNotEmpty()
                 tvNoMembers.isVisible = !rvMembers.isVisible
                 btnViewAllMembers.isVisible = rvMembers.isVisible
@@ -119,6 +132,14 @@ class TaskDetailsFragment : BaseFragment(), StateHandler {
                         task = task
                     )
                 )
+            }
+
+            btnViewAllMembers.isVisible = taskMembers.isNotEmpty()
+            btnViewAllMembers.setOnClickListener {
+                val membersBottomSheet = MembersBottomSheet.init(
+                    members = taskMembers,
+                )
+                membersBottomSheet.show(childFragmentManager, "task_details_members")
             }
         }
     }

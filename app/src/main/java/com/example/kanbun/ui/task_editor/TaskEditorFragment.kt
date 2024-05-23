@@ -159,7 +159,7 @@ abstract class TaskEditorFragment : BaseFragment(), StateHandler {
                     ) { members ->
                         viewModel.setMembers(members)
                     }
-                membersBottomSheet.show(childFragmentManager, "workspace_members")
+                membersBottomSheet.show(childFragmentManager, "task_editor_members")
             }
         }
     }

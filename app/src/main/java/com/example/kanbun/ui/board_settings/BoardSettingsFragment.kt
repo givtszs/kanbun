@@ -186,7 +186,7 @@ class BoardSettingsFragment : BaseFragment(), StateHandler {
                     ) { members ->
                         boardSettingsViewModel.setMembers(members)
                     }
-                membersBottomSheet.show(childFragmentManager, "workspace_members")
+                membersBottomSheet.show(childFragmentManager, "board_members")
             }
         }
     }
