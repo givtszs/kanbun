@@ -3,8 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@color/background_light">
+    android:layout_height="match_parent">
 
     <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/toolbar"
@@ -13,183 +12,193 @@
         android:background="@color/background_light"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <ScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:paddingHorizontal="16dp"
-        android:paddingVertical="8dp"
+        android:scrollbars="none"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toBottomOf="@id/toolbar">
 
-        <TextView
-            android:id="@+id/tvName"
-            style="?attr/textAppearanceHeadlineMedium"
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/body"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:layout_constraintTop_toTopOf="parent"
-            tools:text="Task sample name" />
-
-        <TextView
-            android:id="@+id/tvCreatedBy"
-            style="?textAppearanceSubtitle1"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:text="@string/created_by_label"
-            android:textColor="@color/text_light"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/tvName" />
-
-        <TextView
-            android:id="@+id/tvAuthor"
-            style="?textAppearanceSubtitle1"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="4dp"
-            android:ellipsize="end"
-            android:maxLines="1"
-            android:textColor="@color/text_light"
-            app:layout_constraintBaseline_toBaselineOf="@id/tvCreatedBy"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@id/tvCreatedBy"
-            tools:text="John Smith" />
-
-        <TextView
-            android:id="@+id/tvDescriptionLabel"
-            style="?textAppearanceTitleMedium"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
-            android:text="@string/hint_description"
-            android:textSize="18sp"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/tvCreatedBy" />
-
-        <TextView
-            android:id="@+id/tvDescription"
-            style="?textAppearanceSubtitle1"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="6dp"
-            app:layout_constraintTop_toBottomOf="@id/tvDescriptionLabel"
-            tools:text="Description example" />
-
-        <!-- Section `Tags` -->
-
-        <LinearLayout
-            android:id="@+id/tagsContainer"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
-            android:orientation="vertical"
-            app:layout_constraintTop_toBottomOf="@id/tvDescription">
+            android:background="@color/background_light"
+            android:paddingHorizontal="16dp"
+            android:paddingBottom="72dp"
+            android:paddingTop="8dp"
+            app:layout_constraintTop_toBottomOf="@id/toolbar">
 
             <TextView
-                android:id="@+id/tvTagsLabel"
-                style="?textAppearanceTitleMedium"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/tags_label"
-                android:textSize="18sp" />
-
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/rvTags"
+                android:id="@+id/tvName"
+                style="?attr/textAppearanceHeadlineMedium"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:orientation="horizontal"
-                android:visibility="gone"
-                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-                tools:listitem="@layout/tag_task_view" />
+                app:layout_constraintTop_toTopOf="parent"
+                tools:text="Task sample name" />
 
             <TextView
-                android:id="@+id/tvNoTags"
+                android:id="@+id/tvCreatedBy"
                 style="?textAppearanceSubtitle1"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="6dp"
-                android:text="@string/no_tags" />
-
-        </LinearLayout>
-
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/membersContainer"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
-            android:orientation="vertical"
-            app:layout_constraintTop_toBottomOf="@id/tagsContainer">
+                android:layout_marginTop="4dp"
+                android:text="@string/created_by_label"
+                android:textColor="@color/text_light"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tvName" />
 
             <TextView
-                android:id="@+id/tvMembersLabel"
+                android:id="@+id/tvAuthor"
+                style="?textAppearanceSubtitle1"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="4dp"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:textColor="@color/text_light"
+                app:layout_constraintBaseline_toBaselineOf="@id/tvCreatedBy"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/tvCreatedBy"
+                tools:text="John Smith" />
+
+            <TextView
+                android:id="@+id/tvDescriptionLabel"
                 style="?textAppearanceTitleMedium"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/task_members"
+                android:layout_marginTop="24dp"
+                android:text="@string/hint_description"
                 android:textSize="18sp"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnViewAllMembers"
-                style="@style/Widget.Material3.Button.TextButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:minHeight="20dp"
-                android:paddingVertical="0dp"
-                android:text="@string/action_view_all"
-                android:textColor="@color/black"
-                app:layout_constraintBaseline_toBaselineOf="@id/tvMembersLabel"
-                app:layout_constraintEnd_toEndOf="parent" />
-
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/rvMembers"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:orientation="horizontal"
-                android:visibility="gone"
-                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-                app:layout_constraintTop_toBottomOf="@id/tvMembersLabel"
-                tools:listitem="@layout/item_member_chip" />
+                app:layout_constraintTop_toBottomOf="@id/tvCreatedBy" />
 
             <TextView
-                android:id="@+id/tvNoMembers"
+                android:id="@+id/tvDescription"
+                style="?textAppearanceSubtitle1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                app:layout_constraintTop_toBottomOf="@id/tvDescriptionLabel"
+                tools:text="Description example" />
+
+            <!-- Section `Tags` -->
+
+            <LinearLayout
+                android:id="@+id/tagsContainer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:orientation="vertical"
+                app:layout_constraintTop_toBottomOf="@id/tvDescription">
+
+                <TextView
+                    android:id="@+id/tvTagsLabel"
+                    style="?textAppearanceTitleMedium"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/tags_label"
+                    android:textSize="18sp" />
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/rvTags"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:orientation="horizontal"
+                    android:visibility="gone"
+                    app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                    tools:listitem="@layout/tag_task_view" />
+
+                <TextView
+                    android:id="@+id/tvNoTags"
+                    style="?textAppearanceSubtitle1"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:text="@string/no_tags" />
+
+            </LinearLayout>
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/membersContainer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:orientation="vertical"
+                app:layout_constraintTop_toBottomOf="@id/tagsContainer">
+
+                <TextView
+                    android:id="@+id/tvMembersLabel"
+                    style="?textAppearanceTitleMedium"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/task_members"
+                    android:textSize="18sp"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnViewAllMembers"
+                    style="@style/Widget.Material3.Button.TextButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:minHeight="20dp"
+                    android:paddingVertical="0dp"
+                    android:text="@string/action_view_all"
+                    android:textColor="@color/black"
+                    app:layout_constraintBaseline_toBaselineOf="@id/tvMembersLabel"
+                    app:layout_constraintEnd_toEndOf="parent" />
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/rvMembers"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:orientation="horizontal"
+                    android:visibility="gone"
+                    app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                    app:layout_constraintTop_toBottomOf="@id/tvMembersLabel"
+                    tools:listitem="@layout/item_member_chip" />
+
+                <TextView
+                    android:id="@+id/tvNoMembers"
+                    style="?textAppearanceSubtitle1"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:text="@string/no_task_members"
+                    android:visibility="visible"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/tvMembersLabel" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <TextView
+                android:id="@+id/tvDateLabel"
+                style="?textAppearanceTitleMedium"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:text="@string/due_date"
+                android:textSize="18sp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/membersContainer" />
+
+            <TextView
+                android:id="@+id/tvDate"
                 style="?textAppearanceSubtitle1"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="6dp"
-                android:text="@string/no_task_members"
-                android:visibility="visible"
+                android:drawablePadding="4dp"
+                android:text="@string/task_date"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/tvMembersLabel" />
+                app:layout_constraintTop_toBottomOf="@id/tvDateLabel"
+                tools:text="29 Feb 2024, 08:00 - 29 Feb 2024, 09:00" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
-
-        <TextView
-            android:id="@+id/tvDateLabel"
-            style="?textAppearanceTitleMedium"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
-            android:text="@string/due_date"
-            android:textSize="18sp"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/membersContainer" />
-
-        <TextView
-            android:id="@+id/tvDate"
-            style="?textAppearanceSubtitle1"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="6dp"
-            android:drawablePadding="4dp"
-            android:text="@string/task_date"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/tvDateLabel"
-            tools:text="29 Feb 2024, 08:00 - 29 Feb 2024, 09:00" />
-
-    </androidx.constraintlayout.widget.ConstraintLayout>
+    </ScrollView>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fabEditTask"
@@ -201,14 +210,5 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:srcCompat="@drawable/ic_edit_outlined_24" />
-
-    <include
-        android:id="@+id/loading"
-        layout="@layout/loading_state"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:visibility="invisible"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/toolbar" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

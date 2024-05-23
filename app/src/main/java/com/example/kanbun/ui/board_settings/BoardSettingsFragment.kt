@@ -229,7 +229,7 @@ class BoardSettingsFragment : BaseFragment(), StateHandler {
         with(state as ViewState.BoardSettingsViewState) {
             binding.apply {
                 tagsAdapter?.tags = tags
-                loading.root.isVisible = isLoading
+//                loading.root.isVisible = isLoading
                 message?.let {
                     showToast(it)
                     boardSettingsViewModel.messageShown()
