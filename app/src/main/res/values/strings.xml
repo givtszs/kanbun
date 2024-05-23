@@ -33,6 +33,7 @@
     <string name="workspace_settings">Workspace settings</string>
     <string name="workspace_name_hint">Workspace name</string>
     <string name="delete_workspace">Delete workspace</string>
+    <string name="delete">Delete</string>
     <string name="no_workspace_selected_tip_title">Workspace is not selected</string>
     <string name="workspace_selection_tip"><b>Tap the menu icon to select or create a workspace</b></string>
     <string name="empty_workspace_tip_title">Nothing here</string>
