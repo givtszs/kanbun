@@ -3,7 +3,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@color/background_light">
 
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/topAppBar"
@@ -15,7 +16,7 @@
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="@color/md_theme_light_background"
+            android:background="@color/background_light"
             android:minHeight="?attr/actionBarSize"
             app:navigationIcon="@drawable/ic_close_outlined_24"
             app:title="@string/board_settings">
@@ -47,7 +48,7 @@
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/tfName"
-            style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+            style="@style/TextInputLayout.Outlined.Dense"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:layout_constraintTop_toTopOf="parent">
@@ -61,7 +62,7 @@
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/tfDescription"
-            style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+            style="@style/TextInputLayout.Outlined.Dense"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
@@ -88,7 +89,7 @@
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/tfSearchUser"
-            style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+            style="@style/TextInputLayout.Outlined.Dense"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="6dp"
@@ -160,31 +161,27 @@
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnDeleteBoard"
-            style="@style/Widget.Material3.Button.TextButton"
+            style="@style/Material.Button.Text.NoPadding"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="24dp"
-            android:paddingHorizontal="0dp"
             android:text="@string/action_delete"
-            android:minWidth="0dp"
-            android:textSize="16sp"
             android:textColor="@color/dark_red"
+            android:textSize="16sp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/rvTags" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnLeaveBoard"
-            style="@style/Widget.Material3.Button.TextButton"
+            style="@style/Material.Button.Text.NoPadding"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="24dp"
-            android:paddingHorizontal="0dp"
             android:text="@string/leave_board"
-            android:minWidth="0dp"
-            android:textSize="16sp"
             android:textColor="@color/dark_red"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintBaseline_toBaselineOf="@id/btnDeleteBoard" />
+            android:textSize="16sp"
+            app:layout_constraintBaseline_toBaselineOf="@id/btnDeleteBoard"
+            app:layout_constraintEnd_toEndOf="parent" />
 
 
         <androidx.recyclerview.widget.RecyclerView
@@ -202,9 +199,9 @@
 
     <include
         android:id="@+id/loading"
-        android:visibility="invisible"
         layout="@layout/loading_state"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"
+        android:visibility="invisible" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

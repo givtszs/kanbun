@@ -245,6 +245,7 @@ class BoardSettingsFragment : BaseFragment(), StateHandler {
                 }
 
                 boardMembersAdapter?.members = boardMembers
+                btnViewAllMembers.isVisible = boardMembers.isNotEmpty()
             }
         }
     }
