@@ -18,7 +18,7 @@ fun buildDeleteConfirmationDialog(
     @StringRes titleRes: Int,
     onConfirm: () -> Unit
 ): AlertDialog {
-    return MaterialAlertDialogBuilder(context)
+    return MaterialAlertDialogBuilder(context, R.style.MaterialDialog)
         .setTitle(titleRes)
         .setPositiveButton("Delete") { _, _ ->
             onConfirm()
