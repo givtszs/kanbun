@@ -27,6 +27,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.kanbun.R
 import com.example.kanbun.common.HORIZONTAL_SCROLL_DISTANCE
 import com.example.kanbun.common.TAG
+import com.example.kanbun.common.getColor
 import com.example.kanbun.common.moshi
 import com.example.kanbun.databinding.FragmentBoardBinding
 import com.example.kanbun.domain.model.Task
@@ -88,6 +89,7 @@ class BoardFragment : BaseFragment(), StateHandler {
         val boardInfo: Workspace.BoardInfo = args.boardInfo
         getBoard(boardInfo.boardId, boardInfo.workspaceId)
         setUpActionBar(binding.toolbar, boardInfo.name)
+        setNavigationBarColor(getColor(requireContext(), R.color.background_light))
         setUpTaskListsAdapter()
         setUpMenu()
         collectState()

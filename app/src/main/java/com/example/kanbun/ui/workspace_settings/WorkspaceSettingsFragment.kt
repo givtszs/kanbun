@@ -63,7 +63,8 @@ class WorkspaceSettingsFragment : BaseFragment(), StateHandler {
         super.onViewCreated(view, savedInstanceState)
         setUpActionBar(binding.toolbar)
         setUpAdapters()
-        setStatusBarColor(getColor(requireContext(), R.color.md_theme_light_surface))
+        setStatusBarColor(getColor(requireContext(), R.color.background_light))
+        setNavigationBarColor(getColor(requireContext(), R.color.background_light))
         viewModel.init(workspace.owner, workspace.members)
         collectState()
     }

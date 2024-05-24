@@ -80,6 +80,7 @@ abstract class TaskEditorFragment : BaseFragment(), StateHandler {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setStatusBarColor(getColor(requireContext(), R.color.background_light))
+        setNavigationBarColor(getColor(requireContext(), R.color.background_light))
         setUpAdapters()
         viewModel.init(task, sharedBoardViewModel.boardMembers, sharedBoardViewModel.tags)
         collectState()

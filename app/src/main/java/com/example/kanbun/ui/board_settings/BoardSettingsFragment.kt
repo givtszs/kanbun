@@ -15,6 +15,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.navArgs
 import com.example.kanbun.R
 import com.example.kanbun.common.Role
+import com.example.kanbun.common.getColor
 import com.example.kanbun.databinding.FragmentBoardSettingsBinding
 import com.example.kanbun.domain.model.Board
 import com.example.kanbun.ui.BaseFragment
@@ -70,6 +71,7 @@ class BoardSettingsFragment : BaseFragment(), StateHandler {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setUpActionBar(binding.toolbar)
+        setNavigationBarColor(getColor(requireContext(), R.color.background_light))
         setUpTagsAdapter()
         setUpSearchUsersAdapter()
         setUpMembersAdapter()

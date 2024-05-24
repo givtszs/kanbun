@@ -104,6 +104,7 @@ class UserBoardsFragment : BaseFragment(), StateHandler {
         addOnBackPressedAction { requireActivity().finish() }
         setUpActionBar(binding.toolbar)
         setStatusBarColor(getColor(requireContext(), R.color.background_light))
+        setNavigationBarColor(getColor(requireContext(), R.color.background_primary))
         setUpBoardsAdapter()
         viewModel.startObservingLifecycle(viewLifecycleOwner.lifecycle)
 //        viewModel.init()

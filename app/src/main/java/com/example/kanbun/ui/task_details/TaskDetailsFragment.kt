@@ -23,6 +23,7 @@ import com.example.kanbun.R
 import com.example.kanbun.common.DATE_TIME_FORMAT
 import com.example.kanbun.common.Role
 import com.example.kanbun.common.convertTimestampToDateString
+import com.example.kanbun.common.getColor
 import com.example.kanbun.databinding.FragmentTaskDetailsBinding
 import com.example.kanbun.domain.model.Task
 import com.example.kanbun.domain.model.User
@@ -86,6 +87,7 @@ class TaskDetailsFragment : BaseFragment(), StateHandler {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setUpActionBar(binding.toolbar)
+        setNavigationBarColor(getColor(requireContext(), R.color.background_light))
         setUpOptionsMenu()
         setUpTagsAdapter()
         setUpMembersAdapter()

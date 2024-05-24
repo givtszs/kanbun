@@ -73,6 +73,12 @@ abstract class BaseFragment : Fragment() {
         }
     }
 
+    protected fun setNavigationBarColor(color: Int) {
+        requireActivity().window.apply {
+            navigationBarColor = color
+        }
+    }
+
     protected fun hideKeyboard(view: View) {
         (requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager).apply {
             hideSoftInputFromWindow(view.applicationWindowToken, 0)
