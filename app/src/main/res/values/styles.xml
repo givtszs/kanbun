@@ -95,10 +95,13 @@
     </style>
 
     <style name="Material.Button" parent="Widget.Material3.Button">
-        <item name="android:textColor">@color/material_button_text</item>
-        <item name="backgroundTint">@color/material_button_background</item>
         <item name="cornerRadius">@dimen/material_button_corner_radius</item>
         <item name="iconGravity">textStart</item>
+    </style>
+
+    <style name="Material.Button.Primary" parent="Material.Button">
+        <item name="android:textColor">@color/material_button_text</item>
+        <item name="backgroundTint">@color/material_button_background</item>
         <item name="iconTint">@color/white</item>
     </style>
 
@@ -122,7 +125,7 @@
         <item name="android:paddingHorizontal">0dp</item>
     </style>
 
-    <style name="Material.Button.Light" parent="Material.Button">
+    <style name="Material.Button.Light" parent="Material.Button.Primary">
         <item name="android:textColor">@color/text_primary</item>
         <item name="backgroundTint">@color/button_light</item>
         <item name="iconTint">@color/icon_primary_dark</item>

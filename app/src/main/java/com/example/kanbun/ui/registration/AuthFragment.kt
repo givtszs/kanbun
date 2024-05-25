@@ -23,7 +23,8 @@ import dagger.hilt.android.AndroidEntryPoint
 abstract class AuthFragment : BaseFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        setStatusBarColor(ContextCompat.getColor(requireContext(), R.color.white))
+        setStatusBarColor(ContextCompat.getColor(requireContext(), R.color.background_light))
+        setNavigationBarColor(ContextCompat.getColor(requireContext(), R.color.background_light))
     }
 
     /**

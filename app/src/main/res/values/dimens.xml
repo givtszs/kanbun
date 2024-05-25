@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <dimen name="main_horizontal_margin">20dp</dimen>
+    <dimen name="main_horizontal_margin">16dp</dimen>
 
     <dimen name="alert_dialog_horizontal_padding">24dp</dimen>
     <dimen name="alert_dialog_body_vertical_padding">16dp</dimen>

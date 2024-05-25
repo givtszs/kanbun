@@ -225,7 +225,7 @@
 
     <Button
         android:id="@+id/btnCreateTask"
-        style="@style/Material.Button"
+        style="@style/Material.Button.Primary"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="@dimen/main_horizontal_margin"
