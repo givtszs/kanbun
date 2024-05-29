@@ -54,7 +54,7 @@
 
     <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
         android:id="@+id/fabCreateBoard"
-        style="@style/Material.Button.Floating"
+        style="@style/Material.Button.Floating.Extended"
         android:layout_width="wrap_content"
         android:layout_height="50dp"
         android:layout_margin="16dp"

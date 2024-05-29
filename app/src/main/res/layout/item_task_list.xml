@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="@dimen/task_list_width"
     android:layout_height="match_parent"
-    android:paddingHorizontal="8dp">
+    android:paddingHorizontal="6dp">
 
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/taskListCard"

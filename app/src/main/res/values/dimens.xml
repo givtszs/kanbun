@@ -20,7 +20,7 @@
     <dimen name="task_padding_horizontal">16dp</dimen>
     <dimen name="task_padding_vertical">14dp</dimen>
     <dimen name="task_drop_area_height">100dp</dimen>
-    <dimen name="task_list_width">340dp</dimen>
+    <dimen name="task_list_width">320dp</dimen>
     <dimen name="tag_margin_vertical">2dp</dimen>
     <dimen name="tag_margin_horizontal">8dp</dimen>
     <dimen name="tag_task_height">36dp</dimen>
