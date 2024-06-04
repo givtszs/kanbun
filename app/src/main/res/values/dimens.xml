@@ -38,4 +38,5 @@
     <dimen name="item_preference_height">60dp</dimen>
     <dimen name="dialog_message_horizontal_margin">16dp</dimen>
     <dimen name="material_button_corner_radius">10dp</dimen>
+    <dimen name="edit_profile_profile_picture">120dp</dimen>
 </resources>

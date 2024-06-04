@@ -3,7 +3,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@color/background_light">
 
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/topAppBar"
@@ -15,6 +16,7 @@
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:background="@color/background_light"
             android:minHeight="?attr/actionBarSize">
 
             <Button
@@ -42,8 +44,8 @@
 
     <com.google.android.material.imageview.ShapeableImageView
         android:id="@+id/ivProfilePicture"
-        android:layout_width="100dp"
-        android:layout_height="100dp"
+        android:layout_width="@dimen/edit_profile_profile_picture"
+        android:layout_height="@dimen/edit_profile_profile_picture"
         android:layout_marginTop="24dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -62,14 +64,28 @@
         app:layout_constraintStart_toStartOf="@id/ivProfilePicture"
         app:layout_constraintTop_toBottomOf="@id/ivProfilePicture" />
 
+    <TextView
+        android:id="@+id/tvNameLabel"
+        style="?textAppearanceTitleMedium"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/main_horizontal_margin"
+        android:layout_marginTop="34dp"
+        android:labelFor="@id/etName"
+        android:text="@string/name_label"
+        android:textSize="18sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/btnEditProfilePicture" />
+
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/tfName"
-        style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+        style="@style/TextInputLayout.Outlined.Dense"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="@dimen/main_horizontal_margin"
-        android:layout_marginTop="34dp"
-        app:layout_constraintTop_toBottomOf="@id/btnEditProfilePicture">
+        android:layout_marginTop="6dp"
+        app:hintEnabled="false"
+        app:layout_constraintTop_toBottomOf="@id/tvNameLabel">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/etName"
@@ -79,14 +95,28 @@
             android:inputType="textPersonName" />
     </com.google.android.material.textfield.TextInputLayout>
 
+    <TextView
+        android:id="@+id/tvTagLabel"
+        style="?textAppearanceTitleMedium"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/main_horizontal_margin"
+        android:layout_marginTop="@dimen/task_editor_divider_margin_top"
+        android:labelFor="@id/etSearchMembers"
+        android:text="@string/tag_label"
+        android:textSize="18sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tfName" />
+
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/tfTag"
-        style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+        style="@style/TextInputLayout.Outlined.Dense"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="@dimen/main_horizontal_margin"
-        android:layout_marginTop="16dp"
-        app:layout_constraintTop_toBottomOf="@id/tfName">
+        android:layout_marginTop="6dp"
+        app:hintEnabled="false"
+        app:layout_constraintTop_toBottomOf="@id/tvTagLabel">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/etTag"
@@ -96,29 +126,45 @@
             android:inputType="text" />
     </com.google.android.material.textfield.TextInputLayout>
 
+    <TextView
+        android:id="@+id/tvEmailLabel"
+        style="?textAppearanceTitleMedium"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/main_horizontal_margin"
+        android:layout_marginTop="@dimen/task_editor_divider_margin_top"
+        android:labelFor="@id/etSearchMembers"
+        android:text="@string/email_label"
+        android:textSize="18sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tfTag" />
+
+
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/tfEmail"
-        style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+        style="@style/TextInputLayout.Outlined.Dense"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="@dimen/main_horizontal_margin"
-        android:layout_marginTop="16dp"
-        app:layout_constraintTop_toBottomOf="@id/tfTag">
+        android:layout_marginTop="6dp"
+        app:hintEnabled="false"
+        app:layout_constraintTop_toBottomOf="@id/tvEmailLabel">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/etEmail"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="@string/hint_email"
-            android:enabled="false" />
+            android:enabled="false"
+            android:hint="@string/hint_email" />
     </com.google.android.material.textfield.TextInputLayout>
 
     <include
         android:id="@+id/loading"
+        layout="@layout/loading_state"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        app:layout_constraintTop_toBottomOf="@id/topAppBar"
+        android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
-        layout="@layout/loading_state" />
+        app:layout_constraintTop_toBottomOf="@id/topAppBar" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

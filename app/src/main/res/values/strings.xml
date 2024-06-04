@@ -111,4 +111,7 @@
     <string name="leave_workspace">Leave workspace</string>
     <string name="positive_button_create">Create</string>
     <string name="negative_button_cancel">Cancel</string>
+    <string name="name_label">Name</string>
+    <string name="tag_label">Tag</string>
+    <string name="email_label">Email</string>
 </resources>
