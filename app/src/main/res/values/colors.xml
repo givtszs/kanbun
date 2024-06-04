@@ -17,6 +17,7 @@
     <color name="text_disabled">#A3A3A3</color>
     <color name="background_primary">@color/white</color>
     <color name="background_light">@color/white_secondary</color>
+    <color name="background_tertiary">#E3E3E3</color>
     <color name="border_primary">#D4D4D4</color>
     <color name="border_light">#E3E3E3</color>
     <color name="icon_primary_dark">#141414</color>

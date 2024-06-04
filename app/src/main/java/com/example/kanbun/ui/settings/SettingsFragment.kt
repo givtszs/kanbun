@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.example.kanbun.R
+import com.example.kanbun.common.getColor
 import com.example.kanbun.databinding.FragmentSettingsBinding
 import com.example.kanbun.ui.BaseFragment
 
@@ -23,7 +24,9 @@ class SettingsFragment : BaseFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        setUpActionBar(binding.topAppBar.toolbar)
+        setUpActionBar(binding.toolbar)
+        setStatusBarColor(getColor(requireContext(), R.color.background_light))
+        setNavigationBarColor(getColor(requireContext(), R.color.background_light))
     }
 
     override fun onDestroyView() {

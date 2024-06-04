@@ -51,7 +51,7 @@ abstract class BaseFragment : Fragment() {
         })
     }
 
-    protected open fun setUpActionBar(toolbar: MaterialToolbar) {
+    protected open fun                                                                                                                                                                                                        setUpActionBar(toolbar: MaterialToolbar) {
         (requireActivity() as MainActivity).apply {
             setSupportActionBar(toolbar)
             setupActionBarWithNavController(navController)
