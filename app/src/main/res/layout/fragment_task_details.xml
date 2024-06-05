@@ -208,7 +208,7 @@
         android:layout_height="50dp"
         android:layout_margin="16dp"
         android:contentDescription="@string/edit_task"
-        android:text="@string/edit"
+        android:text="@string/change_picture"
         app:icon="@drawable/ic_edit_outlined_24"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />

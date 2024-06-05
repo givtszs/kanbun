@@ -58,8 +58,7 @@
         style="@style/Widget.Material3.Button.TextButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="4dp"
-        android:text="@string/edit"
+        android:text="@string/change_picture"
         app:layout_constraintEnd_toEndOf="@id/ivProfilePicture"
         app:layout_constraintStart_toStartOf="@id/ivProfilePicture"
         app:layout_constraintTop_toBottomOf="@id/ivProfilePicture" />
@@ -70,7 +69,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/main_horizontal_margin"
-        android:layout_marginTop="34dp"
+        android:layout_marginTop="24dp"
         android:labelFor="@id/etName"
         android:text="@string/name_label"
         android:textSize="18sp"
