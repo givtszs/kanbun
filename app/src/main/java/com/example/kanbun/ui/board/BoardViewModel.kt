@@ -16,9 +16,9 @@ import com.example.kanbun.domain.repository.TaskListRepository
 import com.example.kanbun.domain.repository.TaskRepository
 import com.example.kanbun.domain.repository.UserRepository
 import com.example.kanbun.ui.ViewState.BoardViewState
-import com.example.kanbun.ui.board.tasks_adapter.TasksAdapter
 import com.example.kanbun.ui.model.DragAndDropTaskItem
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -40,7 +40,7 @@ class BoardViewModel @Inject constructor(
     private val _board = MutableStateFlow(Board())
     private var _taskLists = MutableStateFlow<List<TaskList>>(emptyList())
     private var _members = MutableStateFlow<List<User>>(emptyList())
-    private val _isLoading = MutableStateFlow(true)
+    private val _isLoading = MutableStateFlow(false)
     private val _message = MutableStateFlow<String?>(null)
     val boardState: StateFlow<BoardViewState> =
         combine(
@@ -65,6 +65,7 @@ class BoardViewModel @Inject constructor(
 
     fun getBoard(boardId: String, workspaceId: String, onSuccess: (Board) -> Unit) {
         viewModelScope.launch {
+            _isLoading.value = true
             boardRepository.getBoardStream(boardId, workspaceId).collectLatest { result ->
                 Log.d(TAG, "getBoard1: result: $result")
                 when (result) {
@@ -108,7 +109,7 @@ class BoardViewModel @Inject constructor(
             val taskListsFlow =
                 taskListRepository.getTaskListStream(boardId, workspaceId)
             taskListsFlow.collectLatest { result ->
-                Log.d(TAG, "getTaskLists: result: $result")
+                Log.d(this@BoardViewModel.TAG, "getTaskLists: result: $result")
                 when (result) {
                     is Result.Success -> {
                         if (_taskLists.value != result.data) {
@@ -116,13 +117,14 @@ class BoardViewModel @Inject constructor(
                                 it.copy(lists = result.data.map { taskList -> taskList.id })
                             }
                         }
+                        delay(400)
                         _taskLists.value = result.data
                         _isLoading.value = false
                     }
 
                     is Result.Error -> {
                         _message.value = result.message
-                        _isLoading.value = false
+//                        _isLoading.value = false
                     }
                 }
             }

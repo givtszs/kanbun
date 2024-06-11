@@ -222,20 +222,6 @@ class WorkspaceSettingsFragment : BaseFragment(), StateHandler {
         binding.rvMembers.adapter = workspaceMembersAdapter
     }
 
-//    private fun buildConfirmationDialog() {
-//        MaterialAlertDialogBuilder(requireContext())
-//            .setTitle("Delete ${workspace.name} workspace?")
-//            .setPositiveButton("Delete") { _, _ ->
-//                viewModel.deleteWorkspaceCloudFn(workspace) {
-//                    navController.popBackStack()
-//                }
-//            }
-//            .setNegativeButton("Cancel") { dialog, _ ->
-//                dialog.cancel()
-//            }
-//            .show()
-//    }
-
     override fun onDestroyView() {
         super.onDestroyView()
         searchUsersAdapter = null

@@ -74,7 +74,7 @@ sealed class ViewState {
         val board: Board = Board(),
         val lists: List<TaskList> = emptyList(),
         val members: List<User> = emptyList(),
-        val isLoading: Boolean = true,
+        val isLoading: Boolean = false,
         val message: String? = null
     ) : ViewState()
 

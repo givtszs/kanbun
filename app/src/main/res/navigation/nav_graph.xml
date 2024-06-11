@@ -8,22 +8,36 @@
     <action
         android:id="@+id/action_to_signInFragment"
         app:destination="@id/signInFragment"
-        app:popUpTo="@id/registrationPromptFragment" />
+        app:popUpTo="@id/registrationPromptFragment"
+        app:enterAnim="@anim/slide_in_from_right"
+        app:exitAnim="@anim/slide_out_to_left_half"
+        app:popEnterAnim="@anim/slide_in_from_left_half"
+        app:popExitAnim="@anim/slide_out_to_right" />
 
     <action
         android:id="@+id/action_to_signUpFragment"
         app:destination="@id/signUpFragment"
-        app:popUpTo="@id/registrationPromptFragment" />
+        app:popUpTo="@id/registrationPromptFragment"
+        app:enterAnim="@anim/slide_in_from_right"
+        app:exitAnim="@anim/slide_out_to_left_half"
+        app:popEnterAnim="@anim/slide_in_from_left_half"
+        app:popExitAnim="@anim/slide_out_to_right" />
 
     <action
         android:id="@+id/action_to_userBoardsFragment"
         app:destination="@id/userBoardsFragment"
         app:popUpTo="@id/registrationPromptFragment"
-        app:popUpToInclusive="true" />
+        app:popUpToInclusive="true"
+        app:enterAnim="@anim/slide_in_from_right"
+        app:exitAnim="@anim/slide_out_to_left_half" />
 
     <action
         android:id="@+id/action_to_emailVerificationFragment"
-        app:destination="@id/emailVerificationFragment" />
+        app:destination="@id/emailVerificationFragment"
+        app:enterAnim="@anim/slide_in_from_right"
+        app:exitAnim="@anim/slide_out_to_left_half"
+        app:popEnterAnim="@anim/slide_in_from_left_half"
+        app:popExitAnim="@anim/slide_out_to_right" />
 
     <fragment
         android:id="@+id/registrationPromptFragment"
@@ -69,10 +83,16 @@
         tools:layout="@layout/fragment_user_boards">
         <action
             android:id="@+id/action_userBoardsFragment_to_registrationPromptFragment"
-            app:destination="@id/registrationPromptFragment" />
+            app:destination="@id/registrationPromptFragment"
+            app:enterAnim="@anim/slide_in_from_left"
+            app:exitAnim="@anim/slide_out_to_right_half" />
         <action
             android:id="@+id/action_userBoardsFragment_to_workspaceSettingsFragment"
-            app:destination="@id/workspaceSettingsFragment" />
+            app:destination="@id/workspaceSettingsFragment"
+            app:enterAnim="@anim/slide_in_from_bottom"
+            app:exitAnim="@anim/slide_out_to_top"
+            app:popEnterAnim="@anim/slide_in_from_top"
+            app:popExitAnim="@anim/slide_out_from_top" />
 <!--        <action-->
 <!--            android:id="@+id/action_userBoardsFragment_to_boardFragment"-->
 <!--            app:destination="@id/boardFragment" />-->
@@ -81,7 +101,11 @@
             app:destination="@id/settingsFragment" />
         <action
             android:id="@+id/action_userBoardsFragment_to_board_graph"
-            app:destination="@id/board_graph" />
+            app:destination="@id/board_graph"
+            app:enterAnim="@anim/slide_in_from_right"
+            app:exitAnim="@anim/slide_out_to_left_half"
+            app:popEnterAnim="@anim/slide_in_from_left_half"
+            app:popExitAnim="@anim/slide_out_to_right" />
     </fragment>
     <fragment
         android:id="@+id/userTasksFragment"
@@ -117,13 +141,26 @@
                 app:argType="com.example.kanbun.domain.model.Workspace$BoardInfo" />
             <action
                 android:id="@+id/action_boardFragment_to_taskDetailsFragment"
-                app:destination="@id/taskDetailsFragment" />
+                app:destination="@id/taskDetailsFragment"
+                app:enterAnim="@anim/slide_in_from_right"
+                app:exitAnim="@anim/slide_out_to_left_half"
+                app:popEnterAnim="@anim/slide_in_from_left_half"
+                app:popExitAnim="@anim/slide_out_to_right" />
+
             <action
                 android:id="@+id/action_boardFragment_to_createTaskFragment"
-                app:destination="@id/createTaskFragment" />
+                app:destination="@id/createTaskFragment"
+                app:enterAnim="@anim/slide_in_from_right"
+                app:exitAnim="@anim/slide_out_to_left_half"
+                app:popEnterAnim="@anim/slide_in_from_left_half"
+                app:popExitAnim="@anim/slide_out_to_right" />
             <action
                 android:id="@+id/action_boardFragment_to_boardSettingsFragment"
-                app:destination="@id/boardSettingsFragment" />
+                app:destination="@id/boardSettingsFragment"
+                app:enterAnim="@anim/slide_in_from_bottom"
+                app:exitAnim="@anim/slide_out_to_top"
+                app:popEnterAnim="@anim/slide_in_from_top"
+                app:popExitAnim="@anim/slide_out_from_top" />
         </fragment>
         <fragment
             android:id="@+id/taskDetailsFragment"
@@ -138,7 +175,11 @@
                 app:argType="com.example.kanbun.domain.model.TaskList" />
             <action
                 android:id="@+id/action_taskDetailsFragment_to_editTaskFragment"
-                app:destination="@id/editTaskFragment" />
+                app:destination="@id/editTaskFragment"
+                app:enterAnim="@anim/slide_in_from_right"
+                app:exitAnim="@anim/slide_out_to_left_half"
+                app:popEnterAnim="@anim/slide_in_from_left_half"
+                app:popExitAnim="@anim/slide_out_to_right" />
         </fragment>
         <fragment
             android:id="@+id/createTaskFragment"
@@ -168,6 +209,10 @@
             <action
                 android:id="@+id/action_editTaskFragment_to_taskDetailsFragment"
                 app:destination="@id/taskDetailsFragment"
+                app:enterAnim="@anim/slide_in_from_left"
+                app:exitAnim="@anim/slide_out_to_right"
+                app:popEnterAnim="@anim/slide_in_from_left_half"
+                app:popExitAnim="@anim/slide_out_to_right"
                 app:popUpTo="@id/boardFragment" />
         </fragment>
         <fragment

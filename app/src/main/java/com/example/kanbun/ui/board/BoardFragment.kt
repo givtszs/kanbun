@@ -271,7 +271,7 @@ class BoardFragment : BaseFragment(), StateHandler {
     override fun collectState() {
         lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                boardViewModel.boardState.collectLatest {
+                boardViewModel.boardState.collect {
                     processState(it)
                 }
             }
@@ -281,18 +281,14 @@ class BoardFragment : BaseFragment(), StateHandler {
     override fun processState(state: ViewState) {
         with(state as ViewState.BoardViewState) {
             taskListsAdapter?.lists = lists.sortedBy { it.position }
+            Log.d(this@BoardFragment.TAG, "processState: taskLists: ${lists.size}, isLoading: $isLoading")
             binding.rvLists.setItemViewCacheSize(lists.size)
             taskListsAdapter?.boardTags = board.tags
-            binding.loading.root.isVisible = isLoading
             with(binding.toolbar) {
                 if (title != board.name) {
                     title = board.name
                 }
             }
-            Log.d(
-                this@BoardFragment.TAG,
-                "${requireActivity().findViewById<RecyclerView>(R.id.rvTasks)}"
-            )
 
             message?.let {
                 showToast(it)
@@ -301,6 +297,7 @@ class BoardFragment : BaseFragment(), StateHandler {
 
             sharedViewModel.boardMembers = members
             sharedViewModel.tags = board.tags
+            binding.loading.root.isVisible = isLoading
         }
     }
 
