@@ -241,6 +241,10 @@
         tools:layout="@layout/fragment_settings">
         <action
             android:id="@+id/action_settingsFragment_to_editProfileFragment"
-            app:destination="@id/editProfileFragment" />
+            app:destination="@id/editProfileFragment"
+            app:enterAnim="@anim/slide_in_from_right"
+            app:exitAnim="@anim/slide_out_to_left_half"
+            app:popEnterAnim="@anim/slide_in_from_left_half"
+            app:popExitAnim="@anim/slide_out_to_right" />
     </fragment>
 </navigation>
