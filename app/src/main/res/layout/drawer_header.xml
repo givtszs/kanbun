@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:background="@color/md_theme_light_surface"
+    android:layout_width="match_parent"
+    android:layout_height="140dp"
+    android:paddingStart="28dp">
+
+    <com.google.android.material.imageview.ShapeableImageView
+        android:id="@+id/ivProfilePicture"
+        android:layout_marginTop="12dp"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.App.CircleImageView"
+        tools:src="@tools:sample/avatars" />
+
+    <TextView
+        android:id="@+id/tvName"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="4dp"
+        android:ellipsize="end"
+        android:maxLines="1"
+        style="?textAppearanceSubtitle1"
+        app:layout_constraintBottom_toTopOf="@id/tvEmail"
+        app:layout_constraintEnd_toEndOf="@id/tvEmail"
+        app:layout_constraintStart_toStartOf="@id/ivProfilePicture"
+        tools:text="Some Name" />
+
+    <TextView
+        android:id="@+id/tvEmail"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:ellipsize="end"
+        style="?attr/textAppearanceSubtitle1"
+        android:maxLines="1"
+        android:textSize="14sp"
+        android:layout_marginBottom="12dp"
+        android:layout_marginEnd="4dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/btnSignOut"
+        app:layout_constraintStart_toStartOf="@id/tvName"
+        tools:text="some.email@mail.co" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnSettings"
+        style="?attr/materialIconButtonStyle"
+        app:icon="@drawable/ic_settings_outlined_24"
+        android:insetRight="0dp"
+        android:layout_marginTop="4dp"
+        android:layout_marginEnd="4dp"
+        app:iconSize="24dp"
+        app:iconTint="@color/md_theme_light_onSurface"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/ic_settings_outlined_24" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnSignOut"
+        style="?attr/materialIconButtonStyle"
+        app:icon="@drawable/ic_sign_out_outlined_24"
+        android:insetRight="0dp"
+        android:layout_marginBottom="4dp"
+        android:layout_marginEnd="4dp"
+        app:iconSize="24dp"
+        app:iconTint="@color/md_theme_light_onSurface"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:srcCompat="@drawable/ic_settings_outlined_24" />
+</androidx.constraintlayout.widget.ConstraintLayout>
